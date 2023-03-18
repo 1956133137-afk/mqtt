@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+
 import com.yannuo.dgcanteen.databinding.FragmentProductBinding
 import com.yannuo.dgcanteen.model.ProductInfo
 import com.yannuo.dgcanteen.util.LogUtil

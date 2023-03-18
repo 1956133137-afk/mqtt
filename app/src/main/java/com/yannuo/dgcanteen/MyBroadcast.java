@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.yannuo.dgcanteen.activitys.CommodityActivity;
+import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
-import com.yannuo.paylib.utils.LogUtil;
 
 
 public class MyBroadcast extends BroadcastReceiver {
@@ -17,7 +17,6 @@ public class MyBroadcast extends BroadcastReceiver {
 
         if (intent.getAction().equals(action)){
             ToastShowUtil.show("boot");
-
             LogUtil.i("MyBroadcast", "reboot...");
             Intent intent1 = new Intent(context, CommodityActivity.class);
             intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

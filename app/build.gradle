@@ -60,7 +60,9 @@ dependencies {
 //    implementation files('libs/printerlibs.jar.jar')
 //    implementation files('libs/simple-xml-2.7.1.jar')
 
-
+    implementation project(path: ':core')
+    implementation project(path: ':file')
+    implementation project(path: ':converter:gson')
 
     //GreenDao依赖库
     implementation 'org.greenrobot:greendao:3.3.0' // add library

@@ -11,7 +11,8 @@ import android.widget.ImageButton
 import android.widget.PopupWindow
 import android.widget.TextView
 import com.yannuo.dgcanteen.R
-import com.yannuo.paylib.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayResultForUI
+
 
 class PayFinishDialog(context :Context,dat : PayResultForUI) :BaseDialog(context, R.layout.dialog_pay_finish) {
     private val TAG = javaClass.simpleName

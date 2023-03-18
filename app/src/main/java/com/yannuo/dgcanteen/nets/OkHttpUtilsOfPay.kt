@@ -1,4 +1,5 @@
-package com.yannuo.dgcanteen.net
+package com.yannuo.paylib.nets
+
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -8,7 +9,7 @@ import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.*
 
-class OkHttpUtils private constructor(){
+class OkHttpUtilsOfPay private constructor(){
 
 
     companion object {
@@ -25,7 +26,7 @@ class OkHttpUtils private constructor(){
                 .readTimeout(HTTP_READ_TIMEOUT,TimeUnit.SECONDS)
                 .addInterceptor( logInterceptor)
 
-            builder.sslSocketFactory(createSSlSocketFactory()!!,TrustAllCerts())
+            builder.sslSocketFactory(createSSlSocketFactory()!!, TrustAllCerts())
                 .hostnameVerifier(TrustAllHostnameVerifier())
             builder.build()
         }
@@ -33,9 +34,9 @@ class OkHttpUtils private constructor(){
         private fun createSSlSocketFactory() :SSLSocketFactory?{
             var ssfFactory :SSLSocketFactory ?= null
             try {
-               val sc = SSLContext.getInstance("TLS")
+                val sc = SSLContext.getInstance("TLS")
                 sc.init(null, arrayOf(TrustAllCerts()), SecureRandom())
-              ssfFactory = sc.socketFactory
+                ssfFactory = sc.socketFactory
             }catch (e :Exception){
                 e.printStackTrace()
             }
@@ -56,13 +57,13 @@ class OkHttpUtils private constructor(){
             }
         }
 
-         private class TrustAllHostnameVerifier : HostnameVerifier{
-             override fun verify(hostname: String?, session: SSLSession?): Boolean {
+        private class TrustAllHostnameVerifier : HostnameVerifier{
+            override fun verify(hostname: String?, session: SSLSession?): Boolean {
                 return true
-             }
+            }
 
 
-         }
+        }
     }
 
 

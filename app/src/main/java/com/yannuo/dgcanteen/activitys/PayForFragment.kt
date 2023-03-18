@@ -1,34 +1,29 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.databinding.PayforBinding
+import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductInfo
-import com.yannuo.dgcanteen.printer.Prints
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.*
-import com.yannuo.paylib.model.PayResultForUI
-import com.yannuo.paylib.pay.PayWithApi
-import com.yannuo.paylib.utils.PayConstant
-import com.yannuo.paylib.utils.QRCodeUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.lang.ref.WeakReference
 
 
@@ -77,9 +72,9 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         val manager = LinearLayoutManager(context)
         binding.rvSelectItem.layoutManager = manager
         presenter.scanListener()  //监听扫码头数据
-        presenter.openPrinter()
 
-         Prints.paymm()
+
+
 
 
     }
@@ -121,155 +116,18 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         //建行熊猫被扫
         binding.btPayOne.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
-            presenter.setScanState(PayForPresenter.ScanState.PAY) //设置扫码为支付状态
-            //显示倒计时对话框
-            handler.sendEmptyMessage(Constant.EVENT_ONE)
+
 
         }
         //建行熊猫主扫
         binding.btPayTwo.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
-//            scope.launch {
-//
-//                //打印小票
-//                val da = presenter.changePrinterData("2023-03-16 14:56:30","57896321562914735601953")
-//                val resultCode = presenter.printerSomething(da)
-//                presenter.showToastEvent.postValue(Prints.ResultCodeToString(resultCode))
-//
-//            }
-//            presenter.setScanState(PayForPresenter.ScanState.INVALID) //设置扫码为禁用状态
-            presenter.payLogic(adapter.data,PayConstant.PAY_CCB_PANDA_MASTER_SWEEP,
-                object : PayWithApi.PayStateCallback {
-                    override fun onState(code: Int, msg: String?, dat: Any?) {
-                        when(code){
-                            PayWithApi.STATE_GET_MERCHANT_INFO,
-                            PayWithApi.STATE_MERCHANT_CONTENT,
-                            PayWithApi.STATE_MERCHANT_ILLEGALITY ->{
-                                presenter.showToastEvent.postValue("获取商户失败!")
-                            }
 
-                            PayWithApi.STATE_CONSUMPTION_BUILT ->{
-                                presenter.showToastEvent.postValue("消费类参数异常!")
-                            }
-
-                            PayWithApi.STATE_START_PAY ->{
-                                //显示加载控件
-                                presenter.loadingEvent.postValue(true)
-                            }
-
-                            PayWithApi.STATE_QR_CODE_CREATE_FAIL ->{
-                                presenter.showToastEvent.postValue("生成付款二维码失败!")
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                            }
-
-                            PayWithApi.STATE_QR_CODE_CREATE_SUCCESS ->{
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                                //显示付款二维码对话框
-                                dat?.also {
-                                    var bitmap = QRCodeUtil.addLogo(it as Bitmap,BitmapFactory.decodeResource(resources,R.mipmap.pay_ic))
-                                    if (bitmap == null)bitmap = it
-                                    else {
-                                        if (it.isRecycled.not()) {
-                                            it.recycle()
-                                        }
-                                    }
-                                    handler.sendMessage(handler.obtainMessage(Constant.EVENT_FOUR,bitmap))
-                                }
-                            }
-
-                            PayWithApi.STATE_PAY_HANDLE ->{
-                                dat?.also {
-                                    mPayJob = it as Job
-                                }
-                            }
-
-                            PayWithApi.STATE_PAY_ABNORMAL,
-                            PayWithApi.STATE_NETWORK_ERROR ->{
-                                presenter.showToastEvent.postValue("$msg")
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                            }
-
-                            PayWithApi.STATE_PAY_RESULT ->{
-                                presenter.showToastEvent.postValue("$msg")
-                                dat?.also {
-                                    handler.sendMessage(handler.obtainMessage(Constant.EVENT_THREE,it))
-                                }
-                            }
-                        }
-                    }
-                },payTimeout)
         }
 
         //建行聚合支付
         binding.btPayThree.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
-//            presenter.setScanState(PayForPresenter.ScanState.INVALID) //设置扫码为禁用状态
-            presenter.payLogic(adapter.data,PayConstant.PAY_CCB_AGGREGATION_MASTER_SWEEP,
-                object : PayWithApi.PayStateCallback {
-                    override fun onState(code: Int, msg: String?, dat: Any?) {
-                        when(code){
-                            PayWithApi.STATE_GET_MERCHANT_INFO,
-                            PayWithApi.STATE_MERCHANT_CONTENT,
-                            PayWithApi.STATE_MERCHANT_ILLEGALITY ->{
-                                presenter.showToastEvent.postValue("获取商户失败!")
-                            }
-
-                            PayWithApi.STATE_CONSUMPTION_BUILT ->{
-                                presenter.showToastEvent.postValue("消费类参数异常!")
-                            }
-
-                            PayWithApi.STATE_START_PAY ->{
-                                //显示加载控件
-                                presenter.loadingEvent.postValue(true)
-                            }
-
-                            PayWithApi.STATE_QR_CODE_CREATE_FAIL ->{
-                                presenter.showToastEvent.postValue("生成付款二维码失败!")
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                            }
-
-                            PayWithApi.STATE_QR_CODE_CREATE_SUCCESS ->{
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                                //显示付款二维码对话框
-                                dat?.also {
-                                    var bitmap = QRCodeUtil.addLogo(it as Bitmap,BitmapFactory.decodeResource(resources,R.mipmap.aggregation_ic))
-                                    if (bitmap == null)bitmap = it
-                                    else {
-                                        if (it.isRecycled.not()) {
-                                            it.recycle()
-                                        }
-                                    }
-                                    handler.sendMessage(handler.obtainMessage(Constant.EVENT_FOUR,bitmap))
-                                }
-                            }
-
-                            PayWithApi.STATE_PAY_HANDLE ->{
-                                dat?.also {
-                                    mPayJob = it as Job
-                                }
-                            }
-
-                            PayWithApi.STATE_PAY_ABNORMAL,
-                            PayWithApi.STATE_NETWORK_ERROR ->{
-                                presenter.showToastEvent.postValue("$msg")
-                                //关闭显示加载控件
-                                presenter.loadingEvent.postValue(false)
-                            }
-
-                            PayWithApi.STATE_PAY_RESULT ->{
-                                presenter.showToastEvent.postValue("$msg")
-                                dat?.also {
-                                    handler.sendMessage(handler.obtainMessage(Constant.EVENT_THREE,it))
-                                }
-                            }
-                        }
-                    }
-                },payTimeout)
         }
     }
 
@@ -281,7 +139,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
             CommonAndDpToPxUtil.speakWork("请添加商品")
             return true
         }
-        presenter.generatePrinterData(adapter.data) //生成打印机信息模板
+
         return false
     }
 
@@ -323,8 +181,8 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
                 }
                 Constant.EVENT_TWO ->{ //1.接收到扫码数据,关闭对话框
                     ref.waitDialog?.dismiss()
-                    //2.支付订单
-                    ref.ccbPayPandaBeSwept(msg.obj as String)
+
+
 //                    ref.presenter.payMoney( ref.adapter.data,msg.obj as String,1)
                 }
                 Constant.EVENT_THREE ->{ //1.交易结果通知，展示结果
@@ -335,17 +193,11 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
                     finishDialog =  PayFinishDialog(ref.requireContext(),data)
                     finishDialog?.show()
                     //2.清空购物车
-                    if (data.result == PayResultForUI.Result.SUCCESS) {
-                        data.errormsg =""
-                        scope.launch {
-                            CommonAndDpToPxUtil.speakWork("已支付${data.amount}元")
-                            //打印小票
-                            val da = presenter.changePrinterData(data.timestamp,data.orderid)
-                            val resultCode = presenter.printerSomething(da)
-                            ref.presenter.showToastEvent.postValue(Prints.ResultCodeToString(resultCode))
-                        }
-                        clearShoppingCart()
-                    }else  CommonAndDpToPxUtil.speakWork("支付失败")
+
+
+
+
+                    CommonAndDpToPxUtil.speakWork("支付失败")
                 }
                 Constant.EVENT_FOUR ->{
                     //展示扫码界面
@@ -378,53 +230,8 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         }
     }
 
-    fun ccbPayPandaBeSwept(qr :String){
-        presenter.payLogic(adapter.data,PayConstant.PAY_CCB_PANDA_BE_SWEPT,
-            object : PayWithApi.PayStateCallback {
-                override fun onState(code: Int, msg: String?, dat: Any?) {
-                    when(code){
-                        PayWithApi.STATE_GET_MERCHANT_INFO,
-                        PayWithApi.STATE_MERCHANT_CONTENT,
-                        PayWithApi.STATE_MERCHANT_ILLEGALITY ->{
-                            presenter.showToastEvent.postValue("获取商户失败!")
-                            presenter.setScanState(PayForPresenter.ScanState.ENTERING) //设为可录入商品
-                        }
 
-                        PayWithApi.STATE_CONSUMPTION_BUILT ->{
-                            presenter.showToastEvent.postValue("消费类参数异常!")
-                            presenter.setScanState(PayForPresenter.ScanState.ENTERING)
-                        }
 
-                        PayWithApi.STATE_START_PAY ->{
-                            //显示加载控件
-                            presenter.loadingEvent.postValue(true)
-                        }
-                        PayWithApi.STATE_PAY_HANDLE ->{
-                            dat?.also {
-                                mPayJob = it as Job
-                            }
-                        }
-
-                        PayWithApi.STATE_PAY_ABNORMAL,
-                        PayWithApi.STATE_NETWORK_ERROR ->{
-                            presenter.showToastEvent.postValue("$msg")
-                            //显示加载控件
-                            presenter.loadingEvent.postValue(false)
-                            presenter.setScanState(PayForPresenter.ScanState.ENTERING)
-                        }
-
-                        PayWithApi.STATE_PAY_RESULT ->{
-                            presenter.loadingEvent.postValue(false)
-                            presenter.setScanState(PayForPresenter.ScanState.ENTERING)
-                            presenter.showToastEvent.postValue("$msg")
-                            dat?.also {
-                                handler.sendMessage(handler.obtainMessage(Constant.EVENT_THREE,it))
-                            }
-                        }
-                    }
-                }
-            },payTimeout,qr)
-    }
 
     /**
      * 使用了扫码
