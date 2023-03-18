@@ -1,0 +1,113 @@
+plugins {
+    id 'com.android.application'
+    id 'org.greenrobot.greendao'
+    id 'org.jetbrains.kotlin.android'
+}
+//apply plugin: 'kotlin-android'
+
+
+
+android {
+    compileSdk 30
+//    buildToolsVersion '30.0.0'
+    defaultConfig {
+        applicationId "com.yannuo.commoditypay"
+        minSdk 21
+        targetSdk 30
+        versionCode 2
+        versionName "1.0.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    kotlinOptions { jvmTarget = 1.8}
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility "1.8"
+        targetCompatibility "1.8"
+    }
+
+    viewBinding {
+        enabled = true
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    ndkVersion '21.4.7075529'
+
+}
+
+dependencies {
+
+
+
+    implementation files('libs/myservice.jar')
+    implementation files('libs/poi-3.12-android-a.jar')
+    implementation files('libs/poi-ooxml-schemas-3.12-20150511-a.jar')
+    implementation files('libs/libscan-release.aar')
+
+    //建行MIS服务SDK
+//    implementation files('libs/CCBMisSdk1.0.7.2_Release(Android)_20210902.jar')
+
+    //热敏打印机
+//    implementation files('libs/CSNPrinterSDK.jar')
+//    implementation files('libs/printerlibs.jar.jar')
+//    implementation files('libs/simple-xml-2.7.1.jar')
+
+
+
+    //GreenDao依赖库
+    implementation 'org.greenrobot:greendao:3.3.0' // add library
+    //greenDao升级帮助类
+    implementation 'io.github.yuweiguocn:GreenDaoUpgradeHelper:v2.2.1'
+
+    //okhttp3 日志拦截器
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+
+    //retrofit2
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    //RxJava2
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+
+    //recycleview 上拉刷新
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+
+    //协程
+    implementation'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
+
+    //二维码
+    implementation 'com.google.zxing:core:3.3.0'
+
+    implementation "androidx.core:core-ktx:1.5.0"
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+//    implementation project(path: ':core')
+//    implementation project(path: ':file')
+//    implementation project(path: ':converter:gson')
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+greendao {
+    schemaVersion 1 //指定数据库schema版本号，迁移等操作会用到;
+    daoPackage 'com.yannuo.dgcanteen.dao' //dao的包名，包名默认是entity所在的包；
+    targetGenDir 'src/main/java'//生成数据库文件的目录;
+}

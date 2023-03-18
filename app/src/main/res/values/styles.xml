@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <style name="BottomDialogAnimation" parent="Animation.Design.BottomSheetDialog">-->
+<!--        <item name="android:windowEnterAnimation">@anim/tranlate_dialog_in</item>-->
+<!--        <item name="android:windowExitAnimation">@anim/tranlate_dialog_out</item>-->
+<!--    </style>-->
+
+    <style name="editText">
+        <item name="android:colorControlNormal">#00ff00</item>
+        <item name="android:colorControlActivated">#ff0000</item>
+    </style>
+
+    <style name="wallet_third_tab_layout">
+        <item name="android:textSize">35sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <declare-styleable name="corner">
+        <attr name="mainSize" format="dimension"/>
+        <attr name="secondarySize" format="dimension"/>
+        <attr name="mainBg" format="reference"/>
+        <attr name="secondaryBg" format="reference"/>
+    </declare-styleable>
+
+    <style name="editText_one">
+        <item name="android:layout_width">@dimen/table_subitem</item>
+        <item name="android:layout_height">@dimen/table_subitem_one</item>
+<!--        <item name="android:maxLines">3</item>-->
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/text_color_one</item>
+
+    </style>
+
+    <style name="text_one">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/black</item>
+
+    </style>
+
+</resources>

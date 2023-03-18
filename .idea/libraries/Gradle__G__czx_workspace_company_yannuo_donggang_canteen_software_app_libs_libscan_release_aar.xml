@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: G./czx-workspace/company_yannuo/donggang_canteen/software/app/libs/libscan-release.aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/2cda86b9947aafa7063c1737a474a826/transformed/jetified-libscan-release/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/2cda86b9947aafa7063c1737a474a826/transformed/jetified-libscan-release/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/2cda86b9947aafa7063c1737a474a826/transformed/jetified-libscan-release/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

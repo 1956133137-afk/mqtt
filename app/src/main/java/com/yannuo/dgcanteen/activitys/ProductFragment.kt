@@ -1,0 +1,122 @@
+package com.yannuo.dgcanteen.activitys
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.adapters.ProductsAdapter
+import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+import com.yannuo.dgcanteen.databinding.FragmentProductBinding
+import com.yannuo.dgcanteen.model.ProductInfo
+import com.yannuo.dgcanteen.util.LogUtil
+
+
+open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
+    private val TAG = javaClass.simpleName
+    lateinit var binding:FragmentProductBinding
+
+    private var pager = 0
+    private var title :String? =null
+    private lateinit var adapter :ProductsAdapter
+    private lateinit var model : ProductsVM
+
+    constructor():super(){
+
+    }
+
+    constructor(type : String?):super(){
+        title = type
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initObject()
+    }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentProductBinding.inflate(inflater, container, false)
+        initView()
+        initEvent()
+        return binding.root
+    }
+
+
+    private fun initObject() {
+        adapter = ProductsAdapter(title,context)
+        adapter.setListener(this)
+
+    }
+
+
+    //
+    private fun initView() {
+
+        val gridLayoutManager = GridLayoutManager(context,5)
+        binding.rvManInfo.layoutManager = gridLayoutManager
+        binding.rvManInfo.adapter = adapter
+        adapter.setImgSize(gridLayoutManager)
+
+        val dataList = mutableListOf<ProductInfo>()
+        val direction =  context?.filesDir?.absolutePath.let {
+            "$it/myPic/"
+        }
+        DbHelper.getInstance().queryProductsByType(title)
+            .forEach {
+                val path = it.pictureName.let {
+                    "$direction$it"
+                }
+                dataList.add(ProductInfo (
+                    it.pName,
+                    it.pMoney,
+                    path,
+                    it.type,
+                    it.barCode
+                ))
+            }
+
+        adapter.data = dataList
+    }
+
+    private fun initEvent() {
+        model = ViewModelProvider(requireActivity()).get(ProductsVM::class.java)
+        model.receiveCountNotify.observe(viewLifecycleOwner) {
+           //全部清空
+            if (it == null){
+                adapter.data.forEachIndexed { index, it ->
+                    if (it.count !=0){
+                        it.count = 0
+                        adapter.notifyItemChanged(index,"count")
+                    }
+                }
+            }else {
+                LogUtil.d(TAG, it.filename)
+
+                //相同的类型就进行页面更新
+                if (it.type.equals(title)) {
+                    adapter.update(it)
+                }
+//                adapter.data.indexOf(it).apply {
+//                    adapter.notifyItemChanged(this, "count")
+//                }
+            }
+        }
+//        binding.rvManInfo.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+    }
+
+    override fun onEventClick(position: Int) {
+        model.sendCountNotify.postValue(adapter.getData(position))
+    }
+
+
+
+
+
+}

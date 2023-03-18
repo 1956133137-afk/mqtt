@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/text_color_one"
+     android:orientation="vertical"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_color_one">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:background="@null"
+            android:padding="15dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.yannuo.dgcanteen.views.FrameTextView
+            android:id="@+id/tv_bar_code"
+            style="@style/editText_one"
+            android:layout_marginBottom="40dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="40dp"
+            android:hint="请输入条码编号"
+            android:inputType="number"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+
+        <com.yannuo.dgcanteen.views.FrameTextView
+            android:id="@+id/tv_price"
+            style="@style/editText_one"
+            android:hint="请输入价格(元)"
+            android:inputType="numberDecimal"
+            app:layout_constraintStart_toEndOf="@+id/tv_product_type"
+            app:layout_constraintTop_toTopOf="@+id/tv_product_type" />
+
+        <com.yannuo.dgcanteen.views.FrameTextView
+            android:id="@+id/tv_product_type"
+            style="@style/editText_one"
+            android:hint="请输入商品类型"
+            android:inputType="text"
+            app:layout_constraintStart_toEndOf="@+id/tv_product_name"
+            app:layout_constraintTop_toTopOf="@+id/tv_product_name" />
+
+        <com.yannuo.dgcanteen.views.FrameTextView
+            android:id="@+id/tv_product_name"
+            style="@style/editText_one"
+            android:hint="请输入商品名称"
+            android:inputType="text"
+            app:layout_constraintStart_toEndOf="@+id/tv_bar_code"
+            app:layout_constraintTop_toTopOf="@+id/tv_bar_code" />
+
+        <ImageView
+            android:id="@+id/iv_pic"
+            android:layout_width="@dimen/table_subitem_one"
+            android:layout_height="@dimen/table_subitem_one"
+            android:background="@drawable/frame"
+            android:scaleType="fitXY"
+            android:src="@drawable/no_picture"
+            app:layout_constraintStart_toEndOf="@+id/tv_price"
+            app:layout_constraintTop_toTopOf="@+id/tv_price" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bt_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:background="@drawable/btn_bg"
+            android:paddingBottom="5dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="5dp"
+
+            android:text="+"
+            android:textColor="@color/background_color_one"
+            android:textSize="66sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_pic"
+            app:layout_constraintStart_toEndOf="@+id/iv_pic"
+            app:layout_constraintTop_toTopOf="@+id/iv_pic" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_margin="20dp"
+        app:cardCornerRadius="30dp"
+        android:padding="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_products"
+            android:overScrollMode="never"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</LinearLayout>

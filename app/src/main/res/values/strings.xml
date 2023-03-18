@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">CCB购物</string>
+    <string name="money_format">￥%s</string>
+
+
+    <!--    <string-array name="types">-->
+    <!--        <item >肉</item>-->
+    <!--        <item >奶</item>-->
+    <!--        <item >蛋</item>-->
+    <!--        <item >青菜</item>-->
+    <!--        <item >饮料</item>-->
+    <!--        <item >生活</item>-->
+    <!--    </string-array>-->
+</resources>
