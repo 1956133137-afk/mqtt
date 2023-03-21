@@ -8,11 +8,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="very_light_gray">#EfEfEf</color>
+    <color name="very_light_gray">#F9F9F9</color>
+    <color name="transparency">#00000000</color>
 
     <color name="color_tip">#FFCE58</color>
     <color name="warn">#FFDF00</color>
-    <color name="common_line">#cccccc</color>
+    <color name="common_line">#DEDEDE</color>
     <color name="base_dialog_bg">#6000</color><!--浅灰色 -->
     <color name="sky_color">#2A92FA</color>
     <color name="gray">#808080</color>

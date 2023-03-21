@@ -179,7 +179,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     }
 
 
-
     override fun onClick(v: View) {
         when(v.id){
             binding.tvTitle.id ->{

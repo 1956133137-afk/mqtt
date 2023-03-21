@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="477dp"
+        android:layout_height="477dp"
+        android:src="@drawable/ic_pay_failure"/>
+    <TextView
+        android:layout_width="192dp"
+        android:layout_height="70dp"
+        android:text="@string/pay_failure_title"
+        android:textSize="48sp"
+        android:textColor="#AA2A2A"/>
+
+    <LinearLayout
+        android:layout_width="477dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="49dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="29dp"
+            android:text="@string/pay_failure_reason"
+            android:textSize="20sp"
+            android:textColor="#6C6C6C"/>
+        <TextView
+            android:id="@+id/pay_money"
+            android:layout_width="match_parent"
+            android:layout_height="29dp"
+            android:gravity="right"
+            android:text="失败原因"
+            android:textSize="20sp"
+            android:textColor="#6C6C6C"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="477dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="29dp"
+            android:text="@string/pay_time"
+            android:textSize="20sp"
+            android:textColor="#6C6C6C"/>
+        <TextView
+            android:id="@+id/pay_time"
+            android:layout_width="match_parent"
+            android:layout_height="29dp"
+            android:gravity="right"
+            android:text="2023-03-02 11:32:15"
+            android:textSize="20sp"
+            android:textColor="#6C6C6C"/>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/shape_btn_bg"
+        android:text="@string/btn_back"
+        android:textSize="20sp"
+        android:textColor="#215476"/>
+
+</LinearLayout>

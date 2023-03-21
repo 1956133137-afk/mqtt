@@ -114,21 +114,21 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         }
 
         //建行熊猫被扫
-        binding.btPayOne.setOnClickListener {
+        binding.btPayFace.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
 
 
         }
         //建行熊猫主扫
-        binding.btPayTwo.setOnClickListener {
+        binding.btPayQrcode.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
 
         }
 
-        //建行聚合支付
+       /* //建行聚合支付
         binding.btPayThree.setOnClickListener {
             if (checkAndGeneratePrinter()) return@setOnClickListener
-        }
+        }*/
     }
 
 
@@ -147,15 +147,16 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
     override fun onEventClick(data: ProductInfo) {
         model.receiveCountNotify.postValue(data)
         val res = presenter.calculate(adapter.data)
-        binding.tvTotalMoney.text = res.get(0).toString()
+        binding.tvTotalMoney.text = "${res.get(0).toString()}元"
+//        binding.tvTotalMoney.text = res.get(0).toString()
         binding.tvTotalCount.text = res.get(1).toInt().toString()
     }
 
     private fun clearShoppingCart() {
         //2.清空购物车
         adapter.clear()
-        binding.tvTotalMoney.text =""
-        binding.tvTotalCount.text = ""
+        binding.tvTotalMoney.text ="0.0元"
+        binding.tvTotalCount.text = "0"
         //3.重置商品列表角标
         model.receiveCountNotify.postValue(null)
     }
@@ -165,7 +166,8 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         adapter.insertedData(it,accumulation)
         binding.rvSelectItem.scrollToPosition(adapter.data.size -1)  //插入数据后滑动到底部
         val res = presenter.calculate(adapter.data)
-        binding.tvTotalMoney.text = res.get(0).toString()
+        binding.tvTotalMoney.text = "${res.get(0).toString()}元"
+//        binding.tvTotalMoney.text = res.get(0).toString()
         binding.tvTotalCount.text = res.get(1).toInt().toString()
     }
 

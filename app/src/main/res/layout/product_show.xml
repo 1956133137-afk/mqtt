@@ -2,106 +2,82 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:corner="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="15dp"
-    xmlns:corner="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="10dp"
     app:cardBackgroundColor="@color/white"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
+    <LinearLayout
 
-
-<LinearLayout
-
-    android:orientation="vertical"
-    android:background="@drawable/shape_layout_bg"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-<!--    <FrameLayout-->
-
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-
+        android:orientation="vertical"
+        android:background="@drawable/shape_layout_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_pic"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="260dp"
+            android:layout_height="235dp" />
 
-<!--        <TextView-->
-<!--            android:id="@+id/tv_index"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:textSize="18sp"-->
-<!--            android:background="@drawable/indicate"-->
-<!--            android:gravity="center"-->
-<!--            android:padding="3dp"-->
-<!--            android:layout_margin="5dp"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textStyle="bold"/>-->
-
-<!--    </FrameLayout>-->
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_marginTop="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text=""
-            android:textColor="#101010"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <TextView
-            android:id="@+id/tv_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:paddingBottom="3dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="10dp"
-            android:paddingTop="3dp"
-            android:singleLine="true"
-            android:text="@string/money_format"
-            android:textColor="#FFFF0000"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <com.yannuo.dgcanteen.views.CornerMarkView
-            android:id="@+id/cv_count_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginEnd="5dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_marginTop="5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name"
-            corner:mainBg="@drawable/ic_sadd"
-            corner:mainSize="50dp"
-            corner:secondaryBg="@drawable/corner_bg"
-            corner:secondarySize="12dp" />
+            android:layout_width="match_parent"
+            android:layout_height="135dp">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:paddingStart="18dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="13dp"
+                android:text=""
+                android:textColor="#101010"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:paddingBottom="3dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="3dp"
+                android:singleLine="true"
+                android:text="@string/money_format"
+                android:textColor="#FFFF0000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.yannuo.dgcanteen.views.CornerMarkView
+                android:id="@+id/cv_count_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginTop="5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_name"
+                corner:mainBg="@drawable/ic_sadd"
+                corner:mainSize="50dp"
+                corner:secondaryBg="@drawable/corner_bg"
+                corner:secondarySize="12dp" />
 
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-</LinearLayout>
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -2,26 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/shape_layout_bg"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@drawable/shape_normal_bt_bg"
-        android:paddingLeft="10dp">
+        android:layout_height="65dp"
+        android:layout_gravity="center"
+        android:background="@drawable/common_bt_bg"
+        android:paddingStart="10dp">
+
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_select_dishes"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginStart="33dp"
+            android:layout_marginStart="60dp"
             android:gravity="center"
-            android:text="购物车商品"
-            android:textColor="@color/white"
+            android:text="@string/shop_meal"
+            android:textColor="#FFFFFF"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -30,12 +40,12 @@
 
         <ImageButton
             android:id="@+id/ib_del_all"
-            android:layout_width="wrap_content"
+            android:layout_width="80dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="33dp"
-            android:src="@drawable/ic_del"
+            android:src="@drawable/ic_clear_food"
             android:background="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,28 +53,13 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layerType="software"
-        android:background="@drawable/line_bg" />
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_select_item"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:overScrollMode="never"
-        android:padding="5dp"
-        />
-
-
-
-
+        android:padding="5dp" />
 
     <View
         android:layout_width="match_parent"
@@ -77,47 +72,53 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:weightSum="10"
         android:padding="5dp"
         android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:paddingLeft="20dp"
-            android:text="合计￥："
+            android:gravity="center"
+            android:text="@string/total_price"
             android:textColor="#101010"
             android:textSize="25sp" />
 
         <TextView
             android:id="@+id/tv_total_money"
             android:layout_width="0dp"
-            android:layout_weight="8"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:paddingLeft="20dp"
+            android:gravity="center"
             android:textStyle="bold"
+            android:text="@string/init_money"
             android:textColor="@color/red"
+            android:textSize="25sp" />
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/total_title"
+            android:textColor="#101010"
             android:textSize="25sp" />
 
         <TextView
             android:id="@+id/tv_total_count"
-            android:layout_width="0dp"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="center"
             android:textColor="@color/red"
+            android:text="@string/init_count"
             android:textSize="25sp" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:text="件"
+            android:gravity="center"
+            android:text="@string/a_copy"
             android:textColor="#101010"
             android:textSize="25sp" />
     </LinearLayout>
-
 
     <View
         android:layout_width="match_parent"
@@ -126,80 +127,43 @@
         android:layout_marginBottom="10dp"
         android:background="@color/common_line" />
 
-
     <LinearLayout
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:layout_marginBottom="10dp"
-       android:gravity="center_vertical"
+       android:gravity="center"
        android:orientation="horizontal">
-
-       <TextView
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:textSize="28sp"
-           android:paddingLeft="20dp"
-           android:textColor="#4f4f4f"
-           android:text="支付方式"/>
-
-       <androidx.appcompat.widget.AppCompatButton
-           android:id="@+id/bt_pay_one"
-           android:layout_width="0dp"
-           android:layout_height="wrap_content"
-           android:layout_weight="2"
-           android:minLines="2"
-           android:background="@drawable/common_bt_bg"
-           android:gravity="center"
-           android:text="数币被扫"
-           android:paddingLeft="10dp"
-           android:paddingRight="10dp"
-           android:drawablePadding="10dp"
-           android:drawableLeft="@mipmap/pay_ic"
-           android:layout_marginLeft="10dp"
-           android:textColor="@color/white"
-           android:textStyle="bold"
-           android:textSize="32sp" />
-
-       <androidx.appcompat.widget.AppCompatButton
-           android:id="@+id/bt_pay_two"
-           android:layout_width="0dp"
-           android:layout_height="wrap_content"
-           android:layout_weight="2"
-           android:minLines="2"
-           android:background="@drawable/common_bt_bg"
-           android:gravity="center"
-           android:layout_marginLeft="10dp"
-           android:layout_marginRight="10dp"
-           android:text="数币主扫"
-           android:paddingLeft="10dp"
-           android:paddingRight="10dp"
-           android:drawablePadding="10dp"
-           android:drawableLeft="@mipmap/pay_ic"
-           android:textColor="@color/white"
-           android:textStyle="bold"
-           android:textSize="32sp" />
-
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/bt_pay_three"
-            android:layout_width="0dp"
+            android:id="@+id/bt_pay_face"
+            android:layout_width="230dp"
             android:layout_height="wrap_content"
             android:minLines="2"
-            android:layout_weight="2"
             android:background="@drawable/common_bt_bg"
             android:gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="聚合支付"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:drawablePadding="10dp"
-            android:drawableLeft="@mipmap/aggregation_ic"
+            android:text="@string/scan_face_pay"
+            android:paddingStart="20dp"
+            android:paddingEnd="10dp"
+            android:drawableStart="@drawable/ic_face"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:textSize="32sp" />
+            android:textSize="32sp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/bt_pay_qrcode"
+            android:layout_width="230dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60dp"
+            android:minLines="2"
+            android:background="@drawable/common_bt_bg"
+            android:gravity="center"
+            android:text="@string/scan_qrcode_pay"
+            android:paddingStart="20dp"
+            android:paddingEnd="10dp"
+            android:drawableStart="@drawable/ic_qrcode"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="32sp"/>
 
    </LinearLayout>
-
-
 
 </LinearLayout>

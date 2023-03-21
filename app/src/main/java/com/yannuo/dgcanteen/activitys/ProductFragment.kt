@@ -60,7 +60,7 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
     //
     private fun initView() {
 
-        val gridLayoutManager = GridLayoutManager(context,5)
+        val gridLayoutManager = GridLayoutManager(context,4)
         binding.rvManInfo.layoutManager = gridLayoutManager
         binding.rvManInfo.adapter = adapter
         adapter.setImgSize(gridLayoutManager)

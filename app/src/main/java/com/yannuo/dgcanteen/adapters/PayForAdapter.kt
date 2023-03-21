@@ -1,11 +1,18 @@
 package com.yannuo.dgcanteen.adapters
 
+import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemPayListBinding
 import com.yannuo.dgcanteen.model.ProductInfo
 import com.yannuo.dgcanteen.util.LogUtil
+import retrofit2.http.Url
+import java.io.FileInputStream
 import java.lang.Exception
 import kotlin.collections.HashMap
 
@@ -29,14 +36,16 @@ class PayForAdapter : BaseAdapter<ProductInfo,ItemPayListBinding> (){
     override fun bindHolder(holder: Holder, position: Int) {
 
         holder.binding.tvItemName.text = data.get(position).pName
-        holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
+        holder.binding.tvThisMoney.text = "￥${data.get(position).pMoney}"
+//        holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
         holder.binding.adAddSubtract.setCount(data.get(position).count)
     }
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
         map.set(data[position].barCode,position) //维护数据位置
         if (payloads.isEmpty().not()){
-            holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
+            holder.binding.tvThisMoney.text = "￥${data.get(position).pMoney}"
+//            holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
             holder.binding.adAddSubtract.setCount(data.get(position).count)
             LogUtil.d(TAG,"update payload:  ${payloads.get(0)}")
         }
