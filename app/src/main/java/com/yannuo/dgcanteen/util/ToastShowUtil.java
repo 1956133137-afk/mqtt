@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.util;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,5 +48,9 @@ public class ToastShowUtil {
                     }
                 });
 
+    }
+
+    public static void show(Context context, String desc){
+        Toast.makeText(context,desc,Toast.LENGTH_SHORT).show();
     }
 }

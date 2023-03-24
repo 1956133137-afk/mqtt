@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -21,16 +22,19 @@ import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.TableLayoutBinding
 import com.yannuo.dgcanteen.interfaces.ImportExportListener
 import com.yannuo.dgcanteen.model.Result
-import com.yannuo.dgcanteen.util.ExcelUtils
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
+import com.yannuo.dgcanteen.views.LoginPasswordDialog
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 
-class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener {
+open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -47,10 +51,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private var diffTime = 1000
     private var mXService : MyService ?= null
     private var navigation = true
+    private var clickCount = 0
+    private var preClickTime = 0
 
 
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
+        scheduledTimer()
     }
 
     private fun havePermission():Boolean{
@@ -92,6 +99,28 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+
+                    //弹出密码对话框
+                    clickCount = 0
+                    binding.tvTitle.setOnClickListener(View.OnClickListener {view ->
+                        if (clickCount == 0){
+                            preClickTime = System.currentTimeMillis().toInt()
+                            clickCount++
+                        } else if (clickCount == 1){
+                            var curTime = System.currentTimeMillis().toInt()
+                            if (curTime - preClickTime < 500){
+                                val passwordDialog = LoginPasswordDialog()
+                                val display = this.windowManager.defaultDisplay
+                                passwordDialog.PasswordDialog(this,display)
+                            }
+                            clickCount = 0;
+                            preClickTime = 0;
+                        }else{
+                            clickCount = 0;
+                            preClickTime = 0;
+                        }
+                    })
+
                     dialog.cancel()
                     //获取商品类别
                     val types = DbHelper.getInstance().group
@@ -197,4 +226,39 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
     }
 
+//    定时器
+    open fun scheduledTimer() {
+        val service : ScheduledExecutorService = Executors.newScheduledThreadPool(4)
+        service.scheduleAtFixedRate({
+            try {
+                scheduledTask()
+            } catch (e:Throwable) {
+                e.printStackTrace()
+            }
+        }, 0, 1000, TimeUnit.MILLISECONDS)
+    }
+
+    private fun scheduledTask(){
+        runOnUiThread(Runnable {
+            if(NetWorkUtil.isNetWorkConnected(this)){
+                binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
+                binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
+                binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
+            }else {
+                binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
+                binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
+                binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
+            }
+
+            if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
+                binding.mealTime.setText(R.string.breakfast_time)
+            }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
+                binding.mealTime.setText(R.string.lunch_time)
+            }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
+                binding.mealTime.setText(R.string.dinner_time)
+            }else{
+                binding.mealTime.setText(R.string.unOpen_meal)
+            }
+        })
+    }
 }

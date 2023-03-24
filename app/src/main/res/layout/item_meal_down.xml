@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/select_other"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:paddingStart="15dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/select_focus"
+    android:text=""
+    android:textSize="38sp"
+    android:textColor="#4F4F4F">
+
+</TextView>

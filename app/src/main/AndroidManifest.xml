@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yannuo.dgcanteen">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="com.yannuo.dgcanteen.MyApplication"
         android:allowBackup="true"
@@ -11,12 +18,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CommodityPay">
         <activity
-            android:name="com.yannuo.dgcanteen.activitys.LoggingDataActivity"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"
-            android:configChanges="keyboardHidden"
+            android:name=".activitys.DishManageActivity"
             android:exported="false" />
         <activity
-            android:name="com.yannuo.dgcanteen.activitys.CommodityActivity"
+            android:name=".activitys.SettingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activitys.LoggingDataActivity"
+            android:configChanges="keyboardHidden"
+            android:exported="false"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity
+            android:name=".activitys.CommodityActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,22 +38,15 @@
             </intent-filter>
         </activity>
 
-
-        <receiver android:name="com.yannuo.dgcanteen.MyBroadcast"
+        <receiver
+            android:name="com.yannuo.dgcanteen.MyBroadcast"
             android:exported="true">
             <intent-filter>
-                <action android:name = "android.intent.action.BOOT_COMPLETED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

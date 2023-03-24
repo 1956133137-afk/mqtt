@@ -1,15 +1,23 @@
 <resources>
     <string name="app_name">DGCT</string>
     <string name="dg_canteen">智慧食堂</string>
+
+    <string name="input_password">输入密码</string>
+    <string name="btn_delete">删除</string>
+    <string name="btn_sure">确定</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_back">返回</string>
+
     <string name="shop_meal">已选菜品</string>
     <string name="scan_face_pay">刷脸支付</string>
     <string name="scan_qrcode_pay">扫码支付</string>
     <string name="total_title">共</string>
     <string name="a_copy">份</string>
-    
-    <string name="breakfast_time">&#160;&#160;早餐&#160;&#160;(7:30~9:30)</string>
-    <string name="lunch_time">&#160;&#160;午餐&#160;&#160;(11:30~1:30)</string>
-    <string name="dinner_time">&#160;&#160;晚餐&#160;&#160;(5:30~7:30)</string>
+
+    <string name="breakfast_time">&#160;&#160;早餐&#160;&#160;(7:30~8:30)</string>
+    <string name="lunch_time">&#160;午餐&#160;(11:30~13:00)</string>
+    <string name="dinner_time">&#160;晚餐&#160;(18:30~19:30)</string>
+    <string name="unOpen_meal">&#160;&#160;&#160;&#160;未开餐&#160;&#160;&#160;&#160;</string>
 
     <string name="pay_success_title">支付成功</string>
     <string name="pay_failure_title">支付失败</string>
@@ -17,20 +25,21 @@
     <string name="pay_time">支付时间</string>
     <string name="trans_run_number">交易流水号</string>
     <string name="pay_failure_reason">当前状态</string>
-    <string name="btn_back">返回</string>
 
     <string name="total_price">合计￥：</string>
     <string name="init_money">0.0元</string>
     <string name="init_count">0</string>
     <string name="money_format">￥%s</string>
 
+    <string name="setting">设置</string>
+    <string name="service_address">服务器地址</string>
+    <string name="mqtt_service_address">MQTT服务地址</string>
+    <string name="mqtt_account_number">MQTT账号</string>
+    <string name="mqtt_password">MQTT密码</string>
+    <string name="off_line_scan_face">离线刷脸模式</string>
+    <string name="dishes_manage">菜品管理</string>
+    <string name="meal_category">餐别</string>
+    <string name="syn_dish_data">同步菜品数据</string>
+    <string name="check_update">检查更新</string>
 
-    <!--    <string-array name="types">-->
-    <!--        <item >肉</item>-->
-    <!--        <item >奶</item>-->
-    <!--        <item >蛋</item>-->
-    <!--        <item >青菜</item>-->
-    <!--        <item >饮料</item>-->
-    <!--        <item >生活</item>-->
-    <!--    </string-array>-->
 </resources>

@@ -25,7 +25,7 @@
             android:text="@string/breakfast_time"
             android:textSize="35sp"
             android:paddingStart="33dp"
-            android:paddingEnd="33dp"
+            android:paddingEnd="13dp"
             android:background="@drawable/shape_tv_bg"
             android:drawableStart="@drawable/ic_noodles"/>
 
@@ -51,10 +51,10 @@
         <ImageButton
             android:id="@+id/on_off_line"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="27dp"
             android:layout_marginStart="30dp"
             android:background="@color/transparency"
-            android:src="@drawable/ic_drama"/>
+            android:src="@drawable/ic_drama" />
         <ImageButton
             android:id="@+id/server"
             android:layout_width="wrap_content"
@@ -103,13 +103,13 @@
                 android:layout_height="match_parent" />
 
         </LinearLayout>
-<!--        <androidx.fragment.app.FragmentContainerView
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container_view"
             android:name="com.yannuo.dgcanteen.activitys.PayForFragment"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:layout_marginStart="20dp"/>-->
+            android:layout_marginStart="20dp"/>
 
     </LinearLayout>
 

@@ -10,6 +10,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="very_light_gray">#F9F9F9</color>
     <color name="transparency">#00000000</color>
+    <color name="transparency_90">#1A000000</color>
 
     <color name="color_tip">#FFCE58</color>
     <color name="warn">#FFDF00</color>

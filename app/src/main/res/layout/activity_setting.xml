@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EFEFEF"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF">
+        
+        <ImageButton
+            android:id="@+id/ibt_back"
+            android:layout_width="115dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="44dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:src="@drawable/ic_back" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/setting"
+            android:textSize="36sp"
+            android:textColor="#101010"/>
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="115dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="44dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:text="@string/btn_save"
+            android:textSize="20sp"
+            android:textColor="#101010"/>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/shape_btn_bg_white"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        
+        <TextView
+            android:layout_width="217dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:text="@string/service_address"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <EditText
+            android:id="@+id/et_address"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginEnd="45dp"
+            android:background="@null"
+            android:gravity="right"
+            android:text="https://test.yannuozhineng.com/"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+        
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/shape_btn_bg_white">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:text="@string/off_line_scan_face"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <CheckBox
+            android:id="@+id/switch_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="45dp"
+            android:checked="false"
+            android:button="@null"
+            android:background="@drawable/select_switch"
+            android:padding="5dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/shape_btn_bg_white"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:layout_width="217dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:text="@string/mqtt_service_address"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <EditText
+            android:id="@+id/et_mqtt_address"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginEnd="45dp"
+            android:background="@null"
+            android:gravity="right"
+            android:text="https://test.yannuozhineng.com/"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/shape_btn_bg_white"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:layout_width="217dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:text="@string/mqtt_account_number"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <EditText
+            android:id="@+id/et_mqtt_account"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginEnd="45dp"
+            android:background="@null"
+            android:gravity="right"
+            android:text="123456"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/shape_btn_bg_white"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:layout_width="217dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:text="@string/mqtt_password"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <EditText
+            android:id="@+id/et_mqtt_password"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginEnd="45dp"
+            android:background="@null"
+            android:gravity="right"
+            android:text="123456"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/dish_menu"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:paddingStart="40dp"
+        android:gravity="center_vertical"
+        android:stateListAnimator="@null"
+        android:background="@drawable/shape_btn_bg_white"
+        android:text="@string/dishes_manage"
+        android:textSize="28sp"
+        android:textColor="#4F4F4F"/>
+
+    <Button
+        android:id="@+id/syn_dishes"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:paddingStart="40dp"
+        android:gravity="center_vertical"
+        android:stateListAnimator="@null"
+        android:background="@drawable/shape_btn_bg_white"
+        android:text="@string/syn_dish_data"
+        android:textSize="28sp"
+        android:textColor="#4F4F4F"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:background="@drawable/shape_btn_bg_white">
+
+        <Button
+            android:id="@+id/btn_version"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="80dp"
+            android:gravity="left"
+            android:paddingStart="40dp"
+            android:paddingTop="20dp"
+            android:background="@null"
+            android:text="@string/check_update"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="357dp"
+            android:layout_height="80dp"
+            android:gravity="right"
+            android:paddingTop="20dp"
+            android:paddingEnd="45dp"
+            android:background="@null"
+            android:text="当前版本：V1.0"
+            android:textSize="28sp"
+            android:textColor="#4F4F4F"/>
+
+    </LinearLayout>
+
+</LinearLayout>
