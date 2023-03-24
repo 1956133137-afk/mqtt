@@ -1,18 +1,19 @@
-package com.yannuo.paylib.nets
+package com.yannuo.dgcanteen.interfaces
 
 
 
+import com.yannuo.dgcanteen.download.AppInfoB
+import com.yannuo.dgcanteen.download.AppUpdateResultB
+import io.reactivex.Observable
 
+import retrofit2.http.*
 
+interface ApiService {
 
-
-
-import retrofit2.http.Headers
-import retrofit2.http.POST
-import retrofit2.http.Query
-
-interface ApiServiceOfPay {
-
+    //检查APP新版本
+    @Headers("content-type: application/json")
+    @POST
+    fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
     // 获取建行商户信息
 //    @FormUrlEncoded

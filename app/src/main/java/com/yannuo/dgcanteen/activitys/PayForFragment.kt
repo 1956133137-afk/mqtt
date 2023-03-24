@@ -176,59 +176,59 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         private var finishDialog : PayFinishDialog ?= null
 
         override fun handleMessage(msg: Message) {
-            val  ref = reference.get() ?: return
-            when(msg.what){
-                Constant.EVENT_ONE ->{ //弹出对话框，等待用户扫码
-                    startWaitDialog()
-                }
-                Constant.EVENT_TWO ->{ //1.接收到扫码数据,关闭对话框
-                    ref.waitDialog?.dismiss()
+//            val  ref = reference.get() ?: return
+//            when(msg.what){
+////                Constant.EVENT_ONE ->{ //弹出对话框，等待用户扫码
+////                    startWaitDialog()
+////                }
+//                Constant.EVENT_TWO ->{ //1.接收到扫码数据,关闭对话框
+//                    ref.waitDialog?.dismiss()
+//
+//
+////                    ref.presenter.payMoney( ref.adapter.data,msg.obj as String,1)
+//                }
+//                Constant.EVENT_THREE ->{ //1.交易结果通知，展示结果
+//
+//                    payQrCodeDialog?.cancel() //关闭扫码界面
+//                    val  data = msg.obj as PayResultForUI
+//                    finishDialog?.cancel()
+//                    finishDialog =  PayFinishDialog(ref.requireContext(),data)
+//                    finishDialog?.show()
+//                    //2.清空购物车
+//
+//
+//
+//
+//                    CommonAndDpToPxUtil.speakWork("支付失败")
+//                }
+//                Constant.EVENT_FOUR ->{
+//                    //展示扫码界面
+//                    val data = msg.obj as Bitmap
+//                    ref.startPayQrCodeDialog(data)
+//                }
+//
+//                Constant.EVENT_FIVE ->{
+//                    //是商品条码
+//                    val product = ref.presenter.getBarcodeProduct(msg.obj as String)?.also {
+//                        val path = it.pictureName.let {
+//                            "$mProductsDir$it"
+//                        }
+//                        val data =  ProductInfo (
+//                            it.pName,
+//                            it.pMoney,
+//                            path,
+//                            it.type,
+//                            it.barCode
+//                        )
+//                        //1、更新购物车
+//                        updateUiItems( data,true)
+//                        //2、更新商品选择列表fragment
+//                        ref.model.receiveCountNotify.postValue(ref.adapter.getSpecifyBarcode(data.barCode))
+//                    }
+//                    if (product == null) ToastShowUtil.show("无效商品条码")
+//                }
 
-
-//                    ref.presenter.payMoney( ref.adapter.data,msg.obj as String,1)
-                }
-                Constant.EVENT_THREE ->{ //1.交易结果通知，展示结果
-
-                    payQrCodeDialog?.cancel() //关闭扫码界面
-                    val  data = msg.obj as PayResultForUI
-                    finishDialog?.cancel()
-                    finishDialog =  PayFinishDialog(ref.requireContext(),data)
-                    finishDialog?.show()
-                    //2.清空购物车
-
-
-
-
-                    CommonAndDpToPxUtil.speakWork("支付失败")
-                }
-                Constant.EVENT_FOUR ->{
-                    //展示扫码界面
-                    val data = msg.obj as Bitmap
-                    ref.startPayQrCodeDialog(data)
-                }
-
-                Constant.EVENT_FIVE ->{
-                    //是商品条码
-                    val product = ref.presenter.getBarcodeProduct(msg.obj as String)?.also {
-                        val path = it.pictureName.let {
-                            "$mProductsDir$it"
-                        }
-                        val data =  ProductInfo (
-                            it.pName,
-                            it.pMoney,
-                            path,
-                            it.type,
-                            it.barCode
-                        )
-                        //1、更新购物车
-                        updateUiItems( data,true)
-                        //2、更新商品选择列表fragment
-                        ref.model.receiveCountNotify.postValue(ref.adapter.getSpecifyBarcode(data.barCode))
-                    }
-                    if (product == null) ToastShowUtil.show("无效商品条码")
-                }
-
-            }
+//            }
         }
     }
 

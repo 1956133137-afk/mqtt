@@ -1,14 +1,25 @@
-package com.yannuo.dgcanteen;
+package com.yannuo.dgcanteen.common;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.StrictMode;
 
+import com.safframework.log.LogLevel;
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper;
+import com.yannuo.dgcanteen.download.CheckVersionWorker;
+import com.yannuo.dgcanteen.service.KeepAliveJobService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
+import com.yannuo.dgcanteen.util.LogManager;
 import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.ScanDevice;
+
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 
 /**
@@ -26,9 +37,28 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         applicationContext = this;
+        LogManager.initLog();
+        LogUtil.setLev(LogLevel.DEBUG);
+
         DbHelper.getInstance(this);
         CommonAndDpToPxUtil.speakInit();
         ScanDevice.INSTANCE.openScan();
+
+
+
+        PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
+                CheckVersionWorker.class,
+                15,
+                TimeUnit.MINUTES
+        ).build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("app-update-task", ExistingPeriodicWorkPolicy.REPLACE,work);
+
+        // JobScheduler 拉活
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            KeepAliveJobService.startJob(this);
+        }
+
     }
 
 

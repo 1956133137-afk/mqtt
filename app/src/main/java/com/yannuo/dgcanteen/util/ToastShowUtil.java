@@ -7,7 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.yannuo.dgcanteen.MyApplication;
+import com.yannuo.dgcanteen.common.MyApplication;
 import com.yannuo.dgcanteen.R;
 
 import io.reactivex.Observable;

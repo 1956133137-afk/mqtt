@@ -7,10 +7,11 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name="com.yannuo.dgcanteen.MyApplication"
+        android:name=".common.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_app_round"
         android:label="@string/app_name"
@@ -39,7 +40,7 @@
         </activity>
 
         <receiver
-            android:name="com.yannuo.dgcanteen.MyBroadcast"
+            android:name=".common.MyBroadcast"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -47,6 +48,26 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+
+        <service
+            android:name=".service.MyMqttService"
+            android:stopWithTask="true" />
+        <service
+            android:name="org.eclipse.paho.android.service.MqttService"
+            android:stopWithTask="true" />
+        <service
+            android:name=".service.UpdateServer"
+            android:stopWithTask="true" />
+
+
+        <service
+            android:name="com.yannuo.dgcanteen.service.KeepAliveJobService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
+
 
 </manifest>

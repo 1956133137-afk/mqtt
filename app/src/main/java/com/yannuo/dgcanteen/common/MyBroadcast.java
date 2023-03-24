@@ -1,4 +1,4 @@
-package com.yannuo.dgcanteen;
+package com.yannuo.dgcanteen.common;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,11 +10,10 @@ import com.yannuo.dgcanteen.util.ToastShowUtil;
 
 
 public class MyBroadcast extends BroadcastReceiver {
-    private String action = "android.intent.action.BOOT_COMPLETED";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        String action = "android.intent.action.BOOT_COMPLETED";
         if (intent.getAction().equals(action)){
             ToastShowUtil.show("boot");
             LogUtil.i("MyBroadcast", "reboot...");

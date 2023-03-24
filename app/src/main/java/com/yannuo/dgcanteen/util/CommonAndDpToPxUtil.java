@@ -11,7 +11,7 @@ import android.speech.tts.TextToSpeech;
 
 import androidx.annotation.RequiresApi;
 
-import com.yannuo.dgcanteen.MyApplication;
+import com.yannuo.dgcanteen.common.MyApplication;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

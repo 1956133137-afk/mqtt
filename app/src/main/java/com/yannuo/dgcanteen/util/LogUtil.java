@@ -3,6 +3,9 @@ package com.yannuo.dgcanteen.util;
 
 import android.util.Log;
 
+import com.safframework.log.L;
+import com.safframework.log.LogLevel;
+
 
 /**
  * author:Almighty
@@ -15,42 +18,42 @@ public class LogUtil {
     public static byte warningLev = 2;
     public static byte errorLev = 1;
 
-    public static void d(String clazz,String log){
-        if (currentLev >= debugLev) Log.d(clazz, log);
-
-    }
-
-    public static void i(String clazz,String log){
-        if (currentLev>=infoLev) Log.i(clazz, log);
-    }
-
-    public static void w(String clazz,String log){
-        if (currentLev >= warningLev) Log.w(clazz, log);
-    }
-
-    public static void e(String clazz,String log){
-        if (currentLev>=errorLev) Log.e(clazz, log);
-    }
-
-//
-//    public static void setLev(LogLevel lev){
-//        L.setLogLevel(lev);
-//    }
-//
 //    public static void d(String clazz,String log){
-//        L.d(clazz, log);
+//        if (currentLev >= debugLev) Log.d(clazz, log);
+//
 //    }
 //
 //    public static void i(String clazz,String log){
-//        L.i(clazz, log);
+//        if (currentLev>=infoLev) Log.i(clazz, log);
 //    }
 //
 //    public static void w(String clazz,String log){
-//        L.w(clazz, log);
+//        if (currentLev >= warningLev) Log.w(clazz, log);
 //    }
 //
 //    public static void e(String clazz,String log){
-//        L.e(clazz, log);
+//        if (currentLev>=errorLev) Log.e(clazz, log);
 //    }
+
+
+    public static void setLev(LogLevel lev){
+        L.setLogLevel(lev);
+    }
+
+    public static void d(String clazz,String log){
+        L.d(clazz, log);
+    }
+
+    public static void i(String clazz,String log){
+        L.i(clazz, log);
+    }
+
+    public static void w(String clazz,String log){
+        L.w(clazz, log);
+    }
+
+    public static void e(String clazz,String log){
+        L.e(clazz, log);
+    }
 
 }

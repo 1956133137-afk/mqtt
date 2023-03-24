@@ -1,4 +1,4 @@
-package com.yannuo.paylib.nets
+package com.yannuo.dgcanteen.nets
 
 
 import okhttp3.OkHttpClient
@@ -9,7 +9,7 @@ import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.*
 
-class OkHttpUtilsOfPay private constructor(){
+class OkHttpUtils private constructor(){
 
 
     companion object {

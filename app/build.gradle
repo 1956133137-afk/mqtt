@@ -20,10 +20,22 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     kotlinOptions { jvmTarget = 1.8}
+
+    signingConfigs {
+        release {
+            storeFile file('G:\\czx-workspace\\company_yannuo\\donggang_canteen\\private_key\\payment.jks')
+            storePassword KEY_PASS
+            keyAlias 'payment'
+            keyPassword KEY_PASS
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //配置签名
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -40,6 +52,25 @@ android {
         }
     }
     ndkVersion '21.4.7075529'
+
+    flavorDimensions "dgcanteen"
+    //创建渠道
+    productFlavors{
+        //标准
+        dg {
+            versionCode 1
+            versionName "1.0.1"
+            buildConfigField "int", "CHANNEL", "0"
+        }
+
+    }
+
+    // 打包后的文件名
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "canteen-${variant.flavorName}${versionName}.apk"
+        }
+    }
 
 }
 
@@ -80,6 +111,13 @@ dependencies {
     //RxJava2
     implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+
+    //mqtt
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    // Kotlin + coroutines
+    implementation("androidx.work:work-runtime-ktx:2.3.4")
 
     //recycleview 上拉刷新
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
