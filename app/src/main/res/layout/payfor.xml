@@ -15,25 +15,15 @@
         android:background="@drawable/common_bt_bg"
         android:paddingStart="10dp">
 
+
         <ImageButton
+            android:id="@+id/imageButton2"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_select_dishes"
+            android:layout_marginStart="10dp"
             android:background="@null"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="60dp"
-            android:gravity="center"
-            android:text="@string/shop_meal"
-            android:textColor="#FFFFFF"
-            android:textSize="30sp"
-            android:textStyle="bold"
+            android:src="@drawable/ic_select_dishes"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -45,11 +35,27 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_clear_food"
             android:background="@null"
+            android:src="@drawable/ic_clear_food"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="@string/shop_meal"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageButton2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.666" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

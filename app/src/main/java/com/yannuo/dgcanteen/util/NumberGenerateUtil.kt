@@ -1,8 +1,6 @@
-package com.yannuo.dgcanteen.views
+package com.yannuo.dgcanteen.util
 
 import android.os.Build
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.LogUtil
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
@@ -56,7 +54,7 @@ object NumberGenerateUtil {
 
     fun getOrderNumber(len :Int = 23): String{
         var value =  snToNumber()
-        value +=timeStr()
+        value += timeStr()
         value += getRandomNumberString(len - value.length)
         LogUtil.d(TAG, value)
         return value

@@ -1,15 +1,21 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ccb.smartcanteen.ZHSTFacePayService
 import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayForAdapter
@@ -18,6 +24,9 @@ import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.model.CcbFacePayBean
+import com.yannuo.dgcanteen.model.ProductInfo
+import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +48,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
     private var mProductsDir :String ?= null   //获取商品图片目录
     private var mPayJob :Job ?= null //支付job
     private var payTimeout = 60  //支付超时时间
-
+    private var mFacePayService: ZHSTFacePayService? = null
 
 
     //
@@ -71,10 +80,26 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         binding.rvSelectItem.layoutManager = manager
         presenter.scanListener()  //监听扫码头数据
 
+        val lIntent = Intent()
+        lIntent.action = "com.ccb.smartcanteen.FacePayService"
+        lIntent.setPackage("com.ccb.smartcanteen")
+        requireContext().bindService(lIntent, mServiceConnection, AppCompatActivity.BIND_AUTO_CREATE)
+        LogUtil.d(TAG,"开始绑定服务")
 
+    }
 
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+//            isConnected = true
+            LogUtil.d(TAG, " onServiceConnected")
+            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+        }
 
-
+        override fun onServiceDisconnected(name: ComponentName) {
+//            isConnected = false
+//            mIDeviceService = null
+            LogUtil.d(TAG, " onServiceDisconnected")
+        }
     }
 
     private fun initView() {
@@ -113,8 +138,25 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
 
         //建行熊猫被扫
         binding.btPayFace.setOnClickListener {
-            if (checkAndGeneratePrinter()) return@setOnClickListener
+//            if (checkAndGeneratePrinter()) return@setOnClickListener
+           val bean =  CcbFacePayBean()
+            bean.CAMPUS_ID ="441999527"
+            bean.CORP_ID ="1041"
+            bean.PAYMENT ="0.01"
+            bean.BUSINESS_ID ="SJ2023032511004"
+            bean.PAYMENT ="0.01"
+            bean.VPOS_ID ="V00443832"
+            bean.TXCODE ="ZF0001"
+            bean.OFFLINE ="0"
 
+
+//            binding.tvMove.setText("更新点餐了！")
+//            mFacePayService?.startFacePay(Gson().toJson(bean),"0", object : PayResultListener.Stub() {
+//
+//                override fun onResult(result: String?) {
+//                    LogUtil.d(TAG,"${result}")
+//                }
+//            })
 
         }
         //建行熊猫主扫
@@ -130,6 +172,10 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
     }
 
 
+    override fun onDestroy() {
+        requireContext().unbindService(mServiceConnection)
+        super.onDestroy()
+    }
 
     private fun checkAndGeneratePrinter(): Boolean {
         if (adapter.data.size < 1) {

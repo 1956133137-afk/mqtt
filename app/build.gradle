@@ -83,13 +83,10 @@ dependencies {
     implementation files('libs/poi-ooxml-schemas-3.12-20150511-a.jar')
     implementation files('libs/libscan-release.aar')
 
-    //建行MIS服务SDK
-//    implementation files('libs/CCBMisSdk1.0.7.2_Release(Android)_20210902.jar')
+    //建行食堂开发平台
+    implementation files('libs/bcprov-jdk14-128.jar')
+    implementation files('libs/COM.CCB.EnDecryptAlgorithm_v1.0_20120220.jar')
 
-    //热敏打印机
-//    implementation files('libs/CSNPrinterSDK.jar')
-//    implementation files('libs/printerlibs.jar.jar')
-//    implementation files('libs/simple-xml-2.7.1.jar')
 
     implementation project(path: ':core')
     implementation project(path: ':file')
