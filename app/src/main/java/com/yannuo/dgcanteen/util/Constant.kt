@@ -2,7 +2,7 @@ package com.yannuo.dgcanteen.util
 
 object Constant {
     //配置文件名
-    const val fileName = "pre"
+    const val fileName = "config"
     const val strDefault  =""
     //事件通知
     //mqtt地址
@@ -21,4 +21,22 @@ object Constant {
     const val PERIODIC_WORK_KEY = "app-update"
 
     const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
+
+    //服务器地址
+    const val Address = ""
+
+    //是否离线
+    const val Switch = false
+
+    //mqtt服务地址
+    const val MqttAddress = ""
+
+    //mqtt账号
+    const val MqttAccount = ""
+
+    //mqtt密码
+    const val MqttPassword = ""
+
+    //当前版本
+    const val Version = ""
 }

@@ -1,8 +1,6 @@
 package com.yannuo.dgcanteen.activitys;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -15,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
 
@@ -23,7 +22,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     private EditText etAddress, etMqttAddress, etMqttAccount, etMqttPassword;
     private CheckBox switchLine;
     private TextView tvVersion;
-    private SharedPreferences preferences;
+    private MMKV kv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,29 +42,31 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         }
         getWindow().getDecorView().setSystemUiVisibility(uiFlags);
         setContentView(R.layout.activity_setting);
-        preferences = getSharedPreferences("config", Context.MODE_PRIVATE);
+
+        MMKV.initialize(this);
+        kv = MMKV.defaultMMKV();
+
         init();
         reload();
     }
 
     private void reload() {
-        etAddress.setText(preferences.getString("Address",""));
-        switchLine.setChecked(preferences.getBoolean("Switch",false));
-        etMqttAddress.setText(preferences.getString("MqttAddress",""));
-        etMqttAccount.setText(preferences.getString("MqttAccount",""));
-        etMqttPassword.setText(preferences.getString("MqttPassword",""));
-        tvVersion.setText(preferences.getString("Version",""));
+        etAddress.setText(kv.decodeString("Address"));
+        switchLine.setChecked(kv.decodeBool("Switch"));
+        etMqttAddress.setText(kv.decodeString("MqttAddress"));
+        etMqttAccount.setText(kv.decodeString("MqttAccount"));
+        etMqttPassword.setText(kv.decodeString("MqttPassword"));
+        tvVersion.setText(kv.decodeString("Version"));
     }
 
     private void save(){
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("Address",etAddress.getText().toString());
-        editor.putBoolean("Switch",switchLine.isChecked());
-        editor.putString("MqttAddress",etMqttAddress.getText().toString());
-        editor.putString("MqttAccount",etMqttAccount.getText().toString());
-        editor.putString("MqttPassword",etMqttPassword.getText().toString());
-        editor.putString("Version",tvVersion.getText().toString());
-        editor.commit();
+        kv.encode("Address",etAddress.getText().toString());
+        kv.encode("Switch",switchLine.isChecked());
+        kv.encode("MqttAddress",etMqttAddress.getText().toString());
+        kv.encode("MqttAccount",etMqttAccount.getText().toString());
+        kv.encode("MqttPassword",etMqttPassword.getText().toString());
+        kv.encode("Version",tvVersion.getText().toString());
+        ToastShowUtil.show(this,"保存成功:" + this.getFilesDir().getAbsolutePath() + "/mmkv");
     }
 
     private void init(){
@@ -101,7 +102,6 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.btn_save:
                 save();
-                ToastShowUtil.show(this,"保存成功");
                 break;
             case R.id.ibt_back:
                 finish();

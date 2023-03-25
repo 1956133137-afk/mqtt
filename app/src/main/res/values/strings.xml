@@ -38,6 +38,9 @@
     <string name="mqtt_password">MQTT密码</string>
     <string name="off_line_scan_face">离线刷脸模式</string>
     <string name="dishes_manage">菜品管理</string>
+    <string name="shelf">上架</string>
+    <string name="under_shelf">下架</string>
+    <string name="taken_down">已下架</string>
     <string name="meal_category">餐别</string>
     <string name="syn_dish_data">同步菜品数据</string>
     <string name="check_update">检查更新</string>

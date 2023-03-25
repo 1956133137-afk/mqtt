@@ -44,9 +44,9 @@
             android:layout_width="0dp"
             android:layout_weight="3"
             android:layout_height="match_parent"
+            android:layout_marginStart="15dp"
             android:gravity="left"
             android:paddingTop="8dp"
-            android:paddingStart="15dp"
             android:text="@string/meal_category"
             android:textSize="36sp"
             android:textColor="#4F4F4F"/>
@@ -58,6 +58,23 @@
             android:layout_height="match_parent"
             android:background="@color/transparency"
             android:src="@drawable/ic_dropdown"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="69dp"
+        android:layout_marginEnd="69dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp">
+
+        <GridView
+            android:id="@+id/grid_manage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="6"
+            android:horizontalSpacing="40dp"
+            android:verticalSpacing="40dp"/>
 
     </LinearLayout>
 

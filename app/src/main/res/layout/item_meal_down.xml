@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:paddingStart="15dp"
-    android:gravity="center_vertical"
+    android:gravity="center"
     android:background="@drawable/select_focus"
     android:text=""
     android:textSize="38sp"

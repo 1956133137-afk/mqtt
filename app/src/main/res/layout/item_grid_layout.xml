@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="260dp"
+    android:layout_height="370dp"
+    android:minHeight="370dp"
+    android:minWidth="260dp"
+    android:background="@drawable/shape_btn_bg_white"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="235dp">
+
+        <ImageView
+            android:id="@+id/ig_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_drama"/>
+
+        <ImageView
+            android:id="@+id/dropdown_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            android:background="@drawable/shape_dropdown_bg"
+            android:alpha="0.39"
+            />
+
+        <TextView
+            android:id="@+id/dropdown_ic"
+            android:layout_width="120dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="-3dp"
+            android:layout_marginTop="100dp"
+            android:gravity="center"
+            android:background="@drawable/shape_dropdown"
+            android:visibility="invisible"
+            android:text="@string/taken_down"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@id/tv_name"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginEnd="21dp"
+        android:layout_marginTop="13dp"
+        android:gravity="left"
+        android:text="商品名称……"
+        android:textSize="21sp"
+        android:textColor="#101010"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginEnd="21dp"
+        android:layout_marginTop="30dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="¥ 1.50"
+            android:textSize="26sp"
+            android:textColor="#E82F1E"/>
+        
+        <Button
+            android:id="@+id/btn_status"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:stateListAnimator="@null"
+            android:background="@drawable/shape_btn_one"
+            android:text="@string/under_shelf"
+            android:textSize="18sp"
+            android:textColor="#101010"/>
+        
+    </LinearLayout>
+
+</LinearLayout>

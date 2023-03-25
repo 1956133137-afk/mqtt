@@ -8,10 +8,10 @@ import java.util.List;
 public class MealData {
     public String dishesName;
     public double price;
-    public int image;
+    public String image;
     public int status;
 
-    public MealData(String dishesName,double price,int image,int status){
+    public MealData(String dishesName,double price,String image,int status){
         this.dishesName = dishesName;
         this.price = price;
         this.image = image;
@@ -22,16 +22,15 @@ public class MealData {
 
     private static double[] priceArray = {9.9,11.2,6.8,7.8,9.9,12.5,15.99,12.9,8.4};
 
-//    private static int[] imgArray = {R.raw.image_one,R.raw.image_two,R.raw.image_thr,R.raw.image_fou,
-//            R.raw.image_fiv,R.raw.image_six,R.raw.image_sve,R.raw.image_eig,R.raw.image_nin};
+    private static String[] imgArray = {"","","","","","","","",""};
 
-    private static int[] statusArray = {1,1,1,1,1,1,1,1,1};
+    private static int[] statusArray = {1,1,1,1,1,1,1,1,0};
 
     public static List<MealData> getDefaultList() {
-        List<MealData> mealList = new ArrayList<>();
-//        for (int i = 0; i < nameArray.length; i++){
-//            mealList.add(new MealData(nameArray[i],priceArray[i],imgArray[i],statusArray[i]));
-//        }
+        List<MealData> mealList = new ArrayList<MealData>();
+        for (int i = 0; i < nameArray.length; i++){
+            mealList.add(new MealData(nameArray[i],priceArray[i],imgArray[i],statusArray[i]));
+        }
         return mealList;
     }
 

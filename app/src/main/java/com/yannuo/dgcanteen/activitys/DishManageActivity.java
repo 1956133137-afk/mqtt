@@ -1,10 +1,9 @@
 package com.yannuo.dgcanteen.activitys;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -13,11 +12,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yannuo.dgcanteen.R;
+import com.yannuo.dgcanteen.adapters.DropDownAdapter;
+import com.yannuo.dgcanteen.adapters.MealDataAdapter;
+import com.yannuo.dgcanteen.entity.MealData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class DishManageActivity extends AppCompatActivity implements View.OnClickListener {
+public class DishManageActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private final static String[] mealArray = {"早餐","午餐","晚餐"};
     private ArrayList<String> dataMeal;
@@ -25,6 +28,8 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
     private ListView listView;
     private PopupWindow popup;
     private ImageButton spinnerImg;
+    private List<MealData> mMealData;
+    private GridView gridManage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +44,20 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
         spinnerText.setOnClickListener(this);
         spinnerImg = findViewById(R.id.spinner_img);
         spinnerImg.setOnClickListener(this);
+
         listView = new ListView(this);
         dataMeal = new ArrayList<String>();
         dataMeal.addAll(Arrays.asList(mealArray));
         listView.setDivider(null);
         listView.setVerticalScrollBarEnabled(false);
-        listView.setAdapter(new DropDownAdapter());
+        listView.setAdapter(new DropDownAdapter(this,dataMeal));
+        listView.setOnItemClickListener(this);
+
+        gridManage = findViewById(R.id.grid_manage);
+        gridManage.setNumColumns(6);
+        mMealData = MealData.getDefaultList();
+        MealDataAdapter adapter = new MealDataAdapter(this,mMealData);
+        gridManage.setAdapter(adapter);
     }
 
     @Override
@@ -62,57 +75,17 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
     }
     private void popupWindow(){
         popup = new PopupWindow();
-        popup.setWidth(spinnerText.getWidth() + spinnerImg.getWidth());
+        popup.setWidth(spinnerText.getWidth() + spinnerImg.getWidth() - 15);
         popup.setHeight(600);
         popup.setContentView(listView);
         popup.setOutsideTouchable(true);
         popup.showAsDropDown(spinnerText,0,0);
     }
 
-    public class DropDownAdapter extends BaseAdapter {
-
-        @Override
-        public int getCount() {
-            return dataMeal.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return position;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup viewGroup) {
-            ViewHolder holder;
-            if (convertView == null){
-                convertView = LayoutInflater.from(DishManageActivity.this).inflate(R.layout.item_meal_down,null);
-                holder = new ViewHolder();
-                holder.selectOther =convertView.findViewById(R.id.select_other);
-                convertView.setTag(holder);
-            }else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            holder.selectOther.setText(dataMeal.get(position));
-
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    spinnerText.setText(dataMeal.get(position));
-                    popup.dismiss();
-                }
-            });
-
-            return convertView;
-        }
-
-        class ViewHolder{
-            public TextView selectOther;
-        }
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        spinnerText.setText(dataMeal.get(position));
+        popup.dismiss();
     }
+
 }
