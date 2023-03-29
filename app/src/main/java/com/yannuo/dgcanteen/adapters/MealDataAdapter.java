@@ -9,8 +9,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.yannuo.dgcanteen.R;
-import com.yannuo.dgcanteen.entity.MealData;
+import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
 
 import java.util.List;
@@ -18,9 +22,9 @@ import java.util.List;
 public class MealDataAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<MealData> mMealData;
+    private List<DishesTable> mMealData;
 
-    public MealDataAdapter(Context context , List<MealData> mealData){
+    public MealDataAdapter(Context context , List<DishesTable> mealData){
         this.mContext = context;
         this.mMealData = mealData;
     }
@@ -59,24 +63,33 @@ public class MealDataAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        MealData mealData = mMealData.get(position);
-        holder.igImg.setImageResource(R.drawable.ic_drama);
-        holder.tvName.setText(mealData.dishesName);
-        holder.tvPrice.setText("¥ " + mealData.price);
+        DishesTable mealData = mMealData.get(position);
 
-        updateData(holder,mMealData.get(position).status);
+        Glide.with(mContext).load(mealData.getImgUrl())
+                .placeholder(R.drawable.ic_wait)
+                .error(R.drawable.ic_error)
+                .fallback(R.drawable.ic_unpictrue)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .transform(new CenterCrop(), new GranularRoundedCorners(20f,20f,0,0))
+                .into(holder.igImg);
+//        Bitmap bitmap = FileUtil.openImage(mealData.imgUrl);
+//        holder.igImg.setImageBitmap(bitmap);
+        holder.tvName.setText(mealData.getDishesName());
+        holder.tvPrice.setText("¥ " + mealData.getPrice());
+
+        updateData(holder,mealData.getStatus());
 
         convertView.findViewById(R.id.btn_status).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mMealData.get(position).status == 0){
-                    mMealData.get(position).status = 1;
+                if (mMealData.get(position).getStatus() == 0){
+                    mMealData.get(position).setStatus(1);
                     ToastShowUtil.show(mContext,"菜品已经上架");
                 }else {
-                    mMealData.get(position).status = 0;
+                    mMealData.get(position).setStatus(0);
                     ToastShowUtil.show(mContext,"菜品已经下架");
                 }
-                updateData(holder,mMealData.get(position).status);
+                updateData(holder,mMealData.get(position).getStatus());
             }
         });
 

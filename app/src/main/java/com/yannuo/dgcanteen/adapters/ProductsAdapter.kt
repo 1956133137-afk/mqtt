@@ -12,13 +12,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ProductShowBinding
+import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.ProductInfo
 import com.yannuo.dgcanteen.util.LogUtil
 
 
-class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<ProductInfo,ProductShowBinding> (){
+class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
     private var listener: WorkListener ?= null
     private var cnt = context
     private var wh: GridLayoutManager? = null
@@ -29,17 +32,16 @@ class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<ProductInf
         TAG = "ProductsAdapter-$title"
     }
 
-    fun update(da :ProductInfo){
+    fun update(da :DishesInfo){
         var result = false
         for(index in data.indices){
-            result = data[index].barCode.equals(da.barCode)
+            result = data[index].dishesId.equals(da.dishesId)
             if (result) {
                 data[index].count = da.count
                 notifyItemChanged(index, "count")
                 break
             }
         }
-
     }
 
 
@@ -50,9 +52,9 @@ class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<ProductInf
     override fun bindHolder(holder: Holder, position: Int) {
 //        LogUtil.d(TAG,"bindHolder(holder: Holder, $position: Int)")
         val data = mData.get(position)
-        holder.binding.tvName.text = data.pName
+        holder.binding.tvName.text = data.dishesName
         cnt?.also {
-            val spanStr = SpannableString(it.getString(R.string.money_format,data.pMoney))
+            val spanStr = SpannableString(it.getString(R.string.money_format,data.price.toString()))
             spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             holder.binding.tvNumber.text = spanStr
         }
@@ -76,7 +78,8 @@ class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<ProductInf
 
         holder.binding.ivPic.layoutParams = layoutParams
 //        if (data.filename.isNullOrEmpty().not()) {
-            Glide.with(cnt).load(data.filename).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture).into(holder.binding.ivPic)
+        cnt?.let { Glide.with(it).load(data.imgUrl).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
+            .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }
 //        }
 
     }

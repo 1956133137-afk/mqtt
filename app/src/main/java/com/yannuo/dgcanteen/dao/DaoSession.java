@@ -8,11 +8,11 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.yannuo.dgcanteen.dao.DishTable;
+import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.ProductsTable;
 
-import com.yannuo.dgcanteen.dao.DishTableDao;
+import com.yannuo.dgcanteen.dao.DishesTableDao;
 import com.yannuo.dgcanteen.dao.MealTableDao;
 import com.yannuo.dgcanteen.dao.ProductsTableDao;
 
@@ -25,11 +25,11 @@ import com.yannuo.dgcanteen.dao.ProductsTableDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig dishTableDaoConfig;
+    private final DaoConfig dishesTableDaoConfig;
     private final DaoConfig mealTableDaoConfig;
     private final DaoConfig productsTableDaoConfig;
 
-    private final DishTableDao dishTableDao;
+    private final DishesTableDao dishesTableDao;
     private final MealTableDao mealTableDao;
     private final ProductsTableDao productsTableDao;
 
@@ -37,8 +37,8 @@ public class DaoSession extends AbstractDaoSession {
             daoConfigMap) {
         super(db);
 
-        dishTableDaoConfig = daoConfigMap.get(DishTableDao.class).clone();
-        dishTableDaoConfig.initIdentityScope(type);
+        dishesTableDaoConfig = daoConfigMap.get(DishesTableDao.class).clone();
+        dishesTableDaoConfig.initIdentityScope(type);
 
         mealTableDaoConfig = daoConfigMap.get(MealTableDao.class).clone();
         mealTableDaoConfig.initIdentityScope(type);
@@ -46,23 +46,23 @@ public class DaoSession extends AbstractDaoSession {
         productsTableDaoConfig = daoConfigMap.get(ProductsTableDao.class).clone();
         productsTableDaoConfig.initIdentityScope(type);
 
-        dishTableDao = new DishTableDao(dishTableDaoConfig, this);
+        dishesTableDao = new DishesTableDao(dishesTableDaoConfig, this);
         mealTableDao = new MealTableDao(mealTableDaoConfig, this);
         productsTableDao = new ProductsTableDao(productsTableDaoConfig, this);
 
-        registerDao(DishTable.class, dishTableDao);
+        registerDao(DishesTable.class, dishesTableDao);
         registerDao(MealTable.class, mealTableDao);
         registerDao(ProductsTable.class, productsTableDao);
     }
     
     public void clear() {
-        dishTableDaoConfig.clearIdentityScope();
+        dishesTableDaoConfig.clearIdentityScope();
         mealTableDaoConfig.clearIdentityScope();
         productsTableDaoConfig.clearIdentityScope();
     }
 
-    public DishTableDao getDishTableDao() {
-        return dishTableDao;
+    public DishesTableDao getDishesTableDao() {
+        return dishesTableDao;
     }
 
     public MealTableDao getMealTableDao() {

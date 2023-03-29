@@ -14,7 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.adapters.DropDownAdapter;
 import com.yannuo.dgcanteen.adapters.MealDataAdapter;
-import com.yannuo.dgcanteen.entity.MealData;
+import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +29,16 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
     private ListView listView;
     private PopupWindow popup;
     private ImageButton spinnerImg;
-    private List<MealData> mMealData;
+    private List<DishesTable> mMealData;
     private GridView gridManage;
+    private MealDataAdapter adapter;
+    private DishesDBHelper mHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dish_manage);
+        mHelper = DishesDBHelper.getInstance(this);
         initUI();
     }
 
@@ -54,9 +58,8 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
         listView.setOnItemClickListener(this);
 
         gridManage = findViewById(R.id.grid_manage);
-        gridManage.setNumColumns(6);
-        mMealData = MealData.getDefaultList();
-        MealDataAdapter adapter = new MealDataAdapter(this,mMealData);
+        mMealData = mHelper.queryDishes();
+        adapter = new MealDataAdapter(this,mMealData);
         gridManage.setAdapter(adapter);
     }
 
@@ -86,6 +89,28 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         spinnerText.setText(dataMeal.get(position));
         popup.dismiss();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int i = 0;
+                        if (dataMeal.get(position).equals("早餐")){
+                            i = 1;
+                        }else if (dataMeal.get(position).equals("午餐")){
+                            i = 2;
+                        }else if (dataMeal.get(position).equals("晚餐")){
+                            i = 3;
+                        }
+                        mMealData = mHelper.queryDishesByMealId(i);
+                        adapter = new MealDataAdapter(DishManageActivity.this,mMealData);
+                        gridManage.setAdapter(adapter);
+//                      adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }).start();
     }
 
 }

@@ -9,10 +9,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
-import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
-
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentProductBinding
-import com.yannuo.dgcanteen.model.ProductInfo
+import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.LogUtil
 
 
@@ -29,9 +28,9 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
 
     }
 
-    constructor(type : String?):super(){
-        title = type
-    }
+//    constructor(type : String?):super(){
+//        title = type
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,21 +64,26 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
         binding.rvManInfo.adapter = adapter
         adapter.setImgSize(gridLayoutManager)
 
-        val dataList = mutableListOf<ProductInfo>()
-        val direction =  context?.filesDir?.absolutePath.let {
-            "$it/myPic/"
-        }
-        DbHelper.getInstance().queryProductsByType(title)
+        val dataList = mutableListOf<DishesInfo>()
+//        val direction =  context?.filesDir?.absolutePath.let {
+//            "$it/myPic/"
+//        }
+//        DbHelper.getInstance().queryProductsByType("1")
+//        DishesDBHelper.getInstance(activity).queryDishesByMealId(1)
+        DishesDBHelper.getInstance(activity).queryDishes()
             .forEach {
-                val path = it.pictureName.let {
-                    "$direction$it"
-                }
-                dataList.add(ProductInfo (
-                    it.pName,
-                    it.pMoney,
-                    path,
-                    it.type,
-                    it.barCode
+//                val path = it.pictureName.let {
+//                    "$direction$it"
+//                }
+                dataList.add(DishesInfo (
+                    it.dishesId,
+                    it.dishesName,
+                    it.mealId,
+                    it.windowId,
+                    it.price,
+                    it.unit,
+                    it.imgUrl,
+                    it.status
                 ))
             }
 
@@ -98,15 +102,15 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
                     }
                 }
             }else {
-                LogUtil.d(TAG, it.filename)
+                LogUtil.d(TAG, it.imgUrl)
 
                 //相同的类型就进行页面更新
-                if (it.type.equals(title)) {
-                    adapter.update(it)
-                }
-//                adapter.data.indexOf(it).apply {
-//                    adapter.notifyItemChanged(this, "count")
+//                if (it.type.equals(title)) {
+//                    adapter.update(it)
 //                }
+                adapter.data.indexOf(it).apply {
+                    adapter.notifyItemChanged(this, "count")
+                }
             }
         }
 //        binding.rvManInfo.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.yannuo.dgcanteen.activitys.PayForFragment
 import com.yannuo.dgcanteen.dao.ProductsTable
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.PrinterTicker
 import com.yannuo.dgcanteen.model.ProductInfo
@@ -56,11 +57,11 @@ class PayForPresenter(handler: PayForFragment.MyHandler,context : Context?) {
 
     }
 
-    fun calculate(list : MutableList<ProductInfo>):FloatArray{
+    fun calculate(list : MutableList<DishesInfo>):FloatArray{
         val result = FloatArray(2)
         list.forEach {
             if (it.count > 0){
-                val mid = it.pMoney.toBigDecimal().multiply(it.count.toBigDecimal()).add(result.get(0).toBigDecimal())
+                val mid = it.price.toBigDecimal().multiply(it.count.toBigDecimal()).add(result.get(0).toBigDecimal())
                 result.set(0,mid.toFloat())
                 result.set(1,it.count + result.get(1))
             }

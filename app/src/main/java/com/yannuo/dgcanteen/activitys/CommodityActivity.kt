@@ -18,6 +18,7 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.TableLayoutBinding
 import com.yannuo.dgcanteen.interfaces.ImportExportListener
@@ -53,6 +54,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
     private var navigation = true
     private var clickCount = 0
     private var preClickTime = 0
+    private var mealIds = 0
 
 
     override fun bindLayout() {
@@ -100,6 +102,8 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
 
+                    dialog.cancel()
+
                     //弹出密码对话框
                     clickCount = 0
                     binding.tvTitle.setOnClickListener(View.OnClickListener {view ->
@@ -121,13 +125,13 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
                         }
                     })
 
-                    dialog.cancel()
                     //获取商品类别
-                    val types = DbHelper.getInstance().group
-                    val pagerAdapter = ScreenSlidePagerAdapter(this, types)
-                    binding.vpPeopleInfo.adapter = pagerAdapter
+//                    val types = DbHelper.getInstance().group
+//                    val pagerAdapter = ScreenSlidePagerAdapter(this, types)
+//                    val pagerAdapter = ProductFragment()
+//                    binding.vpPeopleInfo.adapter = pagerAdapter
 
-                    TabLayoutMediator(binding.tbSubTitle, binding.vpPeopleInfo) { tab, position ->
+                    /*TabLayoutMediator(binding.tbSubTitle, binding.vpPeopleInfo) { tab, position ->
                         val bid = TableLayoutBinding.inflate(layoutInflater, null, false)
                         tab.customView = bid.root
                         bid.tvTableTitle.text = types[position]
@@ -165,10 +169,10 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
                         }
 
                         override fun onTabReselected(tab: TabLayout.Tab?) {}
-                    })
+                    })*/
                 }
 
-            binding.vpPeopleInfo.isUserInputEnabled = false
+//            binding.vpPeopleInfo.isUserInputEnabled = false
             ViewModelProvider(this).get(ProductsVM::class.java)
         }
     }
@@ -187,11 +191,11 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         }
     }
 
-    override fun onBackPressed() {
-        if (binding.vpPeopleInfo.currentItem == 0)
-            super.onBackPressed()
-        else binding.vpPeopleInfo.currentItem = binding.vpPeopleInfo.currentItem - 1
-    }
+//    override fun onBackPressed() {
+//        if (binding.vpPeopleInfo.currentItem == 0)
+//            super.onBackPressed()
+//        else binding.vpPeopleInfo.currentItem = binding.vpPeopleInfo.currentItem - 1
+//    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -252,12 +256,16 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
             if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
                 binding.mealTime.setText(R.string.breakfast_time)
+                mealIds = 1
             }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
                 binding.mealTime.setText(R.string.lunch_time)
+                mealIds = 2
             }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
                 binding.mealTime.setText(R.string.dinner_time)
+                mealIds = 3
             }else{
                 binding.mealTime.setText(R.string.unOpen_meal)
+                mealIds = 0
             }
         })
     }

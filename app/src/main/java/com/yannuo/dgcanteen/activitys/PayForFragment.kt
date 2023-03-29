@@ -14,10 +14,8 @@ import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.databinding.PayforBinding
-import com.yannuo.dgcanteen.model.PayResultForUI
-import com.yannuo.dgcanteen.model.ProductInfo
+import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.*
@@ -85,7 +83,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
 
         //选择的购买商品添加到购物车
         model.sendCountNotify.observe(viewLifecycleOwner) {
-            LogUtil.d(TAG, it.filename)
+            LogUtil.d(TAG, it.imgUrl)
             updateUiItems( it,false)
         }
 
@@ -144,7 +142,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
     }
 
 
-    override fun onEventClick(data: ProductInfo) {
+    override fun onEventClick(data: DishesInfo) {
         model.receiveCountNotify.postValue(data)
         val res = presenter.calculate(adapter.data)
         binding.tvTotalMoney.text = "${res.get(0).toString()}元"
@@ -162,7 +160,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
     }
 
     //更新购物车UI
-    private fun updateUiItems( it: ProductInfo,accumulation :Boolean){
+    private fun updateUiItems( it: DishesInfo,accumulation :Boolean){
         adapter.insertedData(it,accumulation)
         binding.rvSelectItem.scrollToPosition(adapter.data.size -1)  //插入数据后滑动到底部
         val res = presenter.calculate(adapter.data)

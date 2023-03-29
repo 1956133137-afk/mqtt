@@ -11,6 +11,7 @@ class ScreenSlidePagerAdapter(fa: FragmentActivity,list :MutableList<String>) : 
     override fun getItemCount(): Int = list?.size ?:0
 
     override fun createFragment(position: Int): Fragment {
-        return ProductFragment(list?.get(position))
+//        return ProductFragment(list?.get(position))
+        return ProductFragment()
     }
 }

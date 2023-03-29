@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -49,7 +48,6 @@
             </intent-filter>
         </receiver>
 
-
         <service
             android:name=".service.MyMqttService"
             android:stopWithTask="true" />
@@ -59,15 +57,11 @@
         <service
             android:name=".service.UpdateServer"
             android:stopWithTask="true" />
-
-
         <service
             android:name="com.yannuo.dgcanteen.service.KeepAliveJobService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-
     </application>
-
 
 </manifest>
