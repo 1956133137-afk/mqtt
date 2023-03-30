@@ -110,6 +110,14 @@ public class DishesDBHelper {
                 .list();
     }
 
+    public List<DishesTable> queryDishesByStatus(int Status){
+
+        return  mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.Status.eq(Status))
+                .build()
+                .list();
+    }
+
     /**
      * 获取全部菜品
      * @return
@@ -118,5 +126,15 @@ public class DishesDBHelper {
         return  mDishesTableDao.queryBuilder()
                 .build()
                 .list();
+    }
+
+    /**
+     * 更新数据
+     * @param
+     */
+    public void updateDishes(String id,int status){
+        DishesTable dishes = mDishesTableDao.queryBuilder().where(DishesTableDao.Properties.DishesId.eq(id)).build().unique();
+        dishes.setStatus(status);
+        mDishesTableDao.update(dishes);
     }
 }

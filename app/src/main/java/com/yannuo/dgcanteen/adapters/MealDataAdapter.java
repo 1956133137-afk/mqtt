@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
 
 import java.util.List;
@@ -24,9 +25,12 @@ public class MealDataAdapter extends BaseAdapter {
     private Context mContext;
     private List<DishesTable> mMealData;
 
-    public MealDataAdapter(Context context , List<DishesTable> mealData){
+    private DishesDBHelper mHelper;
+
+    public MealDataAdapter(Context context , List<DishesTable> mealData, DishesDBHelper mHelper){
         this.mContext = context;
         this.mMealData = mealData;
+        this.mHelper = mHelper;
     }
 
     @Override
@@ -82,14 +86,16 @@ public class MealDataAdapter extends BaseAdapter {
         convertView.findViewById(R.id.btn_status).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mMealData.get(position).getStatus() == 0){
-                    mMealData.get(position).setStatus(1);
+                if (mealData.getStatus() == 0){
+                    mealData.setStatus(1);
+                    mHelper.updateDishes(mealData.getDishesId(),1);
                     ToastShowUtil.show(mContext,"菜品已经上架");
                 }else {
-                    mMealData.get(position).setStatus(0);
+                    mealData.setStatus(0);
+                    mHelper.updateDishes(mealData.getDishesId(),0);
                     ToastShowUtil.show(mContext,"菜品已经下架");
                 }
-                updateData(holder,mMealData.get(position).getStatus());
+                updateData(holder,mealData.getStatus());
             }
         });
 

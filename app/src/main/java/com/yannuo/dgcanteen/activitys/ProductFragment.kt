@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,7 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
     lateinit var binding:FragmentProductBinding
 
     private var pager = 0
-    private var title :String? =null
+    private var title :Int? =null
     private lateinit var adapter :ProductsAdapter
     private lateinit var model : ProductsVM
 
@@ -28,9 +29,9 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
 
     }
 
-//    constructor(type : String?):super(){
-//        title = type
-//    }
+    constructor(mealId : Int?):super(){
+        title = mealId
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,34 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("ning", title.toString())
+        val dataList = mutableListOf<DishesInfo>()
+//        val direction =  context?.filesDir?.absolutePath.let {
+//            "$it/myPic/"
+//        }
+//        DbHelper.getInstance().queryProductsByType("1")
+//        DishesDBHelper.getInstance(activity).queryDishesByMealId(1)
+        val list = DishesDBHelper.getInstance(activity).queryDishesByStatus(1)
+        list.forEach {
+//                val path = it.pictureName.let {
+//                    "$direction$it"
+//                }
+            dataList.add(DishesInfo (
+                it.dishesId,
+                it.dishesName,
+                it.mealId,
+                it.windowId,
+                it.price,
+                it.unit,
+                it.imgUrl,
+                it.status
+            ))
+        }
+        adapter.data = dataList
+    }
+
 
     //
     private fun initView() {
@@ -64,30 +93,7 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
         binding.rvManInfo.adapter = adapter
         adapter.setImgSize(gridLayoutManager)
 
-        val dataList = mutableListOf<DishesInfo>()
-//        val direction =  context?.filesDir?.absolutePath.let {
-//            "$it/myPic/"
-//        }
-//        DbHelper.getInstance().queryProductsByType("1")
-//        DishesDBHelper.getInstance(activity).queryDishesByMealId(1)
-        DishesDBHelper.getInstance(activity).queryDishes()
-            .forEach {
-//                val path = it.pictureName.let {
-//                    "$direction$it"
-//                }
-                dataList.add(DishesInfo (
-                    it.dishesId,
-                    it.dishesName,
-                    it.mealId,
-                    it.windowId,
-                    it.price,
-                    it.unit,
-                    it.imgUrl,
-                    it.status
-                ))
-            }
 
-        adapter.data = dataList
     }
 
     private fun initEvent() {

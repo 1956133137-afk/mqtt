@@ -4,23 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Typeface
 import android.os.Build
-import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
-import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
-import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
-import com.yannuo.dgcanteen.databinding.TableLayoutBinding
 import com.yannuo.dgcanteen.interfaces.ImportExportListener
 import com.yannuo.dgcanteen.model.Result
 import com.yannuo.dgcanteen.util.*
@@ -59,7 +50,6 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
-        scheduledTimer()
     }
 
     private fun havePermission():Boolean{
@@ -104,75 +94,9 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
                     dialog.cancel()
 
-                    //弹出密码对话框
-                    clickCount = 0
-                    binding.tvTitle.setOnClickListener(View.OnClickListener {view ->
-                        if (clickCount == 0){
-                            preClickTime = System.currentTimeMillis().toInt()
-                            clickCount++
-                        } else if (clickCount == 1){
-                            var curTime = System.currentTimeMillis().toInt()
-                            if (curTime - preClickTime < 500){
-                                val passwordDialog = LoginPasswordDialog()
-                                val display = this.windowManager.defaultDisplay
-                                passwordDialog.PasswordDialog(this,display)
-                            }
-                            clickCount = 0;
-                            preClickTime = 0;
-                        }else{
-                            clickCount = 0;
-                            preClickTime = 0;
-                        }
-                    })
+                    scheduledTimer()
 
-                    //获取商品类别
-//                    val types = DbHelper.getInstance().group
-//                    val pagerAdapter = ScreenSlidePagerAdapter(this, types)
-//                    val pagerAdapter = ProductFragment()
-//                    binding.vpPeopleInfo.adapter = pagerAdapter
-
-                    /*TabLayoutMediator(binding.tbSubTitle, binding.vpPeopleInfo) { tab, position ->
-                        val bid = TableLayoutBinding.inflate(layoutInflater, null, false)
-                        tab.customView = bid.root
-                        bid.tvTableTitle.text = types[position]
-                        if (position == 0) {
-                            bid.tvTableTitle.setTextColor(resources.getColor(R.color.table_unselet))
-                            bid.tvTableTitle.typeface = Typeface.DEFAULT_BOLD
-                            bid.tvTableTitle.textSize = 45.0f
-                        }else{
-                            bid.tvTableTitle.textSize = 30.0f
-                            bid.tvTableTitle.setTextColor(resources.getColor(R.color.table_unselet))
-                        }
-                    }.attach()
-
-                    if (types.size < 0) ToastShowUtil.show("请先导入商品")
-                    binding.tbSubTitle.addOnTabSelectedListener(object :
-                        TabLayout.OnTabSelectedListener {
-                        override fun onTabSelected(tab: TabLayout.Tab?) {
-                            tab?.also {
-                                val view = it.customView
-                                val tv = view!!.findViewById<TextView>(R.id.tv_table_title)
-                                tv.textSize = 45.0f
-                                tv.setTextColor(resources.getColor(R.color.table_unselet))
-                                tv.typeface = Typeface.DEFAULT_BOLD
-                            }
-                        }
-
-                        override fun onTabUnselected(tab: TabLayout.Tab?) {
-                            tab?.also {
-                                val view = it.customView
-                                val tv = view!!.findViewById<TextView>(R.id.tv_table_title)
-                                tv.textSize = 30.0f
-                                tv.setTextColor(resources.getColor(R.color.table_unselet))
-                                tv.typeface = Typeface.DEFAULT
-                            }
-                        }
-
-                        override fun onTabReselected(tab: TabLayout.Tab?) {}
-                    })*/
                 }
-
-//            binding.vpPeopleInfo.isUserInputEnabled = false
             ViewModelProvider(this).get(ProductsVM::class.java)
         }
     }
@@ -213,21 +137,26 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
 
     override fun onClick(v: View) {
-        when(v.id){
-            binding.tvTitle.id ->{
-                System.arraycopy(longArray,1,longArray,0,longArray.size -1)
-                longArray[longArray.size -1] = System.currentTimeMillis()
-                val diff =  longArray.get(longArray.size -1) - longArray.get(0)
-                if (diff <= diffTime){
-                    binding.tvTitle.isEnabled = false
-                    LogUtil.d(TAG,"连续点击...")
-                    val intent = Intent(this,LoggingDataActivity::class.java)
-                    startActivity(intent)
-                    finish()
+        //弹出密码对话框
+        clickCount = 0
+        binding.tvTitle.setOnClickListener(View.OnClickListener {view ->
+            if (clickCount == 0){
+                preClickTime = System.currentTimeMillis().toInt()
+                clickCount++
+            } else if (clickCount == 1){
+                var curTime = System.currentTimeMillis().toInt()
+                if (curTime - preClickTime < 500){
+                    val passwordDialog = LoginPasswordDialog()
+                    val display = this.windowManager.defaultDisplay
+                    passwordDialog.PasswordDialog(this,display)
                 }
+                clickCount = 0;
+                preClickTime = 0;
+            }else{
+                clickCount = 0;
+                preClickTime = 0;
             }
-        }
-
+        })
     }
 
 //    定时器

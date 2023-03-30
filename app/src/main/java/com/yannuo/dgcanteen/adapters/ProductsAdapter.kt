@@ -21,7 +21,7 @@ import com.yannuo.dgcanteen.model.ProductInfo
 import com.yannuo.dgcanteen.util.LogUtil
 
 
-class ProductsAdapter(title :String?,context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
+class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
     private var listener: WorkListener ?= null
     private var cnt = context
     private var wh: GridLayoutManager? = null
