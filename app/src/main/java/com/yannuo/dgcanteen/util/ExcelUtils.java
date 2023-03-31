@@ -88,9 +88,9 @@ public class ExcelUtils {
 
             //拷贝
             File usbPicturePath = new File(usbPath);
-            for(File lFile : usbPicturePath.listFiles()){
-                lFile.delete();
-            }
+//            for(File lFile : usbPicturePath.listFiles()){
+//                lFile.delete();
+//            }
 
             byte[] buffer = new byte[4096];
             int len = 0 ;

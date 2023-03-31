@@ -2,9 +2,15 @@ package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.display.DisplayManager
+import android.media.MediaRouter
 import android.os.Build
+import android.os.Handler
+import android.os.Message
+import android.view.Display
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
@@ -17,16 +23,19 @@ import com.yannuo.dgcanteen.model.Result
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
+import com.yannuo.dgcanteen.views.PayFinishDialog
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener {
+open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener,
+    DifferentDisplay.CallbackListener {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -37,7 +46,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         Manifest.permission.CAMERA,
 
         )
-
+    private lateinit var handler : MyHandler
     private var value = 0
     private var longArray = LongArray(3)
     private var diffTime = 1000
@@ -46,10 +55,14 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
     private var clickCount = 0
     private var preClickTime = 0
     private var mealIds = 0
+    private var displays : Display?= null
+
+    private var presentation : DifferentDisplay ?= null
 
 
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
+        scheduledTimer()
     }
 
     private fun havePermission():Boolean{
@@ -98,12 +111,34 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
                 }
             ViewModelProvider(this).get(ProductsVM::class.java)
+            initPresentation()
+            handler = MyHandler(this)
         }
     }
 
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
+
+
+    }
+
+    private fun initPresentation() {
+        val mediaRouter = getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter?
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+        displayManager?.displays?.also {
+            displays =it[1]
+        }
+        val route = mediaRouter!!.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO)
+        if (route != null) {
+            val presentationDisplay = route.presentationDisplay
+            if (presentationDisplay != null){
+                 presentation = DifferentDisplay( this, displays)
+                presentation?.setSureCallback(this)
+                presentation?.show()
+
+            }
+        }
     }
 
     private fun initEvent(){
@@ -159,7 +194,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         })
     }
 
-//    定时器
+    //    定时器
     open fun scheduledTimer() {
         val service : ScheduledExecutorService = Executors.newScheduledThreadPool(4)
         service.scheduleAtFixedRate({
@@ -198,4 +233,92 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
             }
         })
     }
+
+    override fun onSureListener(event: Int, obj: Any?) {
+        LogUtil.d(TAG,"event : $event")
+        handler.sendMessage(handler.obtainMessage(event,obj))
+    }
+
+    fun prest(){
+
+        val prt = ChooseDisplay(this, displays)
+//                presentation.set(this)
+        prt.show()
+        presentation?.cancel()
+
+//        val mediaRouter = getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter?
+//        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+//        displayManager?.displays?.also {
+//            displays =it[1]
+//        }
+//        val route = mediaRouter!!.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO)
+//        if (route != null) {
+//            val presentationDisplay = route.presentationDisplay
+//            if (presentationDisplay != null){
+
+
+
+
+//            }
+//        }
+    }
+
+    inner class MyHandler(context : CommodityActivity) : Handler(){
+        private var reference : WeakReference<CommodityActivity> = WeakReference(context)
+        private var finishDialog : PayFinishDialog?= null
+
+        override fun handleMessage(msg: Message) {
+            val  ref = reference.get() ?: return
+            when(msg.what){
+                1 ->{ //弹出对话框，等待用户扫码
+                    prest()
+                }
+
+//                Constant.EVENT_THREE ->{ //1.交易结果通知，展示结果
+//
+//                    payQrCodeDialog?.cancel() //关闭扫码界面
+//                    val  data = msg.obj as PayResultForUI
+//                    finishDialog?.cancel()
+//                    finishDialog =  PayFinishDialog(ref.requireContext(),data)
+//                    finishDialog?.show()
+//                    //2.清空购物车
+//
+//
+//
+//
+//                    CommonAndDpToPxUtil.speakWork("支付失败")
+//                }
+//                Constant.EVENT_FOUR ->{
+//                    //展示扫码界面
+//                    val data = msg.obj as Bitmap
+//                    ref.startPayQrCodeDialog(data)
+//                }
+//
+//                Constant.EVENT_FIVE ->{
+//                    //是商品条码
+//                    val product = ref.presenter.getBarcodeProduct(msg.obj as String)?.also {
+//                        val path = it.pictureName.let {
+//                            "$mProductsDir$it"
+//                        }
+//                        val data =  ProductInfo (
+//                            it.pName,
+//                            it.pMoney,
+//                            path,
+//                            it.type,
+//                            it.barCode
+//                        )
+//                        //1、更新购物车
+//                        updateUiItems( data,true)
+//                        //2、更新商品选择列表fragment
+//                        ref.model.receiveCountNotify.postValue(ref.adapter.getSpecifyBarcode(data.barCode))
+//                    }
+//                    if (product == null) ToastShowUtil.show("无效商品条码")
+//                }
+
+            }
+        }
+    }
+
+
+
 }

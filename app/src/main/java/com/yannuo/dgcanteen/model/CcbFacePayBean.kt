@@ -1,6 +1,6 @@
 package com.yannuo.dgcanteen.model
 
-class CcbFacePayBean {
+ class CcbFacePayBean {
     var CAMPUS_ID = ""  //园区ID
     var CORP_ID = ""   //合作方ID
     var PAYMENT = ""   //原始金额

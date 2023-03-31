@@ -28,10 +28,10 @@ object NumberGenerateUtil {
 
     private fun snToNumber():String{
         val content = StringBuilder()
-        val sn = CommonAndDpToPxUtil.getDeviceSerial().substring(0,4)
-        for (i in sn.indices){
-           content.append(sn.substring(i,i+1).toInt(16))
-        }
+        val sn = CommonAndDpToPxUtil.getDeviceSerial().substring(0,7)
+//        for (i in sn.indices){
+//           content.append(sn.substring(i,i+1).toInt(16))
+//        }
         val re = 8 - content.length
         for (i in 0 until re){
             content.append(0)
