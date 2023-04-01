@@ -12,21 +12,14 @@ import android.os.Message
 import android.view.Display
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.interfaces.CallbackListener
-import com.yannuo.dgcanteen.interfaces.ImportExportListener
-import com.yannuo.dgcanteen.model.Result
 import com.yannuo.dgcanteen.util.*
-import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -52,7 +45,6 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
     private var navigation = true
     private var clickCount = 0
     private var preClickTime = 0
-    private var mealIds = 0
     private var displays : Display?= null
 
     private var productsDisplay : DifferentDisplay ?= null  //点餐界面
@@ -61,7 +53,6 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
-        scheduledTimer()
     }
 
     private fun havePermission():Boolean{
@@ -92,6 +83,10 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
             initPresentation()
             handler = MyHandler(this)
             initEvent()
+
+            val timer = Timer()
+            timer.schedule(timerTask,0,1000)
+
         }
     }
 
@@ -146,67 +141,50 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
 
     override fun onClick(v: View) {
         //弹出密码对话框
-        clickCount = 0
-        binding.tvTitle.setOnClickListener(View.OnClickListener {view ->
-            if (clickCount == 0){
-                preClickTime = System.currentTimeMillis().toInt()
-                clickCount++
-            } else if (clickCount == 1){
-                var curTime = System.currentTimeMillis().toInt()
-                if (curTime - preClickTime < 500){
-                    val passwordDialog = LoginPasswordDialog()
-                    val display = this.windowManager.defaultDisplay
-                    passwordDialog.PasswordDialog(this,display)
-                }
-                clickCount = 0;
-                preClickTime = 0;
-            }else{
-                clickCount = 0;
-                preClickTime = 0;
+        if (clickCount == 0){
+            preClickTime = System.currentTimeMillis().toInt()
+            clickCount++
+        } else if (clickCount == 1){
+            var curTime = System.currentTimeMillis().toInt()
+            if (curTime - preClickTime < 500){
+                val passwordDialog = LoginPasswordDialog()
+                val display = this.windowManager.defaultDisplay
+                passwordDialog.PasswordDialog(this,display)
             }
-        })
+            clickCount = 0;
+            preClickTime = 0;
+        }else{
+            clickCount = 0;
+            preClickTime = 0;
+        }
     }
 
     //    定时器
-    open fun scheduledTimer() {
-        val service : ScheduledExecutorService = Executors.newScheduledThreadPool(4)
-        service.scheduleAtFixedRate({
-            try {
-                scheduledTask()
-            } catch (e:Throwable) {
-                e.printStackTrace()
-            }
-        }, 0, 1000, TimeUnit.MILLISECONDS)
+    private val timerTask: TimerTask = object : TimerTask() {
+        override fun run() {
+            runOnUiThread(Runnable {
+                if(NetWorkUtil.isNetWorkConnected(this@CommodityActivity)){
+                    binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
+                    binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
+                    binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
+                }else {
+                    binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
+                    binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
+                    binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
+                }
+
+                if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
+                    binding.mealTime.setText(R.string.breakfast_time)
+                }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
+                    binding.mealTime.setText(R.string.lunch_time)
+                }else if (TimeUtil.isCurrentInTimeScope(16,30,19,30)){
+                    binding.mealTime.setText(R.string.dinner_time)
+                }else{
+                    binding.mealTime.setText(R.string.unOpen_meal)
+                }
+            })
+        }
     }
-
-    private fun scheduledTask(){
-        runOnUiThread(Runnable {
-            if(NetWorkUtil.isNetWorkConnected(this)){
-                binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-                binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
-                binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
-            }else {
-                binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
-                binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
-                binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
-            }
-
-            if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
-                binding.mealTime.setText(R.string.breakfast_time)
-                mealIds = 1
-            }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
-                binding.mealTime.setText(R.string.lunch_time)
-                mealIds = 2
-            }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
-                binding.mealTime.setText(R.string.dinner_time)
-                mealIds = 3
-            }else{
-                binding.mealTime.setText(R.string.unOpen_meal)
-                mealIds = 0
-            }
-        })
-    }
-
 
     /**
      * 副屏时间回调

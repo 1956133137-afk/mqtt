@@ -118,6 +118,14 @@ public class DishesDBHelper {
                 .list();
     }
 
+    public List<DishesTable> queryDishesByMealIdAneStatus(int MealId,int Status){
+
+        return  mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(MealId),DishesTableDao.Properties.Status.eq(Status))
+                .build()
+                .list();
+    }
+
     /**
      * 获取全部菜品
      * @return

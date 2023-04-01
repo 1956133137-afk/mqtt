@@ -1,20 +1,17 @@
 package com.yannuo.dgcanteen.activitys;
 
-import android.app.Activity;
 import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -27,33 +24,29 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
 import com.yannuo.dgcanteen.model.DishesInfo;
-import com.yannuo.dgcanteen.util.NumberGenerateUtil;
 import com.yannuo.dgcanteen.util.TimeUtil;
 import com.yannuo.dgcanteen.views.PayFinishDialog;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import kotlin.jvm.internal.Intrinsics;
 import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
 
 public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
 
     private DifferrentDialogBinding binding;
     private CallbackListener listener;
-    private int mealIds = 0;
+    private int mealIds = 0,mMealId = 0;
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
     private PayForPresenter presenter;
     private PayForAdapter adapterPayFor;
-    private ProductsVM model;
     private DishesInfo data;
 
     public DifferentDisplay(Context outerContext, Display display) {
@@ -67,8 +60,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         super.onCreate(savedInstanceState);
         binding = DifferrentDialogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        scheduledTimer();
         initObject();
+        Timer timer = new Timer();
+        timer.schedule(timerTask,0,1000);
         initView();
         initEvent();
     }
@@ -80,7 +74,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         adapterDishes.setImgSize(gridLayoutManager);
-        initData();
+
 
 //        scope = new CoroutineScope(Dispatchers.Default());
         handler = new MyHandler();
@@ -96,38 +90,20 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private void initView() {
 
         binding.rvSelectItem.setAdapter(adapterPayFor);
-        //选择的购买商品添加到购物车
 
-
-/*        binding.btSureMeal.setOnClickListener(new View.OnClickListener() {
+        //确定取餐
+        binding.btSureMeal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                MediaRouter mediaRouter = (MediaRouter) getContext().getSystemService(Context.MEDIA_ROUTER_SERVICE);
-//                DisplayManager displayManager = (DisplayManager)  getContext().getSystemService(Context.DISPLAY_SERVICE);
-//                Display[] displays = displayManager.getDisplays();
-//                MediaRouter.RouteInfo route = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
-//                if (route != null) {
-//                    Display presentationDisplay = route.getPresentationDisplay();
-//                    if (presentationDisplay != null) {
-//                        ChooseDisplay   presentation = new ChooseDisplay( getContext(), displays[1]);
-//                        presentation.show();
-//                    }
-//                }
-                if (listener != null) {
-                    listener.onSureListener(1,null);
-                }
+
             }
-        });*/
+        });
 
     }
 
     private void initData() {
-//        binding.rvManInfo.setLayoutManager(new LinearLayoutManager(getContext()));
-//        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "font/kai.ttf");
-//        binding.tvSecondName.setTypeface(typeface);
-
         List<DishesInfo> dataList = new ArrayList<>();
-        List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByStatus(1);
+        List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds,1);
         for (DishesTable u : list){
             dataList.add(new DishesInfo(
                     u.getDishesId(),
@@ -150,27 +126,26 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             public void onClick(View view) {
                 if (adapterPayFor.getData().size() < 1)
                     return;
-                for (DishesInfo u : adapterDishes.getData()) {
-                    if (u.getCount() != 0) {
-                        u.setCount(0);
-                        adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(u), "count");
-                    }
-                }
                 clearShoppingCart();
             }
         });
-
     }
 
     //清空购物车
     private void clearShoppingCart() {
+        for (DishesInfo u : adapterDishes.getData()) {
+            if (u.getCount() != 0) {
+                u.setCount(0);
+                adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(u), "count");
+            }
+        }
         adapterPayFor.clear();
         binding.tvTotalMoney.setText("0.0元");
         binding.tvTotalCount.setText("0");
     }
 
     //更新购物车UI
-    private void updateUiItems(DishesInfo it,Boolean accumulation){
+    private void updateUiItems(DishesInfo it, Boolean accumulation){
         adapterPayFor.insertedData(it,accumulation);
         binding.rvSelectItem.scrollToPosition(adapterPayFor.getData().size() -1); //插入数据后滑动到底部
         float[] res = presenter.calculate(adapterPayFor.getData());
@@ -218,38 +193,38 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         PayFinishDialog finishDialog = null;
 
         public void handleMessage(Message msg) {
-
+            super.handleMessage(msg);
         }
     }
 
     //    定时器
-    private void scheduledTimer() {
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(4);
-        service.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    scheduledTask();
-                }catch (Throwable e){
-                    e.printStackTrace();
+    public final TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
+                        binding.mealTime.setText(R.string.breakfast_time);
+                        mealIds = 1;
+                    }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
+                        binding.mealTime.setText(R.string.lunch_time);
+                        mealIds = 2;
+                    }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
+                        binding.mealTime.setText(R.string.dinner_time);
+                        mealIds = 3;
+                    }else{
+                        binding.mealTime.setText(R.string.unOpen_meal);
+                        mealIds = 0;
+                    }
+                    if (mMealId != mealIds){
+                        mMealId = mealIds;
+                        clearShoppingCart();
+                        initData();
+                    }
                 }
-            }
-        }, 0, 1000, TimeUnit.MILLISECONDS);
-    }
-
-    private void scheduledTask() {
-        if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
-            binding.mealTime.setText(R.string.breakfast_time);
-            mealIds = 1;
-        }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
-            binding.mealTime.setText(R.string.lunch_time);
-            mealIds = 2;
-        }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
-            binding.mealTime.setText(R.string.dinner_time);
-            mealIds = 3;
-        }else{
-            binding.mealTime.setText(R.string.unOpen_meal);
-            mealIds = 0;
+            });
         }
-    }
+    };
+
 }
