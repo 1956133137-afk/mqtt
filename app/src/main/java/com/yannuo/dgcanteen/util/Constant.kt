@@ -39,4 +39,9 @@ object Constant {
 
     //当前版本
     const val Version = ""
+
+
+    /************** EventBus *****************/
+    const val EVENT_FIRST = 1 //取餐
+    const val EVENT_SECOND = 2 // 刷脸支付
 }

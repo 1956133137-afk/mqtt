@@ -63,7 +63,7 @@
                 android:layout_marginStart="70px"
                 android:gravity="center"
                 android:padding="3px"
-                android:text="合计:￥ 0.00"
+
                 android:textColor="#919191"
                 android:textSize="35px"
                 android:textStyle="bold"

@@ -1,6 +1,7 @@
 package com.yannuo.paymoney.utils
 
 import com.google.gson.JsonParseException
+import com.yannuo.dgcanteen.model.CanteenResponse
 import org.apache.http.conn.ConnectTimeoutException
 import org.json.JSONException
 import retrofit2.HttpException
@@ -35,8 +36,8 @@ class ApiException(val code: Int, override val message: String?, override val ca
       }
    }
 
-//    fun <T> toResponse(): PayResponse<T> {
-//        return PayResponse(code,message)
-//    }
+    fun <T> toResponse(): CanteenResponse<T> {
+        return CanteenResponse(code,message)
+    }
 
 }

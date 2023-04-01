@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.supervisorScope
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.FileReader
 import java.util.concurrent.TimeUnit
@@ -66,6 +67,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
         LogUtil.d(TAG,"服务启动")
         //新版本检查任务
         checkNewApp()
+
+
+
 
     }
 

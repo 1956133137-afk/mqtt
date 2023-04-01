@@ -4,8 +4,9 @@ package com.yannuo.dgcanteen.interfaces
 
 import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
+import com.yannuo.dgcanteen.model.CanteenResponse
+import com.yannuo.dgcanteen.model.DayDishesBean
 import io.reactivex.Observable
-
 import retrofit2.http.*
 
 interface ApiService {
@@ -16,10 +17,9 @@ interface ApiService {
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
     // 获取建行商户信息
-//    @FormUrlEncoded
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/panda/merchant")
-//    suspend fun ccbMerchant( @Query("carrier")sn : String): PayResponse<String>
+    @Headers("content-type: application/json")
+    @GET("android/getDishes")
+    suspend fun ccbDishes( @Query("deviceId")sn : String): CanteenResponse<MutableList<DayDishesBean>>
 //
 //
 //    //  建行

@@ -2,31 +2,42 @@ package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.Build
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.view.Display
 import android.view.View
 import android.widget.Toast
+import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.presenters.CommodityPresenter
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
-import com.yannuo.dgcanteen.interfaces.CallbackListener
+import com.yannuo.dgcanteen.interfaces.ICommodityPresenter
+import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-
-open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener,
-    CallbackListener {
+class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener,
+    ICommodityPresenter {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -37,17 +48,22 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         Manifest.permission.CAMERA,
     )
 
+    private lateinit var mPresenter :CommodityPresenter
+
     private lateinit var handler : MyHandler
     private var value = 0
-    private var longArray = LongArray(3)
-    private var diffTime = 1000
     private var mXService : MyService ?= null
     private var navigation = true
     private var clickCount = 0
     private var preClickTime = 0
     private var displays : Display?= null
+    private var mFacePayService: ZHSTFacePayService? = null
 
-    private var productsDisplay : DifferentDisplay ?= null  //点餐界面
+    private var mProductsDisplay : DifferentDisplay ?= null  //点餐界面
+    private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
+    private val messageWhat = 1
+    private val messageWhatSecond = 2
+
 
 
 
@@ -55,22 +71,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         binding = ActivityCommodityBinding.inflate(layoutInflater)
     }
 
-    private fun havePermission():Boolean{
-        var result = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            for (str in permissions){
-                result = ((checkSelfPermission(str) == PackageManager.PERMISSION_GRANTED) && result)
-            }
-        }
-        return result
-    }
 
-    /* 请求程序所需权限 */
-    private fun requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(permissions,10086)
-        }
-    }
 
     @SuppressLint("CheckResult")
     override fun onInit() {
@@ -81,7 +82,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         }else {
 
             initPresentation()
-            handler = MyHandler(this)
+            initObj()
             initEvent()
 
             val timer = Timer()
@@ -106,13 +107,41 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         if (route != null) {
             val presentationDisplay = route.presentationDisplay
             if (presentationDisplay != null){
-                productsDisplay = DifferentDisplay( this, displays)
-//                productsDisplay?.setSureCallback(this)
-                productsDisplay?.show()
-
+                mProductsDisplay = DifferentDisplay( this, displays)
+                mProductsDisplay?.show()
             }
         }
     }
+
+    private fun initObj(){
+        handler = MyHandler(this)
+        mPresenter = CommodityPresenter(this)
+        mPresenter.listener = this
+        EventBus.getDefault().register(this)
+
+        val scope = CoroutineScope(Dispatchers.Default)
+        scope.launch {
+           val respository =  PayRepositoryOfPay()
+            val rs = respository.getDayDishes()
+            LogUtil.d(TAG,"")
+        }
+        val lIntent = Intent()
+        lIntent.action = "com.ccb.smartcanteen.FacePayService"
+        lIntent.setPackage("com.ccb.smartcanteen")
+        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
+    }
+
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            LogUtil.d(TAG, " onServiceConnected")
+            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            LogUtil.d(TAG, " onServiceDisconnected")
+        }
+    }
+
 
     private fun initEvent(){
         binding.tvTitle.setOnClickListener(this)
@@ -124,19 +153,29 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
     }
 
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 10086) {
-            var granted = true
-            for (result in grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) granted = false
+    //事件监听
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun eventArrive(event : MessageEvent){
+        when(event.code) {
+            Constant.EVENT_FIRST -> {
+                event.any?.also {
+                    val data = it as ProductsDetail
+                    val copy = data.copy()
+                    LogUtil.d(TAG, "event : ${event.code}")
+                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
+                }
             }
-            if (!granted) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    Toast.makeText(applicationContext, "需要开启权限", Toast.LENGTH_SHORT).show()
+            Constant.EVENT_SECOND -> {
+                event.any?.also {
+                    (it as? ProductsDetail)?.also {iit ->
+                        LogUtil.d(TAG, "event : ${event.code}")
+                        handler.sendMessage(handler.obtainMessage(messageWhatSecond, iit))
+                    }
+                }
             }
         }
     }
+
 
 
     override fun onClick(v: View) {
@@ -186,24 +225,15 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         }
     }
 
-    /**
-     * 副屏时间回调
-     * @param event Int
-     * @param any Any?
-     */
-    override fun onSureListener(event: Int, any: Any?) {
-        LogUtil.d(TAG,"event : $event")
-        handler.sendMessage(handler.obtainMessage(event,any))
+    override fun onFacePayResult() {
+
     }
 
 
-    fun dealWith(){
-
-        val prt = ChooseDisplay(this, displays)
-//                presentation.set(this)
-        prt.show()
-        productsDisplay?.cancel()
-
+    fun dealWith(list : ProductsDetail){
+        mChooseDisplay = ChooseDisplay(this,list, displays)
+        mChooseDisplay!!.show()
+        mProductsDisplay!!.cancel()
     }
 
     inner class MyHandler(context : CommodityActivity) : Handler(){
@@ -212,13 +242,61 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
         override fun handleMessage(msg: Message) {
             val  ref = reference.get() ?: return
             when(msg.what){
-                1 ->{
-                    dealWith()
+                ref.messageWhat ->{
+                    dealWith(msg.obj as ProductsDetail)
+                }
+                ref.messageWhatSecond ->{
+                    if (ref.mFacePayService ==null){
+                        ToastShowUtil.show("获取不到人脸句柄")
+                        LogUtil.e(TAG,"获取不到人脸句柄")
+                    }
+                    ref.mChooseDisplay?.cancel()
+                    ref.mPresenter.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                 }
             }
         }
     }
 
 
+    override fun onDestroy() {
+        release()
+        super.onDestroy()
+    }
+
+    private fun release(){
+        EventBus.getDefault().unregister(this)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 10086) {
+            var granted = true
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) granted = false
+            }
+            if (!granted) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    Toast.makeText(applicationContext, "需要开启权限", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private fun havePermission():Boolean{
+        var result = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (str in permissions){
+                result = ((checkSelfPermission(str) == PackageManager.PERMISSION_GRANTED) && result)
+            }
+        }
+        return result
+    }
+
+    /* 请求程序所需权限 */
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions,10086)
+        }
+    }
 
 }

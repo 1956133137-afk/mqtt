@@ -1,29 +1,31 @@
-package com.yannuo.paylib.repositorys
+package com.yannuo.dgcanteen.activitys.repositorys
+
+import com.yannuo.dgcanteen.model.CanteenResponse
+import com.yannuo.dgcanteen.model.DayDishesBean
+import com.yannuo.dgcanteen.nets.RetrofitClient
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.paymoney.utils.ApiException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class PayRepositoryOfPay {
     private val TAG = javaClass.simpleName
     private val key = "tal83HgdOFEl9aK+9AJDGz08geSPa7C9"
 
-//
-//    /**
-//     * 获取动态支付二维码
-//     * @param bean PayInfoCcb
-//     * @return PayResponse<CcbPandaSweptResponse>
-//     */
-//    suspend fun getccbDynamicQr(bean: PayInfoCcb): PayResponse<String> {
-//        return apiCall {
-//            var json = Gson().toJson(bean)
-//            json = AESUtils.encrypt(key,json)
-//            val ben = RetrofitClientOfPay.getApi().ccbDynamicQr(json)
-//            val res = PayResponse<String>(ben.code,ben.msg)
-//            ben.data?.also {
-//                val info = AESUtils.decrypt(key,it)
-//                res.data = info
-//            }
-//            return@apiCall res
-//        }
-//    }
+
+    suspend fun getDayDishes(): CanteenResponse<MutableList<DayDishesBean>> {
+        return apiCall {
+            val sn = CommonAndDpToPxUtil.getDeviceSerial()
+            val ben = RetrofitClient.getApi().ccbDishes(sn)
+            val res = CanteenResponse<MutableList<DayDishesBean>>(ben.code,ben.msg)
+            ben.data?.also {
+                res.data = it
+            }
+            return@apiCall res
+        }
+    }
 //
 //
 //    /**
@@ -149,15 +151,15 @@ class PayRepositoryOfPay {
 //        }
 //    }
 //
-//    private suspend fun <T> apiCall(call :suspend CoroutineScope.() -> PayResponse<T>):PayResponse<T>{
-//        return withContext(Dispatchers.IO){
-//            val res:PayResponse<T>
-//            try {
-//                res = call()
-//            }catch (e: Throwable){
-//                return@withContext ApiException.build(e).toResponse<T>()
-//            }
-//            res
-//        }
-//    }
+    private suspend fun <T> apiCall(call :suspend CoroutineScope.() -> CanteenResponse<T>):CanteenResponse<T>{
+        return withContext(Dispatchers.IO){
+            val res:CanteenResponse<T>
+            try {
+                res = call()
+            }catch (e: Throwable){
+                return@withContext ApiException.build(e).toResponse<T>()
+            }
+            res
+        }
+    }
 }

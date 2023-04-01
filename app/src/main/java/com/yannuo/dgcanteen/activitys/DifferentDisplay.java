@@ -24,9 +24,16 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
 import com.yannuo.dgcanteen.model.DishesInfo;
+import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.model.ProductsDetail;
+import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.NumberGenerateUtil;
 import com.yannuo.dgcanteen.util.TimeUtil;
 import com.yannuo.dgcanteen.views.PayFinishDialog;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -35,13 +42,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import kotlin.jvm.internal.Intrinsics;
 import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
 
 public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
 
     private DifferrentDialogBinding binding;
-    private CallbackListener listener;
-    private int mealIds = 0,mMealId = 0;
+    private int mealIds = 0,mMealId = 0 ;
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
@@ -52,7 +60,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-//        getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
     }
 
     @Override
@@ -74,9 +81,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         adapterDishes.setImgSize(gridLayoutManager);
+        initData();
 
-
-//        scope = new CoroutineScope(Dispatchers.Default());
         handler = new MyHandler();
         presenter = new PayForPresenter(handler,getContext());
         adapterPayFor = new PayForAdapter();
@@ -90,14 +96,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private void initView() {
 
         binding.rvSelectItem.setAdapter(adapterPayFor);
-
-        //确定取餐
-        binding.btSureMeal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
     }
 
@@ -129,6 +127,13 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                 clearShoppingCart();
             }
         });
+
+
+        binding.btSureMeal.setOnClickListener(v -> {
+            ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+        });
+
     }
 
     //清空购物车
@@ -153,9 +158,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.tvTotalCount.setText(String.valueOf(res[1]));
     }
 
-    public void setSureCallback(CallbackListener listener) {
-        this.listener = listener;
-    }
+
+
 
     @Override
     public void onEventClick(int position) {
@@ -183,14 +187,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.tvTotalCount.setText(res[1] + "");
     }
 
-    public interface CallbackListener{
-        void onSureListener(int event,Object object);
 
-    }
+
 
     public final class MyHandler extends Handler{
-//        WeakReference<DifferentDisplay> reference = new WeakReference<>(context);
-        PayFinishDialog finishDialog = null;
 
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
