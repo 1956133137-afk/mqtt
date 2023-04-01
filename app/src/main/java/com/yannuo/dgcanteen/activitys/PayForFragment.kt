@@ -75,7 +75,7 @@ class PayForFragment : Fragment(), PayForAdapter.WorkListener {
         }
         scope = CoroutineScope(Dispatchers.Default)
         handler = MyHandler(this)
-        presenter = PayForPresenter(handler,context)
+//        presenter = PayForPresenter(handler,context)
         adapter = PayForAdapter()
         adapter.setListener(this)
         val manager = LinearLayoutManager(context)

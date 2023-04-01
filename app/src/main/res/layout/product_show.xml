@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:corner="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_margin="15dp"
-    app:cardCornerRadius="10dp"
+    android:layout_margin="10px"
+    app:cardCornerRadius="10px"
     app:cardBackgroundColor="@color/white"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -19,26 +19,25 @@
 
         <ImageView
             android:id="@+id/iv_pic"
-            android:layout_width="260dp"
-            android:layout_height="235dp" />
+            android:layout_width="180px"
+            android:layout_height="160px" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="5px"
             android:layout_width="match_parent"
-            android:layout_height="135dp">
+            android:layout_height="80px">
 
             <TextView
                 android:id="@+id/tv_name"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:maxLines="3"
+                android:layout_height="40px"
                 android:ellipsize="end"
-                android:paddingStart="18dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="13dp"
+                android:paddingStart="18px"
+                android:paddingBottom="13px"
+                android:gravity="center_vertical"
                 android:text=""
                 android:textColor="#101010"
-                android:textSize="18sp"
+                android:textSize="18px"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,15 +46,15 @@
                 android:id="@+id/tv_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:paddingBottom="3dp"
-                android:paddingStart="18dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="3dp"
+                android:layout_marginBottom="10px"
+                android:paddingBottom="3px"
+                android:paddingStart="18px"
+                android:paddingEnd="10px"
+                android:paddingTop="3px"
                 android:singleLine="true"
                 android:text="@string/money_format"
                 android:textColor="#FFFF0000"
-                android:textSize="18sp"
+                android:textSize="15px"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -64,16 +63,16 @@
                 android:id="@+id/cv_count_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginBottom="25px"
+                android:layout_marginEnd="20px"
+                android:layout_marginTop="5px"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_name"
                 corner:mainBg="@drawable/ic_sadd"
-                corner:mainSize="50dp"
+                corner:mainSize="40px"
                 corner:secondaryBg="@drawable/corner_bg"
-                corner:secondarySize="12dp" />
+                corner:secondarySize="10px" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

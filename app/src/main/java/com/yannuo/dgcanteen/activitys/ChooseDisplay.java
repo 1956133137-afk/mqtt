@@ -51,6 +51,7 @@ public class ChooseDisplay extends Presentation {
         initView();
         initData();
 
+//        binding.tvSecondName.setText("请支付");
         Intent lIntent =new Intent();
         lIntent.setAction("com.ccb.smartcanteen.FacePayService")  ;
         lIntent.setPackage("com.ccb.smartcanteen");
@@ -77,43 +78,45 @@ public class ChooseDisplay extends Presentation {
     };
 
     private void initView() {
-
         binding.btPayFace.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                CcbFacePayBean bean = new CcbFacePayBean();
-                bean.setCAMPUS_ID("441999527");
-                bean.setCORP_ID("1041");
-                bean.setPAYMENT("0.01");
-                bean.setBUSINESS_ID("SJ2023032511004");
-                bean.setVPOS_ID("V00443832");
-                bean.setTXCODE("ZF0001") ;
-                bean.setOFFLINE("0");
-                try {
-                    mFacePayService.startFacePay(new Gson().toJson(bean), "0", new PayResultListener.Stub() {
-                        @Override
-                        public void onResult(String result) throws RemoteException {
-                            LogUtil.d(TAG,""+result);
-                            Observable.just(1).observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new Consumer<Integer>() {
-                                        @Override
-                                        public void accept(Integer integer) throws Exception {
-                                            show();
-                                        }
-                                    });
-                        }
-                    });
-                    dismiss();
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+            public void onClick(View view) {
 
-                if (listener != null) {
-
-                }
             }
+//            @Override
+//            public void onClick(View v) {
+//                CcbFacePayBean bean = new CcbFacePayBean();
+//                bean.setCAMPUS_ID("441999527");
+//                bean.setCORP_ID("1041");
+//                bean.setPAYMENT("0.01");
+//                bean.setBUSINESS_ID("SJ2023032511004");
+//                bean.setVPOS_ID("V00443832");
+//                bean.setTXCODE("ZF0001") ;
+//                bean.setOFFLINE("0");
+//                try {
+//                    mFacePayService.startFacePay(new Gson().toJson(bean), "0", new PayResultListener.Stub() {
+//                        @Override
+//                        public void onResult(String result) throws RemoteException {
+//                            LogUtil.d(TAG,""+result);
+//                            Observable.just(1).observeOn(AndroidSchedulers.mainThread())
+//                                    .subscribe(new Consumer<Integer>() {
+//                                        @Override
+//                                        public void accept(Integer integer) throws Exception {
+//                                            show();
+//                                        }
+//                                    });
+//                        }
+//                    });
+//                    dismiss();
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                if (listener != null) {
+//
+//                }
+//            }
         });
-
     }
 
     private void initData() {
@@ -123,8 +126,24 @@ public class ChooseDisplay extends Presentation {
         binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
     }
+//        binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
+//        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "font/kai.ttf");
+//        binding.tvSecondName.setTypeface(typeface);
 
 
+//    }
+
+    /*public void showWaitingView(){
+        binding.btSecondSure.setEnabled(false);
+        binding.ibSecondCancel.setEnabled(false);
+        binding.tvSecondTextHit.setVisibility(View.VISIBLE);
+    }
+
+    public void noShowWaitingView(){
+            binding.btSecondSure.setEnabled(true);
+            binding.ibSecondCancel.setEnabled(true);
+            binding.tvSecondTextHit.setVisibility(View.GONE);
+    }*/
 
 
 }

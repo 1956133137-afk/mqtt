@@ -112,7 +112,7 @@ open class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnC
             val presentationDisplay = route.presentationDisplay
             if (presentationDisplay != null){
                 productsDisplay = DifferentDisplay( this, displays)
-                productsDisplay?.setSureCallback(this)
+//                productsDisplay?.setSureCallback(this)
                 productsDisplay?.show()
 
             }

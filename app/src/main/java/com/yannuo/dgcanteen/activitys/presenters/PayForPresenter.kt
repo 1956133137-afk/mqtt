@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.activitys.presenters
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import com.yannuo.dgcanteen.activitys.DifferentDisplay
 import com.yannuo.dgcanteen.activitys.PayForFragment
 import com.yannuo.dgcanteen.dao.ProductsTable
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
@@ -18,7 +19,7 @@ import com.yannuo.libscan.ScanThread
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicReference
 
-class PayForPresenter(handler: PayForFragment.MyHandler,context : Context?) {
+class PayForPresenter(handler: DifferentDisplay.MyHandler,context : Context?) {
     private val TAG = javaClass.simpleName
 
     private var scope :CoroutineScope
