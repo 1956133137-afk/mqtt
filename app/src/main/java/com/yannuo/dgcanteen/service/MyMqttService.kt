@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
+import com.yannuo.dgcanteen.model.StatusValue
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -16,6 +17,10 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
 import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.supervisorScope
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.io.File
 import java.io.FileReader
@@ -38,13 +43,19 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     private var topic_bossResult ="boss"
     private var faceAddTaskRunning = AtomicBoolean(false)  //人脸添加线程启动
     private var stopAddPeopleTask = false  //停止人员添加任务
-
+    private lateinit var mStatusValue : StatusValue
 
 
 
 
     override fun onCreate() {
         super.onCreate()
+        val handle = CoroutineExceptionHandler { coroutineContext, e ->
+            LogUtil.e(TAG, "CoroutineExceptionHandler $e ${e.message}")
+        }
+        val scope = CoroutineScope (Dispatchers.Default +handle)
+
+        mStatusValue = StatusValue()
 
         binder = InteractionBinder(this)
         mqttStateListener = MqttConnectState()

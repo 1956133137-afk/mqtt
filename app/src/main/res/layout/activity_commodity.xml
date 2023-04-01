@@ -73,51 +73,5 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
-        android:padding="18dp">
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/vp_people_info"
-            android:name="com.yannuo.dgcanteen.activitys.ProductFragment"
-            android:layout_width="1200dp"
-            android:layout_height="match_parent"/>
-
-        <!--<LinearLayout
-            android:layout_width="1200dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tb_sub_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/shape_layout_bg"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp"
-                app:tabMode="scrollable"
-                app:tabTextAppearance="@style/wallet_third_tab_layout" />
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp_people_info"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>-->
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_view"
-            android:name="com.yannuo.dgcanteen.activitys.PayForFragment"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:layout_marginStart="20dp"/>
-
-    </LinearLayout>
 
 </LinearLayout>

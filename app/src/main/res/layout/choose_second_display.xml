@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/second_display"
+    android:background="#F5F5F5"
+    android:orientation="vertical"
+    android:layout_width="1280px"
+    android:layout_height="800px">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:background="#2A92FA"
+            android:layout_height="90px">
+
+            <TextView
+                android:layout_weight="2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:paddingLeft="15px"
+                android:text="好味儿"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="70px" />
+
+            <TextView
+
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:paddingLeft="15px"
+                android:text="请检查菜品和扣款明细是否一致"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="35px" />
+
+        </LinearLayout>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_second_detail"
+        android:layout_width="match_parent"
+        android:layout_height="600px"
+        android:layout_marginBottom="10px"
+        android:overScrollMode="never"
+        android:layout_marginTop="10px" />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:padding="8px"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/tv_pay_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="70px"
+                android:gravity="center"
+                android:padding="3px"
+                android:text="合计:￥ 0.00"
+                android:textColor="#919191"
+                android:textSize="35px"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/bt_pay_face"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50px"
+                android:background="@drawable/common_bt_bg"
+                android:drawablePadding="8px"
+                android:drawableStart="@drawable/ic_face"
+                android:gravity="center"
+                android:padding="8px"
+                android:paddingEnd="10px"
+                android:paddingStart="10px"
+                android:text="@string/scan_face_pay"
+                android:textColor="@color/white"
+                android:textSize="39px"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bt_pay_qrcode"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/bt_pay_qrcode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45px"
+                android:background="@drawable/common_bt_bg"
+                android:drawablePadding="8px"
+                android:drawableStart="@drawable/ic_qrcode"
+                android:gravity="center"
+                android:padding="8px"
+                android:paddingEnd="10px"
+                android:paddingStart="10px"
+                android:text="@string/scan_qrcode_pay"
+                android:textColor="@color/white"
+                android:textSize="39px"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</LinearLayout>

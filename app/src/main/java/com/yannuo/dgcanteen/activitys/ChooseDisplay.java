@@ -5,12 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Typeface;
-import android.hardware.display.DisplayManager;
-import android.media.MediaRouter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,11 +16,14 @@ import android.view.WindowManager;
 import com.ccb.smartcanteen.PayResultListener;
 import com.ccb.smartcanteen.ZHSTFacePayService;
 import com.google.gson.Gson;
-import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
+import com.yannuo.dgcanteen.adapters.ShopsAdapter;
+import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
+import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.model.CcbFacePayBean;
 import com.yannuo.dgcanteen.util.LogUtil;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -30,11 +31,12 @@ import io.reactivex.functions.Consumer;
 
 public class ChooseDisplay extends Presentation {
 
-    private DifferrentDialogBinding binding;
+    private ChooseSecondDisplayBinding binding;
     private String TAG = getClass().getSimpleName();
 
-    private DifferentDisplay.CallbackListener listener;
+    private CallbackListener listener;
     private ZHSTFacePayService  mFacePayService = null;
+    private ShopsAdapter mShopsAdapter;
 
     public ChooseDisplay(Context outerContext, Display display) {
         super(outerContext, display);
@@ -44,16 +46,20 @@ public class ChooseDisplay extends Presentation {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DifferrentDialogBinding.inflate(getLayoutInflater());
+        binding = ChooseSecondDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         initView();
         initData();
-        binding.tvSecondName.setText("请支付");
+
         Intent lIntent =new Intent();
         lIntent.setAction("com.ccb.smartcanteen.FacePayService")  ;
         lIntent.setPackage("com.ccb.smartcanteen");
         getContext().bindService(lIntent, mServiceConnection, AppCompatActivity.BIND_AUTO_CREATE);
-        LogUtil.d(TAG,"开始绑定服务");
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getDisplay().getMetrics(displayMetrics);
+        LogUtil.d(TAG,"开始绑定服务: "+displayMetrics.density);
+
     }
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -71,17 +77,8 @@ public class ChooseDisplay extends Presentation {
     };
 
     private void initView() {
-        binding.ibSecondCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-//                    listener.onCancelListener();
-                }
-               dismiss();
-            }
-        });
 
-        binding.btSecondSure.setOnClickListener(new View.OnClickListener() {
+        binding.btPayFace.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CcbFacePayBean bean = new CcbFacePayBean();
@@ -112,7 +109,7 @@ public class ChooseDisplay extends Presentation {
                 }
 
                 if (listener != null) {
-//                    listener.onSureListener();
+
                 }
             }
         });
@@ -120,24 +117,13 @@ public class ChooseDisplay extends Presentation {
     }
 
     private void initData() {
+        mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
-//        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "font/kai.ttf");
-//        binding.tvSecondName.setTypeface(typeface);
-
+        binding.rvSecondDetail.setAdapter(mShopsAdapter);
+        binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
     }
 
-    public void showWaitingView(){
-        binding.btSecondSure.setEnabled(false);
-        binding.ibSecondCancel.setEnabled(false);
-        binding.tvSecondTextHit.setVisibility(View.VISIBLE);
-    }
-
-    public void noShowWaitingView(){
-            binding.btSecondSure.setEnabled(true);
-            binding.ibSecondCancel.setEnabled(true);
-            binding.tvSecondTextHit.setVisibility(View.GONE);
-    }
 
 
 
