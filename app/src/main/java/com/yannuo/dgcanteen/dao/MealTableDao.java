@@ -25,9 +25,8 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property MealId = new Property(1, int.class, "mealId", false, "MEAL_ID");
         public final static Property MealName = new Property(2, String.class, "mealName", false, "MEAL_NAME");
-        public final static Property WindowId = new Property(3, String.class, "windowId", false, "WINDOW_ID");
-        public final static Property StartTime = new Property(4, java.util.Date.class, "startTime", false, "START_TIME");
-        public final static Property EndTime = new Property(5, java.util.Date.class, "endTime", false, "END_TIME");
+        public final static Property StartTime = new Property(3, java.util.Date.class, "startTime", false, "START_TIME");
+        public final static Property EndTime = new Property(4, java.util.Date.class, "endTime", false, "END_TIME");
     }
 
 
@@ -46,9 +45,8 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"MEAL_ID\" INTEGER NOT NULL ," + // 1: mealId
                 "\"MEAL_NAME\" TEXT NOT NULL ," + // 2: mealName
-                "\"WINDOW_ID\" TEXT NOT NULL ," + // 3: windowId
-                "\"START_TIME\" INTEGER," + // 4: startTime
-                "\"END_TIME\" INTEGER);"); // 5: endTime
+                "\"START_TIME\" INTEGER NOT NULL ," + // 3: startTime
+                "\"END_TIME\" INTEGER);"); // 4: endTime
     }
 
     /** Drops the underlying database table. */
@@ -67,16 +65,11 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
         }
         stmt.bindLong(2, entity.getMealId());
         stmt.bindString(3, entity.getMealName());
-        stmt.bindString(4, entity.getWindowId());
- 
-        java.util.Date startTime = entity.getStartTime();
-        if (startTime != null) {
-            stmt.bindLong(5, startTime.getTime());
-        }
+        stmt.bindLong(4, entity.getStartTime().getTime());
  
         java.util.Date endTime = entity.getEndTime();
         if (endTime != null) {
-            stmt.bindLong(6, endTime.getTime());
+            stmt.bindLong(5, endTime.getTime());
         }
     }
 
@@ -90,16 +83,11 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
         }
         stmt.bindLong(2, entity.getMealId());
         stmt.bindString(3, entity.getMealName());
-        stmt.bindString(4, entity.getWindowId());
- 
-        java.util.Date startTime = entity.getStartTime();
-        if (startTime != null) {
-            stmt.bindLong(5, startTime.getTime());
-        }
+        stmt.bindLong(4, entity.getStartTime().getTime());
  
         java.util.Date endTime = entity.getEndTime();
         if (endTime != null) {
-            stmt.bindLong(6, endTime.getTime());
+            stmt.bindLong(5, endTime.getTime());
         }
     }
 
@@ -114,9 +102,8 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // mealId
             cursor.getString(offset + 2), // mealName
-            cursor.getString(offset + 3), // windowId
-            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)), // startTime
-            cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)) // endTime
+            new java.util.Date(cursor.getLong(offset + 3)), // startTime
+            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)) // endTime
         );
         return entity;
     }
@@ -126,9 +113,8 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setMealId(cursor.getInt(offset + 1));
         entity.setMealName(cursor.getString(offset + 2));
-        entity.setWindowId(cursor.getString(offset + 3));
-        entity.setStartTime(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
-        entity.setEndTime(cursor.isNull(offset + 5) ? null : new java.util.Date(cursor.getLong(offset + 5)));
+        entity.setStartTime(new java.util.Date(cursor.getLong(offset + 3)));
+        entity.setEndTime(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
      }
     
     @Override

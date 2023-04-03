@@ -39,6 +39,10 @@ object Constant {
 
     //当前版本
     const val Version = ""
+    //菜品更新时间
+    const val UPDATE_TIME = "update_time"
+    const val update_time = "19700000"  //默认1970年
+
 
 
     /************** EventBus *****************/

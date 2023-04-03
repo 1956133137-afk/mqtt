@@ -16,21 +16,31 @@ public class MealTable {
     @NotNull
     private String mealName;  //餐别名称：早餐/午餐/晚餐/下午茶/夜宵等
     @NotNull
-    private String windowId;  //档口ID
+//    private String windowId;  //档口ID
     private Date startTime;  //餐别每日开始时间
     private Date endTime;  //餐别每日结束时间
-    @Generated(hash = 525172328)
+
+    
     public MealTable(Long id, int mealId, @NotNull String mealName,
             @NotNull String windowId, Date startTime, Date endTime) {
         this.id = id;
         this.mealId = mealId;
         this.mealName = mealName;
-        this.windowId = windowId;
+//        this.windowId = windowId;
         this.startTime = startTime;
         this.endTime = endTime;
     }
     @Generated(hash = 1028783363)
     public MealTable() {
+    }
+    @Generated(hash = 284262457)
+    public MealTable(Long id, int mealId, @NotNull String mealName,
+            @NotNull Date startTime, Date endTime) {
+        this.id = id;
+        this.mealId = mealId;
+        this.mealName = mealName;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
     public Long getId() {
         return this.id;
@@ -50,12 +60,12 @@ public class MealTable {
     public void setMealName(String mealName) {
         this.mealName = mealName;
     }
-    public String getWindowId() {
-        return this.windowId;
-    }
-    public void setWindowId(String windowId) {
-        this.windowId = windowId;
-    }
+//    public String getWindowId() {
+//        return this.windowId;
+//    }
+//    public void setWindowId(String windowId) {
+//        this.windowId = windowId;
+//    }
     public Date getStartTime() {
         return this.startTime;
     }

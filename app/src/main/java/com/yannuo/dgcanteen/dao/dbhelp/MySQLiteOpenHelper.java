@@ -5,6 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
 import com.yannuo.dgcanteen.dao.DaoMaster;
+import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.DishesTableDao;
+import com.yannuo.dgcanteen.dao.MealTableDao;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -26,7 +29,7 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
             public void onDropAllTables(Database db, boolean ifExists) {
                 DaoMaster.dropAllTables(db, ifExists);
             }
-        });
+        }, DishesTableDao.class, MealTableDao.class);
     }
 }
 

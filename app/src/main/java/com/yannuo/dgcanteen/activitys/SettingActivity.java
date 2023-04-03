@@ -30,7 +30,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         initScreen();
         setContentView(R.layout.activity_setting);
 
-        MMKV.initialize(this);
+
         kv = MMKV.defaultMMKV();
 
         init();

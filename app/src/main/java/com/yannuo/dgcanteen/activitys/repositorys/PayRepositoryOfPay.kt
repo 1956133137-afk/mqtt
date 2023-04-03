@@ -12,18 +12,13 @@ import kotlinx.coroutines.withContext
 
 class PayRepositoryOfPay {
     private val TAG = javaClass.simpleName
-    private val key = "tal83HgdOFEl9aK+9AJDGz08geSPa7C9"
 
 
     suspend fun getDayDishes(): CanteenResponse<MutableList<DayDishesBean>> {
         return apiCall {
             val sn = CommonAndDpToPxUtil.getDeviceSerial()
             val ben = RetrofitClient.getApi().ccbDishes(sn)
-            val res = CanteenResponse<MutableList<DayDishesBean>>(ben.code,ben.msg)
-            ben.data?.also {
-                res.data = it
-            }
-            return@apiCall res
+            return@apiCall ben
         }
     }
 //

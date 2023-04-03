@@ -15,14 +15,15 @@ public class DishesTable {
     private String dishesName;  //菜品名称
     @NotNull
     private int mealId;  //餐别ID
-    @NotNull
-    private String windowId;  //档口ID
+//    @NotNull
+//    private String windowId;  //档口ID
     @NotNull
     private Double price;  //菜品单价
     private String unit;  //菜品单位（个/份/碗 等）
     private String imgUrl;  //菜品图片资源Url
-    private int status;  //上架状态：0-下架，1-上架
-    @Generated(hash = 192494787)
+    private int status = 1;  //上架状态：0-下架，1-上架
+
+
     public DishesTable(Long id, @NotNull String dishesId,
             @NotNull String dishesName, int mealId, @NotNull String windowId,
             @NotNull Double price, String unit, String imgUrl, int status) {
@@ -30,7 +31,7 @@ public class DishesTable {
         this.dishesId = dishesId;
         this.dishesName = dishesName;
         this.mealId = mealId;
-        this.windowId = windowId;
+//        this.windowId = windowId;
         this.price = price;
         this.unit = unit;
         this.imgUrl = imgUrl;
@@ -38,6 +39,19 @@ public class DishesTable {
     }
     @Generated(hash = 1073252157)
     public DishesTable() {
+    }
+    @Generated(hash = 1078586162)
+    public DishesTable(Long id, @NotNull String dishesId,
+            @NotNull String dishesName, int mealId, @NotNull Double price,
+            String unit, String imgUrl, int status) {
+        this.id = id;
+        this.dishesId = dishesId;
+        this.dishesName = dishesName;
+        this.mealId = mealId;
+        this.price = price;
+        this.unit = unit;
+        this.imgUrl = imgUrl;
+        this.status = status;
     }
     public Long getId() {
         return this.id;
@@ -63,12 +77,12 @@ public class DishesTable {
     public void setMealId(int mealId) {
         this.mealId = mealId;
     }
-    public String getWindowId() {
-        return this.windowId;
-    }
-    public void setWindowId(String windowId) {
-        this.windowId = windowId;
-    }
+//    public String getWindowId() {
+//        return this.windowId;
+//    }
+//    public void setWindowId(String windowId) {
+//        this.windowId = windowId;
+//    }
     public Double getPrice() {
         return this.price;
     }

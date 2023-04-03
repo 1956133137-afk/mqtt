@@ -1,19 +1,10 @@
 package com.yannuo.dgcanteen.dao.dbhelp;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
 
 import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DaoSession;
-import com.yannuo.dgcanteen.dao.ProductsTable;
-import com.yannuo.dgcanteen.dao.ProductsTableDao;
-import com.yannuo.dgcanteen.util.LogUtil;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -37,7 +28,7 @@ public class DbHelper {
     /**
      * 数据库名称
      */
-    private final String dbName = "product.db";
+    private final String dbName = "pr.db";
     /**
      * DaoMaster
      */
@@ -54,7 +45,6 @@ public class DbHelper {
 
     private static DbHelper mDbHelper;
 
-    private ProductsTableDao mProductsTableDao;
 
 
     /**
@@ -88,7 +78,7 @@ public class DbHelper {
         mDaoMaster =new DaoMaster(getWritableDatabase());
         mDaoSession = mDaoMaster.newSession();
 
-        mProductsTableDao = mDaoSession.getProductsTableDao();
+
 
     }
     /**
@@ -148,18 +138,18 @@ public class DbHelper {
      * 插入商品列表
      * @param
      */
-    public void insertPeopleRecords(LinkedList<ProductsTable> peopleInfo){
-        mProductsTableDao.insertOrReplaceInTx(peopleInfo);
-    }
+//    public void insertPeopleRecords(LinkedList<ProductsTable> peopleInfo){
+//        mProductsTableDao.insertOrReplaceInTx(peopleInfo);
+//    }
 
     /**
      * 插入单个商品
      * @param
      */
-    public void insertOrReplaceProduct(ProductsTable product){
-       long row = mProductsTableDao.insertOrReplace(product);
-       LogUtil.d(TAG,"商品插入到 "+row);
-    }
+//    public void insertOrReplaceProduct(ProductsTable product){
+//       long row = mProductsTableDao.insertOrReplace(product);
+//       LogUtil.d(TAG,"商品插入到 "+row);
+//    }
 
 
     /*************************************************更新数据*****************************************/
@@ -185,14 +175,14 @@ public class DbHelper {
     /*************************************************条件查询数据*****************************************/
 
 
-    public ProductsTable queryProduct(String barCode){
-        ProductsTable product = mProductsTableDao.queryBuilder()
-                .where(ProductsTableDao.Properties.BarCode.eq(barCode))
-                .build()
-                .unique();
-        return product;
-
-    }
+//    public ProductsTable queryProduct(String barCode){
+//        ProductsTable product = mProductsTableDao.queryBuilder()
+//                .where(ProductsTableDao.Properties.BarCode.eq(barCode))
+//                .build()
+//                .unique();
+//        return product;
+//
+//    }
 
 
 
@@ -216,22 +206,22 @@ public class DbHelper {
      * 获取商品类型分组
      * @return
      */
-    public List<String> getGroup(){
-        String sgl = "SELECT "+ ProductsTableDao.Properties.Type.columnName+" FROM " +
-                mProductsTableDao.getTablename() + " GROUP BY "+ProductsTableDao.Properties.Type.columnName;
-        Cursor lCursor = getWritableDatabase().rawQuery(sgl, null);
-        List<String> groups = new ArrayList<>();
-        if (lCursor != null && lCursor.getCount() > 0) {
-            lCursor.moveToFirst();
-            do {
-               int index = lCursor.getColumnIndex(ProductsTableDao.Properties.Type.columnName);
-               String group = lCursor.getString(index);
-                groups.add(group);
-
-            }while (lCursor.moveToNext());
-        }
-      return groups;
-    }
+//    public List<String> getGroup(){
+//        String sgl = "SELECT "+ ProductsTableDao.Properties.Type.columnName+" FROM " +
+//                mProductsTableDao.getTablename() + " GROUP BY "+ProductsTableDao.Properties.Type.columnName;
+//        Cursor lCursor = getWritableDatabase().rawQuery(sgl, null);
+//        List<String> groups = new ArrayList<>();
+//        if (lCursor != null && lCursor.getCount() > 0) {
+//            lCursor.moveToFirst();
+//            do {
+//               int index = lCursor.getColumnIndex(ProductsTableDao.Properties.Type.columnName);
+//               String group = lCursor.getString(index);
+//                groups.add(group);
+//
+//            }while (lCursor.moveToNext());
+//        }
+//      return groups;
+//    }
 
 
     /**
@@ -239,20 +229,20 @@ public class DbHelper {
      * @param type
      * @return
      */
-    public List<ProductsTable> queryProductsByType(String type){
+//    public List<ProductsTable> queryProductsByType(String type){
+//
+//      return  mProductsTableDao.queryBuilder()
+//                .where(ProductsTableDao.Properties.Type.eq(type))
+//                .build()
+//                .list();
+//    }
 
-      return  mProductsTableDao.queryBuilder()
-                .where(ProductsTableDao.Properties.Type.eq(type))
-                .build()
-                .list();
-    }
 
-
-    public List<ProductsTable> queryProducts(){
-        return  mProductsTableDao.queryBuilder()
-                .build()
-                .list();
-    }
+//    public List<ProductsTable> queryProducts(){
+//        return  mProductsTableDao.queryBuilder()
+//                .build()
+//                .list();
+//    }
 
     /*************************************************查询所有数据*****************************************/
 
@@ -291,15 +281,15 @@ public class DbHelper {
     /**
      * 清空所有商品数据
      */
-    public void deleteProduct(ProductsTable product){
-        mProductsTableDao.queryBuilder()
-         .where(ProductsTableDao.Properties.BarCode.eq(product.getBarCode()))
-        .buildDelete()
-
-        .executeDeleteWithoutDetachingEntities()
-        ;
-        LogUtil.i(TAG, "清空该商品数据...");
-    }
+//    public void deleteProduct(ProductsTable product){
+//        mProductsTableDao.queryBuilder()
+//         .where(ProductsTableDao.Properties.BarCode.eq(product.getBarCode()))
+//        .buildDelete()
+//
+//        .executeDeleteWithoutDetachingEntities()
+//        ;
+//        LogUtil.i(TAG, "清空该商品数据...");
+//    }
 
 
     /*************************************************清空所有数据*****************************************/
@@ -307,10 +297,10 @@ public class DbHelper {
     /**
      * 清空所有商品数据
      */
-    public void deleteProductAll(){
-        mProductsTableDao.deleteAll();
-        LogUtil.i(TAG, "清空全部数据...");
-    }
+//    public void deleteProductAll(){
+//        mProductsTableDao.deleteAll();
+//        LogUtil.i(TAG, "清空全部数据...");
+//    }
 
 
 

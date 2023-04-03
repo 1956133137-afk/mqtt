@@ -25,11 +25,7 @@
         <activity
             android:name=".activitys.SettingActivity"
             android:exported="false" />
-        <activity
-            android:name=".activitys.LoggingDataActivity"
-            android:configChanges="keyboardHidden"
-            android:exported="false"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+
         <activity
             android:name=".activitys.CommodityActivity"
             android:exported="true">

@@ -4,15 +4,9 @@ package com.yannuo.dgcanteen.activitys.presenters
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.yannuo.dgcanteen.activitys.DifferentDisplay
-import com.yannuo.dgcanteen.activitys.PayForFragment
-import com.yannuo.dgcanteen.dao.ProductsTable
-import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
 import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.PrinterTicker
-import com.yannuo.dgcanteen.model.ProductInfo
-
-import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ScanDevice
 import com.yannuo.libscan.ScanThread
@@ -71,12 +65,7 @@ class PayForPresenter(handler: DifferentDisplay.MyHandler,context : Context?) {
     }
 
 
-    /**
-     * 获取数据库中该条码对应的商品
-     */
-    fun getBarcodeProduct(barcode :String): ProductsTable? {
-        return DbHelper.getInstance().queryProduct(barcode)
-    }
+
 
     /**
      * 打开扫码头

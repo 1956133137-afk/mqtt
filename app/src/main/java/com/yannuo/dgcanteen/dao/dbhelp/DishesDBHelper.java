@@ -7,8 +7,8 @@ import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DaoSession;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
-import com.yannuo.dgcanteen.dao.ProductsTable;
-import com.yannuo.dgcanteen.dao.ProductsTableDao;
+import com.yannuo.dgcanteen.dao.MealTable;
+import com.yannuo.dgcanteen.dao.MealTableDao;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class DishesDBHelper {
     /**
      * 数据库名称
      */
-    private final String dbName = "test.db";
+    private final String dbName = "canteen.db";
     /**
      * DaoMaster
      */
@@ -41,6 +41,7 @@ public class DishesDBHelper {
 
     private static DishesDBHelper mDBHelper;
     private DishesTableDao mDishesTableDao;
+    private MealTableDao mMealTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -72,6 +73,7 @@ public class DishesDBHelper {
         mDaoSession = mDaoMaster.newSession();
 
         mDishesTableDao = mDaoSession.getDishesTableDao();
+        mMealTableDao = mDaoSession.getMealTableDao();
     }
 
     /**
@@ -145,4 +147,37 @@ public class DishesDBHelper {
         dishes.setStatus(status);
         mDishesTableDao.update(dishes);
     }
+
+    /**
+     * 插入菜品列表
+     * @param
+     */
+    public void insertDishes(List<DishesTable> dishes){
+        mDishesTableDao.insertInTx(dishes);
+    }
+
+    /**
+     * 插入全部餐别
+     * @param
+     */
+    public void insertMeals(List<MealTable> meals){
+        mMealTableDao.insertInTx(meals);
+    }
+
+
+    /**
+     * 清空所有菜品
+     */
+    public void clearAllDishes(){
+        mDishesTableDao.deleteAll();
+    }
+
+    /**
+     * 清除餐别
+     */
+    public void clearAllMeal(){
+        mMealTableDao.deleteAll();
+    }
+
+
 }

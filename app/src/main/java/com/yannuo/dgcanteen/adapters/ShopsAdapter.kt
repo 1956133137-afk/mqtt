@@ -27,11 +27,11 @@ class ShopsAdapter(context :Context)  : BaseAdapter<DishesInfo, ItemPayListVaria
     override fun bindHolder(holder: Holder, position: Int) {
         val dat = data.get(position);
         holder.binding.tvItemName.text =dat.dishesName
-        holder.binding.tvCount.text = "${dat.count}"
-        holder.binding.tvMoney.text = calculate(dat)
+        holder.binding.tvCount.text = "${dat.count} 份"
+        holder.binding.tvMoney.text = "￥${calculate(dat)} "
         cnt.let { Glide.with(it).load(dat.imgUrl).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(
             R.drawable.no_picture)
-            .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivShopPic) }
+            .transform(CenterCrop(), GranularRoundedCorners(10f,10f,10f,10f)).into(holder.binding.ivShopPic) }
 
     }
 

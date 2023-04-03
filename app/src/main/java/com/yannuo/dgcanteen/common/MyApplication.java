@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
 
 import com.safframework.log.LogLevel;
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper;
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.download.CheckVersionWorker;
 import com.yannuo.dgcanteen.service.KeepAliveJobService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
@@ -40,10 +43,11 @@ public class MyApplication extends Application {
         LogManager.initLog();
         LogUtil.setLev(LogLevel.DEBUG);
 
-        DbHelper.getInstance(this);
+        DishesDBHelper.getInstance(this);
         CommonAndDpToPxUtil.speakInit();
         ScanDevice.INSTANCE.openScan();
-
+        String rootDir = MMKV.initialize(this);
+        LogUtil.i(TAG,"mmkv root: " + rootDir);
 
 
         PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(

@@ -74,7 +74,7 @@ open class ProductFragment : Fragment, ProductsAdapter.WorkListener {
                 it.dishesId,
                 it.dishesName,
                 it.mealId,
-                it.windowId,
+                null,
                 it.price,
                 it.unit,
                 it.imgUrl,

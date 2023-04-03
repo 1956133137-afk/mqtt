@@ -26,11 +26,10 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         public final static Property DishesId = new Property(1, String.class, "dishesId", false, "DISHES_ID");
         public final static Property DishesName = new Property(2, String.class, "dishesName", false, "DISHES_NAME");
         public final static Property MealId = new Property(3, int.class, "mealId", false, "MEAL_ID");
-        public final static Property WindowId = new Property(4, String.class, "windowId", false, "WINDOW_ID");
-        public final static Property Price = new Property(5, Double.class, "price", false, "PRICE");
-        public final static Property Unit = new Property(6, String.class, "unit", false, "UNIT");
-        public final static Property ImgUrl = new Property(7, String.class, "imgUrl", false, "IMG_URL");
-        public final static Property Status = new Property(8, int.class, "status", false, "STATUS");
+        public final static Property Price = new Property(4, Double.class, "price", false, "PRICE");
+        public final static Property Unit = new Property(5, String.class, "unit", false, "UNIT");
+        public final static Property ImgUrl = new Property(6, String.class, "imgUrl", false, "IMG_URL");
+        public final static Property Status = new Property(7, int.class, "status", false, "STATUS");
     }
 
 
@@ -50,11 +49,10 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
                 "\"DISHES_ID\" TEXT NOT NULL ," + // 1: dishesId
                 "\"DISHES_NAME\" TEXT NOT NULL ," + // 2: dishesName
                 "\"MEAL_ID\" INTEGER NOT NULL ," + // 3: mealId
-                "\"WINDOW_ID\" TEXT NOT NULL ," + // 4: windowId
-                "\"PRICE\" REAL NOT NULL ," + // 5: price
-                "\"UNIT\" TEXT," + // 6: unit
-                "\"IMG_URL\" TEXT," + // 7: imgUrl
-                "\"STATUS\" INTEGER NOT NULL );"); // 8: status
+                "\"PRICE\" REAL NOT NULL ," + // 4: price
+                "\"UNIT\" TEXT," + // 5: unit
+                "\"IMG_URL\" TEXT," + // 6: imgUrl
+                "\"STATUS\" INTEGER NOT NULL );"); // 7: status
     }
 
     /** Drops the underlying database table. */
@@ -74,19 +72,18 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         stmt.bindString(2, entity.getDishesId());
         stmt.bindString(3, entity.getDishesName());
         stmt.bindLong(4, entity.getMealId());
-        stmt.bindString(5, entity.getWindowId());
-        stmt.bindDouble(6, entity.getPrice());
+        stmt.bindDouble(5, entity.getPrice());
  
         String unit = entity.getUnit();
         if (unit != null) {
-            stmt.bindString(7, unit);
+            stmt.bindString(6, unit);
         }
  
         String imgUrl = entity.getImgUrl();
         if (imgUrl != null) {
-            stmt.bindString(8, imgUrl);
+            stmt.bindString(7, imgUrl);
         }
-        stmt.bindLong(9, entity.getStatus());
+        stmt.bindLong(8, entity.getStatus());
     }
 
     @Override
@@ -100,19 +97,18 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         stmt.bindString(2, entity.getDishesId());
         stmt.bindString(3, entity.getDishesName());
         stmt.bindLong(4, entity.getMealId());
-        stmt.bindString(5, entity.getWindowId());
-        stmt.bindDouble(6, entity.getPrice());
+        stmt.bindDouble(5, entity.getPrice());
  
         String unit = entity.getUnit();
         if (unit != null) {
-            stmt.bindString(7, unit);
+            stmt.bindString(6, unit);
         }
  
         String imgUrl = entity.getImgUrl();
         if (imgUrl != null) {
-            stmt.bindString(8, imgUrl);
+            stmt.bindString(7, imgUrl);
         }
-        stmt.bindLong(9, entity.getStatus());
+        stmt.bindLong(8, entity.getStatus());
     }
 
     @Override
@@ -127,11 +123,10 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
             cursor.getString(offset + 1), // dishesId
             cursor.getString(offset + 2), // dishesName
             cursor.getInt(offset + 3), // mealId
-            cursor.getString(offset + 4), // windowId
-            cursor.getDouble(offset + 5), // price
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // unit
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // imgUrl
-            cursor.getInt(offset + 8) // status
+            cursor.getDouble(offset + 4), // price
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // unit
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // imgUrl
+            cursor.getInt(offset + 7) // status
         );
         return entity;
     }
@@ -142,11 +137,10 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         entity.setDishesId(cursor.getString(offset + 1));
         entity.setDishesName(cursor.getString(offset + 2));
         entity.setMealId(cursor.getInt(offset + 3));
-        entity.setWindowId(cursor.getString(offset + 4));
-        entity.setPrice(cursor.getDouble(offset + 5));
-        entity.setUnit(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setImgUrl(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setStatus(cursor.getInt(offset + 8));
+        entity.setPrice(cursor.getDouble(offset + 4));
+        entity.setUnit(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setImgUrl(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setStatus(cursor.getInt(offset + 7));
      }
     
     @Override

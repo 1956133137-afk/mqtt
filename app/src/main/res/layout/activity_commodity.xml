@@ -80,6 +80,13 @@
         android:orientation="horizontal"
         android:padding="18dp">
 
+        <Button
+            android:id="@+id/bt_back_pay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="退出支付"
+            android:textSize="32sp"/>
+
     </LinearLayout>
 
 </LinearLayout>

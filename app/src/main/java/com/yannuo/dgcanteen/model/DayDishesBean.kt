@@ -5,6 +5,8 @@ package com.yannuo.dgcanteen.model
 data class DayDishesBean(
     val mealId: Int,
     val mealName: String,
+    val startTime: String?,
+    val endTime: String?,
     val selectedDishesList: List<SelectedDishes>
 )
 

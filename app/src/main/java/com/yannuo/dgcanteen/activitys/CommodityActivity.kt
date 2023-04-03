@@ -13,6 +13,7 @@ import android.os.*
 import android.view.Display
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
@@ -24,6 +25,8 @@ import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +51,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         Manifest.permission.CAMERA,
     )
 
-    private lateinit var mPresenter :CommodityPresenter
+    private lateinit var mProductsVM :ProductsVM
 
     private lateinit var handler : MyHandler
     private var value = 0
@@ -63,8 +66,18 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
     private val messageWhat = 1
     private val messageWhatSecond = 2
+    private  var loadingDialog : LoadingDialog? =null //后台加载框
 
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            LogUtil.d(TAG, " onServiceConnected")
+            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+        }
 
+        override fun onServiceDisconnected(name: ComponentName) {
+            LogUtil.d(TAG, " onServiceDisconnected")
+        }
+    }
 
 
     override fun bindLayout() {
@@ -83,6 +96,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
             initPresentation()
             initObj()
+            initView()
             initEvent()
 
             val timer = Timer()
@@ -91,9 +105,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         }
     }
 
+
     override fun onResume() {
         super.onResume()
-        mXService?.hideNavBar = true
+//        mXService?.hideNavBar = false
 
     }
 
@@ -115,31 +130,36 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
     private fun initObj(){
         handler = MyHandler(this)
-        mPresenter = CommodityPresenter(this)
-        mPresenter.listener = this
+        mProductsVM = ViewModelProvider(this).get(ProductsVM::class.java)
+        mProductsVM.listener = this
         EventBus.getDefault().register(this)
 
-        val scope = CoroutineScope(Dispatchers.Default)
-        scope.launch {
-           val respository =  PayRepositoryOfPay()
-            val rs = respository.getDayDishes()
-            LogUtil.d(TAG,"")
-        }
+
+
+
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
         bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
     }
 
-    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            LogUtil.d(TAG, " onServiceConnected")
-            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
-        }
+    private fun initView() {
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            LogUtil.d(TAG, " onServiceDisconnected")
+        //吐司信息显示
+        mProductsVM.showToastEvent.observe(this){
+            ToastShowUtil.show(it)
         }
+        //加载对话框显示
+        mProductsVM.loadingEvent.observe(this){
+            loadingDialog?.cancel()
+            loadingDialog = LoadingDialog(this)
+            if (it)loadingDialog?.show()
+            else {
+                loadingDialog?.cancel()
+                loadingDialog = null
+            }
+        }
+        mProductsVM.upDataDishes()
     }
 
 
@@ -149,6 +169,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
             navigation  =!navigation
             mXService?.hideNavBar = navigation
             true
+        }
+
+
+        binding.btBackPay.setOnClickListener {
+            mProductsDisplay?.show()
+            mChooseDisplay?.cancel()
+
         }
     }
 
@@ -250,8 +277,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
                         ToastShowUtil.show("获取不到人脸句柄")
                         LogUtil.e(TAG,"获取不到人脸句柄")
                     }
+                    ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                     ref.mChooseDisplay?.cancel()
-                    ref.mPresenter.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                 }
             }
         }

@@ -21,8 +21,10 @@ import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.model.CcbFacePayBean;
 import com.yannuo.dgcanteen.model.DishesInfo;
+import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
+import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -56,16 +58,13 @@ public class ChooseDisplay extends Presentation {
         super.onCreate(savedInstanceState);
         binding = ChooseSecondDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        initView();
+
         initData();
         initEvent();
-
+        initView();
     }
 
 
-    private void initView() {
-         binding.tvPayMoney.setText("合计:￥ "+mDishes.getTotalMoney());
-    }
 
     private void initData() {
         mShopsAdapter = new ShopsAdapter(getContext());
@@ -73,17 +72,17 @@ public class ChooseDisplay extends Presentation {
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
         binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getDisplay().getMetrics(displayMetrics);
-        LogUtil.d(TAG,"开始绑定服务: "+displayMetrics.density);
     }
 
+    private void initView() {
+        binding.tvPayMoney.setText("合计:￥ "+mDishes.getTotalMoney());
+        mShopsAdapter.setData(mDishes.getProducts());
+    }
 
     private void initEvent() {
         binding.btPayFace.setOnClickListener(view -> {
             CommonAndDpToPxUtil.speakWork("开始人脸支付");
-            EventBus.getDefault().post(mDishes);
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
             dismiss();
         });
 

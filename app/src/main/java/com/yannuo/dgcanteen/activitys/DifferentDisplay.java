@@ -107,7 +107,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                     u.getDishesId(),
                     u.getDishesName(),
                     u.getMealId(),
-                    u.getWindowId(),
+                    null,
                     u.getPrice(),
                     u.getUnit(),
                     u.getImgUrl(),
@@ -204,7 +204,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
+                    if(TimeUtil.isCurrentInTimeScope(7,30,19,30)){
                         binding.mealTime.setText(R.string.breakfast_time);
                         mealIds = 1;
                     }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
