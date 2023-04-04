@@ -34,6 +34,7 @@ public class MyApplication extends Application {
     private String TAG = "MyApplication";
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEdit;
+    private MMKV kv;
 
 
     @Override
@@ -48,6 +49,7 @@ public class MyApplication extends Application {
         ScanDevice.INSTANCE.openScan();
         String rootDir = MMKV.initialize(this);
         LogUtil.i(TAG,"mmkv root: " + rootDir);
+        initMMKV();
 
 
         PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
@@ -64,6 +66,25 @@ public class MyApplication extends Application {
         }
 
 
+    }
+
+    public void initMMKV(){
+        kv = MMKV.defaultMMKV();
+        if (kv.decodeString("Address") == null){
+            kv.encode("Address","https://test.yannuozhineng.com/");
+        }
+        if (kv.decodeString("MqttAddress") == null){
+            kv.encode("MqttAddress","tcp://acms.yannuozhineng.com:0001");
+        }
+        if (kv.decodeString("MqttAccount") == null){
+            kv.encode("MqttAccount","yannuo");
+        }
+        if (kv.decodeString("MqttPassword") == null){
+            kv.encode("MqttPassword","123456");
+        }
+        if (kv.decodeString("Version") == null){
+            kv.encode("Version","当前版本：V1.0");
+        }
     }
 
 

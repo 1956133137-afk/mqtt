@@ -1,8 +1,11 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
 import com.yannuo.dgcanteen.model.CanteenResponse
+import com.yannuo.dgcanteen.model.CcbScanPayBean
 import com.yannuo.dgcanteen.model.DayDishesBean
+import com.yannuo.dgcanteen.model.ScanQrResultBean
 import com.yannuo.dgcanteen.nets.RetrofitClient
+import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.paymoney.utils.ApiException
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +22,13 @@ class PayRepositoryOfPay {
             val sn = CommonAndDpToPxUtil.getDeviceSerial()
             val ben = RetrofitClient.getApi().ccbDishes(sn)
             return@apiCall ben
+        }
+    }
+
+    suspend fun getScanQrData(bean: CcbScanPayBean): ScanQrResultBean {
+        return apiCallForScanCode {
+            val sn = CanteenEncryptionUtil.requestScanData(bean)
+            RetrofitClient.getApi().scanQrPay(sn)
         }
     }
 //
@@ -153,6 +163,18 @@ class PayRepositoryOfPay {
                 res = call()
             }catch (e: Throwable){
                 return@withContext ApiException.build(e).toResponse<T>()
+            }
+            res
+        }
+    }
+
+    private suspend fun apiCallForScanCode(call :suspend CoroutineScope.() -> ScanQrResultBean):ScanQrResultBean {
+        return withContext(Dispatchers.IO){
+            val res:ScanQrResultBean
+            try {
+                res = call()
+            }catch (e: Throwable){
+                return@withContext ApiException.build(e).toResponseForScanCode()
             }
             res
         }

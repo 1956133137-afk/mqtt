@@ -103,6 +103,7 @@ class PayForPresenter(handler: DifferentDisplay.MyHandler,context : Context?) {
             when (scanState) {
                 ScanState.PAY -> {
                     LogUtil.i(TAG, "扫码数据: $it")
+
 //                    val message = handle.obtainMessage(Constant.EVENT_TWO, it)
 //                    handle.sendMessage(message)
 //                    scanState = ScanState.INVALID //更新支付状态，以防止多次扫付款吗

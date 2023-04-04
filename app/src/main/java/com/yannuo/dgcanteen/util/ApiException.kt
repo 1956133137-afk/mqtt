@@ -2,6 +2,7 @@ package com.yannuo.paymoney.utils
 
 import com.google.gson.JsonParseException
 import com.yannuo.dgcanteen.model.CanteenResponse
+import com.yannuo.dgcanteen.model.ScanQrResultBean
 import org.apache.http.conn.ConnectTimeoutException
 import org.json.JSONException
 import retrofit2.HttpException
@@ -38,6 +39,10 @@ class ApiException(val code: Int, override val message: String?, override val ca
 
     fun <T> toResponse(): CanteenResponse<T> {
         return CanteenResponse(code,message)
+    }
+
+    fun toResponseForScanCode(): ScanQrResultBean {
+        return ScanQrResultBean(code,message)
     }
 
 }

@@ -17,12 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter;
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay;
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
+import com.yannuo.dgcanteen.model.CcbScanPayBean;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
@@ -81,7 +83,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         adapterDishes.setImgSize(gridLayoutManager);
-        initData();
+        dishesData();
 
         handler = new MyHandler();
         presenter = new PayForPresenter(handler,getContext());
@@ -100,6 +102,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     }
 
     private void initData() {
+
+    }
+
+    private void dishesData(){
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds,1);
         for (DishesTable u : list){
@@ -204,7 +210,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if(TimeUtil.isCurrentInTimeScope(7,30,19,30)){
+                    if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
                         binding.mealTime.setText(R.string.breakfast_time);
                         mealIds = 1;
                     }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
@@ -220,7 +226,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                     if (mMealId != mealIds){
                         mMealId = mealIds;
                         clearShoppingCart();
-                        initData();
+                        dishesData();
                     }
                 }
             });

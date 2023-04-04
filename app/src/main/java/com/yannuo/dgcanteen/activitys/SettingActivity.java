@@ -38,12 +38,12 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void reload() {
-        etAddress.setText(kv.decodeString("Address","https://test.yannuozhineng.com/"));
+        etAddress.setText(kv.decodeString("Address"));
         switchLine.setChecked(kv.decodeBool("Switch",false));
-        etMqttAddress.setText(kv.decodeString("MqttAddress","tcp://acms.yannuozhineng.com:0001"));
-        etMqttAccount.setText(kv.decodeString("MqttAccount","yannuo"));
-        etMqttPassword.setText(kv.decodeString("MqttPassword","123456"));
-        tvVersion.setText(kv.decodeString("Version","当前版本：V1.0"));
+        etMqttAddress.setText(kv.decodeString("MqttAddress"));
+        etMqttAccount.setText(kv.decodeString("MqttAccount"));
+        etMqttPassword.setText(kv.decodeString("MqttPassword"));
+        tvVersion.setText(kv.decodeString("Version"));
     }
 
     private void save(){

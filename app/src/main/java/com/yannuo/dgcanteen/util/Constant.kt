@@ -2,7 +2,7 @@ package com.yannuo.dgcanteen.util
 
 object Constant {
     //配置文件名
-    const val fileName = "config"
+    const val fileName = "mmkv"
     const val strDefault  =""
     //事件通知
     //mqtt地址
@@ -23,22 +23,22 @@ object Constant {
     const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
 
     //服务器地址
-    const val Address = ""
+    const val ADDRESS = "Address"
 
     //是否离线
-    const val Switch = false
+    const val SWITCH = "Switch"
 
     //mqtt服务地址
-    const val MqttAddress = ""
+    const val MQTT_ADDRESS = "MqttAddress"
 
     //mqtt账号
-    const val MqttAccount = ""
+    const val MQTT_ACCOUNT = "MqttAccount"
 
     //mqtt密码
-    const val MqttPassword = ""
+    const val MQTT_PASSWORD = "MqttPassword"
 
     //当前版本
-    const val Version = ""
+    const val VERSION = "Version"
     //菜品更新时间
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年

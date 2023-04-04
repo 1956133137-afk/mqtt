@@ -206,22 +206,24 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
 
     override fun onClick(v: View) {
-        //弹出密码对话框
-        if (clickCount == 0){
-            preClickTime = System.currentTimeMillis().toInt()
-            clickCount++
-        } else if (clickCount == 1){
-            var curTime = System.currentTimeMillis().toInt()
-            if (curTime - preClickTime < 500){
-                val passwordDialog = LoginPasswordDialog()
-                val display = this.windowManager.defaultDisplay
-                passwordDialog.PasswordDialog(this,display)
+        if (v.id == R.id.tv_title){
+            //弹出密码对话框
+            if (clickCount == 0){
+                preClickTime = System.currentTimeMillis().toInt()
+                clickCount++
+            } else if (clickCount == 1){
+                var curTime = System.currentTimeMillis().toInt()
+                if (curTime - preClickTime < 500){
+                    val passwordDialog = LoginPasswordDialog()
+                    val display = this.windowManager.defaultDisplay
+                    passwordDialog.PasswordDialog(this,display)
+                }
+                clickCount = 0;
+                preClickTime = 0;
+            }else{
+                clickCount = 0;
+                preClickTime = 0;
             }
-            clickCount = 0;
-            preClickTime = 0;
-        }else{
-            clickCount = 0;
-            preClickTime = 0;
         }
     }
 

@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 
 import com.proembed.service.MyService;
-import com.yannuo.dgcanteen.dao.ProductsTable;
+//import com.yannuo.dgcanteen.dao.ProductsTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DbHelper;
 import com.yannuo.dgcanteen.interfaces.ImportExportListener;
 import com.yannuo.dgcanteen.model.Result;
@@ -46,7 +46,7 @@ public class ExcelUtils {
             return ;
         }
         listener.processState(new Result(1001, "准备导入文件"));
-        DbHelper.getInstance(cnt).deleteProductAll(); //清空数据库
+//        DbHelper.getInstance(cnt).deleteProductAll(); //清空数据库
 
         try {
             InputStream inputStream = new FileInputStream(file);
@@ -56,23 +56,23 @@ public class ExcelUtils {
             DataFormatter formatter = new DataFormatter();
             int count = 0 ;
             // 从第二行开始读取
-            LinkedList<ProductsTable> products = new LinkedList<>();
-            ProductsTable bean ;
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row != null) {
-                    bean = new ProductsTable();
-                    bean.setPName(formatter.formatCellValue(row.getCell(0)));
-                    bean.setPMoney(formatter.formatCellValue(row.getCell(1)));
-                    bean.setType(formatter.formatCellValue(row.getCell(2)));
-                    bean.setPictureName(formatter.formatCellValue(row.getCell(3)));
-                    bean.setBarCode(formatter.formatCellValue(row.getCell(4)));
-                    products.add(bean);
-                    count++;
-                }
-            }
-            if (products.size()> 0)
-                DbHelper.getInstance().insertPeopleRecords(products);
+//            LinkedList<ProductsTable> products = new LinkedList<>();
+//            ProductsTable bean ;
+//            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+//                Row row = sheet.getRow(i);
+//                if (row != null) {
+//                    bean = new ProductsTable();
+//                    bean.setPName(formatter.formatCellValue(row.getCell(0)));
+//                    bean.setPMoney(formatter.formatCellValue(row.getCell(1)));
+//                    bean.setType(formatter.formatCellValue(row.getCell(2)));
+//                    bean.setPictureName(formatter.formatCellValue(row.getCell(3)));
+//                    bean.setBarCode(formatter.formatCellValue(row.getCell(4)));
+//                    products.add(bean);
+//                    count++;
+//                }
+//            }
+//            if (products.size()> 0)
+//                DbHelper.getInstance().insertPeopleRecords(products);
             LogUtil.d(DEBUG_TAG, "读取到"+count+"条商品信息");
             usbPath+="图片";
             File baseFile = cnt.getFilesDir();
