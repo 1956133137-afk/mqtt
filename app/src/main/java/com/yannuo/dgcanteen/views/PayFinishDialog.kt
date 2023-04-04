@@ -58,7 +58,7 @@ class PayFinishDialog(context :Context,dat : PayResultForUI) :BaseDialog(context
             tv_time.text = data.timestamp
             tv_order_number.text = data.orderid
             tv_pay_way.text = data.way
-            tv_pay_account.text = "￥${data.amount}"
+//            tv_pay_account.text = "￥${data.amount}"
             tv_count.text = "${data.piece} 件"
             tv_product_name.text = data.cmdty_nm
             tv_error_hit.text = data.errormsg

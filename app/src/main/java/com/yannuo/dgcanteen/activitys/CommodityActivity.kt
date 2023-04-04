@@ -9,7 +9,10 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.*
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Message
 import android.view.Display
 import android.view.View
 import android.widget.Toast
@@ -19,8 +22,9 @@ import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
-import com.yannuo.dgcanteen.interfaces.ICommodityPresenter
+import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
@@ -31,8 +35,7 @@ import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
 
-class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener,
-    ICommodityPresenter {
+class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener, IProductsVM {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -257,11 +260,23 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         }
     }
 
-    override fun onFacePayResult() {
+    /**
+     * 刷脸结果回调
+     * @param data PayResultForUI
+     */
+    override fun onFacePayResult(data : PayResultForUI) {
+        runOnUiThread {
+            val payDisplay  = PayResultDisplay(this,data, displays)
+            payDisplay.show()
+        }
 
     }
 
 
+    /**
+     * 取餐处理
+     * @param list ProductsDetail
+     */
     fun dealWith(list : ProductsDetail){
         mChooseDisplay = ChooseDisplay(this,list, displays)
         mChooseDisplay!!.show()
