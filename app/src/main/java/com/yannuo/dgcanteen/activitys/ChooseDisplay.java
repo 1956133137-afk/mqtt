@@ -1,42 +1,24 @@
 package com.yannuo.dgcanteen.activitys;
 
 import android.app.Presentation;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.View;
 import android.view.WindowManager;
 
-import com.ccb.smartcanteen.PayResultListener;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.ccb.smartcanteen.ZHSTFacePayService;
-import com.google.gson.Gson;
+import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
-import com.yannuo.dgcanteen.interfaces.CallbackListener;
-import com.yannuo.dgcanteen.model.CcbFacePayBean;
-import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
-import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.List;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 
 public class ChooseDisplay extends Presentation {
 
@@ -88,6 +70,11 @@ public class ChooseDisplay extends Presentation {
 
         binding.btPayQrcode.setOnClickListener(view -> {
             CommonAndDpToPxUtil.speakWork("请出示付款码支付");
+            ScanPayPresenter mScanPresenter = new ScanPayPresenter(mDishes,getContext());
+            mScanPresenter.scanListener();
+            mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+            dismiss();
+//            mScanPresenter.closeScan();
         });
     }
 

@@ -17,27 +17,19 @@ import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.presenters.CommodityPresenter
+import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.interfaces.ICommodityPresenter
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.*
-import com.yannuo.dgcanteen.views.LoginPasswordDialog
-import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.views.LoadingDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.yannuo.dgcanteen.views.LoginPasswordDialog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
 
 class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener,
     ICommodityPresenter {
@@ -67,6 +59,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private  var loadingDialog : LoadingDialog? =null //后台加载框
+    private var timer: Timer? = null
+    private var mRefreshDisplay = true
+    private var mMealId = 0
+    private var mealId = 0
+    private val mealArray = arrayOf(R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time)
+    private var mNetWork = false
+    private var netWork = false
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -99,8 +98,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
             initView()
             initEvent()
 
-            val timer = Timer()
-            timer.schedule(timerTask,0,1000)
+            timer = Timer()
+            timer!!.schedule(timerTask,0,1000)
 
         }
     }
@@ -109,7 +108,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     override fun onResume() {
         super.onResume()
 //        mXService?.hideNavBar = false
-
+        if (!mRefreshDisplay){
+            mProductsDisplay?.dishesData()
+        }
+        mRefreshDisplay = false
     }
 
     private fun initPresentation() {
@@ -230,27 +232,28 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     //    定时器
     private val timerTask: TimerTask = object : TimerTask() {
         override fun run() {
-            runOnUiThread(Runnable {
-                if(NetWorkUtil.isNetWorkConnected(this@CommodityActivity)){
-                    binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-                    binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
-                    binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
-                }else {
-                    binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
-                    binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
-                    binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
+                mNetWork = NetWorkUtil.isNetWorkConnected(this@CommodityActivity)
+                if (mNetWork != netWork){
+                    runOnUiThread(Runnable {
+                        netWork = mNetWork
+                        if (netWork){
+                            binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
+                            binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
+                            binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
+                        }else{
+                            binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
+                            binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
+                            binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
+                        }
+                    })
                 }
-
-                if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
-                    binding.mealTime.setText(R.string.breakfast_time)
-                }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
-                    binding.mealTime.setText(R.string.lunch_time)
-                }else if (TimeUtil.isCurrentInTimeScope(16,30,19,30)){
-                    binding.mealTime.setText(R.string.dinner_time)
-                }else{
-                    binding.mealTime.setText(R.string.unOpen_meal)
+                mMealId = TimeUtil.CurrentTimeSection()
+                if (mMealId != mealId){
+                    runOnUiThread(Runnable {
+                        mealId = mMealId
+                        binding.mealTime.setText(mealArray[mealId])
+                    })
                 }
-            })
         }
     }
 

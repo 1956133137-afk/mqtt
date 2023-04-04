@@ -52,12 +52,14 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     private DifferrentDialogBinding binding;
     private int mealIds = 0,mMealId = 0 ;
+    private final static int[] mealArray = {R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time};
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
     private PayForPresenter presenter;
     private PayForAdapter adapterPayFor;
     private DishesInfo data;
+    private Timer timer;
 
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
@@ -70,7 +72,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding = DifferrentDialogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         initObject();
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.schedule(timerTask,0,1000);
         initView();
         initEvent();
@@ -91,7 +93,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         adapterPayFor.setListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.rvSelectItem.setLayoutManager(linearLayoutManager);
-        presenter.scanListener();  //监听扫码头数据
+//        presenter.scanListener();  //监听扫码头数据
 
     }
 
@@ -105,7 +107,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     }
 
-    private void dishesData(){
+    public void dishesData(){
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds,1);
         for (DishesTable u : list){
@@ -151,7 +153,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             }
         }
         adapterPayFor.clear();
-        binding.tvTotalMoney.setText("0.0元");
+        binding.tvTotalMoney.setText("");
         binding.tvTotalCount.setText("0");
     }
 
@@ -160,8 +162,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         adapterPayFor.insertedData(it,accumulation);
         binding.rvSelectItem.scrollToPosition(adapterPayFor.getData().size() -1); //插入数据后滑动到底部
         float[] res = presenter.calculate(adapterPayFor.getData());
-        binding.tvTotalMoney.setText(res[0] + "元");
-        binding.tvTotalCount.setText(String.valueOf(res[1]));
+        binding.tvTotalMoney.setText(String.valueOf(res[0]));
+        binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
 
 
@@ -189,8 +191,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(data), "count");
         }
         float[] res = presenter.calculate(adapterPayFor.getData());
-        binding.tvTotalMoney.setText(res[0] + "元");
-        binding.tvTotalCount.setText(res[1] + "");
+        binding.tvTotalMoney.setText(String.valueOf(res[0]));
+        binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
 
 
@@ -207,29 +209,18 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     public final TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if(TimeUtil.isCurrentInTimeScope(7,30,8,30)){
-                        binding.mealTime.setText(R.string.breakfast_time);
-                        mealIds = 1;
-                    }else if (TimeUtil.isCurrentInTimeScope(11,30,13,0)){
-                        binding.mealTime.setText(R.string.lunch_time);
-                        mealIds = 2;
-                    }else if (TimeUtil.isCurrentInTimeScope(18,30,19,30)){
-                        binding.mealTime.setText(R.string.dinner_time);
-                        mealIds = 3;
-                    }else{
-                        binding.mealTime.setText(R.string.unOpen_meal);
-                        mealIds = 0;
-                    }
-                    if (mMealId != mealIds){
-                        mMealId = mealIds;
+            mMealId = TimeUtil.CurrentTimeSection();
+            if (mMealId != mealIds){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mealIds = mMealId;
                         clearShoppingCart();
+                        binding.mealTime.setText(mealArray[mealIds]);
                         dishesData();
                     }
-                }
-            });
+                });
+            }
         }
     };
 

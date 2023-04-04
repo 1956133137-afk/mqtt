@@ -6,6 +6,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TimeUtil {
+
+    public static int CurrentTimeSection(){
+        int result = 0;
+        if (isCurrentInTimeScope(7,30,11,30)){
+            result = 1;
+        }else if (isCurrentInTimeScope(11,30,18,30)){
+            result = 2;
+        } else if (isCurrentInTimeScope(18, 30, 19, 30)) {
+            result = 3;
+        }else {
+            result = 0;
+        }
+        return result;
+    }
+
 //    判断时间区间
     public static boolean isCurrentInTimeScope(int beginHour,int beginMin,int endHour,int endMin){
         boolean result = false;
@@ -41,11 +56,4 @@ public class TimeUtil {
         return result;
     }
 
-//    获取指定格式时间
-    public static String currentTime(){
-        Date currentTime = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateString = formatter.format(currentTime);
-        return dateString;
-    }
 }

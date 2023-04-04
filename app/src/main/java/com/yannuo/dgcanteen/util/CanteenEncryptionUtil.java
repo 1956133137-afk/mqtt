@@ -28,14 +28,14 @@ public class CanteenEncryptionUtil {
     public static String requestScanData(CcbScanPayBean bean){
         StringBuilder param = new StringBuilder();
         param.append("BUSINESS_ID=" + bean.getBUSINESS_ID()).append("&VPOS_ID=" + bean.getVPOS_ID()).append("&PAYMENT=" + bean.getPAYMENT())
-                .append("&ACTUAL_PAYMENT=" + bean.getACTUAL_PAYMENT()).append("&COUPON_INFO=" + bean.getCOUPON_INFO()).append("&ACC_NOS=" + bean.getACC_NOS())
+                .append("&ACTUAL_PAYMENT=" + bean.getACTUAL_PAYMENT()).append("&COUPON_INFO=" + bean.getCOUPON_INFO())
                 .append("&QR_CODE=" + bean.getQR_CODE()).append("&CUST_ID=" + bean.getCUST_ID()).append("&ORDER_ID=" + bean.getORDER_ID())
                 .append("&OFFLINE=" + bean.getOFFLINE()).append("&SIGN_TIME=" + bean.getSIGN_TIME());
 
         bean.setCcbSafeParam(encryption(param.toString()));
 
         param = new StringBuilder();
-        param.append(CANTEEN_TEST_URL).append("? CCB_IBSVersion=" + CCB_IBSVersion).append("&PT_STYLE=" + PT_STYLE).append("&PT_LANGUAGE=" + PT_LANGUAGE)
+        param.append(CANTEEN_TEST_URL).append("?CCB_IBSVersion=" + CCB_IBSVersion).append("&PT_STYLE=" + PT_STYLE).append("&PT_LANGUAGE=" + PT_LANGUAGE)
                 .append("&CAMPUS_ID=" + bean.getCAMPUS_ID()).append("&TXCODE=" + bean.getTXCODE()).append("&CORP_ID=" + bean.getCORP_ID())
                 .append("&ccbSafeParam=" + bean.getCcbSafeParam());
 
