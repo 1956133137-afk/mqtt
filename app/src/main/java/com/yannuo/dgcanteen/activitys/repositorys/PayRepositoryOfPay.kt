@@ -1,12 +1,11 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
-import com.yannuo.dgcanteen.model.CanteenResponse
-import com.yannuo.dgcanteen.model.CcbScanPayBean
-import com.yannuo.dgcanteen.model.DayDishesBean
-import com.yannuo.dgcanteen.model.ScanQrResultBean
+import com.google.gson.Gson
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.paymoney.utils.ApiException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +29,11 @@ class PayRepositoryOfPay {
             val sn = CanteenEncryptionUtil.requestScanData(bean)
             RetrofitClient.getApi().scanQrPay(sn)
         }
+    }
+
+    suspend fun setConsumeRecord(data :SynConsumeRecordBean){
+        data.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
+        RetrofitClient.getApi().synConsumeRecord(data)
     }
 //
 //

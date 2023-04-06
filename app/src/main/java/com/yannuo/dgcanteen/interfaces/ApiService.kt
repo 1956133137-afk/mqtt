@@ -7,6 +7,7 @@ import com.yannuo.dgcanteen.download.AppUpdateResultB
 import com.yannuo.dgcanteen.model.CanteenResponse
 import com.yannuo.dgcanteen.model.DayDishesBean
 import com.yannuo.dgcanteen.model.ScanQrResultBean
+import com.yannuo.dgcanteen.model.SynConsumeRecordBean
 import io.reactivex.Observable
 import retrofit2.http.*
 
@@ -26,6 +27,11 @@ interface ApiService {
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST
     suspend fun scanQrPay(@Url url: String?): ScanQrResultBean
+
+    // 同步消费记录
+    @Headers("content-type: application/json")
+    @POST("deviceData/insertPaymentRecord")
+    suspend fun synConsumeRecord(@Body data: SynConsumeRecordBean)
 //
 //
 //    //  建行

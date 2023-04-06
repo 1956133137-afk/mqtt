@@ -4,13 +4,14 @@ import android.content.Context
 import android.os.RemoteException
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.model.CcbScanPayBean
-import com.yannuo.dgcanteen.model.ProductsDetail
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ScanDevice
 import com.yannuo.libscan.ScanThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
      private val TAG = javaClass.simpleName
@@ -76,31 +77,76 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
      }
 
      fun startPayWithScan(payment :String,qrcode :String){
-          val bean = CcbScanPayBean()
-          bean.CAMPUS_ID = "441999527"
-          bean.CORP_ID = "1041"
-          bean.TXCODE = "PAY003"
-          bean.ccbSafeParam = ""
-          bean.BUSINESS_ID = "SJ2023032511004"
-          bean.VPOS_ID = "V00443832"
-          bean.PAYMENT = payment
-          bean.ACTUAL_PAYMENT = payment
-          bean.COUPON_INFO = ""
-          bean.ACC_NOS = ""
-          bean.QR_CODE = qrcode
-          bean.CUST_ID = ""
-          bean.ORDER_ID = "YN" + System.currentTimeMillis()
-          bean.OFFLINE = "0"
-          bean.SIGN_TIME = ""
+          val ccbScanPayBean = CcbScanPayBean()
+          ccbScanPayBean.CAMPUS_ID = "441999527"
+          ccbScanPayBean.CORP_ID = "1041"
+          ccbScanPayBean.TXCODE = "PAY003"
+          ccbScanPayBean.ccbSafeParam = ""
+          ccbScanPayBean.BUSINESS_ID = "SJ2023032511004"
+          ccbScanPayBean.VPOS_ID = "V00443832"
+          ccbScanPayBean.PAYMENT = payment
+          ccbScanPayBean.ACTUAL_PAYMENT = payment
+          ccbScanPayBean.COUPON_INFO = ""
+          ccbScanPayBean.ACC_NOS = ""
+          ccbScanPayBean.QR_CODE = qrcode
+          ccbScanPayBean.CUST_ID = ""
+          ccbScanPayBean.ORDER_ID = "YN" + System.currentTimeMillis()
+          ccbScanPayBean.OFFLINE = "0"
+          ccbScanPayBean.SIGN_TIME = ""
           try{
                runBlocking (Dispatchers.IO) {
                     val repository = PayRepositoryOfPay()
-                    val response = repository.getScanQrData(bean)
-                    LogUtil.e("test", Gson().toJson(response))
+                    val responseScanPay = repository.getScanQrData(ccbScanPayBean)
+                    LogUtil.e("test", Gson().toJson(responseScanPay))
+                    consumeRecord(ccbScanPayBean, responseScanPay)
                }
+
           }catch (e: RemoteException) {
                e.printStackTrace()
           }
      }
 
+     suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){
+          val bean = SynConsumeRecordBean()
+          bean.deviceSerialNumber = ""
+          bean.businessId = 10001
+          bean.counterId = scanPay.VPOS_ID
+          bean.RESULT  = resScan.RESULT.toString()
+          bean.CUST_ID = scanPay.CUST_ID
+          bean.PAYMENT = resScan.PAYMENT?.toDouble()
+          bean.ACTUAL_PAYMENT = resScan.ACTUAL_PAYMENT?.toDouble()
+          bean.ACC_NO = resScan.ACC_NO
+          bean.ACC_BAL = resScan.ACC_BAL?.toDouble()
+          bean.ACC_TYPE = resScan.ACC_TYPE?.toInt()
+          bean.TRACEID = ""
+          bean.ORDER_ID = scanPay.ORDER_ID
+          bean.TRAN_RESULT =  when(resScan.RESULT.toString()){
+               "Y" -> 3
+               "N" -> 2
+               else -> null
+          }
+          bean.OFFLINE = scanPay.OFFLINE.toInt()
+          bean.ERRCODE = resScan.ERRCODE
+          bean.ERRMSG = resScan.ERRMSG
+          bean.ACCALIAS = when(bean.ACC_TYPE){
+               1 -> "现金账号"
+               2 -> "餐补账户"
+               3 -> "餐补账户1"
+               else -> ""
+          }
+          bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+          bean.BUSINESS_NAME = "彦诺智能测试园区"
+          bean.paymentDishesList = mutableListOf()
+          mDishes?.products?.forEach {
+               bean.paymentDishesList.add(PaymentDishesList(
+                    it.dishesId,
+                    it.dishesName,
+                    it.count,
+                    it.price
+               ))
+          }
+
+          val repository = PayRepositoryOfPay()
+          repository.setConsumeRecord(bean)
+     }
 }

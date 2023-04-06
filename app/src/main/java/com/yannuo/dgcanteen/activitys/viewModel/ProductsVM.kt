@@ -78,9 +78,9 @@ class ProductsVM :ViewModel() {
                         meal.mealName = da.mealName
 
                         //测试代码
-                        meal.startTime  = Date(2023,4,3,7+mid,0,0)
+                        meal.startTime  = Date(2023,4,6,7+mid,0,0)
                         mid +=2
-                        meal.endTime  = Date(2023,4,3,7+mid,0,0)
+                        meal.endTime  = Date(2023,4,6,7+mid,0,0)
                         mid +=2
 
                         da.startTime?.also {
