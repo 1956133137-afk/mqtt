@@ -28,6 +28,7 @@ import com.yannuo.dgcanteen.model.CcbScanPayBean;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.NumberGenerateUtil;
 import com.yannuo.dgcanteen.util.TimeUtil;
@@ -138,8 +139,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
 
         binding.btSureMeal.setOnClickListener(v -> {
-            ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+            if (adapterPayFor.getData().size() < 1){
+                CommonAndDpToPxUtil.speakWork("请添加菜品");
+            }else {
+                ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
+                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+            }
         });
 
     }

@@ -10,6 +10,7 @@ import android.view.WindowManager;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
+import com.yannuo.dgcanteen.adapters.SucShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.databinding.PayFailureBinding;
 import com.yannuo.dgcanteen.databinding.PaySuccessBinding;
@@ -31,7 +32,7 @@ public class PayResultDisplay extends Presentation {
     private String TAG = getClass().getSimpleName();
 
 
-    private ShopsAdapter mShopsAdapter;
+    private SucShopsAdapter mShopsAdapter;
     private PayResultForUI mPayResult;
 
     public PayResultDisplay(Context outerContext, PayResultForUI payResult , Display display) {
@@ -77,10 +78,9 @@ public class PayResultDisplay extends Presentation {
 
 
     private void initData() {
-//        mShopsAdapter = new ShopsAdapter(getContext());
-//        binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
-//        binding.rvSecondDetail.setAdapter(mShopsAdapter);
-//        binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        mShopsAdapter = new SucShopsAdapter(getContext());
+        mBinding.rvDishList.setLayoutManager(new LinearLayoutManager(getContext()));
+        mBinding.rvDishList.setAdapter(mShopsAdapter);
 
     }
 

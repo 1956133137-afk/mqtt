@@ -52,12 +52,12 @@ public class ChooseDisplay extends Presentation {
         mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
-        binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+//        binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
     }
 
     private void initView() {
-        binding.tvPayMoney.setText("合计:￥ "+mDishes.getTotalMoney());
+        binding.tvPayMoney.setText("￥"+mDishes.getTotalMoney());
         mShopsAdapter.setData(mDishes.getProducts());
     }
 

@@ -5,7 +5,7 @@
     xmlns:corner="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="10px"
-    app:cardCornerRadius="10px"
+    app:cardCornerRadius="15px"
     app:cardBackgroundColor="@color/white"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -13,7 +13,6 @@
     <LinearLayout
 
         android:orientation="vertical"
-        android:background="@drawable/shape_layout_bg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 

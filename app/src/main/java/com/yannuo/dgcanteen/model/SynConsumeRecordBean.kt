@@ -4,7 +4,7 @@ package com.yannuo.dgcanteen.model
 
 class SynConsumeRecordBean{
     var deviceSerialNumber :String ?= null //设备序列号
-    var businessId :Int ?= null            //商家Id
+    var businessId :String ?= null            //商家Id
     var counterId :String ?= null          //柜台号
     var RESULT :String ?= null             //订单结果: N：失败，Y：成功
     var CUST_ID :String ?= null            //用户唯一标识

@@ -106,10 +106,10 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           }
      }
 
-     suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){
+     private suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){
           val bean = SynConsumeRecordBean()
           bean.deviceSerialNumber = ""
-          bean.businessId = 10001
+          bean.businessId = scanPay.BUSINESS_ID
           bean.counterId = scanPay.VPOS_ID
           bean.RESULT  = resScan.RESULT.toString()
           bean.CUST_ID = scanPay.CUST_ID

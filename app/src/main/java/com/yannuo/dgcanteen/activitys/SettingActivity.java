@@ -21,7 +21,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
     private EditText etAddress, etMqttAddress, etMqttAccount, etMqttPassword;
     private CheckBox switchLine;
-    private TextView tvVersion;
+    private TextView tvVersion, tvFinalTime;
     private MMKV kv;
 
     @Override
@@ -44,6 +44,7 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         etMqttAccount.setText(kv.decodeString("MqttAccount"));
         etMqttPassword.setText(kv.decodeString("MqttPassword"));
         tvVersion.setText(kv.decodeString("Version"));
+        tvFinalTime.setText(kv.decodeString("FinalTime"));
     }
 
     private void save(){
@@ -64,21 +65,13 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         etMqttAddress = findViewById(R.id.et_mqtt_address);
         etMqttAccount = findViewById(R.id.et_mqtt_account);
         etMqttPassword = findViewById(R.id.et_mqtt_password);
-        findViewById(R.id.dish_menu).setOnClickListener(this);
-        findViewById(R.id.syn_dishes).setOnClickListener(this);
         findViewById(R.id.btn_version).setOnClickListener(this);
         tvVersion = findViewById(R.id.tv_version);
+        tvFinalTime = findViewById(R.id.tv_final_time);
     }
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.dish_menu:
-                Intent intent = new Intent(this,DishManageActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.syn_dishes:
-
-                break;
             case R.id.btn_version:
                 try {
                     PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);

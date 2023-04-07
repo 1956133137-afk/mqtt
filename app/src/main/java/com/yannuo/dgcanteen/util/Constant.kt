@@ -37,6 +37,9 @@ object Constant {
     //mqtt密码
     const val MQTT_PASSWORD = "MqttPassword"
 
+    //菜品数据最后同步时间
+    const val FINAL_TIME = "FinalTime"
+
     //当前版本
     const val VERSION = "Version"
     //菜品更新时间

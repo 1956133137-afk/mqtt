@@ -18,16 +18,13 @@
 
         <TextView
             android:id="@+id/meal_time"
-            android:layout_width="420dp"
+            android:layout_width="350dp"
             android:layout_height="80dp"
             android:layout_marginStart="50dp"
             android:gravity="center"
             android:text="@string/breakfast_time"
             android:textSize="35sp"
-            android:paddingStart="33dp"
-            android:paddingEnd="13dp"
-            android:background="@drawable/shape_tv_bg"
-            android:drawableStart="@drawable/ic_noodles"/>
+            android:background="@drawable/shape_tv_bg"/>
 
         <TextView
             android:id="@+id/tv_title"
@@ -76,16 +73,63 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal"
-        android:padding="18dp">
+        android:layout_margin="35dp"
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/bt_back_pay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="退出支付"
-            android:textSize="32sp"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:layout_height="match_parent"
+            android:layout_marginRight="35dp">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="18dp">
+
+            <Button
+                android:id="@+id/bt_back_pay"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="100dp"
+                android:background="@drawable/shape_normal_bt_bg"
+                android:text="退出支付"
+                android:textColor="#FFFFFF"
+                android:textSize="38sp"/>
+            <Button
+                android:id="@+id/btn_setting"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/shape_btn_one"
+                android:text="@string/setting"
+                android:textColor="#4F4F4F"
+                android:textSize="38sp"/>
+            <Button
+                android:id="@+id/btn_dish_menu"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/shape_btn_one"
+                android:text="@string/dishes_manage"
+                android:textColor="#4F4F4F"
+                android:textSize="38sp"/>
+            <Button
+                android:id="@+id/btn_syn_dishes"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/shape_btn_one"
+                android:text="@string/syn_dish"
+                android:textColor="#4F4F4F"
+                android:textSize="38sp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

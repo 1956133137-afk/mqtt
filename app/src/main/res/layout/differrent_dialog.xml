@@ -16,14 +16,14 @@
 
         <TextView
             android:id="@+id/meal_time"
-            android:layout_width="380px"
+            android:layout_width="330px"
             android:layout_height="55px"
             android:layout_marginStart="30px"
             android:gravity="center"
             android:text="@string/breakfast_time"
-            android:textSize="35px"
-            android:paddingStart="33px"
-            android:paddingEnd="17px"
+            android:textSize="28px"
+            android:paddingStart="27px"
+            android:paddingEnd="20px"
             android:background="@drawable/shape_tv_bg"
             android:drawableStart="@drawable/ic_noodles"/>
 

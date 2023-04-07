@@ -182,6 +182,25 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
             mChooseDisplay?.cancel()
 
         }
+
+        //设置界面
+        binding.btnSetting.setOnClickListener{
+            val passwordDialog = LoginPasswordDialog()
+            val display = this.windowManager.defaultDisplay
+            passwordDialog.PasswordDialog(this,display)
+        }
+
+        //菜品管理界面
+        binding.btnDishMenu.setOnClickListener {
+            val intent = Intent(this, DishManageActivity::class.java)
+            startActivity(intent)
+        }
+
+        //菜品同步
+        binding.btnSynDishes.setOnClickListener {
+
+        }
+
     }
 
 
@@ -211,25 +230,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
 
     override fun onClick(v: View) {
-        if (v.id == R.id.tv_title){
-            //弹出密码对话框
-            if (clickCount == 0){
-                preClickTime = System.currentTimeMillis().toInt()
-                clickCount++
-            } else if (clickCount == 1){
-                var curTime = System.currentTimeMillis().toInt()
-                if (curTime - preClickTime < 500){
-                    val passwordDialog = LoginPasswordDialog()
-                    val display = this.windowManager.defaultDisplay
-                    passwordDialog.PasswordDialog(this,display)
-                }
-                clickCount = 0;
-                preClickTime = 0;
-            }else{
-                clickCount = 0;
-                preClickTime = 0;
-            }
-        }
+
     }
 
     //    定时器

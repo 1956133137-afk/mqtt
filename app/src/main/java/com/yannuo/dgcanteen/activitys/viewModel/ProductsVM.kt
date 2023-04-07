@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.HttpURLConnection
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ProductsVM :ViewModel() {
@@ -121,6 +122,7 @@ class ProductsVM :ViewModel() {
                     val kv = MMKV.defaultMMKV()
                     val now = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString()
                     kv.encode(Constant.UPDATE_TIME,now)
+                    kv.encode("FinalTime", SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(Date()))
                 }else {
                     LogUtil.e(TAG,"菜品下载出错 ${rs.msg}")
                     showToastEvent.postValue("菜品下载出错 ${rs.msg}")

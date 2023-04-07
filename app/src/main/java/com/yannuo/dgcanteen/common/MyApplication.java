@@ -18,6 +18,8 @@ import com.yannuo.dgcanteen.util.LogManager;
 import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.ScanDevice;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -84,6 +86,9 @@ public class MyApplication extends Application {
         }
         if (kv.decodeString("Version") == null){
             kv.encode("Version","当前版本：V1.0");
+        }
+        if (kv.decodeString("FinalTime") == null){
+            kv.encode("FinalTime", new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
         }
     }
 

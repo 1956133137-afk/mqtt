@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="1280px"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="5dp"
     android:background="@drawable/shape_module_bg"
+    android:layout_marginTop="10px"
     android:orientation="horizontal">
 
 
@@ -21,8 +22,8 @@
         android:paddingRight="20px"
 
         android:singleLine="true"
-        android:layout_marginLeft="50px"
-        android:textColor="#101010"
+        android:layout_marginLeft="30px"
+        android:textColor="#333333"
         android:textSize="30px"
         android:text="土豆炒肉"
         />
@@ -34,8 +35,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="3dp"
-
-        android:textColor="#101010"
+        android:textColor="#333333"
         android:textSize="24sp"
         />
 
@@ -47,9 +47,9 @@
         android:gravity="center"
         android:padding="3dp"
         android:text="@string/money_format"
-        android:textColor="#e82f1e"
+        android:textColor="#E03C2D"
         android:textSize="24sp"
-        android:layout_marginRight="100px"
+        android:layout_marginRight="45px"
         />
 
     <ImageView
