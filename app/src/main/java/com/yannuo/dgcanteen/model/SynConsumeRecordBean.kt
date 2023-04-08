@@ -16,7 +16,7 @@ class SynConsumeRecordBean{
     var TRACEID :String ?= null            //交易流水号
     var ORDER_ID :String ?= null           //订单号
     var TRAN_RESULT :Int ?= null           //支付结果：1：待支付，2：支付失败，3：支付成功
-    var OFFLINE :Int ?= null               //离线订单标识：0：联机支付，1离线补扣
+    var OFFLINE :Int = 0               //离线订单标识：0：联机支付，1离线补扣
     var ERRCODE :String ?= null            //错误码
     var ERRMSG :String ?= null             //错误信息
     var ACCALIAS :String ?= null           //账户类型名称

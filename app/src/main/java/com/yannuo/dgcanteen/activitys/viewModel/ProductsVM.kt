@@ -12,6 +12,8 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
+import com.yannuo.dgcanteen.dao.OrderDishList
+import com.yannuo.dgcanteen.dao.OwnOrder
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
@@ -206,46 +208,91 @@ class ProductsVM :ViewModel() {
     /**
      * 保存或同步消费记录
      */
-   private fun saveOrSynConsumeRecord(
+    private fun saveOrSynConsumeRecord(
         payResult: CcbFacePayResultBean,
         products: MutableList<DishesInfo>
     ) {
-       viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
-           val bean = SynConsumeRecordBean()
-           bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-           bean.businessId = "SJ2023032511004"
-           bean.counterId = "V00443832"
-           bean.RESULT  = "Y"
-           bean.CUST_ID = payResult.CUST_ID
-           bean.PAYMENT = payResult.PAYMENT!!.toDouble()
-           bean.ACTUAL_PAYMENT = payResult.ACTUAL_PAYMENT?.toDouble()  ?: 0.0
-           bean.ACC_NO = payResult.ACC_NO
-           bean.ACC_BAL = payResult.ACC_BAL?.toDouble()
-           bean.ACC_TYPE = payResult.ACC_TYPE?.toInt()
-           bean.TRACEID = payResult.TRACEID
-           bean.ORDER_ID = payResult.ORDER_ID
-           bean.TRAN_RESULT =  3
-           bean.OFFLINE = payResult.OFFLINE?.toInt()
-           bean.ERRCODE = ""
-           bean.ERRMSG = ""
-           bean.ACCALIAS =payResult.ACCALIAS
+        viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
 
-           bean.PAYTIME = payResult.PAYTIME
-           bean.BUSINESS_NAME = "彦诺智能测试园区"
-           bean.paymentDishesList = mutableListOf()
-           products.forEach {
-               bean.paymentDishesList.add(PaymentDishesList(
-                   it.dishesId,
-                   it.dishesName,
-                   it.count,
-                   it.price
-               ))
-           }
-          val res = mRespository.synCsRecord(bean)
-           if (res.code != HttpURLConnection.HTTP_OK){
-               LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
-           }
-           LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
-       }
-   }
+            val bean = SynConsumeRecordBean()
+            bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
+            bean.businessId = "SJ2023032511004"
+            bean.counterId = "V00443832"
+            bean.RESULT  = "Y"
+            bean.CUST_ID = payResult.CUST_ID
+            bean.PAYMENT = payResult.PAYMENT!!.toDouble()
+            bean.ACTUAL_PAYMENT = payResult.ACTUAL_PAYMENT?.toDouble()  ?: 0.0
+            bean.ACC_NO = payResult.ACC_NO
+            bean.ACC_BAL = payResult.ACC_BAL?.toDouble()
+            bean.ACC_TYPE = payResult.ACC_TYPE?.toInt()
+            bean.TRACEID = payResult.TRACEID
+            bean.ORDER_ID = payResult.ORDER_ID
+            bean.TRAN_RESULT =  3
+            bean.OFFLINE = payResult.OFFLINE.toInt()
+            bean.ERRCODE = ""
+            bean.ERRMSG = ""
+            bean.ACCALIAS =payResult.ACCALIAS
+
+            bean.PAYTIME = payResult.PAYTIME
+            bean.BUSINESS_NAME = "彦诺智能测试园区"
+            bean.paymentDishesList = mutableListOf()
+            products.forEach {
+                bean.paymentDishesList.add(PaymentDishesList(
+                    it.dishesId,
+                    it.dishesName,
+                    it.count,
+                    it.price
+                ))
+            }
+            var needSave = true
+            if(bean.OFFLINE.equals("0")){
+                val res = mRespository.synCsRecord(bean)
+                if (res.code == HttpURLConnection.HTTP_OK){
+                    needSave = false
+                    LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
+                }else{
+                    LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                }
+            }
+            //上传成功直接返回
+            if (needSave.not()) return@launch
+            val saveOrder =  OwnOrder()
+            bean.apply {
+                saveOrder.deviceSerialNumber = deviceSerialNumber
+                saveOrder.businessId = businessId
+                saveOrder.counterId = counterId
+                saveOrder.result = RESULT
+                saveOrder.cusT_ID = CUST_ID
+                saveOrder.payment = PAYMENT ?:0.0
+                saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
+                saveOrder.acC_NO = ACC_NO
+                saveOrder.acC_BAL = ACC_BAL ?:0.0
+                saveOrder.acC_TYPE = ACC_TYPE ?:1
+                saveOrder.traceid = TRACEID
+                saveOrder.ordeR_ID = ORDER_ID
+                saveOrder.traN_RESULT = TRAN_RESULT ?: 3
+                saveOrder.offline = OFFLINE
+                saveOrder.errcode = ERRCODE
+                saveOrder.errmsg = ERRMSG
+                saveOrder.accalias = ACCALIAS
+                saveOrder.paytime = PAYTIME
+                saveOrder.businesS_NAME = BUSINESS_NAME
+            }
+            val saveDishList = mutableListOf<OrderDishList>()
+            bean.paymentDishesList.forEach {
+                val dish = OrderDishList()
+                dish.dishesId = it.dishesId
+                dish.dishesName = it.dishesName
+                dish.dishesNumber = it.dishesNumber
+                dish.dishesPrice = it.dishesPrice
+                dish.order = saveOrder
+                saveDishList.add(dish)
+            }
+
+            DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
+            DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
+
+            val dea =  DishesDBHelper.getInstance().queryConsumerOrder()
+        }
+    }
 }

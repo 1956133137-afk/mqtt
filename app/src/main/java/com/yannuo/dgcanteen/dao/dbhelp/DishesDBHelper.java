@@ -9,6 +9,10 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.MealTableDao;
+import com.yannuo.dgcanteen.dao.OrderDishList;
+import com.yannuo.dgcanteen.dao.OrderDishListDao;
+import com.yannuo.dgcanteen.dao.OwnOrder;
+import com.yannuo.dgcanteen.dao.OwnOrderDao;
 
 import java.util.List;
 
@@ -42,6 +46,8 @@ public class DishesDBHelper {
     private static DishesDBHelper mDBHelper;
     private DishesTableDao mDishesTableDao;
     private MealTableDao mMealTableDao;
+    private OwnOrderDao mOwnOrderDao;
+    private OrderDishListDao mOrderDishListDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -74,6 +80,8 @@ public class DishesDBHelper {
 
         mDishesTableDao = mDaoSession.getDishesTableDao();
         mMealTableDao = mDaoSession.getMealTableDao();
+        mOwnOrderDao = mDaoSession.getOwnOrderDao();
+        mOrderDishListDao = mDaoSession.getOrderDishListDao();
     }
 
     /**
@@ -162,6 +170,37 @@ public class DishesDBHelper {
      */
     public void insertMeals(List<MealTable> meals){
         mMealTableDao.insertInTx(meals);
+    }
+
+
+    /**
+     * 保存自有平台消费订单
+     * @param order
+     */
+    public void insertConsumerOrder(OwnOrder order){
+        mOwnOrderDao.insert(order);
+    }
+
+
+    /**
+     * 保存自有平台消费订单中的消费菜品
+     * @param dishes
+     */
+    public void insertConsumerDishes(List<OrderDishList> dishes){
+        mOrderDishListDao.insertInTx(dishes);
+    }
+
+
+    /**
+     * 获取一条未更新的记录
+     * @return
+     */
+    public OwnOrder queryConsumerOrder(){
+      return  mOwnOrderDao.queryBuilder()
+                .where(OwnOrderDao.Properties.Up.eq(false))
+                .limit(1)
+                .build()
+                .unique();
     }
 
 

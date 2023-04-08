@@ -3,10 +3,12 @@ package com.yannuo.dgcanteen.service
 import android.app.Service
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.IBinder
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
 import com.yannuo.dgcanteen.model.StatusValue
@@ -15,18 +17,17 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.ScanDevice
 
 import io.reactivex.disposables.Disposable
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.FileReader
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 
 //交互过程可通过binder设置主题到达监听。以更新页面
@@ -34,43 +35,66 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binder : InteractionBinder
     private var TAG = javaClass.simpleName
-
     private lateinit var mqttStateListener : MqttConnectState
-    private var pictureHost = "https://acms.yannuozhineng.com/api/"
-    private var mDelay : Disposable?= null
 
     //订阅的主题
     private var TOPIC_TITLE = "device/"+ CommonAndDpToPxUtil.getDeviceSerial() //订阅本机专属主题
-    private var topic_bossResult ="boss"
-    private var faceAddTaskRunning = AtomicBoolean(false)  //人脸添加线程启动
+
     private var stopAddPeopleTask = false  //停止人员添加任务
     private lateinit var mStatusValue : StatusValue
+    private lateinit var mScope : CoroutineScope
+    private lateinit var mHandle : CoroutineExceptionHandler
 
 
 
 
     override fun onCreate() {
         super.onCreate()
-        val handle = CoroutineExceptionHandler { coroutineContext, e ->
+        mHandle = CoroutineExceptionHandler { coroutineContext, e ->
             LogUtil.e(TAG, "CoroutineExceptionHandler $e ${e.message}")
         }
-        val scope = CoroutineScope (Dispatchers.Default +handle)
+        mScope = CoroutineScope (Dispatchers.Default + mHandle)
 
-        mStatusValue = StatusValue()
+        mScope.launch(mHandle) {
+            mStatusValue = StatusValue()
 
-        binder = InteractionBinder(this)
-        mqttStateListener = MqttConnectState()
-        binder.registerListener(mqttStateListener)
-        binder.connect()    //开启mqtt连接
-        NetworkStateManager.getInstance().registerObserver(this);   //网络状态监听
-//        pre?.register(this)
+            binder = InteractionBinder(this@MyMqttService)
+            mqttStateListener = MqttConnectState()
+            binder.registerListener(mqttStateListener)
+            binder.connect()    //开启mqtt连接
+
+
+            //打开扫码器
+            ScanDevice.openScan()
+            //新版本检查任务
+            checkNewAppAndKeepAlive()
+            //网络状态监听
+            NetworkStateManager.getInstance().registerObserver(this@MyMqttService)
+            //
+        }
+
+        //同步消费记录
+        synConsumerDish()
+
         LogUtil.d(TAG,"服务启动")
-        //新版本检查任务
-        checkNewApp()
+
+
+    }
 
 
 
 
+
+    @OptIn(ExperimentalTime::class)
+    private fun synConsumerDish(){
+        mScope.launch(mHandle) {
+            while(isActive){
+                
+                val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
+                if (offline)continue
+                delay(Duration.hours(1))
+            }
+        }
     }
 
 
@@ -86,10 +110,10 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
 
 
     /**
-     * 新app检查
+     * 新app检查,和开启软件保活
      */
-    private fun checkNewApp(){
-       val work =  PeriodicWorkRequest.Builder(
+    private fun checkNewAppAndKeepAlive(){
+        val work =  PeriodicWorkRequest.Builder(
             CheckVersionWorker::class.java,
             15,
             TimeUnit.MINUTES
@@ -97,19 +121,28 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
 
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(Constant.PERIODIC_WORK_KEY, ExistingPeriodicWorkPolicy.REPLACE,work)
+        LogUtil.i(TAG,"启动软件版本更新任务")
 
+        // JobScheduler 拉活
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            KeepAliveJobService.startJob(this)
+            LogUtil.i(TAG,"开启软件保活设置")
+        }
     }
 
 
     override fun onDestroy() {
         WorkManager.getInstance(this).cancelUniqueWork(Constant.PERIODIC_WORK_KEY)
         LogUtil.d(TAG,"服务关闭")
+        //取消mqtt监听
         binder.unRegisterListener()
-//        pre?.unregister(this)
+        //断开mqtt
         binder.disconnect()
-        mDelay?.dispose()
 
+        //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
+        //关闭扫码头
+        ScanDevice.closeScan();
         super.onDestroy()
     }
 

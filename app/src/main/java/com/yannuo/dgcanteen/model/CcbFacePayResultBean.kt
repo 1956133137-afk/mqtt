@@ -67,7 +67,7 @@ class CcbFacePayResultBean{
     var CUST_NAME: String ?= null
     var DISCOUNTAMT: String ?= null
     var DISCOUNTMSG: String ?= null
-    var OFFLINE: String ?= null
+    var OFFLINE: String = "0"
     var ORDER_ID: String ?= null
     var PAYMENT: String ?= null
     var PAYTIME: String ?= null

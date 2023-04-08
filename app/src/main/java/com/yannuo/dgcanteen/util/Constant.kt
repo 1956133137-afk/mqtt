@@ -17,8 +17,8 @@ object Constant {
     const val mqttPassworkKey = "mqttp"
     const val mqttPassworkValue = "ACMS2022~!@"
 
-    //周期任务
-    const val PERIODIC_WORK_KEY = "app-update"
+    //周期任务-检查软件版本
+    const val PERIODIC_WORK_KEY = "app-update-task"
 
     const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
 
