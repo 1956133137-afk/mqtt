@@ -59,8 +59,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
     private var mProductsDisplay : DifferentDisplay ?= null  //点餐界面
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
+    private var mPayResultDisplay : PayResultDisplay ?= null  //支付结果界面
     private val messageWhat = 1
     private val messageWhatSecond = 2
+    private val messageWhatThird = 3
     private  var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
     private var mRefreshDisplay = true
@@ -140,8 +142,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         EventBus.getDefault().register(this)
 
 
-
-
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
@@ -177,10 +177,20 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         }
 
 
+        //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
-            mProductsDisplay?.show()
             mChooseDisplay?.cancel()
+            mChooseDisplay = null
+            mPayResultDisplay?.cancel()
+            mPayResultDisplay = null
 
+            mProductsDisplay?.also {
+                if (it.isShowing) {
+                    return@also
+                }
+                mProductsDisplay = DifferentDisplay( this, displays)
+                mProductsDisplay?.show()
+            }
         }
 
         //设置界面
@@ -204,25 +214,27 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     }
 
 
-    //事件监听
+    //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun eventArrive(event : MessageEvent){
+        LogUtil.d(TAG, "event : ${event.code}")
         when(event.code) {
             Constant.EVENT_FIRST -> {
                 event.any?.also {
                     val data = it as ProductsDetail
                     val copy = data.copy()
-                    LogUtil.d(TAG, "event : ${event.code}")
                     handler.sendMessage(handler.obtainMessage(messageWhat, copy))
                 }
             }
             Constant.EVENT_SECOND -> {
                 event.any?.also {
                     (it as? ProductsDetail)?.also {iit ->
-                        LogUtil.d(TAG, "event : ${event.code}")
                         handler.sendMessage(handler.obtainMessage(messageWhatSecond, iit))
                     }
                 }
+            }
+            Constant.EVENT_THIRD -> {
+                handler.sendMessage(handler.obtainMessage(messageWhatThird))
             }
         }
     }
@@ -236,28 +248,28 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     //    定时器
     private val timerTask: TimerTask = object : TimerTask() {
         override fun run() {
-                mNetWork = NetWorkUtil.isNetWorkConnected(this@CommodityActivity)
-                if (mNetWork != netWork){
-                    runOnUiThread(Runnable {
-                        netWork = mNetWork
-                        if (netWork){
-                            binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-                            binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
-                            binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
-                        }else{
-                            binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
-                            binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
-                            binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
-                        }
-                    })
-                }
-                mMealId = TimeUtil.CurrentTimeSection()
-                if (mMealId != mealId){
-                    runOnUiThread(Runnable {
-                        mealId = mMealId
-                        binding.mealTime.setText(mealArray[mealId])
-                    })
-                }
+            mNetWork = NetWorkUtil.isNetWorkConnected(this@CommodityActivity)
+            if (mNetWork != netWork){
+                runOnUiThread(Runnable {
+                    netWork = mNetWork
+                    if (netWork){
+                        binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
+                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
+                        binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
+                    }else{
+                        binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
+                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
+                        binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
+                    }
+                })
+            }
+            mMealId = TimeUtil.CurrentTimeSection()
+            if (mMealId != mealId){
+                runOnUiThread(Runnable {
+                    mealId = mMealId
+                    binding.mealTime.setText(mealArray[mealId])
+                })
+            }
         }
     }
 
@@ -267,22 +279,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
      */
     override fun onFacePayResult(data : PayResultForUI) {
         runOnUiThread {
-            val payDisplay  = PayResultDisplay(this,data, displays)
-            payDisplay.show()
+            mPayResultDisplay = PayResultDisplay(this,data, displays)
+            mPayResultDisplay?.show()
         }
 
     }
 
-
-    /**
-     * 取餐处理
-     * @param list ProductsDetail
-     */
-    fun dealWith(list : ProductsDetail){
-        mChooseDisplay = ChooseDisplay(this,list, displays)
-        mChooseDisplay!!.show()
-        mProductsDisplay!!.cancel()
-    }
 
     inner class MyHandler(context : CommodityActivity) : Handler(){
         private var reference : WeakReference<CommodityActivity> = WeakReference(context)
@@ -300,10 +302,45 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
                     }
                     ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                     ref.mChooseDisplay?.cancel()
+                    ref.mChooseDisplay = null
+                }
+
+                ref.messageWhatThird ->{
+                    startDishDisplay();
                 }
             }
         }
     }
+
+
+
+    /**
+     * 取餐处理
+     * @param list ProductsDetail
+     */
+    private fun dealWith(list : ProductsDetail){
+        mChooseDisplay = ChooseDisplay(this,list, displays)
+        mChooseDisplay!!.show()
+        mProductsDisplay!!.cancel()
+        mProductsDisplay = null
+    }
+
+    /**
+     * 打开选餐界面
+     */
+    private fun startDishDisplay(){
+        mPayResultDisplay = null
+        mProductsDisplay = DifferentDisplay( this, displays)
+        mProductsDisplay?.show()
+    }
+
+
+
+
+
+
+
+
 
 
     override fun onDestroy() {

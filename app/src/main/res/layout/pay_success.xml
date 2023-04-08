@@ -32,7 +32,7 @@
             android:layout_height="70px"
             android:layout_marginTop="10px"
             android:gravity="center"
-            android:text="￥ 5.0 元"
+
             android:textSize="48px"
             android:textColor="#4F4F4F"/>
 
@@ -93,7 +93,7 @@
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
-                android:id="@+id/pay_time"
+                android:id="@+id/tv_pay_time"
                 android:layout_width="match_parent"
                 android:layout_height="29px"
                 android:gravity="right"
@@ -115,7 +115,7 @@
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
-                android:id="@+id/trans_number"
+                android:id="@+id/tv_trans_number"
                 android:layout_width="match_parent"
                 android:layout_height="29px"
                 android:gravity="right"
@@ -180,7 +180,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15px"
-                android:text="4份"
                 android:textColor="#BD3124"
                 android:textSize="35px"
                 app:layout_constraintBottom_toTopOf="@+id/v_line3"

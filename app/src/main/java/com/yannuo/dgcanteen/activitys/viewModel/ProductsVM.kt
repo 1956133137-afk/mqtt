@@ -15,6 +15,7 @@ import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -148,10 +149,10 @@ class ProductsVM :ViewModel() {
             }
 
             var offline = 0  //在线
-            if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH,false)) {
+            if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
                 offline = 1  //离线
             }
-
+            offline = 1  //离线
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = "441999527"
             bean.CORP_ID = "1041"
@@ -171,6 +172,7 @@ class ProductsVM :ViewModel() {
                     payState.orderid = payResult.ORDER_ID
                     payState.timestamp = payResult.PAYTIME
                     payState.dishes = detail.products
+                    payState.piece = detail.count.toInt()
                     when(payResult.RESULT){
                         "Y" -> { //订单状态,成功
                             payState.cust_name = payResult.CUST_NAME
@@ -183,6 +185,7 @@ class ProductsVM :ViewModel() {
                                 "3"->{  //3支付成功
                                     payState.result = PayResultForUI.Result.SUCCESS
                                     payState.traceid  = payResult.TRACEID
+                                    saveOrSynConsumeRecord(payResult,detail.products)
                                 }
                                 else ->{ //1 -待支付、2-支付失败
                                     payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
@@ -198,4 +201,51 @@ class ProductsVM :ViewModel() {
                 })
         }
     }
+
+
+    /**
+     * 保存或同步消费记录
+     */
+   private fun saveOrSynConsumeRecord(
+        payResult: CcbFacePayResultBean,
+        products: MutableList<DishesInfo>
+    ) {
+       viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
+           val bean = SynConsumeRecordBean()
+           bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
+           bean.businessId = "SJ2023032511004"
+           bean.counterId = "V00443832"
+           bean.RESULT  = "Y"
+           bean.CUST_ID = payResult.CUST_ID
+           bean.PAYMENT = payResult.PAYMENT!!.toDouble()
+           bean.ACTUAL_PAYMENT = payResult.ACTUAL_PAYMENT?.toDouble()  ?: 0.0
+           bean.ACC_NO = payResult.ACC_NO
+           bean.ACC_BAL = payResult.ACC_BAL?.toDouble()
+           bean.ACC_TYPE = payResult.ACC_TYPE?.toInt()
+           bean.TRACEID = payResult.TRACEID
+           bean.ORDER_ID = payResult.ORDER_ID
+           bean.TRAN_RESULT =  3
+           bean.OFFLINE = payResult.OFFLINE?.toInt()
+           bean.ERRCODE = ""
+           bean.ERRMSG = ""
+           bean.ACCALIAS =payResult.ACCALIAS
+
+           bean.PAYTIME = payResult.PAYTIME
+           bean.BUSINESS_NAME = "彦诺智能测试园区"
+           bean.paymentDishesList = mutableListOf()
+           products.forEach {
+               bean.paymentDishesList.add(PaymentDishesList(
+                   it.dishesId,
+                   it.dishesName,
+                   it.count,
+                   it.price
+               ))
+           }
+          val res = mRespository.synCsRecord(bean)
+           if (res.code != HttpURLConnection.HTTP_OK){
+               LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+           }
+           LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
+       }
+   }
 }

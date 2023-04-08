@@ -18,10 +18,15 @@ interface ApiService {
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
-    // 获取建行商户信息
+    // 获取菜品
     @Headers("content-type: application/json")
     @GET("android/getDishes")
     suspend fun ccbDishes( @Query("deviceId")sn : String): CanteenResponse<MutableList<DayDishesBean>>
+
+    // 同步消费记录
+    @Headers("content-type: application/json")
+    @POST("deviceData/insertPaymentRecord")
+    suspend fun synCsRecord(@Body data: SynConsumeRecordBean) : CanteenResponse<String>
 
     //二维码被扫支付
     @Headers("content-type: application/x-www-form-urlencoded")

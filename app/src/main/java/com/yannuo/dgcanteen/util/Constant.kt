@@ -51,4 +51,5 @@ object Constant {
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
+    const val EVENT_THIRD = 3 // 返回点餐界面
 }

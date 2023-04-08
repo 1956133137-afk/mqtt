@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
+import com.yannuo.dgcanteen.adapters.PayResultAdapter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
-import com.yannuo.dgcanteen.adapters.SucShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.databinding.PayFailureBinding;
 import com.yannuo.dgcanteen.databinding.PaySuccessBinding;
@@ -32,7 +32,7 @@ public class PayResultDisplay extends Presentation {
     private String TAG = getClass().getSimpleName();
 
 
-    private SucShopsAdapter mShopsAdapter;
+    private PayResultAdapter mPayResultAdapter;
     private PayResultForUI mPayResult;
 
     public PayResultDisplay(Context outerContext, PayResultForUI payResult , Display display) {
@@ -72,27 +72,39 @@ public class PayResultDisplay extends Presentation {
 
     private void initFailEvent() {
         mFailBinding.btBack.setOnClickListener(v -> {
-           cancel();
+            back();
         });
     }
 
 
     private void initData() {
-        mShopsAdapter = new SucShopsAdapter(getContext());
+        mPayResultAdapter = new PayResultAdapter();
         mBinding.rvDishList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mBinding.rvDishList.setAdapter(mShopsAdapter);
-
+        mBinding.rvDishList.setAdapter(mPayResultAdapter);
+        mBinding.rvDishList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        CommonAndDpToPxUtil.speakWork("欢迎用餐");
     }
 
     private void initView() {
 
-//        binding.tvPayMoney.setText("合计:￥ "+mDishes.getTotalMoney());
-//        mShopsAdapter.setData(mDishes.getProducts());
+        mPayResultAdapter.setData(mPayResult.getDishes());
+        mBinding.tvSum.setText(""+mPayResult.getPiece()+"件");
+        mBinding.payTotalMoney.setText(String.format("￥ %s 元",mPayResult.getPayment()));
+        mBinding.tvName.setText(mPayResult.getCust_name());
+        mBinding.tvClass.setText("20(15)班");
+        mBinding.tvPayTime.setText(mPayResult.getTimestamp());
+        mBinding.tvTransNumber.setText(mPayResult.getOrderid());
+
     }
 
     private void initEvent() {
-
-
+        mBinding.btBack.setOnClickListener(v -> {
+            back();
+        });
     }
 
+    private void back(){
+        EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD,null));
+        cancel();
+    }
 }

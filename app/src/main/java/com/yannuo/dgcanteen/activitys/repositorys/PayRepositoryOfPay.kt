@@ -24,6 +24,14 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun synCsRecord(data :SynConsumeRecordBean): CanteenResponse<String> {
+        return apiCall {
+            val ben = RetrofitClient.getApi().synCsRecord(data)
+            return@apiCall ben
+        }
+    }
+
+
     suspend fun getScanQrData(bean: CcbScanPayBean): ScanQrResultBean {
         return apiCallForScanCode {
             val sn = CanteenEncryptionUtil.requestScanData(bean)
