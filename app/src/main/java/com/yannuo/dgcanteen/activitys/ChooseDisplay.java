@@ -70,11 +70,8 @@ public class ChooseDisplay extends Presentation {
 
         binding.btPayQrcode.setOnClickListener(view -> {
             CommonAndDpToPxUtil.speakWork("请出示付款码支付");
-            ScanPayPresenter mScanPresenter = new ScanPayPresenter(mDishes,getContext());
-            mScanPresenter.scanListener();
-            mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,mDishes));
             dismiss();
-//            mScanPresenter.closeScan();
         });
     }
 

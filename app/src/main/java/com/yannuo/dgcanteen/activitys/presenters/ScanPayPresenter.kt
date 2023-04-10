@@ -4,12 +4,15 @@ import android.content.Context
 import android.os.RemoteException
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ScanDevice
 import com.yannuo.libscan.ScanThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,10 +20,13 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
      private val TAG = javaClass.simpleName
      private var mDishes : ProductsDetail ?= null
      private var mContext : Context ?= null
+     private var mRespository :PayRepositoryOfPay
+     var listener : IProductsVM?= null
 
      init {
           this.mDishes = mDishes
           this.mContext = context
+          mRespository = PayRepositoryOfPay()
      }
 
      //扫码状态，主要用于区分选择商品 和支付码
@@ -64,9 +70,7 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
                when (scanState) {
                     ScanState.PAY -> {
                          LogUtil.i(TAG, "扫码数据: $it")
-                         mDishes?.let { it1 -> startPayWithScan(it1.totalMoney,it) }
-//                    val message = handle.obtainMessage(Constant.EVENT_TWO, it)
-//                    handle.sendMessage(message)
+                         mDishes?.let { it1 -> startPayWithScan(it1,it) }
                          scanState = ScanState.INVALID //更新支付状态，以防止多次扫付款吗
                     }
                     ScanState.INVALID ->{
@@ -76,7 +80,7 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           }
      }
 
-     fun startPayWithScan(payment :String,qrcode :String){
+     fun startPayWithScan(data :ProductsDetail,qrcode :String){
           val ccbScanPayBean = CcbScanPayBean()
           ccbScanPayBean.CAMPUS_ID = "441999527"
           ccbScanPayBean.CORP_ID = "1041"
@@ -84,8 +88,8 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           ccbScanPayBean.ccbSafeParam = ""
           ccbScanPayBean.BUSINESS_ID = "SJ2023032511004"
           ccbScanPayBean.VPOS_ID = "V00443832"
-          ccbScanPayBean.PAYMENT = payment
-          ccbScanPayBean.ACTUAL_PAYMENT = payment
+          ccbScanPayBean.PAYMENT = data.totalMoney
+          ccbScanPayBean.ACTUAL_PAYMENT = data.totalMoney
           ccbScanPayBean.COUPON_INFO = ""
           ccbScanPayBean.ACC_NOS = ""
           ccbScanPayBean.QR_CODE = qrcode
@@ -95,10 +99,27 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           ccbScanPayBean.SIGN_TIME = ""
           try{
                runBlocking (Dispatchers.IO) {
-                    val repository = PayRepositoryOfPay()
-                    val responseScanPay = repository.getScanQrData(ccbScanPayBean)
+                    val responseScanPay = mRespository.getScanQrData(ccbScanPayBean)
                     LogUtil.e("test", Gson().toJson(responseScanPay))
-                    consumeRecord(ccbScanPayBean, responseScanPay)
+                    val payState = PayResultForUI()
+                    payState.way = "被扫支付"
+                    payState.orderid = responseScanPay.ORDER_ID
+                    payState.timestamp = ccbScanPayBean.SIGN_TIME
+                    payState.dishes = data.products
+                    payState.piece = data.count.toInt()
+                    when(responseScanPay.RESULT.toString()){
+                         "Y" ->{
+                              payState.cust_name = ccbScanPayBean.CUST_ID
+                              payState.payment = responseScanPay.PAYMENT
+                              payState.acc_no =  responseScanPay.ACC_NO
+                              payState.acc_bal = responseScanPay.ACC_BAL
+                              payState.result = PayResultForUI.Result.SUCCESS
+                              payState.traceid  = ""
+//                              consumeRecord(ccbScanPayBean, responseScanPay)
+                         }
+                         else -> payState.errormsg = "error ${responseScanPay.ERRCODE} ${responseScanPay.ERRMSG} "
+                    }
+                    listener?.onScanPayResult(payState)
                }
 
           }catch (e: RemoteException) {
@@ -108,7 +129,7 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
 
      private suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){
           val bean = SynConsumeRecordBean()
-          bean.deviceSerialNumber = ""
+          bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
           bean.businessId = scanPay.BUSINESS_ID
           bean.counterId = scanPay.VPOS_ID
           bean.RESULT  = resScan.RESULT.toString()
@@ -146,7 +167,11 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
                ))
           }
 
-          val repository = PayRepositoryOfPay()
-          repository.setConsumeRecord(bean)
+          val responseScanPay = mRespository.synCsRecord(bean)
+          LogUtil.i(TAG,Gson().toJson(responseScanPay))
+          if (responseScanPay.code != HttpURLConnection.HTTP_OK){
+               LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${responseScanPay.data}")
+          }
+          LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
      }
 }
