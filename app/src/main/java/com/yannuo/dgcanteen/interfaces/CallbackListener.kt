@@ -2,6 +2,6 @@ package com.yannuo.dgcanteen.interfaces
 
 interface CallbackListener {
 
-        fun onSureListener(event: Int, any : Any?)
+        fun onOtherListener(event: Int, any : Any? = null)
 
 }

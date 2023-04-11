@@ -25,21 +25,20 @@ class MoveTextview : androidx.appcompat.widget.AppCompatTextView {
 
 
     private fun initData() {
-//        setText("阿里斯顿")
+
         setPadding(10,10,10,10)
         setBackgroundResource(R.drawable.common_bt_bg)
-//       val anima = AnimationSet(false)
         anima = AnimationSet(false)
         anima?.interpolator = DecelerateInterpolator()
         anima?.duration = 2000
         val tranl = TranslateAnimation(Animation.RELATIVE_TO_SELF,0f,
-            Animation.RELATIVE_TO_SELF,-1f,
+            Animation.RELATIVE_TO_SELF,1f,
             Animation.RELATIVE_TO_SELF,0f,
             Animation.RELATIVE_TO_SELF,0f)
         tranl.repeatMode =  2
         tranl.repeatCount = 1
 
-        val tranl2 = TranslateAnimation(Animation.RELATIVE_TO_SELF,-98f,
+        val tranl2 = TranslateAnimation(Animation.RELATIVE_TO_SELF,1f,
             Animation.RELATIVE_TO_SELF,0f,
             Animation.RELATIVE_TO_SELF,0f,
             Animation.RELATIVE_TO_SELF,0f)
@@ -47,8 +46,6 @@ class MoveTextview : androidx.appcompat.widget.AppCompatTextView {
         tranl2.repeatCount = 1
 
         anima?.addAnimation(tranl)
-//        anima?.addAnimation(tranl2)
-
 
     }
 
@@ -59,6 +56,10 @@ class MoveTextview : androidx.appcompat.widget.AppCompatTextView {
            startAnimation(it)
         }
 
+    }
+
+    fun stopAnima(){
+        anima?.cancel()
     }
 
 }

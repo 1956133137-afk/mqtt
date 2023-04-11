@@ -5,22 +5,36 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
 import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
+import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.model.PayResultForUI;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.LogUtil;
+import com.yannuo.dgcanteen.util.ScanDevice;
+import com.yannuo.dgcanteen.views.LoadingDialog;
+import com.yannuo.dgcanteen.views.WaitForPayDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
-public class ChooseDisplay extends Presentation {
+public class ChooseDisplay extends Presentation implements CallbackListener {
 
     private ChooseSecondDisplayBinding binding;
     private String TAG = getClass().getSimpleName();
@@ -28,6 +42,11 @@ public class ChooseDisplay extends Presentation {
     private ZHSTFacePayService  mFacePayService = null;
     private ShopsAdapter mShopsAdapter;
     private ProductsDetail mDishes;
+    private WaitForPayDialog waitForPayDialog;
+    private LoadingDialog loadingDialog;
+    private ScanPayPresenter scanPayPresenter;
+
+
 
     public ChooseDisplay(Context outerContext, ProductsDetail dishes , Display display) {
         super(outerContext, display);
@@ -49,11 +68,10 @@ public class ChooseDisplay extends Presentation {
 
 
     private void initData() {
+
         mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
-//        binding.rvSecondDetail.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-
     }
 
     private void initView() {
@@ -63,6 +81,7 @@ public class ChooseDisplay extends Presentation {
 
     private void initEvent() {
         binding.btPayFace.setOnClickListener(view -> {
+            ScanDevice.INSTANCE.setCallbackListener(null);
             CommonAndDpToPxUtil.speakWork("开始人脸支付");
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
             dismiss();
@@ -70,9 +89,91 @@ public class ChooseDisplay extends Presentation {
 
         binding.btPayQrcode.setOnClickListener(view -> {
             CommonAndDpToPxUtil.speakWork("请出示付款码支付");
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,mDishes));
-            dismiss();
+
+            if (waitForPayDialog != null) waitForPayDialog.cancel();
+            if (waitForPayDialog == null) {
+                waitForPayDialog = new WaitForPayDialog(getContext());
+                waitForPayDialog.setListener(new WaitDialogEvent());
+            }
+            waitForPayDialog.show();
+
+            if (scanPayPresenter == null) {
+                scanPayPresenter = new ScanPayPresenter(mDishes);
+                //监听交易过程
+                scanPayPresenter.setListener(this);
+            }
+            //使能扫码支付
+            scanPayPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
         });
     }
+
+    @Override
+    protected void onStop() {
+        if (scanPayPresenter != null) {
+            scanPayPresenter.release();
+        }
+
+        super.onStop();
+    }
+
+    @Override
+    public void onOtherListener(int event, @Nullable Object any) {
+        LogUtil.i(TAG,"event: " +event);
+       switch (event){
+           case 1:
+               Observable.just(1)
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(integer -> {
+                           if (loadingDialog != null) loadingDialog.cancel();
+                           if (loadingDialog == null) {
+                               loadingDialog = new LoadingDialog(getContext());
+                               loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                           }
+                           waitForPayDialog.cancel();
+                           loadingDialog.show();
+                       });
+               break;
+
+           case 2: //异常
+               Observable.just(1)
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(integer -> {
+                           if (loadingDialog != null) loadingDialog.cancel();
+
+                           Toast.makeText(getContext(), (String)any, Toast.LENGTH_SHORT).show();
+                       });
+               break;
+
+           case 3:
+               Observable.just(1)
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(integer -> {
+                           if (loadingDialog != null) loadingDialog.cancel();
+                       });
+               EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
+               cancel();
+               break;
+       }
+
+
+    }
+
+
+    private class WaitDialogEvent implements WaitForPayDialog.CloseEvent {
+
+        @Override
+        public void onEvent(int code, @Nullable String msg) {
+            if (code == 1){
+                CommonAndDpToPxUtil.speakWork("超时未完成支付");
+                LogUtil.i(TAG,"扫码交易:" + msg);
+            }else if (code == 0){
+                //todo 取消处理逻辑
+                LogUtil.i(TAG,"扫码交易:" + msg);
+            }
+        }
+    }
+
+
+
 
 }

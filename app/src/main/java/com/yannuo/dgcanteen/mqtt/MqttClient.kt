@@ -129,7 +129,7 @@ class MqttClient(context: Context) {
 //                                    CONNECT_STATUS = ConnectStatue.DISCONNECT
                             }
                         })
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(40))
+                        Thread.sleep(TimeUnit.SECONDS.toMillis(60))
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.views
 import android.content.Context
 import android.os.CountDownTimer
 import android.view.View
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import com.yannuo.dgcanteen.R
@@ -19,6 +20,7 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
 
 
     override fun initViewAndEvent() {
+        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         tv_close = findViewById(R.id.ib_close)
         tv_count = findViewById(R.id.tv_count_down)
 
@@ -33,7 +35,7 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
         countDown?.cancel()
         countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time)+200,1000) {
             override fun onTick(mil: Long) {
-                tv_count.text = "请在有效时间内完成支付 ${TimeUnit.MILLISECONDS.toSeconds(mil)} S"
+                tv_count.text = "请在有效时间内完成支付 ${TimeUnit.MILLISECONDS.toSeconds(mil)} s"
                 LogUtil.i(TAG,"${tv_count.text}")
             }
 
@@ -48,6 +50,11 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
     override fun dismiss() {
         countDown?.cancel()
         super.dismiss()
+    }
+
+    override fun cancel() {
+        countDown?.cancel()
+        super.cancel()
     }
 
     fun setListener(lis : CloseEvent){

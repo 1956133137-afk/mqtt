@@ -29,6 +29,7 @@ public abstract class BaseDialog extends Dialog implements View.OnClickListener 
         setContentView(layoutId);
         setCancelable(false);
         initViewAndEvent();
+
 //        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         getWindow().setBackgroundDrawable(new ColorDrawable());
         getWindow().setDimAmount(0.2f);

@@ -10,24 +10,28 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
 import android.os.*
+import android.text.TextUtils
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.Display
-import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
+import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
+import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
+import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
-import com.yannuo.dgcanteen.model.ScanQrResultBean
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
@@ -37,7 +41,7 @@ import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
 
-class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickListener, IProductsVM {
+class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -66,13 +70,18 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private val messageWhatFourth = 4
     private  var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
-    private var mRefreshDisplay = true
+
     private var mMealId = 0
     private var mealId = 0
     private val mealArray = arrayOf(R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time)
     private var mNetWork = false
     private var netWork = false
     private var mCurrentTime = 1681101000000
+
+
+    private var successBinding : PaySuccessHostBinding ?= null
+    private var failBinding : PayFailureHostBinding ?= null
+
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -112,14 +121,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     }
 
 
-    override fun onResume() {
-        super.onResume()
-//        mXService?.hideNavBar = false
-//        if (!mRefreshDisplay){
-//            mProductsDisplay?.dishesData()
-//        }
-//        mRefreshDisplay = false
-    }
 
     private fun initPresentation() {
         val mediaRouter = getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter?
@@ -171,7 +172,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
 
     private fun initEvent(){
-        binding.tvTitle.setOnClickListener(this)
         binding.tvTitle.setOnLongClickListener {
             navigation  =!navigation
             mXService?.hideNavBar = navigation
@@ -240,8 +240,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
             }
             Constant.EVENT_FOURTH ->{
                 event.any?.also {
-                    (it as? ProductsDetail)?.also {fit ->
-                        handler.sendMessage(handler.obtainMessage(messageWhatFourth, fit))
+                    (it as? PayResultForUI)?.also {fit ->
+                        updatePayResult(fit)
                     }
                 }
             }
@@ -249,10 +249,80 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     }
 
 
+    private fun updatePayState(data : PayResultForUI){
+        val count = binding.flPayResult.childCount
+        binding.mvControl.text = "支付数据更新啦"
+        when(data.result){
+            PayResultForUI.Result.SUCCESS ->{
+                if (count == 1){
+                    if ((binding.flPayResult.getChildAt(0) is LinearLayout).not()){
+                        binding.flPayResult.removeAllViews()
+                        initSuccessBinding()
+                        binding.flPayResult.addView(successBinding?.root)
+                    }
+                }else{
+                    initSuccessBinding()
+                    binding.flPayResult.addView(successBinding?.root)
+                }
+                refreshSuccessState(data)
+            }
+            else ->{
+                if (count == 1){
+                    if ((binding.flPayResult.getChildAt(0) is ConstraintLayout).not()){
+                        binding.flPayResult.removeAllViews()
+                        initFailBinding()
+                        binding.flPayResult.addView(failBinding?.root)
+                    }
+                }else{
+                    initFailBinding()
+                    binding.flPayResult.addView(failBinding?.root)
+                }
+                refreshFailState(data)
+            }
+        }
+    }
 
-    override fun onClick(v: View) {
+
+    private fun initFailBinding(){
+        if (failBinding != null)return
+        failBinding = PayFailureHostBinding.inflate(layoutInflater,null,false)
+    }
+
+
+    private fun initSuccessBinding(){
+        if (successBinding != null)return
+        successBinding = PaySuccessHostBinding.inflate(layoutInflater,null,false)
+        val payResultAdapter =  PayResultAdapter()
+        successBinding!!.rvDishList.layoutManager = LinearLayoutManager(this)
+        successBinding!!.rvDishList.adapter = payResultAdapter
+        successBinding!!.rvDishList.addItemDecoration(
+            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        )
 
     }
+
+    private fun refreshSuccessState(data : PayResultForUI){
+        //更新数据
+        (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
+        successBinding!!.tvSum.text = " ${data.piece} 件"
+        successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
+        successBinding!!.tvName.text = data.cust_name
+        successBinding!!.tvClass.text = "20(15)班"
+        successBinding!!.tvPayTime.text = data.timestamp
+        successBinding!!.tvTransNumber.text = data.orderid
+    }
+
+    private fun refreshFailState(data : PayResultForUI){
+        //更新数据
+        if (!TextUtils.isEmpty(data.errormsg)) {
+            failBinding!!.payFailMsg.text = data.errormsg
+        }
+        if (!TextUtils.isEmpty(data.timestamp)) {
+            failBinding!!.payTime.text = data.timestamp
+        }
+
+    }
+
 
     //    定时器
     private val timerTask: TimerTask = object : TimerTask() {
@@ -288,16 +358,23 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
         }
     }
 
+
+
     /**
      * 刷脸结果回调
      * @param data PayResultForUI
      */
     override fun onFacePayResult(data : PayResultForUI) {
+        updatePayResult(data)
+
+    }
+
+    private fun updatePayResult(data : PayResultForUI){
         runOnUiThread {
             mPayResultDisplay = PayResultDisplay(this,data, displays)
             mPayResultDisplay?.show()
+            updatePayState(data )
         }
-
     }
 
     /**
@@ -305,9 +382,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
      * @param data PayResultForUI
      */
     override fun onScanPayResult(data: PayResultForUI) {
-        runOnUiThread {
 
-        }
     }
 
     inner class MyHandler(context : CommodityActivity) : Handler(){
@@ -333,10 +408,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
                     startDishDisplay();
                 }
                 ref.messageWhatFourth ->{
-                    var mScanPresenter = ScanPayPresenter(msg.obj as ProductsDetail,this@CommodityActivity);
-                    mScanPresenter.listener = this@CommodityActivity
-                    mScanPresenter.scanListener();
-                    mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+//                    var mScanPresenter = ScanPayPresenter(msg.obj as ProductsDetail,this@CommodityActivity);
+//                    mScanPresenter.listener = this@CommodityActivity
+//                    mScanPresenter.scanListener();
+//                    mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
                 }
             }
         }
@@ -380,6 +455,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
     private fun release(){
         EventBus.getDefault().unregister(this)
+        binding.mvControl.stopAnima()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
