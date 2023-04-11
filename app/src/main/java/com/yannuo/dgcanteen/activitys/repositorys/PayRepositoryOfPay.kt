@@ -39,10 +39,10 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun setConsumeRecord(data :SynConsumeRecordBean){
-        data.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-        RetrofitClient.getApi().synConsumeRecord(data)
-    }
+//    suspend fun setConsumeRecord(data :SynConsumeRecordBean){
+//        data.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
+//        RetrofitClient.getApi().synConsumeRecord(data)
+//    }
 //
 //
 //    /**

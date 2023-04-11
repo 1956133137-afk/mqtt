@@ -207,7 +207,7 @@
         android:focusableInTouchMode="true">
 
         <TextView
-            android:layout_width="217dp"
+            android:layout_width="300dp"
             android:layout_height="40dp"
             android:layout_marginStart="40dp"
             android:text="@string/syn_final_time"

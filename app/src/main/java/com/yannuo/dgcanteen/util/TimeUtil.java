@@ -1,9 +1,12 @@
 package com.yannuo.dgcanteen.util;
 
+import android.text.format.DateFormat;
 import android.text.format.Time;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class TimeUtil {
 
@@ -22,7 +25,7 @@ public class TimeUtil {
     }
 
 //    判断时间区间
-    public static boolean isCurrentInTimeScope(int beginHour,int beginMin,int endHour,int endMin){
+    private static boolean isCurrentInTimeScope(int beginHour,int beginMin,int endHour,int endMin){
         boolean result = false;
         final long aDayInMillis = 1000 * 60 * 60 * 24;
         final long currentTimeMillis = System.currentTimeMillis();
@@ -54,6 +57,15 @@ public class TimeUtil {
             result = !now.before(startTime) && !now.after(endTime); // startTime <= now <= endTime
         }
         return result;
+    }
+
+    //判断时间戳间隔
+    public static long timeStamp(long time){
+        long diff = time - System.currentTimeMillis();
+        long days = diff / (1000 * 60 * 60 * 24);
+        long hours = (diff - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+        long minutes = (diff - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
+        return days * 24 + hours;
     }
 
 }

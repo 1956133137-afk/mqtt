@@ -33,10 +33,10 @@ interface ApiService {
     @POST
     suspend fun scanQrPay(@Url url: String?): ScanQrResultBean
 
-    // 同步消费记录
-    @Headers("content-type: application/json")
-    @POST("deviceData/insertPaymentRecord")
-    suspend fun synConsumeRecord(@Body data: SynConsumeRecordBean)
+//    // 同步消费记录
+//    @Headers("content-type: application/json")
+//    @POST("deviceData/insertPaymentRecord")
+//    suspend fun synConsumeRecord(@Body data: SynConsumeRecordBean)
 //
 //
 //    //  建行

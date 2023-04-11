@@ -9,10 +9,9 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
+import android.os.*
+import android.text.format.DateFormat
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android.widget.Toast
@@ -20,12 +19,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
+import com.yannuo.dgcanteen.model.ScanQrResultBean
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
@@ -52,8 +53,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private var value = 0
     private var mXService : MyService ?= null
     private var navigation = true
-    private var clickCount = 0
-    private var preClickTime = 0
     private var displays : Display?= null
     private var mFacePayService: ZHSTFacePayService? = null
 
@@ -63,6 +62,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private val messageWhatThird = 3
+    private val messageWhatFourth = 4
     private  var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
     private var mRefreshDisplay = true
@@ -71,6 +71,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     private val mealArray = arrayOf(R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time)
     private var mNetWork = false
     private var netWork = false
+    private var mCurrentTime = 1681101000000
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -236,6 +237,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
             Constant.EVENT_THIRD -> {
                 handler.sendMessage(handler.obtainMessage(messageWhatThird))
             }
+            Constant.EVENT_FOURTH ->{
+                event.any?.also {
+                    (it as? ProductsDetail)?.also {fit ->
+                        handler.sendMessage(handler.obtainMessage(messageWhatFourth, fit))
+                    }
+                }
+            }
         }
     }
 
@@ -263,6 +271,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
                     }
                 })
             }
+            if (System.currentTimeMillis() - mCurrentTime >= 60000){
+                runOnUiThread(Runnable {
+                    mCurrentTime = System.currentTimeMillis()
+                    binding.tvCurrentTime.text = DateFormat.format("yyyy-MM-dd HH:mm",mCurrentTime).toString()
+                })
+            }
             mMealId = TimeUtil.CurrentTimeSection()
             if (mMealId != mealId){
                 runOnUiThread(Runnable {
@@ -285,6 +299,15 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
     }
 
+    /**
+     * 被扫结果回调
+     * @param data PayResultForUI
+     */
+    override fun onScanPayResult(data: PayResultForUI) {
+        runOnUiThread {
+
+        }
+    }
 
     inner class MyHandler(context : CommodityActivity) : Handler(){
         private var reference : WeakReference<CommodityActivity> = WeakReference(context)
@@ -307,6 +330,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
                 ref.messageWhatThird ->{
                     startDishDisplay();
+                }
+                ref.messageWhatFourth ->{
+                    var mScanPresenter = ScanPayPresenter(msg.obj as ProductsDetail,this@CommodityActivity);
+                    mScanPresenter.listener = this@CommodityActivity
+                    mScanPresenter.scanListener();
+                    mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
                 }
             }
         }

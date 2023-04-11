@@ -22,6 +22,27 @@ public class DES3CBCUtil {
     //加密向量
     private static final String encryptionVector = "00000000";
 
+    /**
+     * 返回离线码过期时间戳
+     */
+    public static long getTimestamp(String PlainStr){
+        byte[] res = PlainStr.getBytes(StandardCharsets.UTF_8);
+        StringBuilder str = new StringBuilder();
+        for (int i = res.length - 1; i > 0; i--){
+            if (res[i] == '@'){
+                break;
+            }else {
+                str.insert(0,(char) res[i]);
+            }
+        }
+        return Long.parseLong(str.toString());
+    }
+
+    /**
+     * 获取密文串
+     * @param src
+     * @return
+     */
     public static String transDecryption(String src){
         byte[] res = src.getBytes(StandardCharsets.UTF_8);
         StringBuilder str = new StringBuilder();

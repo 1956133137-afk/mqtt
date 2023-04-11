@@ -73,11 +73,11 @@ public class LoginPasswordDialog extends AppCompatActivity {
     }
     private String getCurrentTime(){
         Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
         StringBuilder builder = new StringBuilder();
-        builder.append(hour < 10 ? "0" + hour : hour);
-        builder.append(minute < 10 ? "0" + minute : minute);
+        builder.append(month < 10 ? "0" + month : month);
+        builder.append(day < 10 ? "0" + day : day);
         return builder.toString();
     }
 }
