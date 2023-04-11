@@ -21,6 +21,7 @@ import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
@@ -114,10 +115,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
     override fun onResume() {
         super.onResume()
 //        mXService?.hideNavBar = false
-        if (!mRefreshDisplay){
-            mProductsDisplay?.dishesData()
-        }
-        mRefreshDisplay = false
+//        if (!mRefreshDisplay){
+//            mProductsDisplay?.dishesData()
+//        }
+//        mRefreshDisplay = false
     }
 
     private fun initPresentation() {
@@ -209,7 +210,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(), View.OnClickL
 
         //菜品同步
         binding.btnSynDishes.setOnClickListener {
-
+            mProductsVM.upDataDishes(true)
         }
 
     }

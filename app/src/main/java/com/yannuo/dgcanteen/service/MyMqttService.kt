@@ -5,13 +5,20 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
+import com.yannuo.dgcanteen.model.PaymentDishesList
 import com.yannuo.dgcanteen.model.StatusValue
+import com.yannuo.dgcanteen.model.SynConsumeRecordBean
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -24,6 +31,7 @@ import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import java.io.File
 import java.io.FileReader
+import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
@@ -82,17 +90,63 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     }
 
 
-
-
-
+    /**
+     * 上传消费记录到自有平台
+     */
     @OptIn(ExperimentalTime::class)
     private fun synConsumerDish(){
         mScope.launch(mHandle) {
             while(isActive){
-                
+                LogUtil.i(TAG,"离线消费上传任务开始...")
+                delay(Duration.hours(1))
+//                delay(10000)
                 val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline)continue
-                delay(Duration.hours(1))
+                //在线模式下
+                // 1、先复位上传标志
+                do {
+                    val dishList = DishesDBHelper.getInstance().extractConsumerOrder(true)
+                    dishList.forEach {
+                        it.up = false
+                    }
+                    DishesDBHelper.getInstance().updateConsumerOrders(dishList)
+                }while (dishList.size == 100)
+                //2、上传记录
+                val respository = PayRepositoryOfPay()
+                val gson = Gson()
+                do {
+                    val order = DishesDBHelper.getInstance().queryConsumerOrder()
+                    order?.also {
+                        val js = gson.toJson(order)
+                        LogUtil.d(TAG, js)
+                        val bean = gson.fromJson(js, SynConsumeRecordBean::class.java)
+                        bean.paymentDishesList = mutableListOf()
+                        order.paymentDishesList.forEach {
+                            bean.paymentDishesList.add(
+                                PaymentDishesList(
+                                    it.dishesId,
+                                    it.dishesName,
+                                    it.dishesNumber,
+                                    it.dishesPrice
+                                )
+                            )
+                        }
+                        val res = respository.synCsRecord(bean)
+                        if (res.code == HttpURLConnection.HTTP_OK){
+                            //删除对应的消费记录的菜品
+                            DishesDBHelper.getInstance().deleteRelatedDish(it.paymentDishesList[0].orderid)
+                            //删除对应的消费记录
+                            DishesDBHelper.getInstance().deleteConsumerOrder(it.ordeR_ID)
+                            LogUtil.i(TAG,"离线订单${bean.ORDER_ID} 上传成功!")
+                        }else{
+                            LogUtil.e(TAG,"离线上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                            //修改上传标志
+                            it.up = true
+                            DishesDBHelper.getInstance().updateConsumerOrder(it)
+                        }
+                    }
+                }while (order != null)
+                LogUtil.i(TAG,"离线消费上传任务结束...")
             }
         }
     }

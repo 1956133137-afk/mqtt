@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.common;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StrictMode;
@@ -13,6 +14,7 @@ import com.yannuo.dgcanteen.dao.dbhelp.DbHelper;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.download.CheckVersionWorker;
 import com.yannuo.dgcanteen.service.KeepAliveJobService;
+import com.yannuo.dgcanteen.service.MyMqttService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.LogManager;
 import com.yannuo.dgcanteen.util.LogUtil;
@@ -50,9 +52,11 @@ public class MyApplication extends Application {
 
         String rootDir = MMKV.initialize(this);
         LogUtil.i(TAG,"mmkv root: " + rootDir);
+
         initMMKV();
 
-
+        Intent intent = new Intent(this, MyMqttService.class);
+        startService(intent);
 
 
 

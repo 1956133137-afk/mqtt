@@ -4,52 +4,42 @@ import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter;
-import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay;
-import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
-import com.yannuo.dgcanteen.model.CcbScanPayBean;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
-import com.yannuo.dgcanteen.util.NumberGenerateUtil;
+import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.TimeUtil;
-import com.yannuo.dgcanteen.views.PayFinishDialog;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import kotlin.jvm.internal.Intrinsics;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
 
 public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
+    private String TAG = getClass().getSimpleName();
 
     private DifferrentDialogBinding binding;
     private int mealIds = 0,mMealId = 0 ;
@@ -95,7 +85,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.rvSelectItem.setLayoutManager(linearLayoutManager);
 //        presenter.scanListener();  //监听扫码头数据
-
+        initData();
     }
 
     private void initView() {
@@ -105,7 +95,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     }
 
     private void initData() {
-
+        EventBus.getDefault().register(this);
     }
 
     public void dishesData(){
@@ -126,6 +116,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         }
         adapterDishes.setData(dataList);
     }
+
+
 
     private final void initEvent() {
         binding.ibDelAll.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +162,23 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
+
+
+    //EvenBus事件监听处理
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void arrive(MessageEvent event){
+        LogUtil.d(TAG, "event : "+event.getCode());
+        switch(event.getCode()){
+            case Constant.EVENT_FIFTH : {
+                clearShoppingCart();
+                dishesData();
+                break;
+            }
+            default:
+        }
+
+    }
+
 
 
 
@@ -229,4 +238,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         }
     };
 
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 }

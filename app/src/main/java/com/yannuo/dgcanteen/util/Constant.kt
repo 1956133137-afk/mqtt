@@ -42,9 +42,12 @@ object Constant {
 
     //当前版本
     const val VERSION = "Version"
-    //菜品更新时间
+    //菜品更新更新标志
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年
+
+
+
 
 
 
@@ -53,4 +56,5 @@ object Constant {
     const val EVENT_SECOND = 2 // 刷脸支付
     const val EVENT_THIRD = 3 // 返回点餐界面
     const val EVENT_FOURTH = 4 //被扫支付
+    const val EVENT_FIFTH = 5 //菜品更新
 }

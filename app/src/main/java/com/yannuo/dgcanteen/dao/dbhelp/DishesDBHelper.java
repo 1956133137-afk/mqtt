@@ -205,6 +205,59 @@ public class DishesDBHelper {
 
 
     /**
+     * 提取100条消费记录
+     * @return
+     */
+    public List<OwnOrder> extractConsumerOrder(boolean up){
+      return  mOwnOrderDao.queryBuilder()
+                .where(OwnOrderDao.Properties.Up.eq(up))
+                .limit(100)
+                .build()
+                .list();
+
+    }
+
+    /**
+     * 修改多条条消费记录
+     * @return
+     */
+    public void updateConsumerOrders(List<OwnOrder> ownOrders){
+        if (ownOrders.size() <1)return;
+          mOwnOrderDao.updateInTx(ownOrders);
+    }
+    /**
+     * 修改消费记录
+     * @return
+     */
+    public void updateConsumerOrder(OwnOrder ownOrder){
+        mOwnOrderDao.update(ownOrder);
+    }
+
+    /**
+     * 删除一条消费记录
+     * @return
+     */
+    public void deleteConsumerOrder(String orderId){
+          mOwnOrderDao.queryBuilder()
+                .where(OwnOrderDao.Properties.ORDER_ID.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 删除对应消费记录的消费的菜品
+     * @return
+     */
+    public void deleteRelatedDish(long orderId){
+        mOrderDishListDao.queryBuilder()
+                .where(OrderDishListDao.Properties.Orderid.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+
+
+    /**
      * 清空所有菜品
      */
     public void clearAllDishes(){

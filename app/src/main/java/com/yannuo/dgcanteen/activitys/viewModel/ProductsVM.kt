@@ -23,8 +23,8 @@ import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
 import java.net.HttpURLConnection
-import java.text.SimpleDateFormat
 import java.util.*
 
 class ProductsVM :ViewModel() {
@@ -47,7 +47,7 @@ class ProductsVM :ViewModel() {
         mRespository =  PayRepositoryOfPay()
 
         exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
-            LogUtil.e(TAG,"协程异常： $throwable ${throwable.message}")
+            LogUtil.e(TAG,"协程异常： $throwable ${throwable.printStackTrace()}")
             showToastEvent.postValue("错误： ${throwable.message}")
         }
     }
@@ -66,10 +66,10 @@ class ProductsVM :ViewModel() {
     }
 
 
-    fun upDataDishes(){
+    fun upDataDishes(force :Boolean = false){
         viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
             val check = checkIsNeedUpdate()
-            if (check.not()){
+            if (check.not() || force){
                 loadingEvent.postValue(true)
                 val rs = mRespository.getDayDishes()
                 if (rs.code == HttpURLConnection.HTTP_OK){
@@ -123,9 +123,11 @@ class ProductsVM :ViewModel() {
                     DishesDBHelper.getInstance().insertMeals(mealList)
                     //设置菜品数据已更新
                     val kv = MMKV.defaultMMKV()
-                    val now = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString()
-                    kv.encode(Constant.UPDATE_TIME,now)
-                    kv.encode("FinalTime", SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(Date()))
+                    val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
+                    kv.encode(Constant.UPDATE_TIME,now.substring(0,8))
+                    kv.encode(Constant.FINAL_TIME,now )
+                    //发送菜品更新通知
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_FIFTH, null))
                 }else {
                     LogUtil.e(TAG,"菜品下载出错 ${rs.msg}")
                     showToastEvent.postValue("菜品下载出错 ${rs.msg}")
@@ -154,7 +156,7 @@ class ProductsVM :ViewModel() {
             if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
                 offline = 1  //离线
             }
-            offline = 1  //离线
+
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = "441999527"
             bean.CORP_ID = "1041"
@@ -206,7 +208,7 @@ class ProductsVM :ViewModel() {
 
 
     /**
-     * 保存或同步消费记录
+     * 保存或同步消费记录,离线模式将直接保存，在线模式上传失败也会保存
      */
     private fun saveOrSynConsumeRecord(
         payResult: CcbFacePayResultBean,
@@ -221,10 +223,15 @@ class ProductsVM :ViewModel() {
             bean.RESULT  = "Y"
             bean.CUST_ID = payResult.CUST_ID
             bean.PAYMENT = payResult.PAYMENT!!.toDouble()
-            bean.ACTUAL_PAYMENT = payResult.ACTUAL_PAYMENT?.toDouble()  ?: 0.0
+
+            bean.ACTUAL_PAYMENT = if (payResult.ACTUAL_PAYMENT.isNullOrEmpty().not()) payResult.ACTUAL_PAYMENT!!.toDouble()
+            else 0.0
             bean.ACC_NO = payResult.ACC_NO
-            bean.ACC_BAL = payResult.ACC_BAL?.toDouble()
-            bean.ACC_TYPE = payResult.ACC_TYPE?.toInt()
+
+            bean.ACC_BAL =  if (payResult.ACC_BAL.isNullOrEmpty().not()) payResult.ACC_BAL!!.toDouble()
+            else 0.0
+            bean.ACC_TYPE =   if (payResult.ACC_TYPE.isNullOrEmpty().not()) payResult.ACC_TYPE!!.toInt()
+            else 1
             bean.TRACEID = payResult.TRACEID
             bean.ORDER_ID = payResult.ORDER_ID
             bean.TRAN_RESULT =  3
@@ -264,6 +271,7 @@ class ProductsVM :ViewModel() {
                 saveOrder.result = RESULT
                 saveOrder.cusT_ID = CUST_ID
                 saveOrder.payment = PAYMENT ?:0.0
+
                 saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
                 saveOrder.acC_NO = ACC_NO
                 saveOrder.acC_BAL = ACC_BAL ?:0.0
@@ -278,6 +286,7 @@ class ProductsVM :ViewModel() {
                 saveOrder.paytime = PAYTIME
                 saveOrder.businesS_NAME = BUSINESS_NAME
             }
+            DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
             val saveDishList = mutableListOf<OrderDishList>()
             bean.paymentDishesList.forEach {
                 val dish = OrderDishList()
@@ -288,11 +297,7 @@ class ProductsVM :ViewModel() {
                 dish.order = saveOrder
                 saveDishList.add(dish)
             }
-
-            DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
             DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
-
-            val dea =  DishesDBHelper.getInstance().queryConsumerOrder()
         }
     }
 }
