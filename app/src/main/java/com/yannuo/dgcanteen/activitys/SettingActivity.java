@@ -12,10 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
+import com.yannuo.dgcanteen.download.CheckVersionWorker;
+import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
+
+import java.util.concurrent.TimeUnit;
 
 public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,26 +41,31 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
         kv = MMKV.defaultMMKV();
 
         init();
+        try {
+            tvVersion.setText(getPackageManager().getPackageInfo(getPackageName(),0).versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         reload();
     }
 
     private void reload() {
-        etAddress.setText(kv.decodeString("Address"));
-        switchLine.setChecked(kv.decodeBool("Switch",false));
-        etMqttAddress.setText(kv.decodeString("MqttAddress"));
-        etMqttAccount.setText(kv.decodeString("MqttAccount"));
-        etMqttPassword.setText(kv.decodeString("MqttPassword"));
-        tvVersion.setText(kv.decodeString("Version"));
-        tvFinalTime.setText(kv.decodeString("FinalTime"));
+        etAddress.setText(kv.decodeString(Constant.ADDRESS));
+        switchLine.setChecked(kv.decodeBool(Constant.SWITCH,false));
+        etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS));
+        etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT));
+        etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD));
+//        tvVersion.setText(kv.decodeString("Version"));
+        tvFinalTime.setText(kv.decodeString(Constant.FINAL_TIME));
     }
 
     private void save(){
-        kv.encode("Address",etAddress.getText().toString());
-        kv.encode("Switch",switchLine.isChecked());
-        kv.encode("MqttAddress",etMqttAddress.getText().toString());
-        kv.encode("MqttAccount",etMqttAccount.getText().toString());
-        kv.encode("MqttPassword",etMqttPassword.getText().toString());
-        kv.encode("Version",tvVersion.getText().toString());
+        kv.encode(Constant.ADDRESS,etAddress.getText().toString());
+        kv.encode(Constant.SWITCH,switchLine.isChecked());
+        kv.encode(Constant.MQTT_ADDRESS,etMqttAddress.getText().toString());
+        kv.encode(Constant.MQTT_ACCOUNT,etMqttAccount.getText().toString());
+        kv.encode(Constant.MQTT_PASSWORD,etMqttPassword.getText().toString());
+//        kv.encode("Version",tvVersion.getText().toString());
         ToastShowUtil.show(this,"保存成功:" + this.getFilesDir().getAbsolutePath() + "/mmkv");
     }
 
@@ -73,14 +85,14 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btn_version:
-                try {
-                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),0);
-                    tvVersion.setText("当前版本：V" + packageInfo.versionName);
-                } catch (PackageManager.NameNotFoundException e) {
-                    throw new RuntimeException(e);
-                }finally {
-                    ToastShowUtil.show(this,"已是最新版本");
-                }
+                PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
+                        CheckVersionWorker.class,
+                        15,
+                        TimeUnit.MINUTES
+                ).build();
+
+                WorkManager.getInstance(this).enqueueUniquePeriodicWork(Constant.PERIODIC_WORK_KEY, ExistingPeriodicWorkPolicy.REPLACE,work);
+
                 break;
             case R.id.btn_save:
                 save();

@@ -16,6 +16,7 @@ import com.yannuo.dgcanteen.download.CheckVersionWorker;
 import com.yannuo.dgcanteen.service.KeepAliveJobService;
 import com.yannuo.dgcanteen.service.MyMqttService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
+import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogManager;
 import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.ScanDevice;
@@ -64,23 +65,20 @@ public class MyApplication extends Application {
 
     public void initMMKV(){
         kv = MMKV.defaultMMKV();
-        if (kv.decodeString("Address") == null){
-            kv.encode("Address","https://test.yannuozhineng.com/");
+        if (kv.decodeString(Constant.ADDRESS) == null){
+            kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/");
         }
-        if (kv.decodeString("MqttAddress") == null){
-            kv.encode("MqttAddress","tcp://acms.yannuozhineng.com:0001");
+        if (kv.decodeString(Constant.MQTT_ADDRESS) == null){
+            kv.encode(Constant.MQTT_ADDRESS,"tcp://acms.yannuozhineng.com:0001");
         }
-        if (kv.decodeString("MqttAccount") == null){
-            kv.encode("MqttAccount","yannuo");
+        if (kv.decodeString(Constant.MQTT_ACCOUNT) == null){
+            kv.encode(Constant.MQTT_ACCOUNT,"yannuo");
         }
-        if (kv.decodeString("MqttPassword") == null){
-            kv.encode("MqttPassword","123456");
+        if (kv.decodeString(Constant.MQTT_PASSWORD) == null){
+            kv.encode(Constant.MQTT_PASSWORD,"123456");
         }
-        if (kv.decodeString("Version") == null){
-            kv.encode("Version","当前版本：V1.0");
-        }
-        if (kv.decodeString("FinalTime") == null){
-            kv.encode("FinalTime", new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
+        if (kv.decodeString(Constant.FINAL_TIME) == null){
+            kv.encode(Constant.FINAL_TIME, new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
         }
     }
 

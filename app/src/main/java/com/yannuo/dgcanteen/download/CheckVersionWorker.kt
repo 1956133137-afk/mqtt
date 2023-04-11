@@ -20,7 +20,7 @@ class CheckVersionWorker(cnt : Context, params :WorkerParameters) :Worker(cnt,pa
     @SuppressLint("CheckResult")
     override fun doWork(): Result {
         //TODO 填入申请的appid
-        val info = AppInfoB("",
+        val info = AppInfoB("XH2JVY4K5T4XU4IV",
             BuildConfig.CHANNEL.toString(),
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE.toString())

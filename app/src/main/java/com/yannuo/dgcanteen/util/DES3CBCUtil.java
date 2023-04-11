@@ -18,9 +18,9 @@ public class DES3CBCUtil {
     //填充
     private static final String encryption = "DESede";
     //密码
-    private static final String cipher = "123456781234567812345678";
+    private static final String cipher = "JfP81cjP2QYHjKsrmRKG49v0";
     //加密向量
-    private static final String encryptionVector = "00000000";
+    private static final String encryptionVector = "6Zt1MTo6";
 
     /**
      * 返回离线码过期时间戳

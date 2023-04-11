@@ -20,7 +20,7 @@
             android:layout_height="55px"
             android:layout_marginStart="30px"
             android:gravity="center"
-            android:text="@string/breakfast_time"
+            android:text="@string/unOpen_meal"
             android:textSize="28px"
             android:paddingStart="27px"
             android:paddingEnd="20px"

@@ -2,13 +2,13 @@ package com.yannuo.dgcanteen.activitys.presenters
 
 import android.content.Context
 import android.os.RemoteException
+import android.text.format.DateFormat
+import android.util.Log
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ScanDevice
+import com.yannuo.dgcanteen.util.*
 import com.yannuo.libscan.ScanThread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -69,7 +69,7 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           override fun onData(it: String) {
                when (scanState) {
                     ScanState.PAY -> {
-                         LogUtil.i(TAG, "扫码数据: $it")
+//                         LogUtil.i(TAG, "扫码数据: $it")
                          mDishes?.let { it1 -> startPayWithScan(it1,it) }
                          scanState = ScanState.INVALID //更新支付状态，以防止多次扫付款吗
                     }
@@ -81,6 +81,8 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
      }
 
      fun startPayWithScan(data :ProductsDetail,qrcode :String){
+          var validCode = 3
+          var responseScanPay: ScanQrResultBean ?= null
           val ccbScanPayBean = CcbScanPayBean()
           ccbScanPayBean.CAMPUS_ID = "441999527"
           ccbScanPayBean.CORP_ID = "1041"
@@ -94,37 +96,64 @@ class ScanPayPresenter(mDishes : ProductsDetail, context :Context) {
           ccbScanPayBean.ACC_NOS = ""
           ccbScanPayBean.QR_CODE = qrcode
           ccbScanPayBean.CUST_ID = ""
-          ccbScanPayBean.ORDER_ID = "YN" + System.currentTimeMillis()
-          ccbScanPayBean.OFFLINE = "0"
-          ccbScanPayBean.SIGN_TIME = ""
-          try{
+          ccbScanPayBean.ORDER_ID = TimeUtil.DateToTimestamp()
+          if (Constant.SWITCH == "true"){ //是否为离线模式
+               validCode = if (qrcode.contains("CCB")) 1
+               else 0
+          }
+          when(qrcode.contains("CCB")){ //是否为离线码
+               true -> {
+                    ccbScanPayBean.OFFLINE = "1"
+                    val plainText = DES3CBCUtil.transDecryption(qrcode)
+                    val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
+                    val hour = TimeUtil.timestamp(pastDueTime)
+                    if (hour < 1) validCode = 0
+               }
+               else -> ccbScanPayBean.OFFLINE = "0"
+          }
+          ccbScanPayBean.SIGN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
+          if (validCode == 3){
                runBlocking (Dispatchers.IO) {
-                    val responseScanPay = mRespository.getScanQrData(ccbScanPayBean)
+                    responseScanPay = mRespository.getScanQrData(ccbScanPayBean)
                     LogUtil.e("test", Gson().toJson(responseScanPay))
-                    val payState = PayResultForUI()
-                    payState.way = "被扫支付"
-                    payState.orderid = responseScanPay.ORDER_ID
-                    payState.timestamp = ccbScanPayBean.SIGN_TIME
-                    payState.dishes = data.products
-                    payState.piece = data.count.toInt()
-                    when(responseScanPay.RESULT.toString()){
-                         "Y" ->{
-                              payState.cust_name = ccbScanPayBean.CUST_ID
-                              payState.payment = responseScanPay.PAYMENT
-                              payState.acc_no =  responseScanPay.ACC_NO
-                              payState.acc_bal = responseScanPay.ACC_BAL
-                              payState.result = PayResultForUI.Result.SUCCESS
-                              payState.traceid  = ""
-//                              consumeRecord(ccbScanPayBean, responseScanPay)
-                         }
-                         else -> payState.errormsg = "error ${responseScanPay.ERRCODE} ${responseScanPay.ERRMSG} "
+                    if (responseScanPay!!.RESULT.toString() == "N"){
+                         validCode = 2
                     }
+               }
+          }
+
+          val payState = PayResultForUI()
+          payState.way = "被扫支付"
+          payState.orderid = responseScanPay?.ORDER_ID
+          payState.timestamp = ccbScanPayBean.SIGN_TIME
+          payState.dishes = data.products
+          payState.piece = data.count.toInt()
+
+          when(validCode){
+               3 -> { //支付成功
+                    payState.cust_name = ccbScanPayBean.CUST_ID
+                    payState.payment = responseScanPay?.PAYMENT
+                    payState.acc_no = responseScanPay?.ACC_NO
+                    payState.acc_bal = responseScanPay?.ACC_BAL
+                    payState.result = PayResultForUI.Result.SUCCESS
+                    payState.traceid  = ""
+//                    runBlocking (Dispatchers.IO) {
+//                         responseScanPay?.let { consumeRecord(ccbScanPayBean, it) }
+//                    }
                     listener?.onScanPayResult(payState)
                }
+               2 ->{ //支付失败
+                    payState.errormsg = "error ${responseScanPay?.ERRCODE} ${responseScanPay?.ERRMSG} "
+                    listener?.onScanPayResult(payState)
+               }
+               1 ->{ //待支付
 
-          }catch (e: RemoteException) {
-               e.printStackTrace()
+               }
+               0 ->{ //离线码过期或者无效
+                    LogUtil.d(TAG,"离线码过期")
+               }
           }
+
      }
 
      private suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){

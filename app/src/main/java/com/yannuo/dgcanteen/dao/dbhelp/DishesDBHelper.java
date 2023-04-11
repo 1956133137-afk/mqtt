@@ -9,6 +9,8 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.MealTableDao;
+import com.yannuo.dgcanteen.dao.OffLineTable;
+import com.yannuo.dgcanteen.dao.OffLineTableDao;
 import com.yannuo.dgcanteen.dao.OrderDishList;
 import com.yannuo.dgcanteen.dao.OrderDishListDao;
 import com.yannuo.dgcanteen.dao.OwnOrder;
@@ -48,6 +50,7 @@ public class DishesDBHelper {
     private MealTableDao mMealTableDao;
     private OwnOrderDao mOwnOrderDao;
     private OrderDishListDao mOrderDishListDao;
+    private OffLineTableDao mOffLineTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -82,6 +85,7 @@ public class DishesDBHelper {
         mMealTableDao = mDaoSession.getMealTableDao();
         mOwnOrderDao = mDaoSession.getOwnOrderDao();
         mOrderDishListDao = mDaoSession.getOrderDishListDao();
+        mOffLineTableDao = mDaoSession.getOffLineTableDao();
     }
 
     /**
@@ -172,6 +176,17 @@ public class DishesDBHelper {
         mMealTableDao.insertInTx(meals);
     }
 
+    /**
+     * 查询餐别
+     * @param
+     */
+    public MealTable queryMeals(int meals){
+        return mMealTableDao.queryBuilder()
+                .where(MealTableDao.Properties.MealId.eq(meals))
+                .build()
+                .unique();
+    }
+
 
     /**
      * 保存自有平台消费订单
@@ -188,6 +203,35 @@ public class DishesDBHelper {
      */
     public void insertConsumerDishes(List<OrderDishList> dishes){
         mOrderDishListDao.insertInTx(dishes);
+    }
+
+    /**
+     * 插入一条离线订单
+     * @param offLine
+     */
+    public void insertOffLineOrder(OffLineTable offLine){
+        mOffLineTableDao.insert(offLine);
+    }
+
+    /**
+     * 查询离线订单
+     * @return
+     */
+    public OffLineTable queryOffLineOrder(){
+        return  mOffLineTableDao.queryBuilder()
+                .build()
+                .unique();
+    }
+
+    /**
+     * 删除一条离线记录
+     * @return
+     */
+    public void deleteOffLineOrder(String orderId){
+        mOffLineTableDao.queryBuilder()
+                .where(OffLineTableDao.Properties.ORDER_ID.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
     }
 
 
