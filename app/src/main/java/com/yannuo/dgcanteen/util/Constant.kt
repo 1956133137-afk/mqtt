@@ -20,7 +20,7 @@ object Constant {
     //周期任务-检查软件版本
     const val PERIODIC_WORK_KEY = "app-update-task"
 
-    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
+//    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
 
     //服务器地址
     const val ADDRESS = "Address"
@@ -57,4 +57,6 @@ object Constant {
     const val EVENT_THIRD = 3 // 返回点餐界面
     const val EVENT_FOURTH = 4 //被扫支付
     const val EVENT_FIFTH = 5 //菜品更新
+    const val EVENT_NINTH = 9 //mqtt设置变更
+    const val EVENT_TENTH = 10 //mqtt连接状态
 }

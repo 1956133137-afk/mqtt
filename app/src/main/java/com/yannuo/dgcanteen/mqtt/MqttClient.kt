@@ -1,9 +1,10 @@
 package com.yannuo.dgcanteen.mqtt
 
-import android.content.Context
+import android.content .Context
 import android.content.Intent
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.MyPreference
 import com.yannuo.dgcanteen.common.MyThreadPool
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit
 
 class MqttClient(context: Context) {
     private var client :MqttAndroidClient? =null
-    private var serverURI  ="tcp://acms.yannuozhineng.com:3883"
+    private var serverURI  =""
     //    private var serverURI  ="tcp://192.168.2.166:1883"
     private lateinit var clientid : String
     private val TAG = "MqttClient"
@@ -41,28 +42,25 @@ class MqttClient(context: Context) {
     //发布
     private val topic_heart = "deviceHeart"
     private val topic_deviceStatus ="deviceStatus"
-    private var pre : MyPreference
+
 
 
     init {
-        pre =  MyPreference(context)
         config()
     }
 
     fun config(){
+        val mv = MMKV.defaultMMKV()
         clientid = CommonAndDpToPxUtil.getDeviceSerial()
         option.keepAliveInterval = 60
-        option.userName = pre.getStr(Constant.mqttAccountKey)
-        option.password = pre.getStr(Constant.mqttPassworkKey).toCharArray()
+        option.userName = mv.decodeString(Constant.MQTT_ACCOUNT)
+        option.password = mv.decodeString(Constant.MQTT_PASSWORD)?.toCharArray()
 
         option.connectionTimeout = 20
         option.isCleanSession = false
         option.setWill(topic_deviceStatus,Gson().toJson(Status(0)).toByteArray(),1,false)  //设置遗嘱主题
-        serverURI = pre.getStr(Constant.mqttAddressKey)
-        LogUtil.i(TAG,"mqtt addr :$serverURI")
+        serverURI = mv.decodeString(Constant.MQTT_ADDRESS).toString()
         client = MqttAndroidClient(context,serverURI,clientid)
-
-        LogUtil.d(TAG,"init")
         client?.setCallback(object : MqttCallback{
             override fun connectionLost(cause: Throwable?) {
                 LogUtil.e(TAG,"Connection lost ${cause.toString()} ")
@@ -92,51 +90,46 @@ class MqttClient(context: Context) {
 
     fun connect(){
         if (CONNECT_STATUS == ConnectStatue.CONNECTING || CONNECT_STATUS != ConnectStatue.DISCONNECT)return
-
         CONNECT_STATUS = ConnectStatue.CONNECTING
-        MyThreadPool.getInstance().execute {
-            var retryTime = retry
-            val finish = false
-            while ((CONNECT_STATUS == ConnectStatue.CONNECTING)  && retryTime > 0) {
-                try {
-                    if (!finish) {
-                        client?.connect(option, null, object : IMqttActionListener {
-                            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                                LogUtil.i(TAG, "Connection success")
-                                CONNECT_STATUS = ConnectStatue.CONNECT
-                                //开启心跳推送
-                                sendHeart()
-                                //推送设备状态主题（上下线）
-                                publish(topic_deviceStatus, Gson().toJson(Status(1)), 1)    //上线
-                                mListener?.onConnectSuccess()
-                                val intent = Intent(Constant.BROADCAST_ACTION)
-                                intent.putExtra("result",0)
-                                context.sendBroadcast(intent)
-
-                            }
-
-
-                            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                                LogUtil.e(TAG, "Connection failure ${exception.toString()}")
-                                mListener?.onConnectFail(exception.toString())
-                                val intent = Intent(Constant.BROADCAST_ACTION)
-                                intent.putExtra("result",1)
-                                context.sendBroadcast(intent)
-                                retryTime--
-                                if (retryTime <= 0){
-                                    retryTime = retry
+        Observable.just(1)
+            .subscribeOn(Schedulers.io())
+            .doOnNext {
+                var retryTime = retry
+                val finish = false
+                while ((CONNECT_STATUS == ConnectStatue.CONNECTING)  && retryTime > 0) {
+                    try {
+                        if (!finish) {
+                            client?.connect(option, null, object : IMqttActionListener {
+                                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                                    LogUtil.i(TAG, "mqtt connection success!")
+                                    CONNECT_STATUS = ConnectStatue.CONNECT
+                                    //开启心跳推送
+                                    sendHeart()
+                                    //推送设备状态主题（上下线）
+                                    publish(topic_deviceStatus, Gson().toJson(Status(1)), 1)    //上线
+                                    mListener?.onConnectSuccess()
                                 }
+
+
+                                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                                    LogUtil.e(TAG, "mqtt connection failure ${exception.toString()}")
+                                    mListener?.onConnectFail(exception.toString())
+                                    retryTime--
+                                    if (retryTime <= 0){
+                                        retryTime = retry
+                                    }
 //                                    CONNECT_STATUS = ConnectStatue.DISCONNECT
-                            }
-                        })
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(60))
+                                }
+                            })
+                            Thread.sleep(TimeUnit.SECONDS.toMillis(120))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        connect()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    connect()
                 }
-            }
-        }
+            }.subscribe()
+
     }
 
     @Synchronized

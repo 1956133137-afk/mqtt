@@ -245,6 +245,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
                     }
                 }
             }
+
+            Constant.EVENT_TENTH ->{
+                runOnUiThread {
+                    val connect = event.any as Boolean
+                }
+            }
         }
     }
 
@@ -333,7 +339,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
                     netWork = mNetWork
                     if (netWork){
                         binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
+
                         binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
                     }else{
                         binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
@@ -408,10 +414,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
                     startDishDisplay();
                 }
                 ref.messageWhatFourth ->{
-//                    var mScanPresenter = ScanPayPresenter(msg.obj as ProductsDetail,this@CommodityActivity);
-//                    mScanPresenter.listener = this@CommodityActivity
-//                    mScanPresenter.scanListener();
-//                    mScanPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+
                 }
             }
         }

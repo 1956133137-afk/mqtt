@@ -16,6 +16,7 @@ import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PaymentDishesList
 import com.yannuo.dgcanteen.model.StatusValue
 import com.yannuo.dgcanteen.model.SynConsumeRecordBean
@@ -29,6 +30,7 @@ import com.yannuo.dgcanteen.util.ScanDevice
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.FileReader
 import java.net.HttpURLConnection
@@ -39,8 +41,7 @@ import kotlin.time.ExperimentalTime
 
 
 //交互过程可通过binder设置主题到达监听。以更新页面
-class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
-    SharedPreferences.OnSharedPreferenceChangeListener {
+class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private lateinit var binder : InteractionBinder
     private var TAG = javaClass.simpleName
     private lateinit var mqttStateListener : MqttConnectState
@@ -48,7 +49,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     //订阅的主题
     private var TOPIC_TITLE = "device/"+ CommonAndDpToPxUtil.getDeviceSerial() //订阅本机专属主题
 
-    private var stopAddPeopleTask = false  //停止人员添加任务
+    private var runTask = true  //控制任务，无网络将睡眠
     private lateinit var mStatusValue : StatusValue
     private lateinit var mScope : CoroutineScope
     private lateinit var mHandle : CoroutineExceptionHandler
@@ -99,7 +100,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
                 delay(Duration.hours(1))
-//                delay(10000)
                 val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline)continue
                 //在线模式下
@@ -110,7 +110,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
                         it.up = false
                     }
                     DishesDBHelper.getInstance().updateConsumerOrders(dishList)
-                }while (dishList.size == 100)
+                }while (dishList.size == 100 && runTask)
                 //2、上传记录
                 val respository = PayRepositoryOfPay()
                 val gson = Gson()
@@ -145,7 +145,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
                             DishesDBHelper.getInstance().updateConsumerOrder(it)
                         }
                     }
-                }while (order != null)
+                }while (order != null && runTask)
                 LogUtil.i(TAG,"离线消费上传任务结束...")
             }
         }
@@ -155,8 +155,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_NOT_STICKY
     }
-
-
 
     override fun onBind(intent: Intent?): IBinder? {
         return binder
@@ -204,21 +202,25 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
         LogUtil.d(TAG,"网络状态( 0--有网 ，1无网络)--> $statue")
         if (statue.equals("0")) {
             binder.connect()
-
+            runTask = true
         }  //断线重连
         else{
             //修改更新标志
-            stopAddPeopleTask = true
+            binder.disconnect()
+            runTask = false
         }
     }
 
     inner class MqttConnectState : IMqttConnectState {
         override fun onConnectSuccess() {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_TENTH,true))
             //订阅主题
             binder.subscribe(TOPIC_TITLE,1)
         }
 
-        override fun onConnectFail(reason: String?) {}
+        override fun onConnectFail(reason: String?) {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_TENTH,false))
+        }
 
         override fun onTopicArrive(topic: String?, message: MqttMessage?) {
 
@@ -232,7 +234,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
 
 
 
-
     /**
      * 设备回调mqtt服务器
      * @param visitorInfo VisitorPeopleRecord
@@ -240,44 +241,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener,
     private fun deviceCallback(messageId :String ,name :String,number :String) {
 
 
-    }
-
-
-
-
-    private fun readPic(filename : String?) : String? {
-        if (filename.isNullOrEmpty()) return null
-        val file = File(filesDir, filename)
-        if (file.exists()) {
-            val fileReader = FileReader(file)
-            val char = CharArray(1024)
-            var size = -1
-            val buffer = StringBuffer()
-            do {
-                size = fileReader.read(char)
-                if (size != -1) {
-                    buffer.append(char.copyOfRange(0, size))
-                }
-            } while (size != -1)
-            return buffer.toString()
-        }
-        return null
-    }
-
-    private fun deletePic(filename : String?) {
-        if (filename.isNullOrEmpty()) return
-        val file = File(filesDir, filename)
-        if (file.exists()) {
-            file.delete()
-            LogUtil.i(TAG, "删除健康记录图片，$filename")
-        }
-    }
-
-    //监听设置值变化
-    override fun onSharedPreferenceChanged(pre: SharedPreferences, key: String) {
-        when(key){
-
-        }
     }
 
 

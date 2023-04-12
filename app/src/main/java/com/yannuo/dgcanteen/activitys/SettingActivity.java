@@ -19,8 +19,12 @@ import androidx.work.WorkManager;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.download.CheckVersionWorker;
+import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.nets.RetrofitClient;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.TimeUnit;
 
@@ -60,11 +64,34 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void save(){
-        kv.encode(Constant.ADDRESS,etAddress.getText().toString());
+        boolean change = true;
+        change = kv.decodeString(Constant.ADDRESS).equals(etAddress.getText().toString());
+        if (!change) {
+            kv.encode(Constant.ADDRESS, etAddress.getText().toString());
+            RetrofitClient.overLoad(); //更新服务器地址
+        }
+
         kv.encode(Constant.SWITCH,switchLine.isChecked());
-        kv.encode(Constant.MQTT_ADDRESS,etMqttAddress.getText().toString());
-        kv.encode(Constant.MQTT_ACCOUNT,etMqttAccount.getText().toString());
-        kv.encode(Constant.MQTT_PASSWORD,etMqttPassword.getText().toString());
+
+        change = true;
+        if (!kv.decodeString(Constant.MQTT_ADDRESS).equals(etMqttAddress.getText().toString())) {
+            change = false;
+            kv.encode(Constant.MQTT_ADDRESS,etMqttAddress.getText().toString());
+        }
+        if (!kv.decodeString(Constant.MQTT_ACCOUNT).equals(etMqttAccount.getText().toString())) {
+            change = false;
+            kv.encode(Constant.MQTT_ACCOUNT,etMqttAccount.getText().toString());
+        }
+
+        if (!kv.decodeString(Constant.MQTT_PASSWORD).equals(etMqttPassword.getText().toString())) {
+            change = false;
+            kv.encode(Constant.MQTT_PASSWORD,etMqttPassword.getText().toString());
+        }
+        if (!change){
+            //mqtt配置变更
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_NINTH,null));
+        }
+
 //        kv.encode("Version",tvVersion.getText().toString());
         ToastShowUtil.show(this,"保存成功:" + this.getFilesDir().getAbsolutePath() + "/mmkv");
     }

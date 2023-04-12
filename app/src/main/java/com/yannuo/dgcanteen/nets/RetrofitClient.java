@@ -1,7 +1,9 @@
 package com.yannuo.dgcanteen.nets;
 
 
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.interfaces.ApiService;
+import com.yannuo.dgcanteen.util.Constant;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -13,9 +15,10 @@ public class RetrofitClient {
     private static ApiService mService ;
 
     private RetrofitClient(){
+
         mService = new Retrofit.Builder()
                 .client(OkHttpUtils.Companion.getInstance())
-                .baseUrl(BASE_URL)
+                .baseUrl(MMKV.defaultMMKV().decodeString(Constant.ADDRESS))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -32,4 +35,7 @@ public class RetrofitClient {
         return mService;
     }
 
+    public static void overLoad(){
+        mService = null;
+    }
 }
