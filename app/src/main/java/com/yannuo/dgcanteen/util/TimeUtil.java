@@ -11,19 +11,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class TimeUtil {
 
+    private static List<MealTable> mealTables = null;
     public static int CurrentTimeSection(){
         int result = 0;
-        if (isCurrentInTimeScope(DishesDBHelper.getInstance().queryMeals(1))){
-            result = 1;
-        }else if (isCurrentInTimeScope(DishesDBHelper.getInstance().queryMeals(2))){
-            result = 2;
-        } else if (isCurrentInTimeScope(DishesDBHelper.getInstance().queryMeals(3))) {
-            result = 3;
+        if (mealTables != null){
+            for (MealTable u : mealTables){
+                if (isCurrentInTimeScope(u)){
+                    result = u.getMealId();
+                    break;
+                }
+            }
         }else {
-            result = 0;
+            mealTables = DishesDBHelper.getInstance().queryAllMeals();
         }
         return result;
     }
@@ -77,7 +80,7 @@ public class TimeUtil {
         Calendar calendar = Calendar.getInstance();
         String year = String.valueOf(calendar.get(Calendar.YEAR));
         Date time = new SimpleDateFormat("yyyyMMddHHmmss").parse(year + "0101000000");
-        String result = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString() + "8" +
+        String result = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString() +
                 String.format("%11s",(System.currentTimeMillis() - time.getTime())).replace(" ","0");
         return result;
     }

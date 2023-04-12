@@ -5,7 +5,13 @@ import android.os.RemoteException
 import android.text.format.DateFormat
 import android.util.Log
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.dao.DishesTable
+import com.yannuo.dgcanteen.dao.OffLineDishTable
+import com.yannuo.dgcanteen.dao.OffLineTable
+import com.yannuo.dgcanteen.dao.OrderDishList
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
@@ -62,83 +68,135 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
      }
 
      private fun startPayWithScan(data :ProductsDetail,qrcode :String){
-//          listener?.onOtherListener(1)
-//          var validCode = 3
-//          var responseScanPay: ScanQrResultBean ?= null
-//          val ccbScanPayBean = CcbScanPayBean()
-//          ccbScanPayBean.CAMPUS_ID = "441999527"
-//          ccbScanPayBean.CORP_ID = "1041"
-//          ccbScanPayBean.TXCODE = "PAY003"
-//          ccbScanPayBean.ccbSafeParam = ""
-//          ccbScanPayBean.BUSINESS_ID = "SJ2023032511004"
-//          ccbScanPayBean.VPOS_ID = "V00443832"
-//          ccbScanPayBean.PAYMENT = data.totalMoney
-//          ccbScanPayBean.ACTUAL_PAYMENT = data.totalMoney
-//          ccbScanPayBean.COUPON_INFO = ""
-//          ccbScanPayBean.ACC_NOS = ""
-//          ccbScanPayBean.QR_CODE = qrcode
-//          ccbScanPayBean.CUST_ID = ""
-//          ccbScanPayBean.ORDER_ID = TimeUtil.DateToTimestamp()
-//          if (Constant.SWITCH == "true"){ //是否为离线模式
-//               validCode = if (qrcode.contains("CCB")) 1
-//               else 0
-//          }
-//          when(qrcode.contains("CCB")){ //是否为离线码
-//               true -> {
-//                    ccbScanPayBean.OFFLINE = "1"
-//                    val plainText = DES3CBCUtil.transDecryption(qrcode)
-//                    val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
-//                    val hour = TimeUtil.timestamp(pastDueTime)
-//                    if (hour < 1) validCode = 0
-//               }
-//               else -> ccbScanPayBean.OFFLINE = "0"
-//          }
-//          ccbScanPayBean.SIGN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
-//          if (validCode == 3){
-//               runBlocking (Dispatchers.IO) {
-//                    responseScanPay = mRespository.getScanQrData(ccbScanPayBean)
-//                    LogUtil.e("test", Gson().toJson(responseScanPay))
-//                    if (responseScanPay!!.RESULT.toString() == "N"){
-//                         validCode = 2
-//                    }
-//               }
-//          }
-//
-//          val payState = PayResultForUI()
-//          payState.way = "被扫支付"
-//          payState.orderid = responseScanPay?.ORDER_ID
-//          payState.timestamp = ccbScanPayBean.SIGN_TIME
-//          payState.dishes = data.products
-//          payState.piece = data.count.toInt()
-//
-//          when(validCode) {
-//               3 -> { //支付成功
-//                    payState.cust_name = ccbScanPayBean.CUST_ID
-//                    payState.payment = responseScanPay?.PAYMENT
-//                    payState.acc_no = responseScanPay?.ACC_NO
-//                    payState.acc_bal = responseScanPay?.ACC_BAL
-//                    payState.result = PayResultForUI.Result.SUCCESS
-//                    payState.traceid = ""
-////                    runBlocking (Dispatchers.IO) {
-////                         responseScanPay?.let { consumeRecord(ccbScanPayBean, it) }
-////                    }
-//                    listener?.onScanPayResult(payState)
-//               }
-//               2 -> { //支付失败
-//                    payState.errormsg =
-//                         "error ${responseScanPay?.ERRCODE} ${responseScanPay?.ERRMSG} "
-//                    listener?.onScanPayResult(payState)
-//               }
-//               1 -> { //待支付
-//
-//               }
-//               0 -> { //离线码过期或者无效
-//                    LogUtil.d(TAG, "离线码过期")
-//               }
-//          }
-//          }catch (e: RemoteException) {
-//               e.printStackTrace()
-//          }
+          listener?.onOtherListener(1)
+          var validCode = 3   //支付状况
+          var offLineCode = 1
+          var responseScanPay: ScanQrResultBean ?= null
+          val kv = MMKV.defaultMMKV()
+          var plainText = ""
+          val ccbScanPayBean = CcbScanPayBean()
+          ccbScanPayBean.CAMPUS_ID = "441999527"
+          ccbScanPayBean.CORP_ID = "1041"
+          ccbScanPayBean.TXCODE = "PAY003"
+          ccbScanPayBean.ccbSafeParam = ""
+          ccbScanPayBean.BUSINESS_ID = "SJ2023032511004"
+          ccbScanPayBean.VPOS_ID = "V00443832"
+          ccbScanPayBean.PAYMENT = data.totalMoney
+          ccbScanPayBean.ACTUAL_PAYMENT = data.totalMoney
+          ccbScanPayBean.COUPON_INFO = ""
+          ccbScanPayBean.ACC_NOS = ""
+          ccbScanPayBean.QR_CODE = qrcode
+          ccbScanPayBean.CUST_ID = ""
+          ccbScanPayBean.ORDER_ID = TimeUtil.DateToTimestamp()
+          if (kv.decodeBool(Constant.SWITCH)){ //是否为离线模式
+               if (qrcode.contains("CCB")) validCode = 1
+               else {
+                    validCode = 0
+                    offLineCode = 0
+               }
+          }
+          when(qrcode.contains("CCB")){ //是否为离线码
+               true -> {
+                    ccbScanPayBean.OFFLINE = "1"
+                    plainText = DES3CBCUtil.transDecryption(qrcode)
+                    val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
+                    val hour = TimeUtil.timestamp(pastDueTime)
+                    if (hour < 1) validCode = 0
+               }
+               else -> ccbScanPayBean.OFFLINE = "0"
+          }
+          ccbScanPayBean.SIGN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
+          if (validCode == 3){
+               try {
+                    runBlocking (Dispatchers.IO) {
+                         responseScanPay = mRespository.getScanQrData(ccbScanPayBean)
+                         LogUtil.e("test", Gson().toJson(responseScanPay))
+                         if (responseScanPay!!.RESULT.toString() == "N"){
+                              validCode = 2
+                         }
+                    }
+               }catch (e: RemoteException) {
+                    e.printStackTrace()
+                    listener?.onOtherListener(2,"网络请求失败")
+               }
+          }
+
+          val payState = PayResultForUI()
+          payState.way = "被扫支付"
+          payState.orderid = ccbScanPayBean.ORDER_ID
+          payState.timestamp = ccbScanPayBean.SIGN_TIME
+          payState.dishes = data.products
+          payState.piece = data.count.toInt()
+          payState.cust_name = ccbScanPayBean.CUST_ID
+          payState.payment = ccbScanPayBean.PAYMENT
+          payState.acc_no = ""
+          payState.acc_bal = ""
+          payState.result = PayResultForUI.Result.SUCCESS
+          payState.traceid = ""
+
+          when(validCode) {
+               3 -> { //支付成功
+                    payState.orderid = responseScanPay?.ORDER_ID
+                    payState.payment = responseScanPay?.ACTUAL_PAYMENT
+                    payState.acc_no = responseScanPay?.ACC_NO
+                    payState.acc_bal = responseScanPay?.ACC_BAL
+                    payState.result = PayResultForUI.Result.SUCCESS
+                    try {
+                         runBlocking (Dispatchers.IO) {
+                              responseScanPay?.let { consumeRecord(ccbScanPayBean, it) }
+                         }
+                    }catch (e :Exception){
+                         e.printStackTrace()
+                    }
+                    listener?.onOtherListener(3,payState)
+               }
+               2 -> { //支付失败
+                    payState.result = PayResultForUI.Result.FAIL
+                    payState.errormsg =
+                         "error ${responseScanPay?.code} ${responseScanPay?.msg} "
+                    listener?.onOtherListener(3,payState)
+               }
+               1 -> { //待支付
+
+                    var offLineData = OffLineTable()
+                    offLineData.campuS_ID = ccbScanPayBean.CAMPUS_ID
+                    offLineData.corP_ID = ccbScanPayBean.CORP_ID
+                    offLineData.txcode = ccbScanPayBean.TXCODE
+                    offLineData.ccbSafeParam = ccbScanPayBean.ccbSafeParam
+                    offLineData.businesS_ID = ccbScanPayBean.BUSINESS_ID
+                    offLineData.vpoS_ID = ccbScanPayBean.VPOS_ID
+                    offLineData.payment = ccbScanPayBean.PAYMENT
+                    offLineData.actuaL_PAYMENT = ccbScanPayBean.ACTUAL_PAYMENT
+                    offLineData.coupoN_INFO = ccbScanPayBean.COUPON_INFO
+                    offLineData.qR_CODE = ccbScanPayBean.QR_CODE
+                    offLineData.cusT_ID = ccbScanPayBean.CUST_ID
+                    offLineData.ordeR_ID = ccbScanPayBean.ORDER_ID
+                    offLineData.offline = ccbScanPayBean.OFFLINE
+                    offLineData.sigN_TIME = ccbScanPayBean.SIGN_TIME
+                    offLineData.decryptionCode = plainText
+                    DishesDBHelper.getInstance().insertOffLineOrder(offLineData)
+                    LogUtil.e("OffLineOrder", Gson().toJson(offLineData))
+
+                    val dishList = mutableListOf<OffLineDishTable>()
+                    data.products.forEach {
+                         var dish = OffLineDishTable()
+                         dish.corDishId = offLineData.ordeR_ID.toLong()
+                         dish.dishesId = it.dishesId
+                         dish.dishesName = it.dishesName
+                         dish.dishesNumber = it.count
+                         dish.dishesPrice = it.price
+                         dishList.add(dish)
+                    }
+                    DishesDBHelper.getInstance().insertOffLineDishes(dishList)
+                    LogUtil.e("OffLineDishes", Gson().toJson(dishList))
+
+                    listener?.onOtherListener(4,payState)
+               }
+               0 -> { //离线码过期或者无效
+                    LogUtil.d(TAG, "请刷新付款码")
+                    listener?.onOtherListener(5,offLineCode)
+               }
+          }
 
      }
 

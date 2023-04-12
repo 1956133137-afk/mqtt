@@ -85,6 +85,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         //同步消费记录
         synConsumerDish()
 
+        //离线补扣
+        offLineFillMoney()
+
         LogUtil.d(TAG,"服务启动")
 
 
@@ -149,6 +152,13 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                 LogUtil.i(TAG,"离线消费上传任务结束...")
             }
         }
+    }
+
+    /**
+     * 恢复网络并且不是离线模式离线补扣
+     */
+    private fun offLineFillMoney(){
+
     }
 
 

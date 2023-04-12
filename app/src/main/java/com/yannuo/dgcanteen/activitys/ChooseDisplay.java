@@ -144,7 +144,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                        });
                break;
 
-           case 3:
+           case 3: //在线订单
+           case 4: //离线订单
                Observable.just(1)
                        .observeOn(AndroidSchedulers.mainThread())
                        .subscribe(integer -> {
@@ -152,6 +153,32 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                        });
                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
                cancel();
+               break;
+           case 5: //离线码过期或者二维码无效
+               Observable.just(1)
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(integer -> {
+                           if ((Integer) any == 1){
+                               CommonAndDpToPxUtil.speakWork("请刷新付款码再支付");
+                           }else {
+                               CommonAndDpToPxUtil.speakWork("请切换离线码再支付");
+                           }
+
+                           if (waitForPayDialog != null) waitForPayDialog.cancel();
+                           if (waitForPayDialog == null) {
+                               waitForPayDialog = new WaitForPayDialog(getContext());
+                               waitForPayDialog.setListener(new WaitDialogEvent());
+                           }
+                           waitForPayDialog.show();
+
+                           if (scanPayPresenter == null) {
+                               scanPayPresenter = new ScanPayPresenter(mDishes);
+                               //监听交易过程
+                               scanPayPresenter.setListener(this);
+                           }
+                           //使能扫码支付
+                           scanPayPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+                       });
                break;
        }
 

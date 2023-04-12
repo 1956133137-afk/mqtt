@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="60px"
+    android:layout_marginTop="10dp"
     android:background="@drawable/item_pay_result_bg"
     >
 
@@ -10,11 +11,12 @@
         android:id="@+id/tv_dish_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="7px"
+        android:layout_marginStart="20px"
         android:maxLength="20"
         android:padding="3dp"
-
         android:textColor="#101010"
-        android:textSize="22px"
+        android:textSize="30px"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,9 +24,11 @@
         android:id="@+id/tv_dish_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="7px"
+        android:layout_marginEnd="20px"
         android:padding="3dp"
         android:textColor="#101010"
-        android:textSize="22px"
+        android:textSize="30px"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.PayResultAdapter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
@@ -81,8 +82,14 @@ public class PayResultDisplay extends Presentation {
         mPayResultAdapter = new PayResultAdapter();
         mBinding.rvDishList.setLayoutManager(new LinearLayoutManager(getContext()));
         mBinding.rvDishList.setAdapter(mPayResultAdapter);
-        mBinding.rvDishList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        CommonAndDpToPxUtil.speakWork("欢迎用餐");
+//        mBinding.rvDishList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        MMKV kv = MMKV.defaultMMKV();
+        if (!kv.decodeBool(Constant.SWITCH)){
+            CommonAndDpToPxUtil.speakWork("欢迎用餐");
+        }else{
+            CommonAndDpToPxUtil.speakWork("该笔为离线订单后续补扣");
+        }
+
     }
 
     private void initView() {

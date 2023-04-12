@@ -9,6 +9,8 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.MealTableDao;
+import com.yannuo.dgcanteen.dao.OffLineDishTable;
+import com.yannuo.dgcanteen.dao.OffLineDishTableDao;
 import com.yannuo.dgcanteen.dao.OffLineTable;
 import com.yannuo.dgcanteen.dao.OffLineTableDao;
 import com.yannuo.dgcanteen.dao.OrderDishList;
@@ -51,6 +53,7 @@ public class DishesDBHelper {
     private OwnOrderDao mOwnOrderDao;
     private OrderDishListDao mOrderDishListDao;
     private OffLineTableDao mOffLineTableDao;
+    private OffLineDishTableDao mOffLineDishTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -86,6 +89,7 @@ public class DishesDBHelper {
         mOwnOrderDao = mDaoSession.getOwnOrderDao();
         mOrderDishListDao = mDaoSession.getOrderDishListDao();
         mOffLineTableDao = mDaoSession.getOffLineTableDao();
+        mOffLineDishTableDao = mDaoSession.getOffLineDishTableDao();
     }
 
     /**
@@ -155,9 +159,14 @@ public class DishesDBHelper {
      * @param
      */
     public void updateDishes(String id,int status){
-        DishesTable dishes = mDishesTableDao.queryBuilder().where(DishesTableDao.Properties.DishesId.eq(id)).build().unique();
-        dishes.setStatus(status);
-        mDishesTableDao.update(dishes);
+        List<DishesTable> dishes = mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.DishesId.eq(id))
+                .build().list();
+        for (DishesTable u : dishes){
+            u.setStatus(status);
+            mDishesTableDao.update(u);
+        }
+
     }
 
     /**
@@ -186,6 +195,11 @@ public class DishesDBHelper {
                 .build()
                 .unique();
     }
+    public List<MealTable> queryAllMeals(){
+        return mMealTableDao.queryBuilder()
+                .build()
+                .list();
+    }
 
 
     /**
@@ -203,6 +217,14 @@ public class DishesDBHelper {
      */
     public void insertConsumerDishes(List<OrderDishList> dishes){
         mOrderDishListDao.insertInTx(dishes);
+    }
+
+    /**
+     * 保存离线补扣菜品
+     * @param dishes
+     */
+    public void insertOffLineDishes(List<OffLineDishTable> dishes){
+        mOffLineDishTableDao.insertInTx(dishes);
     }
 
     /**
@@ -295,6 +317,17 @@ public class DishesDBHelper {
     public void deleteRelatedDish(long orderId){
         mOrderDishListDao.queryBuilder()
                 .where(OrderDishListDao.Properties.Orderid.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 删除对应离线菜品
+     * @param orderId
+     */
+    public void deleteOffLineDish(long orderId){
+        mOffLineDishTableDao.queryBuilder()
+                .where(OffLineDishTableDao.Properties.CorDishId.eq(orderId))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
     }

@@ -4,6 +4,10 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.ToMany;
+
+import java.util.List;
+import org.greenrobot.greendao.DaoException;
 
 @Entity
 public class OffLineTable {
@@ -41,17 +45,23 @@ public class OffLineTable {
     @NotNull
     private String decryptionCode;   //解密码
 
-    private String corDishId;       //关联菜品ID
+    @ToMany(referencedJoinProperty = "corDishId")
+    private List<OffLineDishTable> offLineDishesList;
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
+    /** Used for active entity operations. */
+    @Generated(hash = 1688635072)
+    private transient OffLineTableDao myDao;
 
-    @Generated(hash = 1989026892)
+    @Generated(hash = 1837417382)
     public OffLineTable(Long id, @NotNull String CAMPUS_ID, @NotNull String CORP_ID,
             @NotNull String TXCODE, @NotNull String ccbSafeParam,
             @NotNull String BUSINESS_ID, @NotNull String VPOS_ID,
             @NotNull String PAYMENT, @NotNull String ACTUAL_PAYMENT,
             String COUPON_INFO, String ACC_NOS, @NotNull String QR_CODE,
             String CUST_ID, @NotNull String ORDER_ID, @NotNull String OFFLINE,
-            @NotNull String SIGN_TIME, @NotNull String decryptionCode,
-            String corDishId) {
+            @NotNull String SIGN_TIME, @NotNull String decryptionCode) {
         this.id = id;
         this.CAMPUS_ID = CAMPUS_ID;
         this.CORP_ID = CORP_ID;
@@ -69,7 +79,6 @@ public class OffLineTable {
         this.OFFLINE = OFFLINE;
         this.SIGN_TIME = SIGN_TIME;
         this.decryptionCode = decryptionCode;
-        this.corDishId = corDishId;
     }
 
     @Generated(hash = 609387495)
@@ -212,12 +221,84 @@ public class OffLineTable {
         this.decryptionCode = decryptionCode;
     }
 
-    public String getCorDishId() {
-        return this.corDishId;
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 1389651108)
+    public List<OffLineDishTable> getOffLineDishesList() {
+        if (offLineDishesList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            OffLineDishTableDao targetDao = daoSession.getOffLineDishTableDao();
+            List<OffLineDishTable> offLineDishesListNew = targetDao
+                    ._queryOffLineTable_OffLineDishesList(id);
+            synchronized (this) {
+                if (offLineDishesList == null) {
+                    offLineDishesList = offLineDishesListNew;
+                }
+            }
+        }
+        return offLineDishesList;
     }
 
-    public void setCorDishId(String corDishId) {
-        this.corDishId = corDishId;
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1785607588)
+    public synchronized void resetOffLineDishesList() {
+        offLineDishesList = null;
     }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
+    }
+
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 863123617)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getOffLineTableDao() : null;
+    }
+
+//    public String getCorDishId() {
+//        return this.corDishId;
+//    }
+//
+//    public void setCorDishId(String corDishId) {
+//        this.corDishId = corDishId;
+//    }
 
 }
