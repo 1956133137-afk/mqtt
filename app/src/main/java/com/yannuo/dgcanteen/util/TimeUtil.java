@@ -18,7 +18,7 @@ public class TimeUtil {
     private static List<MealTable> mealTables = null;
     public static int CurrentTimeSection(){
         int result = 0;
-        if (mealTables != null){
+        if (mealTables != null && mealTables.size() > 0){
             for (MealTable u : mealTables){
                 if (isCurrentInTimeScope(u)){
                     result = u.getMealId();

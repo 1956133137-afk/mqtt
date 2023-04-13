@@ -209,7 +209,7 @@
                 android:id="@+id/v_line3"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_marginBottom="10px"
+                android:layout_marginBottom="30px"
                 android:background="#BBBBBB"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -301,9 +301,9 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
         val payResultAdapter =  PayResultAdapter()
         successBinding!!.rvDishList.layoutManager = LinearLayoutManager(this)
         successBinding!!.rvDishList.adapter = payResultAdapter
-        successBinding!!.rvDishList.addItemDecoration(
-            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        )
+//        successBinding!!.rvDishList.addItemDecoration(
+//            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+//        )
 
     }
 
@@ -339,7 +339,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
                     netWork = mNetWork
                     if (netWork){
                         binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-
+                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
                         binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
                     }else{
                         binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
