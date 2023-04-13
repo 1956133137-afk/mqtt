@@ -43,15 +43,16 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="80px"
-                android:layout_height="29px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="姓名"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_name"
-                android:layout_width="match_parent"
-                android:layout_height="29px"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="right"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
@@ -65,15 +66,16 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="80px"
-                android:layout_height="29px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="班级"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_class"
-                android:layout_width="match_parent"
-                android:layout_height="29px"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="right"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
@@ -87,15 +89,16 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="80px"
-                android:layout_height="29px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/pay_time"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_pay_time"
-                android:layout_width="match_parent"
-                android:layout_height="29px"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="right"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
@@ -109,15 +112,16 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="100px"
-                android:layout_height="29px"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/trans_run_number"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_trans_number"
-                android:layout_width="match_parent"
-                android:layout_height="29px"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="right"
                 android:textSize="20px"
                 android:textColor="#6C6C6C"/>
@@ -145,9 +149,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="30px"
-            android:layout_marginRight="60px"
-            android:layout_marginTop="30px"
+            android:layout_margin="30px"
             android:background="@drawable/line_frame_bg"
             android:paddingLeft="20px"
             android:paddingRight="20px">
@@ -170,7 +172,7 @@
                 android:layout_height="wrap_content"
                 android:text="合计："
                 android:textColor="#101010"
-                android:textSize="28px"
+                android:textSize="30px"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_sum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_sum" />
@@ -221,7 +223,7 @@
                 android:layout_height="0dp"
                 android:layout_marginBottom="20px"
                 android:layout_marginTop="20px"
-                android:padding="10px"
+                android:padding="5px"
                 android:overScrollMode="never"
                 app:layout_constraintBottom_toTopOf="@+id/v_line2"
                 app:layout_constraintEnd_toEndOf="parent"

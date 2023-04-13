@@ -12,19 +12,19 @@ class ScanQrResultBean {
     var ERRCODE :String ?= null         //错误码
     var ERRMSG :String ?= null          //错误信息
 
-    var code: Int? = null
-    var msg: String? = null
+    constructor(code: Int, msg: String?) {
+        this.ERRCODE = code.toString()
+        this.ERRMSG = msg
+    }
 
-    constructor(code: Int?, msg: String?) {
-        this.code = code
-        this.msg = msg
+    constructor(code: String?, msg: String?) {
+        this.ERRCODE = code.toString()
+        this.ERRMSG = msg
     }
 
     override fun toString(): String {
         return "ScanQrResultBean(RESULT=$RESULT, PAYMENT=$PAYMENT, ACTUAL_PAYMENT=$ACTUAL_PAYMENT, ACC_NO=$ACC_NO, ACC_TYPE=$ACC_TYPE, ORDER_ID=$ORDER_ID, ACC_BAL=$ACC_BAL, ERRCODE=$ERRCODE, ERRMSG=$ERRMSG)"
     }
-
-
 
     enum class Result{
         Y, N

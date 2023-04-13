@@ -158,15 +158,19 @@ public class DishesDBHelper {
      * 更新数据
      * @param
      */
-    public void updateDishes(String id,int status){
-        List<DishesTable> dishes = mDishesTableDao.queryBuilder()
-                .where(DishesTableDao.Properties.DishesId.eq(id))
-                .build().list();
-        for (DishesTable u : dishes){
-            u.setStatus(status);
-            mDishesTableDao.update(u);
-        }
-
+    public void updateDishes(String dishId, int mealId, int status){
+        DishesTable dish = mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.DishesId.eq(dishId),DishesTableDao.Properties.MealId.eq(mealId))
+                .build().unique();
+        dish.setStatus(status);
+        mDishesTableDao.update(dish);
+//        List<DishesTable> dishes = mDishesTableDao.queryBuilder()
+//                .where(DishesTableDao.Properties.DishesId.eq(id))
+//                .build().list();
+//        for (DishesTable u : dishes){
+//            u.setStatus(status);
+//            mDishesTableDao.update(u);
+//        }
     }
 
     /**
@@ -189,7 +193,7 @@ public class DishesDBHelper {
      * 查询餐别
      * @param
      */
-    public MealTable queryMeals(int meals){
+    public MealTable queryToMeals(int meals){
         return mMealTableDao.queryBuilder()
                 .where(MealTableDao.Properties.MealId.eq(meals))
                 .build()

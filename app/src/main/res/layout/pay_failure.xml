@@ -27,17 +27,36 @@
         app:layout_constraintTop_toBottomOf="@+id/iv_hit_pic" />
 
 
-    <TextView
-        android:id="@+id/tv_title_reason"
-        android:layout_width="80px"
-        android:layout_height="29px"
-        android:layout_marginStart="410px"
+    <LinearLayout
+        android:id="@+id/ll_a"
+        android:layout_width="500px"
+        android:layout_height="30px"
+        android:layout_marginStart="395px"
         android:layout_marginTop="42px"
-        android:text="@string/pay_failure_reason"
-        android:textColor="#6C6C6C"
-        android:textSize="20px"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+        <TextView
+            android:id="@+id/tv_title_reason"
+            android:layout_width="80px"
+            android:layout_height="29px"
+            android:text="@string/pay_failure_reason"
+            android:textColor="#6C6C6C"
+            android:textSize="20px"/>
+
+        <TextView
+            android:id="@+id/pay_fail_msg"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:maxLines="2"
+            android:text="失败原因"
+            android:textColor="#6C6C6C"
+            android:textSize="20px"/>
+
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_title_time"
@@ -47,8 +66,8 @@
         android:text="@string/pay_time"
         android:textColor="#6C6C6C"
         android:textSize="20px"
-        app:layout_constraintStart_toStartOf="@+id/tv_title_reason"
-        app:layout_constraintTop_toBottomOf="@+id/pay_fail_msg" />
+        app:layout_constraintStart_toStartOf="@+id/ll_a"
+        app:layout_constraintTop_toBottomOf="@+id/ll_a" />
 
     <Button
         android:id="@+id/bt_back"
@@ -72,20 +91,8 @@
         android:textColor="#6C6C6C"
         android:textSize="20px"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_time"
-        app:layout_constraintEnd_toEndOf="@+id/pay_fail_msg" />
+        app:layout_constraintEnd_toEndOf="@+id/ll_a" />
 
-    <TextView
-        android:id="@+id/pay_fail_msg"
-        android:layout_width="182px"
-        android:layout_height="29px"
-        android:layout_marginEnd="410px"
-        android:layout_marginTop="8px"
-        android:gravity="right"
-        android:maxLines="2"
-        android:text="失败原因"
-        android:textColor="#6C6C6C"
-        android:textSize="20px"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_title_reason" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

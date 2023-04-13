@@ -31,6 +31,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getQrData(bean: CcbScanPayBean): ScanAnalysisBean {
+        return apiCallForQrData {
+            val sn = CanteenEncryptionUtil.requestPath(bean)
+            RetrofitClient.getApi().scanQrAnalysis(sn)
+        }
+    }
 
     suspend fun getScanQrData(bean: CcbScanPayBean): ScanQrResultBean {
         return apiCallForScanCode {
@@ -187,6 +193,18 @@ class PayRepositoryOfPay {
                 res = call()
             }catch (e: Throwable){
                 return@withContext ApiException.build(e).toResponseForScanCode()
+            }
+            res
+        }
+    }
+
+    private suspend fun apiCallForQrData(call :suspend CoroutineScope.() -> ScanAnalysisBean):ScanAnalysisBean {
+        return withContext(Dispatchers.IO){
+            val res:ScanAnalysisBean
+            try {
+                res = call()
+            }catch (e: Throwable){
+                return@withContext ApiException.build(e).toResponseForQrData()
             }
             res
         }

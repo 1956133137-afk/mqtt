@@ -2,6 +2,7 @@ package com.yannuo.paymoney.utils
 
 import com.google.gson.JsonParseException
 import com.yannuo.dgcanteen.model.CanteenResponse
+import com.yannuo.dgcanteen.model.ScanAnalysisBean
 import com.yannuo.dgcanteen.model.ScanQrResultBean
 import org.apache.http.conn.ConnectTimeoutException
 import org.json.JSONException
@@ -43,6 +44,10 @@ class ApiException(val code: Int, override val message: String?, override val ca
 
     fun toResponseForScanCode(): ScanQrResultBean {
         return ScanQrResultBean(code,message)
+    }
+
+    fun toResponseForQrData(): ScanAnalysisBean {
+        return ScanAnalysisBean(code,message)
     }
 
 }

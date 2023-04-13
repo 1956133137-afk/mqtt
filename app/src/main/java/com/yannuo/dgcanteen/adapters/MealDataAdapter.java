@@ -107,12 +107,12 @@ public class MealDataAdapter extends BaseAdapter {
             public void onClick(View view) {
                 if (mealData.getStatus() == 0){
                     mealData.setStatus(1);
-                    mHelper.updateDishes(mealData.getDishesId(),1);
+                    mHelper.updateDishes(mealData.getDishesId(), mealData.getMealId(), 1);
                     mProductsDisplay.dishesData();
                     ToastShowUtil.show(mContext,"菜品已经上架");
                 }else {
                     mealData.setStatus(0);
-                    mHelper.updateDishes(mealData.getDishesId(),0);
+                    mHelper.updateDishes(mealData.getDishesId(), mealData.getMealId(),0);
                     mProductsDisplay.dishesData();
                     ToastShowUtil.show(mContext,"菜品已经下架");
                 }

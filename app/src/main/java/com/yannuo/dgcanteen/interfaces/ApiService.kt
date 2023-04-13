@@ -4,10 +4,7 @@ package com.yannuo.dgcanteen.interfaces
 
 import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
-import com.yannuo.dgcanteen.model.CanteenResponse
-import com.yannuo.dgcanteen.model.DayDishesBean
-import com.yannuo.dgcanteen.model.ScanQrResultBean
-import com.yannuo.dgcanteen.model.SynConsumeRecordBean
+import com.yannuo.dgcanteen.model.*
 import io.reactivex.Observable
 import retrofit2.http.*
 
@@ -27,6 +24,11 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("deviceData/insertPaymentRecord")
     suspend fun synCsRecord(@Body data: SynConsumeRecordBean) : CanteenResponse<String>
+
+    //解析用户付款码
+    @Headers("content-type: application/x-www-form-urlencoded")
+    @POST
+    suspend fun scanQrAnalysis(@Url url: String?): ScanAnalysisBean
 
     //二维码被扫支付
     @Headers("content-type: application/x-www-form-urlencoded")

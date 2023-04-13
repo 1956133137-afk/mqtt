@@ -162,7 +162,7 @@ class ProductsVM :ViewModel() {
             bean.CORP_ID = "1041"
             bean.PAYMENT = detail.totalMoney.replace('元',' ')
             bean.BUSINESS_ID = "SJ2023032511004"
-            bean.VPOS_ID = "V00443832"
+            bean.VPOS_ID = "V00463775"
             bean.REMARK = stringBuffer.toString()
             bean.OFFLINE = offline.toString()
 
@@ -219,7 +219,7 @@ class ProductsVM :ViewModel() {
             val bean = SynConsumeRecordBean()
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
             bean.businessId = "SJ2023032511004"
-            bean.counterId = "V00443832"
+            bean.counterId = "V00463775"
             bean.RESULT  = "Y"
             bean.CUST_ID = payResult.CUST_ID
             bean.PAYMENT = payResult.PAYMENT!!.toDouble()

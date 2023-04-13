@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.format.DateFormat;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -14,6 +15,7 @@ import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
 import com.yannuo.dgcanteen.model.DishesInfo;
@@ -43,7 +45,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     private DifferrentDialogBinding binding;
     private int mealIds = 0,mMealId = 0 ;
-    private final static int[] mealArray = {R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time};
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
@@ -229,8 +230,17 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                     @Override
                     public void run() {
                         mealIds = mMealId;
+                        StringBuilder str = new StringBuilder();
                         clearShoppingCart();
-                        binding.mealTime.setText(mealArray[mealIds]);
+                        if (mealIds != 0){
+                            MealTable meal = DishesDBHelper.getInstance().queryToMeals(mealIds);
+                            str.append(meal.getMealName() + " ");
+                            str.append(DateFormat.format("HH:mm",meal.getStartTime()).toString() + "~");
+                            str.append(DateFormat.format("HH:mm",meal.getEndTime()).toString());
+                        }else {
+                            str.append(getResources().getString(R.string.unOpen_meal));
+                        }
+                        binding.mealTime.setText(str);
                         dishesData();
                     }
                 });

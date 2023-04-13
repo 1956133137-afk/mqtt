@@ -25,6 +25,7 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayResultAdapter
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
@@ -73,7 +74,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
 
     private var mMealId = 0
     private var mealId = 0
-    private val mealArray = arrayOf(R.string.unOpen_meal, R.string.breakfast_time, R.string.lunch_time, R.string.dinner_time)
     private var mNetWork = false
     private var netWork = false
     private var mCurrentTime = 1681101000000
@@ -358,7 +358,17 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
             if (mMealId != mealId){
                 runOnUiThread(Runnable {
                     mealId = mMealId
-                    binding.mealTime.setText(mealArray[mealId])
+                    var str = StringBuilder()
+                    when(mealId){
+                        0 -> str.append(resources.getString(R.string.unOpen_meal))
+                        else ->{
+                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                            str.append(meal.mealName + " ")
+                            str.append(DateFormat.format("HH:mm",meal.startTime).toString() + "~")
+                            str.append(DateFormat.format("HH:mm",meal.endTime).toString())
+                        }
+                    }
+                    binding.mealTime.text = str
                 })
             }
         }

@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="1280px"
-    android:layout_height="800px"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="horizontal">
 
@@ -15,111 +15,113 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="350px"
-            android:layout_height="350px"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_pay_success"/>
         <TextView
-            android:layout_width="192px"
-            android:layout_height="70px"
-            android:layout_marginTop="-70px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-70dp"
             android:text="@string/pay_success_title"
-            android:textSize="48px"
+            android:textSize="48sp"
             android:textColor="#347CAF"/>
         <TextView
             android:id="@+id/pay_total_money"
             android:layout_width="match_parent"
-            android:layout_height="70px"
-            android:layout_marginTop="10px"
+            android:layout_height="70dp"
+            android:layout_marginTop="10dp"
             android:gravity="center"
-
-            android:textSize="48px"
+            android:textSize="48sp"
             android:textColor="#4F4F4F"/>
 
         <LinearLayout
-            android:layout_width="477px"
+            android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="49px"
+            android:layout_marginTop="49dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="80px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="姓名"
-                android:textSize="25px"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:textSize="25px"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="477px"
+            android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25px"
+            android:layout_marginTop="25dp"
             android:orientation="horizontal">
-
             <TextView
-                android:layout_width="80px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="班级"
-                android:textSize="25px"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_class"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:textSize="25px"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="477px"
+            android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25px"
+            android:layout_marginTop="25dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="110px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/pay_time"
-                android:textSize="25px"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_pay_time"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:textSize="25px"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="477px"
+            android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25px"
+            android:layout_marginTop="25dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="130px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/trans_run_number"
-                android:textSize="25px"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
             <TextView
                 android:id="@+id/tv_trans_number"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:textSize="25px"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp"
                 android:textColor="#6C6C6C"/>
 
         </LinearLayout>
@@ -145,21 +147,19 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="30px"
-            android:layout_marginRight="60px"
-            android:layout_marginTop="30px"
+            android:layout_margin="30dp"
             android:background="@drawable/line_frame_bg"
-            android:paddingLeft="20px"
-            android:paddingRight="20px">
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
 
             <TextView
                 android:id="@+id/tv_small_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15px"
+                android:layout_marginTop="15dp"
                 android:text="点餐菜品列表"
                 android:textColor="#FF4F4F4F"
-                android:textSize="36px"
+                android:textSize="36sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -170,7 +170,7 @@
                 android:layout_height="wrap_content"
                 android:text="合计："
                 android:textColor="#101010"
-                android:textSize="28px"
+                android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_sum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_sum" />
@@ -179,9 +179,9 @@
                 android:id="@+id/tv_sum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="15px"
+                android:layout_marginBottom="15dp"
                 android:textColor="#BD3124"
-                android:textSize="35px"
+                android:textSize="35sp"
                 app:layout_constraintBottom_toTopOf="@+id/v_line3"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -189,7 +189,7 @@
                 android:id="@+id/v_line1"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_marginTop="20px"
+                android:layout_marginTop="20dp"
                 android:background="#BBBBBB"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -199,7 +199,7 @@
                 android:id="@+id/v_line2"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_marginBottom="10px"
+                android:layout_marginBottom="10dp"
                 android:background="#BBBBBB"
                 app:layout_constraintBottom_toTopOf="@+id/tv_sum"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -209,7 +209,7 @@
                 android:id="@+id/v_line3"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_marginBottom="30px"
+                android:layout_marginBottom="30dp"
                 android:background="#BBBBBB"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -219,8 +219,8 @@
                 android:id="@+id/rv_dish_list"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="20px"
-                android:layout_marginTop="20px"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
                 android:overScrollMode="never"
                 app:layout_constraintBottom_toTopOf="@+id/v_line2"
                 app:layout_constraintEnd_toEndOf="parent"

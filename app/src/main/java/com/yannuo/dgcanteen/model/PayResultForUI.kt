@@ -2,7 +2,7 @@ package com.yannuo.dgcanteen.model
 
 class PayResultForUI {
 
-    var result : Result = Result.WAIT
+    var result : Result = Result.FAIL
     var cust_name: String ?= null  //用户名
     var orderid :String ?= null  //订单号
     var payment :String ?= null   //金额
@@ -23,7 +23,6 @@ class PayResultForUI {
 
     enum class Result{
         SUCCESS,
-        FAIL,
-        WAIT
+        FAIL
     }
 }

@@ -15,9 +15,6 @@
     <string name="total_title">共</string>
     <string name="a_copy">份</string>
 
-    <string name="breakfast_time">&#160;&#160;早餐&#160;&#160;7:30~8:30</string>
-    <string name="lunch_time">&#160;午餐&#160;11:30~13:00</string>
-    <string name="dinner_time">&#160;晚餐&#160;18:30~19:30</string>
     <string name="unOpen_meal">&#160;&#160;&#160;&#160;未开餐&#160;&#160;&#160;&#160;</string>
 
     <string name="pay_success_title">支付成功</string>

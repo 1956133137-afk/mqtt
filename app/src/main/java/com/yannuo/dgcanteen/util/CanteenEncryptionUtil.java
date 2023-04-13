@@ -34,11 +34,14 @@ public class CanteenEncryptionUtil {
 
         bean.setCcbSafeParam(encryption(param.toString()));
 
-        param = new StringBuilder();
+        return requestPath(bean);
+    }
+
+    public static String requestPath(CcbScanPayBean bean){
+        StringBuilder param = new StringBuilder();
         param.append(CANTEEN_TEST_URL).append("?CCB_IBSVersion=" + CCB_IBSVersion).append("&PT_STYLE=" + PT_STYLE).append("&PT_LANGUAGE=" + PT_LANGUAGE)
                 .append("&CAMPUS_ID=" + bean.getCAMPUS_ID()).append("&TXCODE=" + bean.getTXCODE()).append("&CORP_ID=" + bean.getCORP_ID())
                 .append("&ccbSafeParam=" + bean.getCcbSafeParam());
-
         return param.toString();
     }
 
