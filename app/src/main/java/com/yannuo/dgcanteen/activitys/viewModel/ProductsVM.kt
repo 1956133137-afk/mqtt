@@ -5,11 +5,14 @@ import android.text.format.DateFormat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
 import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.OrderDishList
@@ -24,6 +27,10 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.util.*
 
@@ -75,7 +82,7 @@ class ProductsVM :ViewModel() {
                 if (rs.code == HttpURLConnection.HTTP_OK){
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
-//                    var mid = 2
+                     val picList =  mutableListOf<String>() //菜品图片
                     for (da in rs.data!!){
                         val meal = MealTable()
                         meal.mealId = da.mealId
@@ -115,12 +122,17 @@ class ProductsVM :ViewModel() {
                             dish.unit = bean.unit
                             dish.imgUrl = bean.imgUrl
                             dishList.add(dish)
+                            picList.add(bean.imgUrl)
                         }
                     }
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
                     DishesDBHelper.getInstance().insertDishes(dishList)
                     DishesDBHelper.getInstance().insertMeals(mealList)
+
+                    //下载菜品图片
+                    downLoadPic(picList)
+
                     //设置菜品数据已更新
                     val kv = MMKV.defaultMMKV()
                     val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
@@ -300,4 +312,59 @@ class ProductsVM :ViewModel() {
             DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
         }
     }
+
+
+
+    private fun downLoadPic(picList: MutableList<String>) {
+        if (picList.size<1)return
+        // 清空目录
+        val savePath = File(MyApplication.applicationContext.filesDir, Constant.PIC_DIR)
+        if (!savePath.exists()) {
+            savePath.mkdirs()
+        }
+        for (fi in savePath.listFiles()){
+            fi.delete()
+        }
+        for (path in picList) {
+            val pic = Glide.with(MyApplication.applicationContext)
+                .load(path)
+                .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .get()
+            writeFile2Sd(pic, path.substring(path.lastIndexOf("/")+1))
+        }
+    }
+
+    private fun writeFile2Sd(source :File ,name :String) {
+        val file = File("${MyApplication.applicationContext.filesDir.absolutePath}${File.separator}${Constant.PIC_DIR}${File.separator}${name}")
+        var fos: FileOutputStream? = null
+        var fis: FileInputStream? = null
+        try {
+            if (!file.exists()) {
+                file.createNewFile()
+            }
+            fis = FileInputStream(source)
+            fos = FileOutputStream(file)
+
+            val buf = ByteArray(1024)
+            var len: Int
+            while (fis.read(buf, 0, buf.size).also { len = it } != -1) {
+                fos.write(buf, 0, len)
+            }
+            fos.flush()
+            LogUtil.i(TAG,"download ：${file.name} !")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            try {
+                fos?.close()
+                fis?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+    }
+
+
+
 }

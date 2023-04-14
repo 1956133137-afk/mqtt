@@ -1,7 +1,7 @@
 package com.yannuo.dgcanteen.service
 
+
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -9,6 +9,8 @@ import android.text.format.DateFormat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
@@ -18,7 +20,10 @@ import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
-import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.model.DayDishesBean
+import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.PaymentDishesList
+import com.yannuo.dgcanteen.model.SynConsumeRecordBean
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -26,12 +31,10 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ScanDevice
 import kotlinx.coroutines.*
-import okhttp3.Headers
-import okhttp3.ResponseBody
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.greenrobot.eventbus.EventBus
-import retrofit2.Response
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -102,7 +105,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     @OptIn(ExperimentalTime::class)
     private fun synConsumerDish(){
         mScope.launch {
-            downLoadPic(null)
+
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
                 delay(Duration.hours(1))
@@ -319,53 +322,55 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
     }
 
-    private suspend fun downLoadPic(picList: MutableList<String>?) {
-
-       val rsp = mRespository.downLoadPic("https://test.yannuozhineng.com/ccb/canteen/api//profile/dishes/image/2023/04/03/a9f1f0fc-0fe6-4380-8a74-1cf6d88d3f09.jpg")
-
+    private fun downLoadPic(picList: MutableList<String>) {
+        if (picList.size<1)return
+        // 清空目录
+        val savePath = File(filesDir, Constant.PIC_DIR)
+        if (!savePath.exists()) {
+            savePath.mkdirs()
+        }
+        for (fi in savePath.listFiles()){
+            fi.delete()
+        }
+        for (path in picList) {
+            val pic = Glide.with(this)
+                .load(path)
+                .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .get()
+            writeFile2Sd(pic, path.substring(path.lastIndexOf("/")+1))
+        }
     }
 
 
-    fun writeFile2Sd(response: Response<ResponseBody>, headers: Headers) {
-        val disposition = headers["Content-disposition"]
-        if (disposition != null) {
-            val fileNameIndex = disposition.indexOf("filename=")
-            val fileName = disposition.substring(fileNameIndex + "filename=".length)
-            LogUtil.i(TAG, "fileNameIndex -- > $fileNameIndex  fileName -- > $fileName")
-
-            val picFilePath = File(filesDir, Constant.PIC_DIR)
-            if (!picFilePath.exists()) {
-                picFilePath.mkdirs()
+    private fun writeFile2Sd(source :File ,name :String) {
+        val file = File("${filesDir.absolutePath}${File.separator}${Constant.PIC_DIR}${File.separator}${name}")
+        var fos: FileOutputStream? = null
+        var fis: FileInputStream? = null
+        try {
+            if (!file.exists()) {
+                file.createNewFile()
             }
-            val file = File(picFilePath.toString() + File.separator + fileName)
-            LogUtil.d("FileUtil", "file -- > $file")
-            var fos: FileOutputStream? = null
+            fis = FileInputStream(source)
+            fos = FileOutputStream(file)
+
+            val buf = ByteArray(1024)
+            var len: Int
+            while (fis.read(buf, 0, buf.size).also { len = it } != -1) {
+                fos.write(buf, 0, len)
+            }
+            fos.flush()
+            LogUtil.i(TAG,"download ：${file.name} !")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
             try {
-                if (!file.parentFile.exists()) {
-                    file.parentFile.mkdirs()
-                }
-                if (!file.exists()) {
-                    file.createNewFile()
-                }
-                fos = FileOutputStream(file)
-                val inputStream = response.body()!!.byteStream()
-                val buf = ByteArray(1024)
-                var len: Int
-                while (inputStream.read(buf, 0, buf.size).also { len = it } != -1) {
-                    fos.write(buf, 0, len)
-                }
-            } catch (e: Exception) {
+                fos?.close()
+                fis?.close()
+            } catch (e: IOException) {
                 e.printStackTrace()
-            } finally {
-                if (fos != null) {
-                    try {
-                        fos.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
             }
         }
+
     }
 
 
