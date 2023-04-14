@@ -9,12 +9,14 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
+import com.google.gson.reflect.TypeToken;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.PayResultAdapter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.databinding.PayFailureBinding;
 import com.yannuo.dgcanteen.databinding.PaySuccessBinding;
+import com.yannuo.dgcanteen.model.DayDishesBean;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.PayResultForUI;
 import com.yannuo.dgcanteen.model.ProductsDetail;
@@ -22,6 +24,9 @@ import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +45,7 @@ public class PayResultDisplay extends Presentation {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         mPayResult = payResult;
+
     }
 
     @Override

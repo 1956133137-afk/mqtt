@@ -6,6 +6,8 @@ import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
 import com.yannuo.dgcanteen.model.*
 import io.reactivex.Observable
+import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
@@ -14,6 +16,11 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
+
+    //下载图片
+    @GET
+    suspend fun downLoadPic(@Url url: String?): Response<ResponseBody>
+
 
     // 获取菜品
     @Headers("content-type: application/json")

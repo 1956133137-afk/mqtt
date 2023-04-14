@@ -23,17 +23,16 @@ import java.util.concurrent.TimeUnit
 class MqttClient(context: Context) {
     private var client :MqttAndroidClient? =null
     private var serverURI  =""
-    //    private var serverURI  ="tcp://192.168.2.166:1883"
+
     private lateinit var clientid : String
     private val TAG = "MqttClient"
-    //    private var password = "ACMS2022~!@"
-//    private var username =  "acms"
     private var option = MqttConnectOptions()
     var mListener : IMqttConnectState? = null
     private val retry = 5 //断线重连次数
     private var context = context
     private var disposable : Disposable?=null
     private var CONNECT_STATUS = ConnectStatue.DISCONNECT
+    private var mOnline = true //网络状态，离线下将关闭重连，提供性能
 
     private enum class ConnectStatue{
         CONNECT,DISCONNECT,DISCONNECTING,CONNECTING
@@ -69,7 +68,7 @@ class MqttClient(context: Context) {
                     disposable?.dispose() //停掉心跳主题
                 }
                 mListener?.onConnectLost(cause?.message)
-                reconnect()
+                if (mOnline) reconnect()
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -96,7 +95,7 @@ class MqttClient(context: Context) {
             .doOnNext {
                 var retryTime = retry
                 val finish = false
-                while ((CONNECT_STATUS == ConnectStatue.CONNECTING)  && retryTime > 0) {
+                while ((CONNECT_STATUS == ConnectStatue.CONNECTING)  && retryTime > 0 && mOnline) {
                     try {
                         if (!finish) {
                             client?.connect(option, null, object : IMqttActionListener {
@@ -104,7 +103,7 @@ class MqttClient(context: Context) {
                                     LogUtil.i(TAG, "mqtt connection success!")
                                     CONNECT_STATUS = ConnectStatue.CONNECT
                                     //开启心跳推送
-                                    sendHeart()
+//                                    sendHeart()
                                     //推送设备状态主题（上下线）
                                     publish(topic_deviceStatus, Gson().toJson(Status(1)), 1)    //上线
                                     mListener?.onConnectSuccess()
@@ -121,7 +120,7 @@ class MqttClient(context: Context) {
 //                                    CONNECT_STATUS = ConnectStatue.DISCONNECT
                                 }
                             })
-                            Thread.sleep(TimeUnit.SECONDS.toMillis(120))
+                            Thread.sleep(TimeUnit.MINUTES.toMillis(2))
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -142,6 +141,15 @@ class MqttClient(context: Context) {
         finally {
             connect()
         }
+    }
+
+    /**
+     *
+     * @param online Boolean 网络在线-true
+     */
+    fun changeNetwork(online : Boolean){
+        if(online) CONNECT_STATUS = ConnectStatue.DISCONNECT
+        mOnline = online
     }
 
     /**

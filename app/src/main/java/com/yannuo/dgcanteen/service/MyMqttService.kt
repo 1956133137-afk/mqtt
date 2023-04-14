@@ -1,41 +1,43 @@
 package com.yannuo.dgcanteen.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
+import android.text.format.DateFormat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
+import com.yannuo.dgcanteen.dao.DishesTable
+import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
-import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.PaymentDishesList
-import com.yannuo.dgcanteen.model.StatusValue
-import com.yannuo.dgcanteen.model.SynConsumeRecordBean
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ScanDevice
-
-import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.*
+import okhttp3.Headers
+import okhttp3.ResponseBody
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.greenrobot.eventbus.EventBus
+import retrofit2.Response
 import java.io.File
-import java.io.FileReader
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
+import java.nio.charset.Charset
+import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -47,13 +49,13 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private lateinit var mqttStateListener : MqttConnectState
 
     //订阅的主题
-    private var TOPIC_TITLE = "device/"+ CommonAndDpToPxUtil.getDeviceSerial() //订阅本机专属主题
+    private var TOPIC_TITLE = "ccb/pub/dishes/${CommonAndDpToPxUtil.getDeviceSerial()}" //订阅本机专属主题
 
     private var runTask = true  //控制任务，无网络将睡眠
-    private lateinit var mStatusValue : StatusValue
+
     private lateinit var mScope : CoroutineScope
     private lateinit var mHandle : CoroutineExceptionHandler
-
+    private lateinit var mRespository : PayRepositoryOfPay
 
 
 
@@ -64,9 +66,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         }
         mScope = CoroutineScope (Dispatchers.Default + mHandle)
 
-        mScope.launch(mHandle) {
-            mStatusValue = StatusValue()
+        mScope.launch {
 
+            mRespository = PayRepositoryOfPay()
             binder = InteractionBinder(this@MyMqttService)
             mqttStateListener = MqttConnectState()
             binder.registerListener(mqttStateListener)
@@ -99,7 +101,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
      */
     @OptIn(ExperimentalTime::class)
     private fun synConsumerDish(){
-        mScope.launch(mHandle) {
+        mScope.launch {
+            downLoadPic(null)
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
                 delay(Duration.hours(1))
@@ -115,7 +118,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     DishesDBHelper.getInstance().updateConsumerOrders(dishList)
                 }while (dishList.size == 100 && runTask)
                 //2、上传记录
-                val respository = PayRepositoryOfPay()
+
                 val gson = Gson()
                 do {
                     val order = DishesDBHelper.getInstance().queryConsumerOrder()
@@ -134,7 +137,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                 )
                             )
                         }
-                        val res = respository.synCsRecord(bean)
+                        val res = mRespository.synCsRecord(bean)
                         if (res.code == HttpURLConnection.HTTP_OK){
                             //删除对应的消费记录的菜品
                             DishesDBHelper.getInstance().deleteRelatedDish(it.paymentDishesList[0].orderid)
@@ -209,17 +212,19 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     }
 
     override fun netWorkStatus(statue: String?) {
-        LogUtil.d(TAG,"网络状态( 0--有网 ，1无网络)--> $statue")
-        if (statue.equals("0")) {
+        runTask = if (statue.equals("0")) {
+            binder.changeNetwork(true)
             binder.connect()
-            runTask = true
+            true
         }  //断线重连
         else{
             //修改更新标志
+            binder.changeNetwork(false)
             binder.disconnect()
-            runTask = false
+            false
         }
     }
+
 
     inner class MqttConnectState : IMqttConnectState {
         override fun onConnectSuccess() {
@@ -233,7 +238,11 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         }
 
         override fun onTopicArrive(topic: String?, message: MqttMessage?) {
-
+            LogUtil.d(TAG,"topic $topic  ,message${message}")
+            message?.payload?.also {
+                val payload = String(it, Charset.forName("utf-8"))
+                updateMeal(payload)
+            }
         }
 
         override fun onConnectLost(reason: String?) {
@@ -242,16 +251,123 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
     }
 
-
-
     /**
-     * 设备回调mqtt服务器
-     * @param visitorInfo VisitorPeopleRecord
+     * 更新今天菜品和下载菜品图片
      */
-    private fun deviceCallback(messageId :String ,name :String,number :String) {
+    private fun updateMeal(payload :String){
+        mScope.launch {
+            val gson = Gson()
+            val type = object : TypeToken<MutableList<DayDishesBean>>(){}.type
+            val dishes = gson.fromJson<MutableList<DayDishesBean>>(payload,type)
 
+            val mealList = mutableListOf<MealTable>()  //餐别
+            val dishList = mutableListOf<DishesTable>() //菜品
+            val picList =  mutableListOf<String>() //菜品图片
+            for (da in dishes){
+                val meal = MealTable()
+                meal.mealId = da.mealId
+                meal.mealName = da.mealName
+
+                da.startTime?.also {
+                    val split =it.split(":")
+                    val date = Date()
+                    date.hours = split[0].toInt()
+                    date.minutes = split[1].toInt()
+                    date.seconds = split[2].toInt()
+                    meal.startTime = date
+                }
+
+                da.endTime?.also {
+                    val split =it.split(":")
+                    val date = Date()
+                    date.hours = split[0].toInt()
+                    date.minutes = split[1].toInt()
+                    date.seconds = split[2].toInt()
+                    meal.endTime = date
+                }
+
+                mealList.add(meal)
+                for (bean in da.selectedDishesList) {
+                    val dish = DishesTable()
+                    dish.dishesId = bean.dishesId
+                    dish.dishesName = bean.dishesName
+                    dish.mealId = da.mealId
+                    dish.price = bean.price.toDouble()
+                    dish.unit = bean.unit
+                    dish.imgUrl = bean.imgUrl
+                    dishList.add(dish)
+                    picList.add(bean.imgUrl)
+                }
+            }
+            //存储到数据库中
+            DishesDBHelper.getInstance().clearAllDishes()
+            DishesDBHelper.getInstance().clearAllMeal()
+            DishesDBHelper.getInstance().insertDishes(dishList)
+            DishesDBHelper.getInstance().insertMeals(mealList)
+
+            //下载菜品图片
+            downLoadPic(picList)
+
+            //设置菜品数据已更新
+            val kv = MMKV.defaultMMKV()
+            val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
+            kv.encode(Constant.UPDATE_TIME,now.substring(0,8))
+            kv.encode(Constant.FINAL_TIME,now )
+            //发送菜品更新通知
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FIFTH, null))
+        }
 
     }
+
+    private suspend fun downLoadPic(picList: MutableList<String>?) {
+
+       val rsp = mRespository.downLoadPic("https://test.yannuozhineng.com/ccb/canteen/api//profile/dishes/image/2023/04/03/a9f1f0fc-0fe6-4380-8a74-1cf6d88d3f09.jpg")
+
+    }
+
+
+    fun writeFile2Sd(response: Response<ResponseBody>, headers: Headers) {
+        val disposition = headers["Content-disposition"]
+        if (disposition != null) {
+            val fileNameIndex = disposition.indexOf("filename=")
+            val fileName = disposition.substring(fileNameIndex + "filename=".length)
+            LogUtil.i(TAG, "fileNameIndex -- > $fileNameIndex  fileName -- > $fileName")
+
+            val picFilePath = File(filesDir, Constant.PIC_DIR)
+            if (!picFilePath.exists()) {
+                picFilePath.mkdirs()
+            }
+            val file = File(picFilePath.toString() + File.separator + fileName)
+            LogUtil.d("FileUtil", "file -- > $file")
+            var fos: FileOutputStream? = null
+            try {
+                if (!file.parentFile.exists()) {
+                    file.parentFile.mkdirs()
+                }
+                if (!file.exists()) {
+                    file.createNewFile()
+                }
+                fos = FileOutputStream(file)
+                val inputStream = response.body()!!.byteStream()
+                val buf = ByteArray(1024)
+                var len: Int
+                while (inputStream.read(buf, 0, buf.size).also { len = it } != -1) {
+                    fos.write(buf, 0, len)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+    }
+
 
 
 

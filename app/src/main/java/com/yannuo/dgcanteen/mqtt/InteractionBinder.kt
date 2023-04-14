@@ -59,6 +59,15 @@ class InteractionBinder(context :Context) : Binder() {
         mqttClient.mListener = null
     }
 
+    /**
+     *
+     * @param online Boolean 网络在线-true
+     */
+    fun changeNetwork(onLine :Boolean){
+        mqttClient.changeNetwork(onLine)
+    }
+
+
     fun reConfiguration(){
         mqttClient.reConfiguration()
     }

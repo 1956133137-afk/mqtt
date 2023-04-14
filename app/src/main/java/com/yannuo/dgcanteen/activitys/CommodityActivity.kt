@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
@@ -33,6 +34,7 @@ import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
@@ -42,7 +44,8 @@ import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
 
-class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
+class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
+    NetworkStateManager.NetWorkListener {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -74,9 +77,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
 
     private var mMealId = 0
     private var mealId = 0
-    private var mNetWork = false
-    private var netWork = false
-    private var mCurrentTime = 1681101000000
+
 
 
     private var successBinding : PaySuccessHostBinding ?= null
@@ -149,6 +150,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
         bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
+        //注册网络状态监听
+        NetworkStateManager.getInstance().registerObserver(this)
     }
 
     private fun initView() {
@@ -168,6 +171,14 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
             }
         }
         mProductsVM.upDataDishes()
+
+        if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+            binding.onOffLine.setImageResource(R.drawable.ic_drama_no)
+        }
+
+        if (NetworkStateManager.getInstance().isOnline(this).not()) {
+            binding.network.setImageResource(R.drawable.ic_wifi_no)
+        }
     }
 
 
@@ -249,6 +260,11 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
             Constant.EVENT_TENTH ->{
                 runOnUiThread {
                     val connect = event.any as Boolean
+                    if (connect){
+                        binding.server.setImageResource(R.drawable.ic_server)
+                    }else{
+                        binding.server.setImageResource(R.drawable.ic_server_no)
+                    }
                 }
             }
         }
@@ -301,9 +317,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
         val payResultAdapter =  PayResultAdapter()
         successBinding!!.rvDishList.layoutManager = LinearLayoutManager(this)
         successBinding!!.rvDishList.adapter = payResultAdapter
-//        successBinding!!.rvDishList.addItemDecoration(
-//            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-//        )
+
 
     }
 
@@ -333,27 +347,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
     //    定时器
     private val timerTask: TimerTask = object : TimerTask() {
         override fun run() {
-            mNetWork = NetWorkUtil.isNetWorkConnected(this@CommodityActivity)
-            if (mNetWork != netWork){
-                runOnUiThread(Runnable {
-                    netWork = mNetWork
-                    if (netWork){
-                        binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama))
-                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server))
-                        binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi))
-                    }else{
-                        binding.onOffLine.setImageDrawable(getDrawable(R.drawable.ic_drama_no))
-                        binding.server.setImageDrawable(getDrawable(R.drawable.ic_server_no))
-                        binding.network.setImageDrawable(getDrawable(R.drawable.ic_wifi_no))
-                    }
-                })
-            }
-            if (System.currentTimeMillis() - mCurrentTime >= 60000){
-                runOnUiThread(Runnable {
-                    mCurrentTime = System.currentTimeMillis()
-                    binding.tvCurrentTime.text = DateFormat.format("yyyy-MM-dd HH:mm",mCurrentTime).toString()
-                })
-            }
             mMealId = TimeUtil.CurrentTimeSection()
             if (mMealId != mealId){
                 runOnUiThread(Runnable {
@@ -456,11 +449,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
 
 
 
-
-
-
-
-
     override fun onDestroy() {
         release()
         super.onDestroy()
@@ -468,6 +456,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
 
     private fun release(){
         EventBus.getDefault().unregister(this)
+        //取消网络状态监听
+        NetworkStateManager.getInstance().unRegisterObserver(this)
         binding.mvControl.stopAnima()
     }
 
@@ -502,5 +492,23 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM {
             requestPermissions(permissions,10086)
         }
     }
+
+    override fun netWorkStatus(statue: String) {
+        runOnUiThread {
+            when(statue){
+                "0" ->{
+                    binding.network.setImageResource(R.drawable.ic_wifi)
+                }
+                else ->{
+                    binding.network.setImageResource(R.drawable.ic_wifi_no)
+                }
+            }
+        }
+
+    }
+
+
+
+
 
 }

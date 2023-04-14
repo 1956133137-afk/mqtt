@@ -10,6 +10,8 @@ import com.yannuo.paymoney.utils.ApiException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
+import retrofit2.Response
 
 
 class PayRepositoryOfPay {
@@ -22,6 +24,10 @@ class PayRepositoryOfPay {
             val ben = RetrofitClient.getApi().ccbDishes(sn)
             return@apiCall ben
         }
+    }
+
+    suspend fun downLoadPic(path :String): Response<ResponseBody> {
+           return RetrofitClient.getApi().downLoadPic(path)
     }
 
     suspend fun synCsRecord(data :SynConsumeRecordBean): CanteenResponse<String> {

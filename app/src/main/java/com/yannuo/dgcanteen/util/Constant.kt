@@ -46,7 +46,7 @@ object Constant {
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年
 
-
+    const val PIC_DIR = "pic" //菜品图片保存目录
 
 
 

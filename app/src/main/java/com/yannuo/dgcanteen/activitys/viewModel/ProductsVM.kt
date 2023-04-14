@@ -28,8 +28,8 @@ import java.net.HttpURLConnection
 import java.util.*
 
 class ProductsVM :ViewModel() {
-    val sendCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
-    val receiveCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
+//    val sendCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
+//    val receiveCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
     var showToastEvent : MutableLiveData<String>
     var loadingEvent : MutableLiveData<Boolean>
 
@@ -75,17 +75,17 @@ class ProductsVM :ViewModel() {
                 if (rs.code == HttpURLConnection.HTTP_OK){
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
-                    var mid = 2
+//                    var mid = 2
                     for (da in rs.data!!){
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
 
                         //测试代码
-                        meal.startTime  = Date(2023,4,6,7+mid,0,0)
-                        mid +=2
-                        meal.endTime  = Date(2023,4,6,7+mid,0,0)
-                        mid +=2
+//                        meal.startTime  = Date(2023,4,6,7+mid,0,0)
+//                        mid +=2
+//                        meal.endTime  = Date(2023,4,6,7+mid,0,0)
+//                        mid +=2
 
                         da.startTime?.also {
                             val split =it.split(":")

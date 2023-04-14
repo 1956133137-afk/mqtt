@@ -69,13 +69,13 @@ public class MyApplication extends Application {
             kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
         }
         if (kv.decodeString(Constant.MQTT_ADDRESS) == null){
-            kv.encode(Constant.MQTT_ADDRESS,"tcp://acms.yannuozhineng.com:0001");
+            kv.encode(Constant.MQTT_ADDRESS,"tcp://test.yannuozhineng.com:1883");
         }
         if (kv.decodeString(Constant.MQTT_ACCOUNT) == null){
-            kv.encode(Constant.MQTT_ACCOUNT,"yannuo");
+            kv.encode(Constant.MQTT_ACCOUNT,"acms");
         }
         if (kv.decodeString(Constant.MQTT_PASSWORD) == null){
-            kv.encode(Constant.MQTT_PASSWORD,"123456");
+            kv.encode(Constant.MQTT_PASSWORD,"ACMS2022~!@");
         }
         if (kv.decodeString(Constant.FINAL_TIME) == null){
             kv.encode(Constant.FINAL_TIME, new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));

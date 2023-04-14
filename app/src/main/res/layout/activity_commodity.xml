@@ -52,14 +52,14 @@
             android:layout_height="27dp"
             android:layout_marginStart="30dp"
             android:background="@color/transparency"
-            android:src="@drawable/ic_drama_no" />
+            android:src="@drawable/ic_drama" />
         <ImageButton
             android:id="@+id/server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:background="@color/transparency"
-            android:src="@drawable/ic_server_no"/>
+            android:src="@drawable/ic_server"/>
         <ImageButton
             android:id="@+id/network"
             android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="50dp"
             android:background="@color/transparency"
-            android:src="@drawable/ic_wifi_no"/>
+            android:src="@drawable/ic_wifi"/>
 
     </LinearLayout>
 
@@ -115,21 +115,24 @@
                 android:orientation="vertical"
                 android:padding="18dp">
 
-            <TextView
-                android:id="@+id/tv_current_time"
-                android:layout_width="280dp"
-                android:layout_height="wrap_content"
-                android:textSize="35sp"/>
+                <TextClock
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:format24Hour="HH:mm:ss"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="38sp" />
 
             <Button
                 android:id="@+id/bt_back_pay"
                 android:layout_width="250dp"
                 android:layout_height="100dp"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="60dp"
                 android:background="@drawable/shape_normal_bt_bg"
                 android:text="退出支付"
                 android:textColor="#FFFFFF"
                 android:textSize="38sp"/>
+
             <Button
                 android:id="@+id/btn_setting"
                 android:layout_width="250dp"
