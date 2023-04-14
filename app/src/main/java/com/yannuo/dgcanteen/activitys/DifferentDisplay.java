@@ -44,14 +44,13 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private String TAG = getClass().getSimpleName();
 
     private DifferrentDialogBinding binding;
-    private int mealIds = 0,mMealId = 0 ;
+    private int mealIds = 0;
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
     private PayForPresenter presenter;
     private PayForAdapter adapterPayFor;
     private DishesInfo data;
-    private Timer timer;
 
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
@@ -64,13 +63,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding = DifferrentDialogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         initObject();
-        timer = new Timer();
-        timer.schedule(timerTask,0,1000);
         initView();
         initEvent();
     }
 
     private void initObject() {
+        refreshMeal();
         adapterDishes = new ProductsAdapter(mealIds,getContext());
         adapterDishes.setListener(this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),3);
@@ -220,33 +218,35 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         }
     }
 
-    //    定时器
-    public final TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
-            mMealId = TimeUtil.CurrentTimeSection();
-            if (mMealId != mealIds){
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mealIds = mMealId;
-                        StringBuilder str = new StringBuilder();
-                        clearShoppingCart();
-                        if (mealIds != 0){
-                            MealTable meal = DishesDBHelper.getInstance().queryToMeals(mealIds);
-                            str.append(meal.getMealName() + " ");
-                            str.append(DateFormat.format("HH:mm",meal.getStartTime()).toString() + "~");
-                            str.append(DateFormat.format("HH:mm",meal.getEndTime()).toString());
-                        }else {
-                            str.append(getResources().getString(R.string.unOpen_meal));
-                        }
-                        binding.mealTime.setText(str);
-                        dishesData();
-                    }
-                });
-            }
+    //根据餐别时间，更新餐别
+    public void subScreenView(int mealId, StringBuilder str){
+        if (mealIds != mealId){
+            mealIds = mealId;
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    binding.mealTime.setText(str);
+                    dishesData();
+                }
+            });
         }
-    };
+
+    }
+
+    //副屏重新加载时，更新餐别
+    private void refreshMeal(){
+        mealIds = TimeUtil.CurrentTimeSection();
+        StringBuilder str = new StringBuilder();
+        if (mealIds == 0){
+            str.append(getResources().getString(R.string.unOpen_meal));
+        }else {
+            MealTable meal = DishesDBHelper.getInstance().queryToMeals(mealIds);
+            str.append(meal.getMealName() + " ");
+            str.append(DateFormat.format("HH:mm",meal.getStartTime()).toString() + "~");
+            str.append(DateFormat.format("HH:mm",meal.getEndTime()).toString());
+        }
+        binding.mealTime.setText(str);
+    }
 
     @Override
     protected void onStop() {

@@ -7,6 +7,8 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.OffLineDishTable
 import com.yannuo.dgcanteen.dao.OffLineTable
+import com.yannuo.dgcanteen.dao.OrderDishList
+import com.yannuo.dgcanteen.dao.OwnOrder
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.*
@@ -17,14 +19,19 @@ import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
+class ScanPayPresenter : ScanDevice.DataCallBack {
      private val TAG = javaClass.simpleName
      private var mDishes : ProductsDetail ?= null
      private var mRespository :PayRepositoryOfPay
      var listener : CallbackListener?= null
 
-     init {
+     constructor(){}
+
+     constructor(mDishes : ProductsDetail){
           this.mDishes = mDishes
+     }
+
+     init {
           mRespository = PayRepositoryOfPay()
           //开始监听扫码数据
           ScanDevice.setCallbackListener(this);
@@ -112,11 +119,15 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
                     if (validCode == 3){
                          try {
                               runBlocking (Dispatchers.IO) {
-                                   responseScanPay = mRespository.getScanQrData(ccbBean)
-                                   if (responseScanPay!!.RESULT.toString() == "N"){
+                                   responseScanPay = mRespository.getScanQrData(ccbBean)  //支付接口
+                                   if (responseScanPay!!.RESULT.toString() == "Y"){
+                                        ccbBean.TXCODE = "PAY006"
+                                        ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("ORDER_ID=${ccbBean.ORDER_ID}")
+                                        val scanResult = mRespository.getScanQuery(ccbBean)  //查询结果
+                                        ccbBean.CUST_ID = scanResult.CUST_ID.toString()
+                                   }else{
                                         validCode = 2
                                    }
-
                               }
                          }catch (e: RemoteException) {
                               e.printStackTrace()
@@ -130,7 +141,7 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
                          ccbBean.TXCODE = "PAY002"
                          ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("QR_CODE=$qrcode")
                          runBlocking (Dispatchers.IO) {
-                              res = mRespository.getQrData(ccbBean)
+                              res = mRespository.getQrData(ccbBean)  //解析二维码
                          }
                          if (res?.RESULT.toString() == "Y"){
                               ccbBean.TXCODE = "PAY003"
@@ -140,7 +151,7 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
                               if (validCode == 3){
                                    try {
                                         runBlocking (Dispatchers.IO) {
-                                             responseScanPay = mRespository.getScanQrData(ccbBean)
+                                             responseScanPay = mRespository.getScanQrData(ccbBean)  //支付接口
                                              if (responseScanPay!!.RESULT.toString() == "N"){
                                                   validCode = 2
                                              }
@@ -183,7 +194,7 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
                     payState.result = PayResultForUI.Result.SUCCESS
                     try {
                          runBlocking (Dispatchers.IO) {
-//                              responseScanPay?.let { consumeRecord(ccbScanPayBean, it) }
+                              responseScanPay?.let { consumeRecord(ccbBean, it, data.products) }
                          }
                     }catch (e :Exception){
                          e.printStackTrace()
@@ -214,17 +225,19 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
                     offLineData.offline = ccbBean.OFFLINE
                     offLineData.sigN_TIME = ccbBean.SIGN_TIME
                     offLineData.decryptionCode = plainText
+                    offLineData.postTag = false
                     DishesDBHelper.getInstance().insertOffLineOrder(offLineData)
                     LogUtil.e("OffLineOrder", Gson().toJson(offLineData))
 
                     val dishList = mutableListOf<OffLineDishTable>()
                     data.products.forEach {
                          var dish = OffLineDishTable()
-                         dish.corDishId = offLineData.ordeR_ID.toLong()
+//                         dish.orderid = offLineData.ordeR_ID.toLong()
                          dish.dishesId = it.dishesId
                          dish.dishesName = it.dishesName
                          dish.dishesNumber = it.count
                          dish.dishesPrice = it.price
+                         dish.order = offLineData
                          dishList.add(dish)
                     }
                     DishesDBHelper.getInstance().insertOffLineDishes(dishList)
@@ -239,7 +252,8 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
 
      }
 
-     private suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean){
+     //同步被扫支付消费记录
+     suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean,data :MutableList<DishesInfo>){
           val bean = SynConsumeRecordBean()
           bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
           bean.businessId = scanPay.BUSINESS_ID
@@ -270,7 +284,7 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
           bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
           bean.BUSINESS_NAME = "彦诺智能测试园区"
           bean.paymentDishesList = mutableListOf()
-          mDishes?.products?.forEach {
+          data.forEach {
                bean.paymentDishesList.add(PaymentDishesList(
                     it.dishesId,
                     it.dishesName,
@@ -282,9 +296,50 @@ class ScanPayPresenter(mDishes : ProductsDetail) : ScanDevice.DataCallBack {
           val responseScanPay = mRespository.synCsRecord(bean)
           LogUtil.i(TAG,Gson().toJson(responseScanPay))
           if (responseScanPay.code != HttpURLConnection.HTTP_OK){
+               saveFailureRecord(bean)
                LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${responseScanPay.data}")
           }
           LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
+     }
+
+     //保存上传失败记录
+     private fun saveFailureRecord(bean: SynConsumeRecordBean){
+          val saveOrder = OwnOrder()
+          bean.apply {
+               saveOrder.deviceSerialNumber = deviceSerialNumber
+               saveOrder.businessId = businessId
+               saveOrder.counterId = counterId
+               saveOrder.result = RESULT
+               saveOrder.cusT_ID = CUST_ID
+               saveOrder.payment = PAYMENT ?:0.0
+
+               saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
+               saveOrder.acC_NO = ACC_NO
+               saveOrder.acC_BAL = ACC_BAL ?:0.0
+               saveOrder.acC_TYPE = ACC_TYPE ?:1
+               saveOrder.traceid = TRACEID
+               saveOrder.ordeR_ID = ORDER_ID
+               saveOrder.traN_RESULT = TRAN_RESULT ?: 3
+               saveOrder.offline = OFFLINE
+               saveOrder.errcode = ERRCODE
+               saveOrder.errmsg = ERRMSG
+               saveOrder.accalias = ACCALIAS
+               saveOrder.paytime = PAYTIME
+               saveOrder.businesS_NAME = BUSINESS_NAME
+          }
+          DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
+
+          val saveDishList = mutableListOf<OrderDishList>()
+          bean.paymentDishesList.forEach {
+               val dish = OrderDishList()
+               dish.dishesId = it.dishesId
+               dish.dishesName = it.dishesName
+               dish.dishesNumber = it.dishesNumber
+               dish.dishesPrice = it.dishesPrice
+               dish.order = saveOrder
+               saveDishList.add(dish)
+          }
+          DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
      }
 
 

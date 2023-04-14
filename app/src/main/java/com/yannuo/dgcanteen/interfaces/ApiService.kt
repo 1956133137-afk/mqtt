@@ -42,6 +42,11 @@ interface ApiService {
     @POST
     suspend fun scanQrPay(@Url url: String?): ScanQrResultBean
 
+    //被扫支付结果查询
+    @Headers("content-type: application/x-www-form-urlencoded")
+    @POST
+    suspend fun ScanQuery(@Url url: String?): ScanQueryBean
+
 //    // 同步消费记录
 //    @Headers("content-type: application/json")
 //    @POST("deviceData/insertPaymentRecord")

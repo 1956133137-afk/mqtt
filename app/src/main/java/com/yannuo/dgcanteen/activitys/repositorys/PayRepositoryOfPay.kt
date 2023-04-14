@@ -51,12 +51,13 @@ class PayRepositoryOfPay {
         }
     }
 
-//    suspend fun setConsumeRecord(data :SynConsumeRecordBean){
-//        data.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-//        RetrofitClient.getApi().synConsumeRecord(data)
-//    }
-//
-//
+    suspend fun getScanQuery(bean: CcbScanPayBean): ScanQueryBean {
+        return apiCallForScanQuery {
+            val sn = CanteenEncryptionUtil.requestPath(bean)
+            RetrofitClient.getApi().ScanQuery(sn)
+        }
+    }
+
 //    /**
 //     * 获取建行聚合支付动态二维码
 //     * @param bean PayInfoCcb
@@ -211,6 +212,18 @@ class PayRepositoryOfPay {
                 res = call()
             }catch (e: Throwable){
                 return@withContext ApiException.build(e).toResponseForQrData()
+            }
+            res
+        }
+    }
+
+    private suspend fun apiCallForScanQuery(call :suspend CoroutineScope.() -> ScanQueryBean):ScanQueryBean {
+        return withContext(Dispatchers.IO){
+            val res:ScanQueryBean
+            try {
+                res = call()
+            }catch (e: Throwable){
+                return@withContext ApiException.build(e).toResponseForScanQuery()
             }
             res
         }

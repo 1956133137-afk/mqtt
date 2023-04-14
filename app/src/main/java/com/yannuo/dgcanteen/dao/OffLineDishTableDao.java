@@ -28,7 +28,7 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property CorDishId = new Property(1, Long.class, "corDishId", false, "COR_DISH_ID");
+        public final static Property Orderid = new Property(1, Long.class, "orderid", false, "ORDERID");
         public final static Property DishesId = new Property(2, String.class, "dishesId", false, "DISHES_ID");
         public final static Property DishesName = new Property(3, String.class, "dishesName", false, "DISHES_NAME");
         public final static Property DishesNumber = new Property(4, int.class, "dishesNumber", false, "DISHES_NUMBER");
@@ -53,7 +53,7 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"OFF_LINE_DISH_TABLE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"COR_DISH_ID\" INTEGER," + // 1: corDishId
+                "\"ORDERID\" INTEGER," + // 1: orderid
                 "\"DISHES_ID\" TEXT," + // 2: dishesId
                 "\"DISHES_NAME\" TEXT," + // 3: dishesName
                 "\"DISHES_NUMBER\" INTEGER NOT NULL ," + // 4: dishesNumber
@@ -75,9 +75,9 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
             stmt.bindLong(1, id);
         }
  
-        Long corDishId = entity.getCorDishId();
-        if (corDishId != null) {
-            stmt.bindLong(2, corDishId);
+        Long orderid = entity.getOrderid();
+        if (orderid != null) {
+            stmt.bindLong(2, orderid);
         }
  
         String dishesId = entity.getDishesId();
@@ -102,9 +102,9 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
             stmt.bindLong(1, id);
         }
  
-        Long corDishId = entity.getCorDishId();
-        if (corDishId != null) {
-            stmt.bindLong(2, corDishId);
+        Long orderid = entity.getOrderid();
+        if (orderid != null) {
+            stmt.bindLong(2, orderid);
         }
  
         String dishesId = entity.getDishesId();
@@ -135,7 +135,7 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
     public OffLineDishTable readEntity(Cursor cursor, int offset) {
         OffLineDishTable entity = new OffLineDishTable( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // corDishId
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // orderid
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // dishesId
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // dishesName
             cursor.getInt(offset + 4), // dishesNumber
@@ -147,7 +147,7 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
     @Override
     public void readEntity(Cursor cursor, OffLineDishTable entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setCorDishId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setOrderid(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
         entity.setDishesId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setDishesName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setDishesNumber(cursor.getInt(offset + 4));
@@ -180,16 +180,16 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
     }
     
     /** Internal query to resolve the "offLineDishesList" to-many relationship of OffLineTable. */
-    public List<OffLineDishTable> _queryOffLineTable_OffLineDishesList(Long corDishId) {
+    public List<OffLineDishTable> _queryOffLineTable_OffLineDishesList(Long orderid) {
         synchronized (this) {
             if (offLineTable_OffLineDishesListQuery == null) {
                 QueryBuilder<OffLineDishTable> queryBuilder = queryBuilder();
-                queryBuilder.where(Properties.CorDishId.eq(null));
+                queryBuilder.where(Properties.Orderid.eq(null));
                 offLineTable_OffLineDishesListQuery = queryBuilder.build();
             }
         }
         Query<OffLineDishTable> query = offLineTable_OffLineDishesListQuery.forCurrentThread();
-        query.setParameter(0, corDishId);
+        query.setParameter(0, orderid);
         return query.list();
     }
 
@@ -202,7 +202,7 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getOffLineTableDao().getAllColumns());
             builder.append(" FROM OFF_LINE_DISH_TABLE T");
-            builder.append(" LEFT JOIN OFF_LINE_TABLE T0 ON T.\"COR_DISH_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN OFF_LINE_TABLE T0 ON T.\"ORDERID\"=T0.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -213,8 +213,8 @@ public class OffLineDishTableDao extends AbstractDao<OffLineDishTable, Long> {
         OffLineDishTable entity = loadCurrent(cursor, 0, lock);
         int offset = getAllColumns().length;
 
-        OffLineTable corDish = loadCurrentOther(daoSession.getOffLineTableDao(), cursor, offset);
-        entity.setCorDish(corDish);
+        OffLineTable order = loadCurrentOther(daoSession.getOffLineTableDao(), cursor, offset);
+        entity.setOrder(order);
 
         return entity;    
     }

@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
 import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
 public class OffLineTable {
@@ -36,6 +37,7 @@ public class OffLineTable {
     private String QR_CODE;          //付款码 -> 离线码
     private String CUST_ID;          //用户ID
     @NotNull
+    @Unique
     private String ORDER_ID;         //订单编号
     @NotNull
     private String OFFLINE;          //离线标识   0 , 1
@@ -45,7 +47,9 @@ public class OffLineTable {
     @NotNull
     private String decryptionCode;   //解密码
 
-    @ToMany(referencedJoinProperty = "corDishId")
+    private boolean postTag = false; //请求标识，用于请求失败跳过，以便请求下一条记录
+
+    @ToMany(referencedJoinProperty = "orderid")
     private List<OffLineDishTable> offLineDishesList;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -54,14 +58,16 @@ public class OffLineTable {
     @Generated(hash = 1688635072)
     private transient OffLineTableDao myDao;
 
-    @Generated(hash = 1837417382)
+
+    @Generated(hash = 1547036704)
     public OffLineTable(Long id, @NotNull String CAMPUS_ID, @NotNull String CORP_ID,
             @NotNull String TXCODE, @NotNull String ccbSafeParam,
             @NotNull String BUSINESS_ID, @NotNull String VPOS_ID,
             @NotNull String PAYMENT, @NotNull String ACTUAL_PAYMENT,
             String COUPON_INFO, String ACC_NOS, @NotNull String QR_CODE,
             String CUST_ID, @NotNull String ORDER_ID, @NotNull String OFFLINE,
-            @NotNull String SIGN_TIME, @NotNull String decryptionCode) {
+            @NotNull String SIGN_TIME, @NotNull String decryptionCode,
+            boolean postTag) {
         this.id = id;
         this.CAMPUS_ID = CAMPUS_ID;
         this.CORP_ID = CORP_ID;
@@ -79,11 +85,13 @@ public class OffLineTable {
         this.OFFLINE = OFFLINE;
         this.SIGN_TIME = SIGN_TIME;
         this.decryptionCode = decryptionCode;
+        this.postTag = postTag;
     }
 
     @Generated(hash = 609387495)
     public OffLineTable() {
     }
+
 
     public Long getId() {
         return this.id;
@@ -219,6 +227,14 @@ public class OffLineTable {
 
     public void setDecryptionCode(String decryptionCode) {
         this.decryptionCode = decryptionCode;
+    }
+
+    public boolean getPostTag() {
+        return this.postTag;
+    }
+
+    public void setPostTag(boolean postTag) {
+        this.postTag = postTag;
     }
 
     /**

@@ -14,16 +14,14 @@ import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
-import com.yannuo.dgcanteen.model.DayDishesBean
-import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.PaymentDishesList
-import com.yannuo.dgcanteen.model.SynConsumeRecordBean
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -163,8 +161,62 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     /**
      * 恢复网络并且不是离线模式离线补扣
      */
+    @OptIn(ExperimentalTime::class)
     private fun offLineFillMoney(){
+        mScope.launch {
+            while (isActive){
+//                delay(Duration.hours(1))
+                //进行离线补扣
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态
+                    val gson = Gson()
+                    do {
+                        val order = DishesDBHelper.getInstance().queryOffLineOrder()
+                        order?.also {
+                            val js = gson.toJson(order)
+                            LogUtil.d(TAG, js)
+                            val bean = gson.fromJson(js, CcbScanPayBean::class.java)
+//                            LogUtil.e("test", Gson().toJson(bean))
+                            val res = mRespository.getScanQrData(bean)
+                            if (res.RESULT.toString() == "Y"){
+//                                LogUtil.e("test", Gson().toJson(res))
+                                val dishes: MutableList<DishesInfo> = mutableListOf()
+                                it.offLineDishesList.forEach {
+                                    dishes.add(
+                                        DishesInfo(
+                                            it.dishesId,
+                                            it.dishesName,
+                                            0,
+                                            null,
+                                            it.dishesPrice,
+                                            "",
+                                            "",
+                                            0,
+                                            it.dishesNumber
+                                        )
+                                    )
+                                }
 
+                                val scanPayPresenter = ScanPayPresenter()
+                                //上传消费记录
+                                scanPayPresenter.consumeRecord( bean, res, dishes)
+
+                                //删除对应离线记录的菜品
+                                DishesDBHelper.getInstance().deleteOffLineDish(it.offLineDishesList[0].orderid)
+                                //删除对应的离线订单记录
+                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
+                                LogUtil.i(TAG,"离线订单${bean.ORDER_ID} 上传成功!")
+                            }else {
+                                LogUtil.e(TAG,"离线补扣${bean.ORDER_ID} 订单失败==\n${res.ERRMSG}")
+                                //修改请求标志
+                                it.postTag = true
+//                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
+                                DishesDBHelper.getInstance().updateOffLineOrder(it)
+                            }
+                        }
+                    }while (order != null && runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH))
+                }
+            }
+        }
     }
 
 

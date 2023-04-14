@@ -1,9 +1,6 @@
 package com.yannuo.dgcanteen.adapters;
 
 import android.content.Context;
-import android.hardware.display.DisplayManager;
-import android.media.MediaRouter;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +14,13 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.yannuo.dgcanteen.R;
-import com.yannuo.dgcanteen.activitys.DifferentDisplay;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
+import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -28,30 +28,12 @@ public class MealDataAdapter extends BaseAdapter {
 
     private Context mContext;
     private List<DishesTable> mMealData;
-
     private DishesDBHelper mHelper;
-    private Display displays;
-    private DifferentDisplay mProductsDisplay;
 
     public MealDataAdapter(Context context , List<DishesTable> mealData, DishesDBHelper mHelper){
         this.mContext = context;
         this.mMealData = mealData;
         this.mHelper = mHelper;
-        initPresentation();
-    }
-
-    private void initPresentation() {
-        MediaRouter mediaRouter = (MediaRouter) mContext.getSystemService(Context.MEDIA_ROUTER_SERVICE);
-        DisplayManager displayManager = (DisplayManager) mContext.getSystemService(Context.DISPLAY_SERVICE);
-        displays = displayManager.getDisplay(1);
-        MediaRouter.RouteInfo route = mediaRouter.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO);
-        if (route != null) {
-            Display presentationDisplay = route.getPresentationDisplay();
-            if (presentationDisplay != null){
-                mProductsDisplay = new DifferentDisplay( mContext, displays);
-                mProductsDisplay.show();
-            }
-        }
     }
 
     @Override
@@ -108,15 +90,14 @@ public class MealDataAdapter extends BaseAdapter {
                 if (mealData.getStatus() == 0){
                     mealData.setStatus(1);
                     mHelper.updateDishes(mealData.getDishesId(), mealData.getMealId(), 1);
-                    mProductsDisplay.dishesData();
                     ToastShowUtil.show(mContext,"菜品已经上架");
                 }else {
                     mealData.setStatus(0);
                     mHelper.updateDishes(mealData.getDishesId(), mealData.getMealId(),0);
-                    mProductsDisplay.dishesData();
                     ToastShowUtil.show(mContext,"菜品已经下架");
                 }
                 updateData(holder,mealData.getStatus());
+                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIFTH, null));
             }
         });
 

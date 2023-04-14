@@ -349,20 +349,21 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         override fun run() {
             mMealId = TimeUtil.CurrentTimeSection()
             if (mMealId != mealId){
-                runOnUiThread(Runnable {
-                    mealId = mMealId
-                    var str = StringBuilder()
-                    when(mealId){
-                        0 -> str.append(resources.getString(R.string.unOpen_meal))
-                        else ->{
-                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
-                            str.append(meal.mealName + " ")
-                            str.append(DateFormat.format("HH:mm",meal.startTime).toString() + "~")
-                            str.append(DateFormat.format("HH:mm",meal.endTime).toString())
-                        }
+                mealId = mMealId
+                var str = StringBuilder()
+                when(mealId){
+                    0 -> str.append(resources.getString(R.string.unOpen_meal))
+                    else ->{
+                        val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                        str.append(meal.mealName + " ")
+                        str.append(DateFormat.format("HH:mm",meal.startTime).toString() + "~")
+                        str.append(DateFormat.format("HH:mm",meal.endTime).toString())
                     }
+                }
+                runOnUiThread(Runnable {
                     binding.mealTime.text = str
                 })
+                mProductsDisplay?.subScreenView(mealId,str)
             }
         }
     }

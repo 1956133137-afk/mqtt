@@ -11,7 +11,7 @@ public class OffLineDishTable {
     @Id(autoincrement = true)
     private Long id;
 
-    private Long corDishId; //外键
+    private Long orderid; //外键
 
 
     private String dishesId = null ;     //所关联的菜品Id
@@ -19,8 +19,8 @@ public class OffLineDishTable {
     private int dishesNumber ;      //菜品数量
     private double dishesPrice ;     //菜品单价
 
-    @ToOne(joinProperty = "corDishId")
-    private OffLineTable corDish;
+    @ToOne(joinProperty = "orderid")
+    private OffLineTable order;
 
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
@@ -30,11 +30,11 @@ public class OffLineDishTable {
     @Generated(hash = 504879945)
     private transient OffLineDishTableDao myDao;
 
-    @Generated(hash = 1801681635)
-    public OffLineDishTable(Long id, Long corDishId, String dishesId,
+    @Generated(hash = 465937633)
+    public OffLineDishTable(Long id, Long orderid, String dishesId,
             String dishesName, int dishesNumber, double dishesPrice) {
         this.id = id;
-        this.corDishId = corDishId;
+        this.orderid = orderid;
         this.dishesId = dishesId;
         this.dishesName = dishesName;
         this.dishesNumber = dishesNumber;
@@ -45,24 +45,27 @@ public class OffLineDishTable {
     public OffLineDishTable() {
     }
 
+    @Generated(hash = 219913283)
+    private transient Long order__resolvedKey;
+
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getCorDishId() {
-        return this.corDishId;
+    public Long getOrderid() {
+        return orderid;
     }
 
-    public void setCorDishId(Long corDishId) {
-        this.corDishId = corDishId;
+    public void setOrderid(Long orderid) {
+        this.orderid = orderid;
     }
 
     public String getDishesId() {
-        return this.dishesId;
+        return dishesId;
     }
 
     public void setDishesId(String dishesId) {
@@ -70,7 +73,7 @@ public class OffLineDishTable {
     }
 
     public String getDishesName() {
-        return this.dishesName;
+        return dishesName;
     }
 
     public void setDishesName(String dishesName) {
@@ -78,7 +81,7 @@ public class OffLineDishTable {
     }
 
     public int getDishesNumber() {
-        return this.dishesNumber;
+        return dishesNumber;
     }
 
     public void setDishesNumber(int dishesNumber) {
@@ -86,42 +89,39 @@ public class OffLineDishTable {
     }
 
     public double getDishesPrice() {
-        return this.dishesPrice;
+        return dishesPrice;
     }
 
     public void setDishesPrice(double dishesPrice) {
         this.dishesPrice = dishesPrice;
     }
 
-    @Generated(hash = 827979901)
-    private transient Long corDish__resolvedKey;
-
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1966834348)
-    public OffLineTable getCorDish() {
-        Long __key = this.corDishId;
-        if (corDish__resolvedKey == null || !corDish__resolvedKey.equals(__key)) {
+    @Generated(hash = 149281672)
+    public OffLineTable getOrder() {
+        Long __key = this.orderid;
+        if (order__resolvedKey == null || !order__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
             OffLineTableDao targetDao = daoSession.getOffLineTableDao();
-            OffLineTable corDishNew = targetDao.load(__key);
+            OffLineTable orderNew = targetDao.load(__key);
             synchronized (this) {
-                corDish = corDishNew;
-                corDish__resolvedKey = __key;
+                order = orderNew;
+                order__resolvedKey = __key;
             }
         }
-        return corDish;
+        return order;
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 806745501)
-    public void setCorDish(OffLineTable corDish) {
+    @Generated(hash = 2127830361)
+    public void setOrder(OffLineTable order) {
         synchronized (this) {
-            this.corDish = corDish;
-            corDishId = corDish == null ? null : corDish.getId();
-            corDish__resolvedKey = corDishId;
+            this.order = order;
+            orderid = order == null ? null : order.getId();
+            order__resolvedKey = orderid;
         }
     }
 

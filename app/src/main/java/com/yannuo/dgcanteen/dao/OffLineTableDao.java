@@ -39,6 +39,7 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
         public final static Property OFFLINE = new Property(14, String.class, "OFFLINE", false, "OFFLINE");
         public final static Property SIGN_TIME = new Property(15, String.class, "SIGN_TIME", false, "SIGN__TIME");
         public final static Property DecryptionCode = new Property(16, String.class, "decryptionCode", false, "DECRYPTION_CODE");
+        public final static Property PostTag = new Property(17, boolean.class, "postTag", false, "POST_TAG");
     }
 
     private DaoSession daoSession;
@@ -70,10 +71,11 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
                 "\"ACC__NOS\" TEXT," + // 10: ACC_NOS
                 "\"QR__CODE\" TEXT NOT NULL ," + // 11: QR_CODE
                 "\"CUST__ID\" TEXT," + // 12: CUST_ID
-                "\"ORDER__ID\" TEXT NOT NULL ," + // 13: ORDER_ID
+                "\"ORDER__ID\" TEXT NOT NULL UNIQUE ," + // 13: ORDER_ID
                 "\"OFFLINE\" TEXT NOT NULL ," + // 14: OFFLINE
                 "\"SIGN__TIME\" TEXT NOT NULL ," + // 15: SIGN_TIME
-                "\"DECRYPTION_CODE\" TEXT NOT NULL );"); // 16: decryptionCode
+                "\"DECRYPTION_CODE\" TEXT NOT NULL ," + // 16: decryptionCode
+                "\"POST_TAG\" INTEGER NOT NULL );"); // 17: postTag
     }
 
     /** Drops the underlying database table. */
@@ -118,6 +120,7 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
         stmt.bindString(15, entity.getOFFLINE());
         stmt.bindString(16, entity.getSIGN_TIME());
         stmt.bindString(17, entity.getDecryptionCode());
+        stmt.bindLong(18, entity.getPostTag() ? 1L: 0L);
     }
 
     @Override
@@ -156,6 +159,7 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
         stmt.bindString(15, entity.getOFFLINE());
         stmt.bindString(16, entity.getSIGN_TIME());
         stmt.bindString(17, entity.getDecryptionCode());
+        stmt.bindLong(18, entity.getPostTag() ? 1L: 0L);
     }
 
     @Override
@@ -188,7 +192,8 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
             cursor.getString(offset + 13), // ORDER_ID
             cursor.getString(offset + 14), // OFFLINE
             cursor.getString(offset + 15), // SIGN_TIME
-            cursor.getString(offset + 16) // decryptionCode
+            cursor.getString(offset + 16), // decryptionCode
+            cursor.getShort(offset + 17) != 0 // postTag
         );
         return entity;
     }
@@ -212,6 +217,7 @@ public class OffLineTableDao extends AbstractDao<OffLineTable, Long> {
         entity.setOFFLINE(cursor.getString(offset + 14));
         entity.setSIGN_TIME(cursor.getString(offset + 15));
         entity.setDecryptionCode(cursor.getString(offset + 16));
+        entity.setPostTag(cursor.getShort(offset + 17) != 0);
      }
     
     @Override

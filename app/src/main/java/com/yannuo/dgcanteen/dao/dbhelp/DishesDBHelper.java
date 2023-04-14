@@ -232,6 +232,17 @@ public class DishesDBHelper {
     }
 
     /**
+     * 查询对应离线菜品
+     * @param orderId
+     */
+    public List<OffLineDishTable> queryOffLineDish(long orderId){
+        return mOffLineDishTableDao.queryBuilder()
+                .where(OffLineDishTableDao.Properties.Orderid.eq(orderId))
+                .build()
+                .list();
+    }
+
+    /**
      * 插入一条离线订单
      * @param offLine
      */
@@ -245,8 +256,18 @@ public class DishesDBHelper {
      */
     public OffLineTable queryOffLineOrder(){
         return  mOffLineTableDao.queryBuilder()
+                .where(OffLineTableDao.Properties.PostTag.eq(0))
+                .limit(1)
                 .build()
                 .unique();
+    }
+
+    /**
+     * 修改消费记录
+     * @return
+     */
+    public void updateOffLineOrder(OffLineTable offLine){
+        mOffLineTableDao.update(offLine);
     }
 
     /**
@@ -331,7 +352,7 @@ public class DishesDBHelper {
      */
     public void deleteOffLineDish(long orderId){
         mOffLineDishTableDao.queryBuilder()
-                .where(OffLineDishTableDao.Properties.CorDishId.eq(orderId))
+                .where(OffLineDishTableDao.Properties.Orderid.eq(orderId))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
     }
