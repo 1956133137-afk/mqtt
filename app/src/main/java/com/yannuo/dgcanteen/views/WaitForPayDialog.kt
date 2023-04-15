@@ -52,6 +52,11 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
         super.dismiss()
     }
 
+    fun conclude(){
+        dismiss()
+        listener?.onEvent(0,"取消交易")
+    }
+
     override fun cancel() {
         countDown?.cancel()
         super.cancel()

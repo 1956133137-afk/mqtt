@@ -192,13 +192,14 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
         //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
+            mChooseDisplay?.closeWaitDialog()
             mChooseDisplay?.cancel()
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
 
-            mProductsDisplay?.also {
-                if (it.isShowing) {
+            mProductsDisplay.also {
+                if (it !=null && it.isShowing) {
                     return@also
                 }
                 mProductsDisplay = DifferentDisplay( this, displays)

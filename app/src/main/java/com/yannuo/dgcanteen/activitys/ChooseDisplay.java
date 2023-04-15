@@ -107,6 +107,12 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         });
     }
 
+    public void closeWaitDialog(){
+        if (waitForPayDialog != null) {
+            waitForPayDialog.conclude();
+        }
+    }
+
     @Override
     protected void onStop() {
         if (scanPayPresenter != null) {
@@ -195,6 +201,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                 LogUtil.i(TAG,"扫码交易:" + msg);
             }else if (code == 0){
                 //todo 取消处理逻辑
+                CommonAndDpToPxUtil.speakWork("取消支付");
                 LogUtil.i(TAG,"扫码交易:" + msg);
             }
         }

@@ -261,4 +261,20 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_exit_alive"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
+        android:background="@drawable/shape_btn_bg_white"
+        android:stateListAnimator="@null"
+        android:gravity="start"
+        android:paddingStart="40dp"
+        android:paddingTop="20dp"
+        android:text="@string/exit_alive"
+        android:textSize="28sp"
+        android:textColor="#4F4F4F"/>
+
 </LinearLayout>

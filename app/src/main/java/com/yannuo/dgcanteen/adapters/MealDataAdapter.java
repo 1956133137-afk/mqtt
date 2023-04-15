@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.PictureUtil;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -72,7 +74,7 @@ public class MealDataAdapter extends BaseAdapter {
 
         DishesTable mealData = mMealData.get(position);
 
-        Glide.with(mContext).load(mealData.getImgUrl())
+        Glide.with(mContext).load(PictureUtil.getPictureName(mealData.getImgUrl(),mContext))
                 .placeholder(R.drawable.ic_wait)
                 .error(R.drawable.ic_error)
                 .fallback(R.drawable.ic_unpictrue)

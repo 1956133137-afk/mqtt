@@ -165,7 +165,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun offLineFillMoney(){
         mScope.launch {
             while (isActive){
-//                delay(Duration.hours(1))
+                delay(Duration.hours(1))
                 //进行离线补扣
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态
                     val gson = Gson()
@@ -175,10 +175,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                             val js = gson.toJson(order)
                             LogUtil.d(TAG, js)
                             val bean = gson.fromJson(js, CcbScanPayBean::class.java)
-//                            LogUtil.e("test", Gson().toJson(bean))
                             val res = mRespository.getScanQrData(bean)
                             if (res.RESULT.toString() == "Y"){
-//                                LogUtil.e("test", Gson().toJson(res))
+                                LogUtil.d(TAG,"离线订单${bean.ORDER_ID} 补扣成功")
                                 val dishes: MutableList<DishesInfo> = mutableListOf()
                                 it.offLineDishesList.forEach {
                                     dishes.add(

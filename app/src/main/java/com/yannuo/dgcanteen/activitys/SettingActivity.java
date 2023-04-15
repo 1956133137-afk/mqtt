@@ -1,15 +1,10 @@
 package com.yannuo.dgcanteen.activitys;
 
-import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -17,7 +12,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.tencent.mmkv.MMKV;
-import com.yannuo.dgcanteen.R;
+import com.yannuo.dgcanteen.databinding.ActivitySettingBinding;
 import com.yannuo.dgcanteen.download.CheckVersionWorker;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.nets.RetrofitClient;
@@ -28,64 +23,97 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.TimeUnit;
 
-public class SettingActivity extends AppCompatActivity implements View.OnClickListener {
+public class SettingActivity extends AppCompatActivity {
 
-    private EditText etAddress, etMqttAddress, etMqttAccount, etMqttPassword;
-    private CheckBox switchLine;
-    private TextView tvVersion, tvFinalTime;
+    private ActivitySettingBinding binding;
     private MMKV kv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initScreen();
-        setContentView(R.layout.activity_setting);
+        initObject();
+        initView();
+        initEvent();
+        initData();
+    }
 
+    private void initView(){
+        binding = ActivitySettingBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+    }
 
+    private void initObject() {
         kv = MMKV.defaultMMKV();
+    }
 
-        init();
+    private void initData(){
         try {
-            tvVersion.setText(getPackageManager().getPackageInfo(getPackageName(),0).versionName);
+            binding.tvVersion.setText(getPackageManager().getPackageInfo(getPackageName(),0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException(e);
         }
         reload();
     }
 
+    private void initEvent(){
+        binding.btnVersion.setOnClickListener(view -> { //版本更新
+            PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
+                    CheckVersionWorker.class,
+                    15,
+                    TimeUnit.MINUTES
+            ).build();
+
+            ToastShowUtil.show(this,"正在检查版本是否需要更新~");
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(Constant.PERIODIC_WORK_KEY, ExistingPeriodicWorkPolicy.REPLACE,work);
+        });
+
+        binding.btnExitAlive.setOnClickListener(view -> { //退出保活
+
+        });
+
+        binding.btnSave.setOnClickListener(view -> { //保存信息
+            save();
+        });
+
+        binding.ibtBack.setOnClickListener(view -> { //返回
+            finish();
+        });
+    }
+
     private void reload() {
-        etAddress.setText(kv.decodeString(Constant.ADDRESS));
-        switchLine.setChecked(kv.decodeBool(Constant.SWITCH,false));
-        etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS));
-        etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT));
-        etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD));
+        binding.etAddress.setText(kv.decodeString(Constant.ADDRESS));
+        binding.switchLine.setChecked(kv.decodeBool(Constant.SWITCH,false));
+        binding.etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS));
+        binding.etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT));
+        binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD));
 //        tvVersion.setText(kv.decodeString("Version"));
-        tvFinalTime.setText(kv.decodeString(Constant.FINAL_TIME));
+        binding.tvFinalTime.setText(kv.decodeString(Constant.FINAL_TIME));
     }
 
     private void save(){
         boolean change = true;
-        change = kv.decodeString(Constant.ADDRESS).equals(etAddress.getText().toString());
+        change = kv.decodeString(Constant.ADDRESS).equals(binding.etAddress.getText().toString());
         if (!change) {
-            kv.encode(Constant.ADDRESS, etAddress.getText().toString());
+            kv.encode(Constant.ADDRESS, binding.etAddress.getText().toString());
             RetrofitClient.overLoad(); //更新服务器地址
         }
 
-        kv.encode(Constant.SWITCH,switchLine.isChecked());
+        kv.encode(Constant.SWITCH,binding.switchLine.isChecked());
 
         change = true;
-        if (!kv.decodeString(Constant.MQTT_ADDRESS).equals(etMqttAddress.getText().toString())) {
+        if (!kv.decodeString(Constant.MQTT_ADDRESS).equals(binding.etMqttAddress.getText().toString())) {
             change = false;
-            kv.encode(Constant.MQTT_ADDRESS,etMqttAddress.getText().toString());
+            kv.encode(Constant.MQTT_ADDRESS,binding.etMqttAddress.getText().toString());
         }
-        if (!kv.decodeString(Constant.MQTT_ACCOUNT).equals(etMqttAccount.getText().toString())) {
+        if (!kv.decodeString(Constant.MQTT_ACCOUNT).equals(binding.etMqttAccount.getText().toString())) {
             change = false;
-            kv.encode(Constant.MQTT_ACCOUNT,etMqttAccount.getText().toString());
+            kv.encode(Constant.MQTT_ACCOUNT,binding.etMqttAccount.getText().toString());
         }
 
-        if (!kv.decodeString(Constant.MQTT_PASSWORD).equals(etMqttPassword.getText().toString())) {
+        if (!kv.decodeString(Constant.MQTT_PASSWORD).equals(binding.etMqttPassword.getText().toString())) {
             change = false;
-            kv.encode(Constant.MQTT_PASSWORD,etMqttPassword.getText().toString());
+            kv.encode(Constant.MQTT_PASSWORD,binding.etMqttPassword.getText().toString());
         }
         if (!change){
             //mqtt配置变更
@@ -94,41 +122,6 @@ public class SettingActivity extends AppCompatActivity implements View.OnClickLi
 
 //        kv.encode("Version",tvVersion.getText().toString());
         ToastShowUtil.show(this,"保存成功:" + this.getFilesDir().getAbsolutePath() + "/mmkv");
-    }
-
-    private void init(){
-        findViewById(R.id.ibt_back).setOnClickListener(this);
-        findViewById(R.id.btn_save).setOnClickListener(this);
-        etAddress = findViewById(R.id.et_address);
-        switchLine = findViewById(R.id.switch_line);
-        etMqttAddress = findViewById(R.id.et_mqtt_address);
-        etMqttAccount = findViewById(R.id.et_mqtt_account);
-        etMqttPassword = findViewById(R.id.et_mqtt_password);
-        findViewById(R.id.btn_version).setOnClickListener(this);
-        tvVersion = findViewById(R.id.tv_version);
-        tvFinalTime = findViewById(R.id.tv_final_time);
-    }
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btn_version:
-                PeriodicWorkRequest work = new PeriodicWorkRequest.Builder(
-                        CheckVersionWorker.class,
-                        15,
-                        TimeUnit.MINUTES
-                ).build();
-
-                WorkManager.getInstance(this).enqueueUniquePeriodicWork(Constant.PERIODIC_WORK_KEY, ExistingPeriodicWorkPolicy.REPLACE,work);
-
-                break;
-            case R.id.btn_save:
-                save();
-                break;
-            case R.id.ibt_back:
-                finish();
-                break;
-            default:break;
-        }
     }
 
     private void initScreen(){

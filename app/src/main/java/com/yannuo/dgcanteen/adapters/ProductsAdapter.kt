@@ -17,8 +17,8 @@ import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ProductShowBinding
 import com.yannuo.dgcanteen.model.DishesInfo
-import com.yannuo.dgcanteen.model.ProductInfo
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.PictureUtil
 
 
 class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
@@ -78,7 +78,7 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
 
         holder.binding.ivPic.layoutParams = layoutParams
 //        if (data.filename.isNullOrEmpty().not()) {
-        cnt?.let { Glide.with(it).load(data.imgUrl).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
+        cnt?.let { Glide.with(it).load(PictureUtil.getPictureName(data.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
             .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }
 //        }
 

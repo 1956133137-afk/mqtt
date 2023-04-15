@@ -227,7 +227,6 @@ class ScanPayPresenter : ScanDevice.DataCallBack {
                     offLineData.decryptionCode = plainText
                     offLineData.postTag = false
                     DishesDBHelper.getInstance().insertOffLineOrder(offLineData)
-                    LogUtil.e("OffLineOrder", Gson().toJson(offLineData))
 
                     val dishList = mutableListOf<OffLineDishTable>()
                     data.products.forEach {
@@ -241,8 +240,8 @@ class ScanPayPresenter : ScanDevice.DataCallBack {
                          dishList.add(dish)
                     }
                     DishesDBHelper.getInstance().insertOffLineDishes(dishList)
-                    LogUtil.e("OffLineDishes", Gson().toJson(dishList))
 
+                    LogUtil.d(TAG,"离线订单已保存")
                     listener?.onOtherListener(4,payState)
                }
                0 -> { //离线码过期或者无效

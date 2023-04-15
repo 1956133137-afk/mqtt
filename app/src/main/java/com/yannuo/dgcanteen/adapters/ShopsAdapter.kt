@@ -8,10 +8,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.databinding.ItemPayListBinding
 import com.yannuo.dgcanteen.databinding.ItemPayListVariantBinding
 import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.PictureUtil
 
 class ShopsAdapter(context :Context)  : BaseAdapter<DishesInfo, ItemPayListVariantBinding> (){
     private var TAG = javaClass.simpleName
@@ -29,7 +29,7 @@ class ShopsAdapter(context :Context)  : BaseAdapter<DishesInfo, ItemPayListVaria
         holder.binding.tvItemName.text =dat.dishesName
         holder.binding.tvCount.text = "${dat.count} 份"
         holder.binding.tvMoney.text = "￥${calculate(dat)} "
-        cnt.let { Glide.with(it).load(dat.imgUrl).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(
+        cnt.let { Glide.with(it).load(PictureUtil.getPictureName(dat.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(
             R.drawable.no_picture)
             .transform(CenterCrop(), GranularRoundedCorners(10f,10f,10f,10f)).into(holder.binding.ivShopPic) }
 

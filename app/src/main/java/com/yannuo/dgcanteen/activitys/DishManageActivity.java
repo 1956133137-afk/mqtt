@@ -5,34 +5,29 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.adapters.DropDownAdapter;
 import com.yannuo.dgcanteen.adapters.MealDataAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
+import com.yannuo.dgcanteen.databinding.ActivityDishManageBinding;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class DishManageActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class DishManageActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private final static String[] mealArray = {"早餐","午餐","晚餐"};
+    private ActivityDishManageBinding binding;
+    private List<MealTable> mealTables;
     private ArrayList<String> dataMeal;
-    private TextView spinnerText;
     private ListView listView;
     private PopupWindow popup;
-    private ImageButton spinnerImg;
     private List<DishesTable> mMealData;
-    private GridView gridManage;
     private MealDataAdapter adapter;
     private DishesDBHelper mHelper;
 
@@ -40,80 +35,76 @@ public class DishManageActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initScreen();
-        setContentView(R.layout.activity_dish_manage);
-        mHelper = DishesDBHelper.getInstance(this);
-        initUI();
+        initView();
+        initData();
+        initObject();
+        initEvent();
     }
 
-    private void initUI(){
-        findViewById(R.id.ibt_back).setOnClickListener(this);
-        spinnerText = findViewById(R.id.spinner_text);
-        spinnerText.setOnClickListener(this);
-        spinnerImg = findViewById(R.id.spinner_img);
-        spinnerImg.setOnClickListener(this);
+    private void initView(){
+        binding = ActivityDishManageBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+    }
 
+    private void initObject(){
         listView = new ListView(this);
-        dataMeal = new ArrayList<String>();
-        dataMeal.addAll(Arrays.asList(mealArray));
         listView.setDivider(null);
         listView.setVerticalScrollBarEnabled(false);
         listView.setAdapter(new DropDownAdapter(this,dataMeal));
         listView.setOnItemClickListener(this);
 
-        gridManage = findViewById(R.id.grid_manage);
+        mHelper = DishesDBHelper.getInstance(this);
         mMealData = mHelper.queryDishes();
         adapter = new MealDataAdapter(this,mMealData,mHelper);
-        gridManage.setAdapter(adapter);
+        binding.gridManage.setAdapter(adapter);
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.spinner_text:
-            case R.id.spinner_img:
-                popupWindow();
-                break;
-            case R.id.ibt_back:
-                finish();
-                break;
-            default:break;
+    private void initEvent(){
+        binding.spinnerText.setOnClickListener(view -> {
+            popupWindow();
+        });
+        binding.spinnerImg.setOnClickListener(view -> {
+            popupWindow();
+        });
+
+        binding.ibtBack.setOnClickListener(view -> {
+            finish();
+        });
+    }
+
+    private void initData(){
+        mealTables = new ArrayList<>();
+        dataMeal = new ArrayList<>();
+        mealTables = DishesDBHelper.getInstance().queryAllMeals();
+        for (MealTable u : mealTables){
+            dataMeal.add(u.getMealName());
         }
     }
+
     private void popupWindow(){
         popup = new PopupWindow();
-        popup.setWidth(spinnerText.getWidth() + spinnerImg.getWidth() - 15);
+        popup.setWidth(binding.spinnerText.getWidth() + binding.spinnerImg.getWidth() - 15);
         popup.setHeight(600);
         popup.setContentView(listView);
         popup.setOutsideTouchable(true);
-        popup.showAsDropDown(spinnerText,0,0);
+        popup.showAsDropDown(binding.spinnerText,0,0);
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        spinnerText.setText(dataMeal.get(position));
+        binding.spinnerText.setText(dataMeal.get(position));
         popup.dismiss();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int i = 0;
-                        if (dataMeal.get(position).equals("早餐")){
-                            i = 1;
-                        }else if (dataMeal.get(position).equals("午餐")){
-                            i = 2;
-                        }else if (dataMeal.get(position).equals("晚餐")){
-                            i = 3;
-                        }
-                        mMealData = mHelper.queryDishesByMealId(i);
-                        adapter = new MealDataAdapter(DishManageActivity.this,mMealData,mHelper);
-                        gridManage.setAdapter(adapter);
-//                      adapter.notifyDataSetChanged();
-                    }
-                });
+        runOnUiThread(() -> {
+            int mealId = 0;
+            for (MealTable u : mealTables){
+                if (dataMeal.get(position).equals(u.getMealName())){
+                    mealId = u.getMealId();
+                }
             }
-        }).start();
+            mMealData = mHelper.queryDishesByMealId(mealId);
+            adapter = new MealDataAdapter(DishManageActivity.this,mMealData,mHelper);
+            binding.gridManage.setAdapter(adapter);
+        });
     }
 
     private void initScreen(){
