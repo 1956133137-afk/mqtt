@@ -17,13 +17,11 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
@@ -409,6 +407,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                     if (ref.mFacePayService ==null){
                         ToastShowUtil.show("获取不到人脸句柄")
                         LogUtil.e(TAG,"获取不到人脸句柄")
+
                     }
                     ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                     ref.mChooseDisplay?.cancel()
@@ -433,8 +432,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      */
     private fun dealWith(list : ProductsDetail){
         mChooseDisplay = ChooseDisplay(this,list, displays)
-        mChooseDisplay!!.show()
-        mProductsDisplay!!.cancel()
+        mChooseDisplay?.show()
+        mProductsDisplay?.cancel()
         mProductsDisplay = null
     }
 

@@ -14,7 +14,7 @@ import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter
+import com.yannuo.dgcanteen.activitys.presenters.PayPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
@@ -92,7 +92,15 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         offLineFillMoney()
 
         LogUtil.d(TAG,"服务启动")
+        val mv = MMKV.defaultMMKV()
+        val bean = PayCfg()
+        bean.campus_id ="441999527"
+        bean.corp_id ="1041"
+        bean.business_id ="SJ2023032511004"
+        bean.vpos_id ="V00463775"
 
+//        mv.encode(Constant.PAY_CONFIG,bean)
+        val cfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
 
     }
 
@@ -195,7 +203,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                     )
                                 }
 
-                                val scanPayPresenter = ScanPayPresenter()
+                                val scanPayPresenter = PayPresenter()
                                 //上传消费记录
                                 scanPayPresenter.consumeRecord( bean, res, dishes)
 
@@ -367,6 +375,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
             kv.encode(Constant.UPDATE_TIME,now.substring(0,8))
             kv.encode(Constant.FINAL_TIME,now )
+
             //发送菜品更新通知
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_FIFTH, null))
         }

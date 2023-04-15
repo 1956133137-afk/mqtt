@@ -15,6 +15,7 @@ public class RetrofitClient {
 //        private final static  String BASE_URL ="http://192.168.2.50:28099/";
     private final  String BASE_URL ="https://test.yannuozhineng.com/ccb/canteen/api/";
     private static ApiService mService ;
+    private static ApiService mCcbService ;
 
     private RetrofitClient(){
 
@@ -37,6 +38,25 @@ public class RetrofitClient {
         return mService;
 
     }
+
+
+    public static ApiService getApiCcb(){
+        if (mCcbService == null) {
+            synchronized (RetrofitClient.class) {
+                String basePath = "http://121.40.54.232:8090/CCBIS/B2CMainPlat_00_ZHST";
+                mCcbService = new Retrofit.Builder()
+                        .client(OkHttpUtils.Companion.getInstance())
+                        .baseUrl(basePath)
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(ApiService.class);
+            }
+        }
+        return mCcbService;
+    }
+
+
 
     public static void overLoad(){
         mService = null;

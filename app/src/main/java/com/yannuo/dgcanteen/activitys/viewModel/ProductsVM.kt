@@ -163,11 +163,15 @@ class ProductsVM :ViewModel() {
             for (da in detail.products){
                 stringBuffer.append("${ da.dishesName};")
             }
+            val mv = MMKV.defaultMMKV()
+
+
 
             var offline = 0  //在线
-            if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+            if (mv.decodeBool(Constant.SWITCH)) {
                 offline = 1  //离线
             }
+
 
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = "441999527"

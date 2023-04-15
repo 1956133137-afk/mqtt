@@ -40,6 +40,9 @@ object Constant {
     //菜品数据最后同步时间
     const val FINAL_TIME = "FinalTime"
 
+    //支付配置信息
+    const val PAY_CONFIG = "PCfg"
+
     //当前版本
     const val VERSION = "Version"
     //菜品更新更新标志

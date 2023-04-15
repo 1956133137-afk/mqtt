@@ -5,12 +5,14 @@ import android.text.format.DateFormat
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.dao.OffLineDishTable
 import com.yannuo.dgcanteen.dao.OffLineTable
 import com.yannuo.dgcanteen.dao.OrderDishList
 import com.yannuo.dgcanteen.dao.OwnOrder
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
+import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.Dispatchers
@@ -19,31 +21,32 @@ import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ScanPayPresenter : ScanDevice.DataCallBack {
+class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private val TAG = javaClass.simpleName
      private var mDishes : ProductsDetail ?= null
      private var mRespository :PayRepositoryOfPay
      var listener : CallbackListener?= null
-
-     constructor(){}
-
-     constructor(mDishes : ProductsDetail){
-          this.mDishes = mDishes
-     }
+     private lateinit var mCardHandle :SerialPortHelper
 
      init {
+
           mRespository = PayRepositoryOfPay()
           //开始监听扫码数据
-          ScanDevice.setCallbackListener(this);
+          ScanDevice.setCallbackListener(this)
+
+         mCardHandle = SerialPortHelper()
+
      }
 
      //扫码状态，主要用于区分选择商品 和支付码
      enum class ScanState{
+          CLOSE,  // 未初始化
           INVALID,  //扫码数据无效
           PAY        //支付状态
      }
 
      private var scanState = ScanState.INVALID  //状态码
+     private var cardState = ScanState.CLOSE  //未启用
 
 
      /**
@@ -54,6 +57,17 @@ class ScanPayPresenter : ScanDevice.DataCallBack {
           scanState = state
      }
 
+     /**
+      * 打开IC卡串口
+      */
+     fun openIcCard(){
+          if (cardState == ScanState.CLOSE) {
+               mCardHandle.openSerialPort("/dev/ttyXRUSB0")
+               cardState = ScanState.INVALID
+               mCardHandle.readDataListener = this
+          }
+
+     }
 
      override fun onData(data: String) {
           when (scanState) {
@@ -344,6 +358,13 @@ class ScanPayPresenter : ScanDevice.DataCallBack {
 
      fun release() {
           //取消扫码监听
-          ScanDevice.setCallbackListener(null);
+          ScanDevice.setCallbackListener(null)
+          mCardHandle.readDataListener = this
+          mCardHandle.closeSerialPort()
+     }
+
+     //IC卡数据
+     override fun numberOfIcCard(number: String?) {
+          LogUtil.d(TAG,"number :${number}")
      }
 }

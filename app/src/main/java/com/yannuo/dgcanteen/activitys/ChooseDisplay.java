@@ -7,23 +7,17 @@ import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
-import com.yannuo.dgcanteen.activitys.presenters.ScanPayPresenter;
+import com.yannuo.dgcanteen.activitys.presenters.PayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.model.MessageEvent;
-import com.yannuo.dgcanteen.model.PayResultForUI;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
@@ -44,7 +38,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     private ProductsDetail mDishes;
     private WaitForPayDialog waitForPayDialog;
     private LoadingDialog loadingDialog;
-    private ScanPayPresenter scanPayPresenter;
+    private PayPresenter scanPayPresenter;
 
 
 
@@ -72,6 +66,9 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
+        scanPayPresenter = new PayPresenter();
+        //监听交易过程
+        scanPayPresenter.setListener(this);
     }
 
     private void initView() {
@@ -97,13 +94,9 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             }
             waitForPayDialog.show();
 
-            if (scanPayPresenter == null) {
-                scanPayPresenter = new ScanPayPresenter(mDishes);
-                //监听交易过程
-                scanPayPresenter.setListener(this);
-            }
+
             //使能扫码支付
-            scanPayPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+            scanPayPresenter.setScanState(PayPresenter.ScanState.PAY);
         });
     }
 
@@ -177,13 +170,9 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            }
                            waitForPayDialog.show();
 
-                           if (scanPayPresenter == null) {
-                               scanPayPresenter = new ScanPayPresenter(mDishes);
-                               //监听交易过程
-                               scanPayPresenter.setListener(this);
-                           }
+
                            //使能扫码支付
-                           scanPayPresenter.setScanState(ScanPayPresenter.ScanState.PAY);
+                           scanPayPresenter.setScanState(PayPresenter.ScanState.PAY);
                        });
                break;
        }
