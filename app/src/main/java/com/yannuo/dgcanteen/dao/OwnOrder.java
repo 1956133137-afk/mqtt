@@ -17,6 +17,7 @@ public class OwnOrder {
     private String deviceSerialNumber = null; //设备序列号
     private  String businessId  = null ;           //商家Id
     private String counterId = null ;         //柜台号
+    private int consumptionType = 0;          //消费类型：1：刷脸，2：扫码，3：离线订单
     private String RESULT = null    ;         //订单结果: N：失败，Y：成功
     private String CUST_ID = null ;           //用户唯一标识
     private double PAYMENT = 0.0;            //原始金额
@@ -47,16 +48,17 @@ public class OwnOrder {
     @Generated(hash = 431676984)
     private transient OwnOrderDao myDao;
 
-    @Generated(hash = 2025299057)
+    @Generated(hash = 506693136)
     public OwnOrder(Long id, String deviceSerialNumber, String businessId, String counterId,
-            String RESULT, String CUST_ID, double PAYMENT, double ACTUAL_PAYMENT, String ACC_NO,
-            double ACC_BAL, int ACC_TYPE, String TRACEID, String ORDER_ID, int TRAN_RESULT, int OFFLINE,
-            String ERRCODE, String ERRMSG, String ACCALIAS, String PAYTIME, String BUSINESS_NAME,
-            boolean up) {
+            int consumptionType, String RESULT, String CUST_ID, double PAYMENT, double ACTUAL_PAYMENT,
+            String ACC_NO, double ACC_BAL, int ACC_TYPE, String TRACEID, String ORDER_ID,
+            int TRAN_RESULT, int OFFLINE, String ERRCODE, String ERRMSG, String ACCALIAS,
+            String PAYTIME, String BUSINESS_NAME, boolean up) {
         this.id = id;
         this.deviceSerialNumber = deviceSerialNumber;
         this.businessId = businessId;
         this.counterId = counterId;
+        this.consumptionType = consumptionType;
         this.RESULT = RESULT;
         this.CUST_ID = CUST_ID;
         this.PAYMENT = PAYMENT;
@@ -317,6 +319,14 @@ public class OwnOrder {
 
     public void setUp(boolean up) {
         this.up = up;
+    }
+
+    public int getConsumptionType() {
+        return this.consumptionType;
+    }
+
+    public void setConsumptionType(int consumptionType) {
+        this.consumptionType = consumptionType;
     }
 
 

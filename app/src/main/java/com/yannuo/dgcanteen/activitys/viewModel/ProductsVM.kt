@@ -236,6 +236,7 @@ class ProductsVM :ViewModel() {
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
             bean.businessId = "SJ2023032511004"
             bean.counterId = "V00463775"
+            bean.consumptionType = 1
             bean.RESULT  = "Y"
             bean.CUST_ID = payResult.CUST_ID
             bean.PAYMENT = payResult.PAYMENT!!.toDouble()
@@ -284,6 +285,7 @@ class ProductsVM :ViewModel() {
                 saveOrder.deviceSerialNumber = deviceSerialNumber
                 saveOrder.businessId = businessId
                 saveOrder.counterId = counterId
+                saveOrder.consumptionType = consumptionType
                 saveOrder.result = RESULT
                 saveOrder.cusT_ID = CUST_ID
                 saveOrder.payment = PAYMENT ?:0.0

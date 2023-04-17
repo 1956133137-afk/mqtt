@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys;
 
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -8,28 +9,34 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.yannuo.dgcanteen.adapters.DishesManageAdapter;
 import com.yannuo.dgcanteen.adapters.DropDownAdapter;
-import com.yannuo.dgcanteen.adapters.MealDataAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.ActivityDishManageBinding;
+import com.yannuo.dgcanteen.model.DishesInfo;
+import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.util.Constant;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DishManageActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class DishManageActivity extends AppCompatActivity implements DishesManageAdapter.WorkListener,AdapterView.OnItemClickListener {
 
     private ActivityDishManageBinding binding;
     private List<MealTable> mealTables;
     private ArrayList<String> dataMeal;
     private ListView listView;
     private PopupWindow popup;
-    private List<DishesTable> mMealData;
-    private MealDataAdapter adapter;
-    private DishesDBHelper mHelper;
+    private DishesManageAdapter adapterDishes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +60,19 @@ public class DishManageActivity extends AppCompatActivity implements AdapterView
         listView.setAdapter(new DropDownAdapter(this,dataMeal));
         listView.setOnItemClickListener(this);
 
-        mHelper = DishesDBHelper.getInstance(this);
-        mMealData = mHelper.queryDishes();
-        adapter = new MealDataAdapter(this,mMealData,mHelper);
-        binding.gridManage.setAdapter(adapter);
+        adapterDishes = new DishesManageAdapter(this);
+        adapterDishes.setListener(this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,6);
+        binding.rvGridManage.setLayoutManager(gridLayoutManager);
+        binding.rvGridManage.setAdapter(adapterDishes);
+        binding.rvGridManage.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.bottom = 35;
+            }
+        });
+        dishesData(0);
     }
 
     private void initEvent(){
@@ -91,6 +107,11 @@ public class DishManageActivity extends AppCompatActivity implements AdapterView
     }
 
     @Override
+    public void onEventClick(int position) {
+        EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIFTH, null));
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         binding.spinnerText.setText(dataMeal.get(position));
         popup.dismiss();
@@ -101,10 +122,32 @@ public class DishManageActivity extends AppCompatActivity implements AdapterView
                     mealId = u.getMealId();
                 }
             }
-            mMealData = mHelper.queryDishesByMealId(mealId);
-            adapter = new MealDataAdapter(DishManageActivity.this,mMealData,mHelper);
-            binding.gridManage.setAdapter(adapter);
+            dishesData(mealId);
         });
+    }
+
+    private void dishesData(int mealId){
+        List<DishesInfo> dataList = new ArrayList<>();
+        List<DishesTable> list = new ArrayList<>();
+        if (mealId == 0){
+            list = DishesDBHelper.getInstance().queryDishes();
+        }else {
+            list = DishesDBHelper.getInstance().queryDishesByMealId(mealId);
+        }
+        for (DishesTable u : list){
+            dataList.add(new DishesInfo(
+                    u.getDishesId(),
+                    u.getDishesName(),
+                    u.getMealId(),
+                    null,
+                    u.getPrice(),
+                    u.getUnit(),
+                    u.getImgUrl(),
+                    u.getStatus(),
+                    0
+            ));
+        }
+        adapterDishes.setData(dataList);
     }
 
     private void initScreen(){

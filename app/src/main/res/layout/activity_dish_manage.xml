@@ -60,22 +60,14 @@
             android:src="@drawable/ic_dropdown"/>
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_grid_manage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="69dp"
         android:layout_marginEnd="69dp"
         android:layout_marginTop="40dp"
-        android:layout_marginBottom="40dp">
-
-        <GridView
-            android:id="@+id/grid_manage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:numColumns="6"
-            android:horizontalSpacing="40dp"
-            android:verticalSpacing="40dp"/>
-
-    </LinearLayout>
+        android:layout_marginBottom="40dp"
+        android:overScrollMode="never"/>
 
 </LinearLayout>

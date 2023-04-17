@@ -94,9 +94,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             }
             waitForPayDialog.show();
 
-
             //使能扫码支付
-            scanPayPresenter.setScanState(PayPresenter.ScanState.PAY);
+            scanPayPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
         });
     }
 
@@ -170,9 +169,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            }
                            waitForPayDialog.show();
 
-
                            //使能扫码支付
-                           scanPayPresenter.setScanState(PayPresenter.ScanState.PAY);
+                           scanPayPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
                        });
                break;
        }

@@ -53,8 +53,9 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * 更新扫码的状态，用于被扫支付，根据支付状态
       * @param state ScanState
       */
-     fun setScanState(state : ScanState){
+     fun setScanState(state : ScanState, data : ProductsDetail){
           scanState = state
+          mDishes = data
      }
 
      /**
@@ -97,7 +98,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           ccbScanPayBean.ACC_NOS = ""
           ccbScanPayBean.QR_CODE = "" //二维码
           ccbScanPayBean.CUST_ID = "" //用户ID
-          ccbScanPayBean.ORDER_ID = TimeUtil.DateToTimestamp()
+          ccbScanPayBean.ORDER_ID = NumberGenerateUtil.getOrderNumber()
           ccbScanPayBean.OFFLINE = "0" //是否为离线码
           ccbScanPayBean.SIGN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
           return ccbScanPayBean
@@ -133,11 +134,13 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     if (validCode == 3){
                          try {
                               runBlocking (Dispatchers.IO) {
-                                   responseScanPay = mRespository.getScanQrData(ccbBean)  //支付接口
+                                   val url = CanteenEncryptionUtil.requestScanData(ccbBean)
+                                   responseScanPay = mRespository.getScanQrData(url)  //支付接口
                                    if (responseScanPay!!.RESULT.toString() == "Y"){
                                         ccbBean.TXCODE = "PAY006"
                                         ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("ORDER_ID=${ccbBean.ORDER_ID}")
-                                        val scanResult = mRespository.getScanQuery(ccbBean)  //查询结果
+                                        val url = CanteenEncryptionUtil.requestPath(ccbBean)
+                                        val scanResult = mRespository.getScanQuery(url)  //查询结果
                                         ccbBean.CUST_ID = scanResult.CUST_ID.toString()
                                    }else{
                                         validCode = 2
@@ -155,7 +158,8 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                          ccbBean.TXCODE = "PAY002"
                          ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("QR_CODE=$qrcode")
                          runBlocking (Dispatchers.IO) {
-                              res = mRespository.getQrData(ccbBean)  //解析二维码
+                              val url = CanteenEncryptionUtil.requestPath(ccbBean)
+                              res = mRespository.getQrData(url)  //解析二维码
                          }
                          if (res?.RESULT.toString() == "Y"){
                               ccbBean.TXCODE = "PAY003"
@@ -165,7 +169,8 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                               if (validCode == 3){
                                    try {
                                         runBlocking (Dispatchers.IO) {
-                                             responseScanPay = mRespository.getScanQrData(ccbBean)  //支付接口
+                                             val url = CanteenEncryptionUtil.requestScanData(ccbBean)
+                                             responseScanPay = mRespository.getScanQrData(url)  //支付接口
                                              if (responseScanPay!!.RESULT.toString() == "N"){
                                                   validCode = 2
                                              }
@@ -271,6 +276,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
           bean.businessId = scanPay.BUSINESS_ID
           bean.counterId = scanPay.VPOS_ID
+          bean.consumptionType = 2    //1：刷脸，2：扫码，3：离线订单
           bean.RESULT  = resScan.RESULT.toString()
           bean.CUST_ID = scanPay.CUST_ID
           bean.PAYMENT = resScan.PAYMENT?.toDouble()
@@ -311,8 +317,10 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           if (responseScanPay.code != HttpURLConnection.HTTP_OK){
                saveFailureRecord(bean)
                LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${responseScanPay.data}")
+          }else {
+               LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
           }
-          LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
+
      }
 
      //保存上传失败记录
@@ -322,6 +330,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                saveOrder.deviceSerialNumber = deviceSerialNumber
                saveOrder.businessId = businessId
                saveOrder.counterId = counterId
+               saveOrder.consumptionType = consumptionType
                saveOrder.result = RESULT
                saveOrder.cusT_ID = CUST_ID
                saveOrder.payment = PAYMENT ?:0.0

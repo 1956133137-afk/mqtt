@@ -37,24 +37,21 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun getQrData(bean: CcbScanPayBean): ScanAnalysisBean {
+    suspend fun getQrData(url: String): ScanAnalysisBean {
         return apiCallForQrData {
-            val sn = CanteenEncryptionUtil.requestPath(bean)
-            RetrofitClient.getApi().scanQrAnalysis(sn)
+            RetrofitClient.getApi().scanQrAnalysis(url)
         }
     }
 
-    suspend fun getScanQrData(bean: CcbScanPayBean): ScanQrResultBean {
+    suspend fun getScanQrData(url: String): ScanQrResultBean {
         return apiCallForScanCode {
-            val sn = CanteenEncryptionUtil.requestScanData(bean)
-            RetrofitClient.getApi().scanQrPay(sn)
+            RetrofitClient.getApi().scanQrPay(url)
         }
     }
 
-    suspend fun getScanQuery(bean: CcbScanPayBean): ScanQueryBean {
+    suspend fun getScanQuery(url: String): ScanQueryBean {
         return apiCallForScanQuery {
-            val sn = CanteenEncryptionUtil.requestPath(bean)
-            RetrofitClient.getApi().ScanQuery(sn)
+            RetrofitClient.getApi().scanQuery(url)
         }
     }
 

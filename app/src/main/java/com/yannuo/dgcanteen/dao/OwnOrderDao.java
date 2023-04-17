@@ -26,23 +26,24 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
         public final static Property DeviceSerialNumber = new Property(1, String.class, "deviceSerialNumber", false, "DEVICE_SERIAL_NUMBER");
         public final static Property BusinessId = new Property(2, String.class, "businessId", false, "BUSINESS_ID");
         public final static Property CounterId = new Property(3, String.class, "counterId", false, "COUNTER_ID");
-        public final static Property RESULT = new Property(4, String.class, "RESULT", false, "RESULT");
-        public final static Property CUST_ID = new Property(5, String.class, "CUST_ID", false, "CUST__ID");
-        public final static Property PAYMENT = new Property(6, double.class, "PAYMENT", false, "PAYMENT");
-        public final static Property ACTUAL_PAYMENT = new Property(7, double.class, "ACTUAL_PAYMENT", false, "ACTUAL__PAYMENT");
-        public final static Property ACC_NO = new Property(8, String.class, "ACC_NO", false, "ACC__NO");
-        public final static Property ACC_BAL = new Property(9, double.class, "ACC_BAL", false, "ACC__BAL");
-        public final static Property ACC_TYPE = new Property(10, int.class, "ACC_TYPE", false, "ACC__TYPE");
-        public final static Property TRACEID = new Property(11, String.class, "TRACEID", false, "TRACEID");
-        public final static Property ORDER_ID = new Property(12, String.class, "ORDER_ID", false, "ORDER__ID");
-        public final static Property TRAN_RESULT = new Property(13, int.class, "TRAN_RESULT", false, "TRAN__RESULT");
-        public final static Property OFFLINE = new Property(14, int.class, "OFFLINE", false, "OFFLINE");
-        public final static Property ERRCODE = new Property(15, String.class, "ERRCODE", false, "ERRCODE");
-        public final static Property ERRMSG = new Property(16, String.class, "ERRMSG", false, "ERRMSG");
-        public final static Property ACCALIAS = new Property(17, String.class, "ACCALIAS", false, "ACCALIAS");
-        public final static Property PAYTIME = new Property(18, String.class, "PAYTIME", false, "PAYTIME");
-        public final static Property BUSINESS_NAME = new Property(19, String.class, "BUSINESS_NAME", false, "BUSINESS__NAME");
-        public final static Property Up = new Property(20, boolean.class, "up", false, "UP");
+        public final static Property ConsumptionType = new Property(4, int.class, "consumptionType", false, "CONSUMPTION_TYPE");
+        public final static Property RESULT = new Property(5, String.class, "RESULT", false, "RESULT");
+        public final static Property CUST_ID = new Property(6, String.class, "CUST_ID", false, "CUST__ID");
+        public final static Property PAYMENT = new Property(7, double.class, "PAYMENT", false, "PAYMENT");
+        public final static Property ACTUAL_PAYMENT = new Property(8, double.class, "ACTUAL_PAYMENT", false, "ACTUAL__PAYMENT");
+        public final static Property ACC_NO = new Property(9, String.class, "ACC_NO", false, "ACC__NO");
+        public final static Property ACC_BAL = new Property(10, double.class, "ACC_BAL", false, "ACC__BAL");
+        public final static Property ACC_TYPE = new Property(11, int.class, "ACC_TYPE", false, "ACC__TYPE");
+        public final static Property TRACEID = new Property(12, String.class, "TRACEID", false, "TRACEID");
+        public final static Property ORDER_ID = new Property(13, String.class, "ORDER_ID", false, "ORDER__ID");
+        public final static Property TRAN_RESULT = new Property(14, int.class, "TRAN_RESULT", false, "TRAN__RESULT");
+        public final static Property OFFLINE = new Property(15, int.class, "OFFLINE", false, "OFFLINE");
+        public final static Property ERRCODE = new Property(16, String.class, "ERRCODE", false, "ERRCODE");
+        public final static Property ERRMSG = new Property(17, String.class, "ERRMSG", false, "ERRMSG");
+        public final static Property ACCALIAS = new Property(18, String.class, "ACCALIAS", false, "ACCALIAS");
+        public final static Property PAYTIME = new Property(19, String.class, "PAYTIME", false, "PAYTIME");
+        public final static Property BUSINESS_NAME = new Property(20, String.class, "BUSINESS_NAME", false, "BUSINESS__NAME");
+        public final static Property Up = new Property(21, boolean.class, "up", false, "UP");
     }
 
     private DaoSession daoSession;
@@ -65,23 +66,24 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
                 "\"DEVICE_SERIAL_NUMBER\" TEXT," + // 1: deviceSerialNumber
                 "\"BUSINESS_ID\" TEXT," + // 2: businessId
                 "\"COUNTER_ID\" TEXT," + // 3: counterId
-                "\"RESULT\" TEXT," + // 4: RESULT
-                "\"CUST__ID\" TEXT," + // 5: CUST_ID
-                "\"PAYMENT\" REAL NOT NULL ," + // 6: PAYMENT
-                "\"ACTUAL__PAYMENT\" REAL NOT NULL ," + // 7: ACTUAL_PAYMENT
-                "\"ACC__NO\" TEXT," + // 8: ACC_NO
-                "\"ACC__BAL\" REAL NOT NULL ," + // 9: ACC_BAL
-                "\"ACC__TYPE\" INTEGER NOT NULL ," + // 10: ACC_TYPE
-                "\"TRACEID\" TEXT," + // 11: TRACEID
-                "\"ORDER__ID\" TEXT UNIQUE ," + // 12: ORDER_ID
-                "\"TRAN__RESULT\" INTEGER NOT NULL ," + // 13: TRAN_RESULT
-                "\"OFFLINE\" INTEGER NOT NULL ," + // 14: OFFLINE
-                "\"ERRCODE\" TEXT," + // 15: ERRCODE
-                "\"ERRMSG\" TEXT," + // 16: ERRMSG
-                "\"ACCALIAS\" TEXT," + // 17: ACCALIAS
-                "\"PAYTIME\" TEXT," + // 18: PAYTIME
-                "\"BUSINESS__NAME\" TEXT," + // 19: BUSINESS_NAME
-                "\"UP\" INTEGER NOT NULL );"); // 20: up
+                "\"CONSUMPTION_TYPE\" INTEGER NOT NULL ," + // 4: consumptionType
+                "\"RESULT\" TEXT," + // 5: RESULT
+                "\"CUST__ID\" TEXT," + // 6: CUST_ID
+                "\"PAYMENT\" REAL NOT NULL ," + // 7: PAYMENT
+                "\"ACTUAL__PAYMENT\" REAL NOT NULL ," + // 8: ACTUAL_PAYMENT
+                "\"ACC__NO\" TEXT," + // 9: ACC_NO
+                "\"ACC__BAL\" REAL NOT NULL ," + // 10: ACC_BAL
+                "\"ACC__TYPE\" INTEGER NOT NULL ," + // 11: ACC_TYPE
+                "\"TRACEID\" TEXT," + // 12: TRACEID
+                "\"ORDER__ID\" TEXT UNIQUE ," + // 13: ORDER_ID
+                "\"TRAN__RESULT\" INTEGER NOT NULL ," + // 14: TRAN_RESULT
+                "\"OFFLINE\" INTEGER NOT NULL ," + // 15: OFFLINE
+                "\"ERRCODE\" TEXT," + // 16: ERRCODE
+                "\"ERRMSG\" TEXT," + // 17: ERRMSG
+                "\"ACCALIAS\" TEXT," + // 18: ACCALIAS
+                "\"PAYTIME\" TEXT," + // 19: PAYTIME
+                "\"BUSINESS__NAME\" TEXT," + // 20: BUSINESS_NAME
+                "\"UP\" INTEGER NOT NULL );"); // 21: up
     }
 
     /** Drops the underlying database table. */
@@ -113,63 +115,64 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
         if (counterId != null) {
             stmt.bindString(4, counterId);
         }
+        stmt.bindLong(5, entity.getConsumptionType());
  
         String RESULT = entity.getRESULT();
         if (RESULT != null) {
-            stmt.bindString(5, RESULT);
+            stmt.bindString(6, RESULT);
         }
  
         String CUST_ID = entity.getCUST_ID();
         if (CUST_ID != null) {
-            stmt.bindString(6, CUST_ID);
+            stmt.bindString(7, CUST_ID);
         }
-        stmt.bindDouble(7, entity.getPAYMENT());
-        stmt.bindDouble(8, entity.getACTUAL_PAYMENT());
+        stmt.bindDouble(8, entity.getPAYMENT());
+        stmt.bindDouble(9, entity.getACTUAL_PAYMENT());
  
         String ACC_NO = entity.getACC_NO();
         if (ACC_NO != null) {
-            stmt.bindString(9, ACC_NO);
+            stmt.bindString(10, ACC_NO);
         }
-        stmt.bindDouble(10, entity.getACC_BAL());
-        stmt.bindLong(11, entity.getACC_TYPE());
+        stmt.bindDouble(11, entity.getACC_BAL());
+        stmt.bindLong(12, entity.getACC_TYPE());
  
         String TRACEID = entity.getTRACEID();
         if (TRACEID != null) {
-            stmt.bindString(12, TRACEID);
+            stmt.bindString(13, TRACEID);
         }
  
         String ORDER_ID = entity.getORDER_ID();
         if (ORDER_ID != null) {
-            stmt.bindString(13, ORDER_ID);
+            stmt.bindString(14, ORDER_ID);
         }
-        stmt.bindLong(14, entity.getTRAN_RESULT());
-        stmt.bindLong(15, entity.getOFFLINE());
+        stmt.bindLong(15, entity.getTRAN_RESULT());
+        stmt.bindLong(16, entity.getOFFLINE());
  
         String ERRCODE = entity.getERRCODE();
         if (ERRCODE != null) {
-            stmt.bindString(16, ERRCODE);
+            stmt.bindString(17, ERRCODE);
         }
  
         String ERRMSG = entity.getERRMSG();
         if (ERRMSG != null) {
-            stmt.bindString(17, ERRMSG);
+            stmt.bindString(18, ERRMSG);
         }
  
         String ACCALIAS = entity.getACCALIAS();
         if (ACCALIAS != null) {
-            stmt.bindString(18, ACCALIAS);
+            stmt.bindString(19, ACCALIAS);
         }
  
         String PAYTIME = entity.getPAYTIME();
         if (PAYTIME != null) {
-            stmt.bindString(19, PAYTIME);
+            stmt.bindString(20, PAYTIME);
         }
  
         String BUSINESS_NAME = entity.getBUSINESS_NAME();
         if (BUSINESS_NAME != null) {
-            stmt.bindString(20, BUSINESS_NAME);
+            stmt.bindString(21, BUSINESS_NAME);
         }
-        stmt.bindLong(21, entity.getUp() ? 1L: 0L);
+        stmt.bindLong(22, entity.getUp() ? 1L: 0L);
     }
 
     @Override
@@ -195,63 +198,64 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
         if (counterId != null) {
             stmt.bindString(4, counterId);
         }
+        stmt.bindLong(5, entity.getConsumptionType());
  
         String RESULT = entity.getRESULT();
         if (RESULT != null) {
-            stmt.bindString(5, RESULT);
+            stmt.bindString(6, RESULT);
         }
  
         String CUST_ID = entity.getCUST_ID();
         if (CUST_ID != null) {
-            stmt.bindString(6, CUST_ID);
+            stmt.bindString(7, CUST_ID);
         }
-        stmt.bindDouble(7, entity.getPAYMENT());
-        stmt.bindDouble(8, entity.getACTUAL_PAYMENT());
+        stmt.bindDouble(8, entity.getPAYMENT());
+        stmt.bindDouble(9, entity.getACTUAL_PAYMENT());
  
         String ACC_NO = entity.getACC_NO();
         if (ACC_NO != null) {
-            stmt.bindString(9, ACC_NO);
+            stmt.bindString(10, ACC_NO);
         }
-        stmt.bindDouble(10, entity.getACC_BAL());
-        stmt.bindLong(11, entity.getACC_TYPE());
+        stmt.bindDouble(11, entity.getACC_BAL());
+        stmt.bindLong(12, entity.getACC_TYPE());
  
         String TRACEID = entity.getTRACEID();
         if (TRACEID != null) {
-            stmt.bindString(12, TRACEID);
+            stmt.bindString(13, TRACEID);
         }
  
         String ORDER_ID = entity.getORDER_ID();
         if (ORDER_ID != null) {
-            stmt.bindString(13, ORDER_ID);
+            stmt.bindString(14, ORDER_ID);
         }
-        stmt.bindLong(14, entity.getTRAN_RESULT());
-        stmt.bindLong(15, entity.getOFFLINE());
+        stmt.bindLong(15, entity.getTRAN_RESULT());
+        stmt.bindLong(16, entity.getOFFLINE());
  
         String ERRCODE = entity.getERRCODE();
         if (ERRCODE != null) {
-            stmt.bindString(16, ERRCODE);
+            stmt.bindString(17, ERRCODE);
         }
  
         String ERRMSG = entity.getERRMSG();
         if (ERRMSG != null) {
-            stmt.bindString(17, ERRMSG);
+            stmt.bindString(18, ERRMSG);
         }
  
         String ACCALIAS = entity.getACCALIAS();
         if (ACCALIAS != null) {
-            stmt.bindString(18, ACCALIAS);
+            stmt.bindString(19, ACCALIAS);
         }
  
         String PAYTIME = entity.getPAYTIME();
         if (PAYTIME != null) {
-            stmt.bindString(19, PAYTIME);
+            stmt.bindString(20, PAYTIME);
         }
  
         String BUSINESS_NAME = entity.getBUSINESS_NAME();
         if (BUSINESS_NAME != null) {
-            stmt.bindString(20, BUSINESS_NAME);
+            stmt.bindString(21, BUSINESS_NAME);
         }
-        stmt.bindLong(21, entity.getUp() ? 1L: 0L);
+        stmt.bindLong(22, entity.getUp() ? 1L: 0L);
     }
 
     @Override
@@ -272,23 +276,24 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // deviceSerialNumber
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // businessId
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // counterId
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // RESULT
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // CUST_ID
-            cursor.getDouble(offset + 6), // PAYMENT
-            cursor.getDouble(offset + 7), // ACTUAL_PAYMENT
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // ACC_NO
-            cursor.getDouble(offset + 9), // ACC_BAL
-            cursor.getInt(offset + 10), // ACC_TYPE
-            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // TRACEID
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // ORDER_ID
-            cursor.getInt(offset + 13), // TRAN_RESULT
-            cursor.getInt(offset + 14), // OFFLINE
-            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // ERRCODE
-            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // ERRMSG
-            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // ACCALIAS
-            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // PAYTIME
-            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // BUSINESS_NAME
-            cursor.getShort(offset + 20) != 0 // up
+            cursor.getInt(offset + 4), // consumptionType
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // RESULT
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // CUST_ID
+            cursor.getDouble(offset + 7), // PAYMENT
+            cursor.getDouble(offset + 8), // ACTUAL_PAYMENT
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // ACC_NO
+            cursor.getDouble(offset + 10), // ACC_BAL
+            cursor.getInt(offset + 11), // ACC_TYPE
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // TRACEID
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // ORDER_ID
+            cursor.getInt(offset + 14), // TRAN_RESULT
+            cursor.getInt(offset + 15), // OFFLINE
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // ERRCODE
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // ERRMSG
+            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // ACCALIAS
+            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // PAYTIME
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // BUSINESS_NAME
+            cursor.getShort(offset + 21) != 0 // up
         );
         return entity;
     }
@@ -299,23 +304,24 @@ public class OwnOrderDao extends AbstractDao<OwnOrder, Long> {
         entity.setDeviceSerialNumber(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setBusinessId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setCounterId(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setRESULT(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setCUST_ID(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setPAYMENT(cursor.getDouble(offset + 6));
-        entity.setACTUAL_PAYMENT(cursor.getDouble(offset + 7));
-        entity.setACC_NO(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setACC_BAL(cursor.getDouble(offset + 9));
-        entity.setACC_TYPE(cursor.getInt(offset + 10));
-        entity.setTRACEID(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
-        entity.setORDER_ID(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
-        entity.setTRAN_RESULT(cursor.getInt(offset + 13));
-        entity.setOFFLINE(cursor.getInt(offset + 14));
-        entity.setERRCODE(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
-        entity.setERRMSG(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
-        entity.setACCALIAS(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
-        entity.setPAYTIME(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
-        entity.setBUSINESS_NAME(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
-        entity.setUp(cursor.getShort(offset + 20) != 0);
+        entity.setConsumptionType(cursor.getInt(offset + 4));
+        entity.setRESULT(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setCUST_ID(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setPAYMENT(cursor.getDouble(offset + 7));
+        entity.setACTUAL_PAYMENT(cursor.getDouble(offset + 8));
+        entity.setACC_NO(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setACC_BAL(cursor.getDouble(offset + 10));
+        entity.setACC_TYPE(cursor.getInt(offset + 11));
+        entity.setTRACEID(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setORDER_ID(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setTRAN_RESULT(cursor.getInt(offset + 14));
+        entity.setOFFLINE(cursor.getInt(offset + 15));
+        entity.setERRCODE(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setERRMSG(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setACCALIAS(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
+        entity.setPAYTIME(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
+        entity.setBUSINESS_NAME(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setUp(cursor.getShort(offset + 21) != 0);
      }
     
     @Override

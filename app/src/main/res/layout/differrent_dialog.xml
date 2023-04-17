@@ -16,7 +16,8 @@
 
         <TextView
             android:id="@+id/meal_time"
-            android:layout_width="330px"
+            android:layout_width="wrap_content"
+            android:minWidth="330px"
             android:layout_height="55px"
             android:layout_marginStart="30px"
             android:gravity="center"
@@ -41,8 +42,9 @@
 
         <TextView
             android:id="@+id/select_stopper"
-            android:layout_width="365px"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="3px"
             android:layout_marginEnd="30px"
             android:text="东港第二中学第一食堂 - 粉面档口"
             android:textSize="24px"

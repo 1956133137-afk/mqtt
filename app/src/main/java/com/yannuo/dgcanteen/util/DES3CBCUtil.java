@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.util;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -26,16 +27,7 @@ public class DES3CBCUtil {
      * 返回离线码过期时间戳
      */
     public static long getTimestamp(String PlainStr){
-        byte[] res = PlainStr.getBytes(StandardCharsets.UTF_8);
-        StringBuilder str = new StringBuilder();
-        for (int i = res.length - 1; i > 0; i--){
-            if (res[i] == '@'){
-                break;
-            }else {
-                str.insert(0,(char) res[i]);
-            }
-        }
-        return Long.parseLong(str.toString());
+        return Long.parseLong(PlainStr.substring(PlainStr.lastIndexOf("@")+1));
     }
 
     /**
@@ -44,18 +36,7 @@ public class DES3CBCUtil {
      * @return
      */
     public static String transDecryption(String src){
-        byte[] res = src.getBytes(StandardCharsets.UTF_8);
-        StringBuilder str = new StringBuilder();
-        for (int i = 3 ; i < res.length ; i++){
-            if (res[i] == '@'){
-                break;
-            } else if (res[i] == ',') {
-                str.append("+");
-            } else {
-                str.append((char) res[i]);
-            }
-        }
-        return decode(str.toString());
+        return decode(src.substring(3,src.indexOf("@")).replace(",","+"));
     }
 
     /**
