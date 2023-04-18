@@ -29,6 +29,7 @@ object NumberGenerateUtil {
     private fun snToNumber():String{
         val content = StringBuilder()
         val sn = CommonAndDpToPxUtil.getDeviceSerial().substring(0,7)
+        content.append(sn)
 //        for (i in sn.indices){
 //           content.append(sn.substring(i,i+1).toInt(16))
 //        }

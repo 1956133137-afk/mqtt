@@ -38,7 +38,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     private ProductsDetail mDishes;
     private WaitForPayDialog waitForPayDialog;
     private LoadingDialog loadingDialog;
-    private PayPresenter scanPayPresenter;
+    private PayPresenter mPresenter;
 
 
 
@@ -66,9 +66,12 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
-        scanPayPresenter = new PayPresenter();
+        mPresenter = new PayPresenter(mDishes);
         //监听交易过程
-        scanPayPresenter.setListener(this);
+        mPresenter.setListener(this);
+        //打开IC开
+        mPresenter.openIcCard();
+        mPresenter.setMDishes(mDishes);
     }
 
     private void initView() {
@@ -93,10 +96,13 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                 waitForPayDialog.setListener(new WaitDialogEvent());
             }
             waitForPayDialog.show();
-
             //使能扫码支付
-            scanPayPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
+            mPresenter.setScanState(PayPresenter.ScanState.PAY);
         });
+
+
+
+
     }
 
     public void closeWaitDialog(){
@@ -107,8 +113,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
     @Override
     protected void onStop() {
-        if (scanPayPresenter != null) {
-            scanPayPresenter.release();
+        if (mPresenter != null) {
+            mPresenter.release();
         }
 
         super.onStop();
@@ -169,8 +175,9 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            }
                            waitForPayDialog.show();
 
+
                            //使能扫码支付
-                           scanPayPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
+                           mPresenter.setScanState(PayPresenter.ScanState.PAY);
                        });
                break;
        }

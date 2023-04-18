@@ -1,15 +1,13 @@
 package com.yannuo.dgcanteen.activitys.presenters
 
+import COM.CCB.EnDecryptAlgorithm.MCipherDecryptor
 import android.os.RemoteException
 import android.text.format.DateFormat
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.SerialPortHelper
-import com.yannuo.dgcanteen.dao.OffLineDishTable
-import com.yannuo.dgcanteen.dao.OffLineTable
-import com.yannuo.dgcanteen.dao.OrderDishList
-import com.yannuo.dgcanteen.dao.OwnOrder
+import com.yannuo.dgcanteen.dao.*
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
@@ -17,13 +15,14 @@ import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.lang.StringBuilder
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
+class PayPresenter(dish : ProductsDetail) : ScanDevice.DataCallBack, OnReadDataListener {
      private val TAG = javaClass.simpleName
-     private var mDishes : ProductsDetail ?= null
+     var mDishes : ProductsDetail ?= null
      private var mRespository :PayRepositoryOfPay
      var listener : CallbackListener?= null
      private lateinit var mCardHandle :SerialPortHelper
@@ -33,7 +32,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           mRespository = PayRepositoryOfPay()
           //开始监听扫码数据
           ScanDevice.setCallbackListener(this)
-
+          mDishes  =dish
          mCardHandle = SerialPortHelper()
 
      }
@@ -46,27 +45,24 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      }
 
      private var scanState = ScanState.INVALID  //状态码
-     private var cardState = ScanState.CLOSE  //未启用
-
+     private var cardState = ScanState.PAY  //
 
      /**
       * 更新扫码的状态，用于被扫支付，根据支付状态
       * @param state ScanState
       */
-     fun setScanState(state : ScanState, data : ProductsDetail){
+     fun setScanState(state : ScanState){
           scanState = state
-          mDishes = data
+//          mDishes = data
      }
 
      /**
       * 打开IC卡串口
       */
      fun openIcCard(){
-          if (cardState == ScanState.CLOSE) {
                mCardHandle.openSerialPort("/dev/ttyXRUSB0")
                cardState = ScanState.INVALID
                mCardHandle.readDataListener = this
-          }
 
      }
 
@@ -374,6 +370,63 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
 
      //IC卡数据
      override fun numberOfIcCard(number: String?) {
-          LogUtil.d(TAG,"number :${number}")
+          number?.trim()?.also {
+//               cardState = ScanState.INVALID
+               LogUtil.d(TAG,"number :${number}")
+               payByCard(it)
+
+          }
+
+     }
+
+     private fun payByCard(cardId :String) {
+         val payBean = CardPay()
+          payBean.business_id = "SJ2023032511004"
+          payBean.vpos_id = "V00463775"
+          payBean.payment = mDishes?.totalMoney
+          payBean.actual_payment = mDishes?.totalMoney
+          payBean.card_id = cardId
+          payBean.order_id= NumberGenerateUtil.getOrderNumber()
+
+          val builder = StringBuilder()
+          builder.append("BUSINESS_ID=")
+          builder.append(payBean.business_id)
+          builder.append("&VPOS_ID=")
+          builder.append(payBean.vpos_id)
+          builder.append("&PAYMENT=")
+          builder.append(payBean.payment)
+          builder.append("&ACTUAL_PAYMENT=")
+          builder.append(payBean.actual_payment)
+          builder.append("&COUPON_INFO=")
+          builder.append(payBean.coupon_info)
+          builder.append("&OFFLINE=")
+          builder.append(payBean.offline)
+          builder.append("&SIGN_TIME=")
+          builder.append(payBean.sign_time)
+          builder.append("&ACC_NOS=")
+          builder.append(payBean.acc_nos)
+          builder.append("&CARD_ID=")
+          builder.append(payBean.card_id)
+          builder.append("&CUST_ID=")
+          builder.append(payBean.cust_id)
+          builder.append("&ORDER_ID=")
+          builder.append(payBean.order_id)
+
+
+          val mcdp = MCipherDecryptor("MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG")
+          val ccbSafeParam = mcdp.doDecrypt(builder.toString().trim())
+
+          val map = mutableMapOf<String,String>()
+          map["CCB_IBSVersion"] = "V6"
+          map["PT_STYLE"] = "8"
+          map["PT_LANGUAGE"] = "CN"
+          map["CAMPUS_ID"] = "441999527"
+          map["CORP_ID"] = "1041"
+          map["TXCODE"] = "PAY005"
+          map["ccbSafeParam"] = ccbSafeParam
+          runBlocking {
+               mRespository.payByCard(map)
+          }
+
      }
 }

@@ -17,9 +17,11 @@ interface ApiService {
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
-    //下载图片
-    @GET
-    suspend fun downLoadPic(@Url url: String?): Response<ResponseBody>
+    //
+    @Headers("content-type: application/x-www-form-urlencoded")
+    @FormUrlEncoded
+    @POST()
+    suspend fun payByCard(@FieldMap map: Map<String,String>): Response<ResponseBody>
 
 
     // 获取菜品

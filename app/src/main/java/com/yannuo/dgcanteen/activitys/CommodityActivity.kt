@@ -150,6 +150,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
         //注册网络状态监听
         NetworkStateManager.getInstance().registerObserver(this)
+
+
     }
 
     private fun initView() {

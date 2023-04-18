@@ -26,8 +26,8 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun downLoadPic(path :String): Response<ResponseBody> {
-           return RetrofitClient.getApi().downLoadPic(path)
+    suspend fun payByCard(map : MutableMap<String, String>): Response<ResponseBody> {
+           return RetrofitClient.getApi().payByCard(map)
     }
 
     suspend fun synCsRecord(data :SynConsumeRecordBean): CanteenResponse<String> {
