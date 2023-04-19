@@ -66,10 +66,11 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mShopsAdapter = new ShopsAdapter(getContext());
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
-        mPresenter = new PayPresenter(mDishes);
+        mPresenter = new PayPresenter();
         //监听交易过程
         mPresenter.setListener(this);
         //打开IC开
+        mPresenter.setCardState(PayPresenter.ScanState.PAY);
         mPresenter.openIcCard();
         mPresenter.setMDishes(mDishes);
     }
@@ -97,12 +98,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             }
             waitForPayDialog.show();
             //使能扫码支付
-            mPresenter.setScanState(PayPresenter.ScanState.PAY);
+            mPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
         });
-
-
-
-
     }
 
     public void closeWaitDialog(){
@@ -175,9 +172,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            }
                            waitForPayDialog.show();
 
-
                            //使能扫码支付
-                           mPresenter.setScanState(PayPresenter.ScanState.PAY);
+                           mPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
                        });
                break;
        }

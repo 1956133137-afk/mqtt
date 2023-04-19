@@ -34,12 +34,17 @@ interface ApiService {
     @POST("deviceData/insertPaymentRecord")
     suspend fun synCsRecord(@Body data: SynConsumeRecordBean) : CanteenResponse<String>
 
+    // 根据卡号查询用户信息
+    @Headers("content-type: application/json")
+    @POST("deviceData/byCardIdSelectUser")
+    suspend fun userInfo(@Body map: Map<String,String>) : CanteenResponse<UserInfoBean>
+
     //解析用户付款码
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST
     suspend fun scanQrAnalysis(@Url url: String?): ScanAnalysisBean
 
-    //二维码被扫支付
+    //二维码被扫支付  //刷卡支付
     @Headers("content-type: application/x-www-form-urlencoded")
     @POST
     suspend fun scanQrPay(@Url url: String?): ScanQrResultBean

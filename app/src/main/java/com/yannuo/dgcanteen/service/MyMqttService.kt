@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.PayPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
@@ -87,6 +88,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
         //离线补扣
         offLineFillMoney()
+
+        //离线刷卡补扣
+        cardFillMoney()
 
         LogUtil.d(TAG,"服务启动")
         val mv = MMKV.defaultMMKV()
@@ -170,6 +174,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun offLineFillMoney(){
         mScope.launch {
             while (isActive){
+                LogUtil.i(TAG,"离线订单补扣开始请求...")
                 delay(Duration.hours(1))
                 //进行离线补扣
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态
@@ -219,6 +224,67 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                             }
                         }
                     }while (order != null && runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH))
+                    LogUtil.i(TAG,"离线订单补扣请求结束...")
+                }
+            }
+        }
+    }
+
+    /**
+     * 恢复网络并且不是离线模式离线刷卡补扣
+     */
+    @OptIn(ExperimentalTime::class)
+    private fun cardFillMoney(){
+        mScope.launch {
+            while (isActive){
+                LogUtil.i(TAG,"离线刷卡订单请求开始...")
+                delay(Duration.hours(1))
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
+                    val gson = Gson()
+                    do {
+                        val order = DishesDBHelper.getInstance().queryCardOrder()
+                        order?.also {
+                            val js = gson.toJson(order)
+                            LogUtil.d(TAG, js)
+                            val bean = gson.fromJson(js, CardPay::class.java)
+                            val res = mRespository.getScanQrData(bean.cipherUrl)
+                            if (res.RESULT.toString() == "Y"){
+                                LogUtil.d(TAG,"离线订单${bean.order_id} 补扣成功")
+                                val dishes: MutableList<DishesInfo> = mutableListOf()
+                                it.cardDishesList.forEach {
+                                    dishes.add(
+                                        DishesInfo(
+                                            it.dishesId,
+                                            it.dishesName,
+                                            0,
+                                            null,
+                                            it.dishesPrice,
+                                            "",
+                                            "",
+                                            0,
+                                            it.dishesNumber
+                                        )
+                                    )
+                                }
+
+                                val scanPayPresenter = PayPresenter()
+                                //上传消费记录
+                                scanPayPresenter.cardConsumeRecord( bean, res, dishes)
+
+                                //删除对应离线记录的菜品
+                                DishesDBHelper.getInstance().deleteCardDish(it.cardDishesList[0].orderid)
+                                //删除对应的离线订单记录
+                                DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
+                                LogUtil.i(TAG,"离线订单${bean.order_id} 上传成功!")
+                            }else {
+                                LogUtil.e(TAG,"离线补扣${bean.order_id} 订单失败==\n${res.ERRMSG}")
+                                //修改请求标志
+                                it.up = true
+                                DishesDBHelper.getInstance().updateCardOrder(it)
+                            }
+                        }
+                    }while (order != null && runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH))
+                    LogUtil.i(TAG,"离线刷卡订单请求结束...")
                 }
             }
         }

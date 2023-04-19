@@ -3,6 +3,10 @@ package com.yannuo.dgcanteen.dao.dbhelp;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.yannuo.dgcanteen.dao.CardDishTable;
+import com.yannuo.dgcanteen.dao.CardDishTableDao;
+import com.yannuo.dgcanteen.dao.CardPay;
+import com.yannuo.dgcanteen.dao.CardPayDao;
 import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DaoSession;
 import com.yannuo.dgcanteen.dao.DishesTable;
@@ -54,6 +58,8 @@ public class DishesDBHelper {
     private OrderDishListDao mOrderDishListDao;
     private OffLineTableDao mOffLineTableDao;
     private OffLineDishTableDao mOffLineDishTableDao;
+    private CardPayDao mCardPayDao;
+    private CardDishTableDao mCardDishTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -90,6 +96,8 @@ public class DishesDBHelper {
         mOrderDishListDao = mDaoSession.getOrderDishListDao();
         mOffLineTableDao = mDaoSession.getOffLineTableDao();
         mOffLineDishTableDao = mDaoSession.getOffLineDishTableDao();
+        mCardPayDao = mDaoSession.getCardPayDao();
+        mCardDishTableDao = mDaoSession.getCardDishTableDao();
     }
 
     /**
@@ -277,6 +285,65 @@ public class DishesDBHelper {
     public void deleteOffLineOrder(String orderId){
         mOffLineTableDao.queryBuilder()
                 .where(OffLineTableDao.Properties.ORDER_ID.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+
+    /**
+     * 保存刷卡离线补扣菜品
+     * @param dishes
+     */
+    public void insertCardDishes(List<CardDishTable> dishes){
+        mCardDishTableDao.insertInTx(dishes);
+    }
+
+    /**
+     * 删除对应刷卡离线菜品
+     * @param orderId
+     */
+    public void deleteCardDish(long orderId){
+        mCardDishTableDao.queryBuilder()
+                .where(CardDishTableDao.Properties.Orderid.eq(orderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 插入一条刷卡离线订单
+     * @param cardPay
+     */
+    public void insertCardOrder(CardPay cardPay){
+        mCardPayDao.insert(cardPay);
+    }
+
+    /**
+     * 查询刷卡离线订单
+     * @return
+     */
+    public CardPay queryCardOrder(){
+        return  mCardPayDao.queryBuilder()
+                .where(CardPayDao.Properties.Up.eq(false))
+                .limit(1)
+                .build()
+                .unique();
+    }
+
+    /**
+     * 修改刷卡消费记录
+     * @return
+     */
+    public void updateCardOrder(CardPay cardPay){
+        mCardPayDao.update(cardPay);
+    }
+
+    /**
+     * 删除一条刷卡离线记录
+     * @return
+     */
+    public void deleteCardOrder(String orderId){
+        mCardPayDao.queryBuilder()
+                .where(CardPayDao.Properties.Order_id.eq(orderId))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
     }

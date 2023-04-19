@@ -37,6 +37,13 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getUserInfo(map: MutableMap<String, String>): CanteenResponse<UserInfoBean> {
+        return apiCall {
+            val ben = RetrofitClient.getApi().userInfo(map)
+            return@apiCall ben
+        }
+    }
+
     suspend fun getQrData(url: String): ScanAnalysisBean {
         return apiCallForQrData {
             RetrofitClient.getApi().scanQrAnalysis(url)

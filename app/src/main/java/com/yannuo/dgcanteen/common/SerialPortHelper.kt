@@ -92,20 +92,23 @@ class SerialPortHelper() {
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
-                        if (mBufferedInputStream?.available() == 0) {
-                            if (content.length >= 10){
-                                content = hex2Str(content)
-                                content = content.replace("\r\n","")
-                                readDataListener?.numberOfIcCard(content)
-                            }
-                            content =""
-                        }
+//                        if (mBufferedInputStream?.available() == 0) {
+//                            if (content.length >= 10){
+//                                content = hex2Str(content)
+//                                content = content.replace("\r\n","")
+//                                readDataListener?.numberOfIcCard(content)
+//                            }
+//                            content =""
+//                        }
+                        content = content.replace("\r\n","")
+                        readDataListener?.numberOfIcCard(content)
+                        content =""
                         read = -1
                     }
                     sleep(50)
                 } catch (e: Exception) {
                     Log.i(tag, "SerialPortHelper  Exception ...")
-//                    e.printStackTrace()
+                    e.printStackTrace()
                 }
             }
         }

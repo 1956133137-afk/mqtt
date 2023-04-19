@@ -87,7 +87,6 @@ public class SettingActivity extends AppCompatActivity {
         binding.etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS));
         binding.etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT));
         binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD));
-//        tvVersion.setText(kv.decodeString("Version"));
         binding.tvFinalTime.setText(kv.decodeString(Constant.FINAL_TIME));
     }
 
@@ -119,8 +118,6 @@ public class SettingActivity extends AppCompatActivity {
             //mqtt配置变更
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_NINTH,null));
         }
-
-//        kv.encode("Version",tvVersion.getText().toString());
         ToastShowUtil.show(this,"保存成功:" + this.getFilesDir().getAbsolutePath() + "/mmkv");
     }
 

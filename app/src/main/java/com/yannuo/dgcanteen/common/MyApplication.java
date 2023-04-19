@@ -3,31 +3,18 @@ package com.yannuo.dgcanteen.common;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Build;
-import android.os.StrictMode;
-import android.util.Log;
 
 import com.safframework.log.LogLevel;
 import com.tencent.mmkv.MMKV;
-import com.yannuo.dgcanteen.dao.dbhelp.DbHelper;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
-import com.yannuo.dgcanteen.download.CheckVersionWorker;
-import com.yannuo.dgcanteen.service.KeepAliveJobService;
 import com.yannuo.dgcanteen.service.MyMqttService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogManager;
 import com.yannuo.dgcanteen.util.LogUtil;
-import com.yannuo.dgcanteen.util.ScanDevice;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 
 /**
