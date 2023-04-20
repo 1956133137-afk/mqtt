@@ -52,16 +52,9 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * 更新扫码的状态，用于被扫支付，根据支付状态
       * @param state ScanState
       */
-     fun setScanState(state : ScanState,data: ProductsDetail){
+     fun setScanState(state : ScanState){
           scanState = state
-          mDishes = data
-     }
-
-     /**
-      * 更新刷卡的状态
-      */
-     fun setCardState(state :ScanState){
-          cardState = state
+//          mDishes = data
      }
 
      /**
@@ -115,10 +108,11 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           var offLineCode = 1
           var responseScanPay: ScanQrResultBean ?= null
           var res: ScanAnalysisBean ?= null
+          val kv = MMKV.defaultMMKV()
           var plainText = ""
           val ccbBean = initData(data)
 
-          if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //离线模式
+          if (kv.decodeBool(Constant.SWITCH)){ //离线模式
                if (qrcode.contains("CCB")) validCode = 1
                else {
                     validCode = 0

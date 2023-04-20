@@ -5,21 +5,26 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
+import com.yannuo.dgcanteen.common.MyApplication;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.model.PayCfg;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
@@ -132,10 +137,20 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.btSureMeal.setOnClickListener(v -> {
             if (adapterPayFor.getData().size() < 1){
                 CommonAndDpToPxUtil.speakWork("请添加菜品");
-            }else {
-                ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
-                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+                return;
             }
+            MMKV mv = MMKV.defaultMMKV();
+            PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
+            if (payCfg == null || TextUtils.isEmpty(payCfg.getCampusId()) ||
+                    TextUtils.isEmpty(payCfg.getBusinessId()) || TextUtils.isEmpty(payCfg.getCounterId())
+            ){
+                CommonAndDpToPxUtil.speakWork("请配置支付环境");
+                LogUtil.e(TAG,"请配置支付环境");
+                return;
+            }
+            ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+
         });
 
     }

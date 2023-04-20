@@ -70,7 +70,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         //监听交易过程
         mPresenter.setListener(this);
         //打开IC开
-        mPresenter.setCardState(PayPresenter.ScanState.PAY);
+
         mPresenter.openIcCard();
         mPresenter.setMDishes(mDishes);
     }
@@ -98,7 +98,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             }
             waitForPayDialog.show();
             //使能扫码支付
-            mPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
+            mPresenter.setScanState(PayPresenter.ScanState.PAY);
         });
     }
 
@@ -173,7 +173,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            waitForPayDialog.show();
 
                            //使能扫码支付
-                           mPresenter.setScanState(PayPresenter.ScanState.PAY,mDishes);
+                           mPresenter.setScanState(PayPresenter.ScanState.PAY);
                        });
                break;
        }

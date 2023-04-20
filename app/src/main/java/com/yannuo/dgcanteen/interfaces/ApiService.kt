@@ -6,6 +6,7 @@ import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
 import com.yannuo.dgcanteen.model.*
 import io.reactivex.Observable
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -16,6 +17,17 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
+
+
+
+   /**
+     * 获取设备指定的支付配置
+     */
+
+    @Headers("content-type: application/json")
+    @POST("deviceData/selectDeviceData")
+    suspend fun getPayCfg(@Body sn : PayCfgRequest):CanteenResponse<PayCfg>
+
 
     // 获取菜品
     @Headers("content-type: application/json")

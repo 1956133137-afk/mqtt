@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import android.os.RemoteException
+import android.text.TextUtils
 import android.text.format.DateFormat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,8 +36,6 @@ import java.net.HttpURLConnection
 import java.util.*
 
 class ProductsVM :ViewModel() {
-//    val sendCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
-//    val receiveCountNotify : MutableLiveData<DishesInfo> = MutableLiveData()
     var showToastEvent : MutableLiveData<String>
     var loadingEvent : MutableLiveData<Boolean>
 
@@ -69,7 +68,6 @@ class ProductsVM :ViewModel() {
         val old = kv.decodeString(Constant.UPDATE_TIME,Constant.update_time)
         val now = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString()
         return  (old!!.toInt() >= now.toInt())
-//        return  false
     }
 
 
@@ -87,12 +85,6 @@ class ProductsVM :ViewModel() {
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
-
-                        //测试代码
-//                        meal.startTime  = Date(2023,4,6,7+mid,0,0)
-//                        mid +=2
-//                        meal.endTime  = Date(2023,4,6,7+mid,0,0)
-//                        mid +=2
 
                         da.startTime?.also {
                             val split =it.split(":")
@@ -159,14 +151,21 @@ class ProductsVM :ViewModel() {
      */
     fun startPayWithFace(service: ZHSTFacePayService?, detail: ProductsDetail) {
         viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
+            val mv = MMKV.defaultMMKV()
+            val payCfg = mv.decodeParcelable(
+                Constant.PAY_CONFIG,
+                PayCfg::class.java
+            )
+            if (payCfg == null || TextUtils.isEmpty(payCfg.campusId) ||
+                TextUtils.isEmpty(payCfg.businessId) || TextUtils.isEmpty(payCfg.counterId)
+            ) {
+                LogUtil.e(TAG, "未配置支付环境")
+                throw Throwable("未配置支付环境")
+            }
             val stringBuffer  = StringBuffer()
             for (da in detail.products){
                 stringBuffer.append("${ da.dishesName};")
             }
-            val mv = MMKV.defaultMMKV()
-
-
-
             var offline = 0  //在线
             if (mv.decodeBool(Constant.SWITCH)) {
                 offline = 1  //离线

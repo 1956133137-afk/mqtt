@@ -83,7 +83,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             checkNewAppAndKeepAlive()
             //网络状态监听
             NetworkStateManager.getInstance().registerObserver(this@MyMqttService)
-            //
+            //获取配置
+            getPayCfg()
         }
 
         //同步消费记录
@@ -95,17 +96,23 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         //离线刷卡补扣
         cardFillMoney()
 
+
         LogUtil.d(TAG,"服务启动")
-        val mv = MMKV.defaultMMKV()
-        val bean = PayCfg()
-        bean.campus_id ="441999527"
-        bean.corp_id ="1041"
-        bean.business_id ="SJ2023032511004"
-        bean.vpos_id ="V00463775"
 
-//        mv.encode(Constant.PAY_CONFIG,bean)
-        val cfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
 
+
+    }
+
+
+    private suspend fun getPayCfg() {
+        val result = mRespository.getPayCfg()
+        if (result.code == 200){
+            val mv = MMKV.defaultMMKV()
+            mv.encode(Constant.PAY_CONFIG,result.data)
+            LogUtil.i(TAG,"更新配置信息！")
+        }else{
+            LogUtil.w(TAG,"更新配置信息失败！")
+        }
     }
 
 
@@ -118,7 +125,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
-                delay(Duration.hours(1))
+                delay(Duration.minutes(30))
                 val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline)continue
                 //在线模式下

@@ -1,15 +1,16 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
-import com.google.gson.Gson
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
-import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.paymoney.utils.ApiException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 
@@ -23,6 +24,14 @@ class PayRepositoryOfPay {
             val sn = CommonAndDpToPxUtil.getDeviceSerial()
             val ben = RetrofitClient.getApi().ccbDishes(sn)
             return@apiCall ben
+        }
+    }
+
+
+    suspend fun getPayCfg():CanteenResponse<PayCfg>{
+        return apiCall {
+            val request = PayCfgRequest(CommonAndDpToPxUtil.getDeviceSerial())
+            RetrofitClient.getApi().getPayCfg(request)
         }
     }
 

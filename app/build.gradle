@@ -76,8 +76,6 @@ android {
 
 dependencies {
 
-
-
     implementation files('libs/myservice.jar')
     implementation files('libs/libscan-release.aar')
 

@@ -409,7 +409,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                     if (ref.mFacePayService ==null){
                         ToastShowUtil.show("获取不到人脸句柄")
                         LogUtil.e(TAG,"获取不到人脸句柄")
-
+                        return
                     }
                     ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                     ref.mChooseDisplay?.cancel()

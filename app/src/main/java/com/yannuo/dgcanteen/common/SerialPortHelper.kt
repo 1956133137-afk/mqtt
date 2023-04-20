@@ -1,14 +1,16 @@
 package com.yannuo.dgcanteen.common
 
 
-import android.content.Context
+
 import android.os.SystemClock
 import android.util.Log
 import android_serialport_api.SerialPort
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.util.LogUtil
-
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -62,8 +64,8 @@ class SerialPortHelper() {
     private fun initSerialPort() {
         try {
             //   mSerialPort = SerialPort(File(mPort), null, baudrate, 0, 8, 1, 0, 0)
-            mSerialPort = SerialPort(File(mPort),  baudrate, 0)
-//            mSerialPort!!.tcflush()
+//            mSerialPort = SerialPort(File(mPort),  baudrate, 0,8,1)
+//            mSerialPort?.tcflush()
             mOutputStream = mSerialPort!!.outputStream
             mInputStream = mSerialPort!!.inputStream
             if (mInputStream != null) {
