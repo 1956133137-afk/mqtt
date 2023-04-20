@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.activitys.presenters
 import COM.CCB.EnDecryptAlgorithm.MCipherDecryptor
 import android.os.RemoteException
 import android.text.format.DateFormat
+import android.util.Log
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
@@ -23,16 +24,17 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private val TAG = javaClass.simpleName
      var mDishes : ProductsDetail ?= null
      private var mRespository :PayRepositoryOfPay
+     private var mDataPresenter :DataPresenter
      var listener : CallbackListener?= null
      private lateinit var mCardHandle :SerialPortHelper
 
      init {
 
           mRespository = PayRepositoryOfPay()
+          mDataPresenter = DataPresenter()
           //开始监听扫码数据
           ScanDevice.setCallbackListener(this)
-//          mDishes  =dish
-         mCardHandle = SerialPortHelper()
+          mCardHandle = SerialPortHelper()
 
      }
 
@@ -83,27 +85,28 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                ScanState.INVALID ->{
                     LogUtil.w(TAG,"扫码数据 INVALID !")
                }
+               else -> {}
           }
      }
 
-     private fun initData(data :ProductsDetail):CcbScanPayBean{
-          val ccbScanPayBean = CcbScanPayBean()
-          ccbScanPayBean.CAMPUS_ID = "441999527"
-          ccbScanPayBean.CORP_ID = "1041"
-          ccbScanPayBean.TXCODE = "PAY003"
-          ccbScanPayBean.ccbSafeParam = ""
-          ccbScanPayBean.BUSINESS_ID = "SJ2023032511004"
-          ccbScanPayBean.VPOS_ID = "V00463775"
-          ccbScanPayBean.PAYMENT = data.totalMoney
-          ccbScanPayBean.ACTUAL_PAYMENT = data.totalMoney
-          ccbScanPayBean.COUPON_INFO = ""
-          ccbScanPayBean.ACC_NOS = ""
-          ccbScanPayBean.QR_CODE = "" //二维码
-          ccbScanPayBean.CUST_ID = "" //用户ID
-          ccbScanPayBean.ORDER_ID = NumberGenerateUtil.getOrderNumber()
-          ccbScanPayBean.OFFLINE = "0" //是否为离线码
-          ccbScanPayBean.SIGN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
-          return ccbScanPayBean
+     private fun initData(data :ProductsDetail) : OffLineTable{
+          val offBean = OffLineTable()
+          offBean.campuS_ID = "441999527"
+          offBean.corP_ID = "1041"
+          offBean.txcode = "PAY003"
+          offBean.ccbSafeParam = ""
+          offBean.businesS_ID = "SJ2023032511004"
+          offBean.vpoS_ID = "V00463775"
+          offBean.payment = data.totalMoney
+          offBean.actuaL_PAYMENT = data.totalMoney
+          offBean.coupoN_INFO = ""
+          offBean.acC_NOS = ""
+          offBean.qR_CODE = "" //二维码
+          offBean.cusT_ID = "" //用户ID
+          offBean.ordeR_ID = NumberGenerateUtil.getOrderNumber()
+          offBean.offline = "0" //是否为离线码
+          offBean.sigN_TIME = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
+          return offBean
      }
 
      private fun startPayWithScan(data :ProductsDetail,qrcode :String){
@@ -125,8 +128,8 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
 
           when(qrcode.contains("CCB")){ //离线码
                true -> {
-                    ccbBean.QR_CODE = qrcode
-                    ccbBean.OFFLINE = "1"
+                    ccbBean.qR_CODE = qrcode
+                    ccbBean.offline = "1"
                     plainText = DES3CBCUtil.transDecryption(qrcode)
                     val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
                     val hour = TimeUtil.timestamp(pastDueTime)
@@ -135,14 +138,17 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     if (validCode == 3){
                          try {
                               runBlocking (Dispatchers.IO) {
-                                   val url = CanteenEncryptionUtil.requestScanData(ccbBean)
-                                   responseScanPay = mRespository.getScanQrData(url)  //支付接口
-                                   if (responseScanPay!!.RESULT.toString() == "Y"){
-                                        ccbBean.TXCODE = "PAY006"
-                                        ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("ORDER_ID=${ccbBean.ORDER_ID}")
-                                        val url = CanteenEncryptionUtil.requestPath(ccbBean)
-                                        val scanResult = mRespository.getScanQuery(url)  //查询结果
-                                        ccbBean.CUST_ID = scanResult.CUST_ID.toString()
+                                   var map = CanteenEncryptionUtil.getScanToPay(ccbBean)
+                                   responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                        Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                                   }
+                                   if (responseScanPay?.RESULT.toString() == "Y"){
+                                        ccbBean.txcode = "PAY006"
+                                        map = CanteenEncryptionUtil.getQueryRecord(ccbBean)
+                                        val payResult = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                             Gson().fromJson(it.string().replace("\r\n",""), ScanQueryBean::class.java)
+                                        }
+                                        ccbBean.cusT_ID = payResult?.CUST_ID.toString()
                                    }else{
                                         validCode = 2
                                    }
@@ -154,31 +160,28 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     }
                }
                else ->{
-                    ccbBean.OFFLINE = "0"
+                    ccbBean.offline = "0"
                     try { //解析二维码
-                         ccbBean.TXCODE = "PAY002"
-                         ccbBean.ccbSafeParam = CanteenEncryptionUtil.encryption("QR_CODE=$qrcode")
+                         ccbBean.txcode = "PAY002"
+                         ccbBean.qR_CODE = qrcode
+                         var map = CanteenEncryptionUtil.getAnalysisQr(ccbBean)
                          runBlocking (Dispatchers.IO) {
-                              val url = CanteenEncryptionUtil.requestPath(ccbBean)
-                              res = mRespository.getQrData(url)  //解析二维码
+                              res = mRespository.getCcbData(map).body()?.let { //解析二维码
+                                   Gson().fromJson(it.string().replace("\r\n",""), ScanAnalysisBean::class.java)
+                              }
                          }
                          if (res?.RESULT.toString() == "Y"){
-                              ccbBean.TXCODE = "PAY003"
-                              ccbBean.QR_CODE = qrcode
-                              ccbBean.CUST_ID = res?.CUST_ID.toString()
-
+                              ccbBean.txcode = "PAY003"
+                              ccbBean.cusT_ID = res?.CUST_ID.toString()
                               if (validCode == 3){
-                                   try {
-                                        runBlocking (Dispatchers.IO) {
-                                             val url = CanteenEncryptionUtil.requestScanData(ccbBean)
-                                             responseScanPay = mRespository.getScanQrData(url)  //支付接口
-                                             if (responseScanPay!!.RESULT.toString() == "N"){
-                                                  validCode = 2
-                                             }
+                                   map = CanteenEncryptionUtil.getScanToPay(ccbBean)
+                                   runBlocking (Dispatchers.IO) {
+                                        responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                             Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
                                         }
-                                   }catch (e: RemoteException) {
-                                        e.printStackTrace()
-                                        listener?.onOtherListener(2,"网络请求失败")
+                                        if (responseScanPay?.RESULT.toString() == "N"){
+                                             validCode = 2
+                                        }
                                    }
                               }
                          }else{
@@ -195,12 +198,12 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
 
           val payState = PayResultForUI()
           payState.way = "被扫支付"
-          payState.orderid = ccbBean.ORDER_ID
-          payState.timestamp = ccbBean.SIGN_TIME
+          payState.orderid = ccbBean.ordeR_ID
+          payState.timestamp = ccbBean.sigN_TIME
           payState.dishes = data.products
           payState.piece = data.count.toInt()
-          payState.cust_name = ccbBean.CUST_ID
-          payState.payment = ccbBean.PAYMENT
+          payState.cust_name = ccbBean.cusT_ID
+          payState.payment = ccbBean.payment
           payState.acc_no = ""
           payState.acc_bal = ""
           payState.result = PayResultForUI.Result.SUCCESS
@@ -214,7 +217,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     payState.result = PayResultForUI.Result.SUCCESS
                     try {
                          runBlocking (Dispatchers.IO) {
-                              responseScanPay?.let { consumeRecord(ccbBean, it, data.products) }
+                              responseScanPay?.let { mDataPresenter.consumeRecord(ccbBean, it, data.products) }
                          }
                     }catch (e :Exception){
                          e.printStackTrace()
@@ -229,34 +232,18 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                }
                1 -> { //待支付
 
-                    var offLineData = OffLineTable()
-                    offLineData.campuS_ID = ccbBean.CAMPUS_ID
-                    offLineData.corP_ID = ccbBean.CORP_ID
-                    offLineData.txcode = ccbBean.TXCODE
-                    offLineData.ccbSafeParam = ccbBean.ccbSafeParam
-                    offLineData.businesS_ID = ccbBean.BUSINESS_ID
-                    offLineData.vpoS_ID = ccbBean.VPOS_ID
-                    offLineData.payment = ccbBean.PAYMENT
-                    offLineData.actuaL_PAYMENT = ccbBean.ACTUAL_PAYMENT
-                    offLineData.coupoN_INFO = ccbBean.COUPON_INFO
-                    offLineData.qR_CODE = ccbBean.QR_CODE
-                    offLineData.cusT_ID = ccbBean.CUST_ID
-                    offLineData.ordeR_ID = ccbBean.ORDER_ID
-                    offLineData.offline = ccbBean.OFFLINE
-                    offLineData.sigN_TIME = ccbBean.SIGN_TIME
-                    offLineData.decryptionCode = plainText
-                    offLineData.postTag = false
-                    DishesDBHelper.getInstance().insertOffLineOrder(offLineData)
+                    ccbBean.decryptionCode = plainText
+                    ccbBean.postTag = false
+                    DishesDBHelper.getInstance().insertOffLineOrder(ccbBean)
 
                     val dishList = mutableListOf<OffLineDishTable>()
                     data.products.forEach {
                          var dish = OffLineDishTable()
-//                         dish.orderid = offLineData.ordeR_ID.toLong()
                          dish.dishesId = it.dishesId
                          dish.dishesName = it.dishesName
                          dish.dishesNumber = it.count
                          dish.dishesPrice = it.price
-                         dish.order = offLineData
+                         dish.order = ccbBean
                          dishList.add(dish)
                     }
                     DishesDBHelper.getInstance().insertOffLineDishes(dishList)
@@ -271,99 +258,6 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
 
      }
 
-     //同步被扫支付消费记录
-     suspend fun consumeRecord(scanPay :CcbScanPayBean, resScan : ScanQrResultBean,data :MutableList<DishesInfo>){
-          val bean = SynConsumeRecordBean()
-          bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-          bean.businessId = scanPay.BUSINESS_ID
-          bean.counterId = scanPay.VPOS_ID
-          bean.consumptionType = 2    //1：刷脸，2：扫码，3：离线订单
-          bean.RESULT  = resScan.RESULT.toString()
-          bean.CUST_ID = scanPay.CUST_ID
-          bean.PAYMENT = resScan.PAYMENT?.toDouble()
-          bean.ACTUAL_PAYMENT = resScan.ACTUAL_PAYMENT?.toDouble()
-          bean.ACC_NO = resScan.ACC_NO
-          bean.ACC_BAL = resScan.ACC_BAL?.toDouble()
-          bean.ACC_TYPE = resScan.ACC_TYPE?.toInt()
-          bean.TRACEID = ""
-          bean.ORDER_ID = scanPay.ORDER_ID
-          bean.TRAN_RESULT =  when(resScan.RESULT.toString()){
-               "Y" -> 3
-               "N" -> 2
-               else -> null
-          }
-          bean.OFFLINE = scanPay.OFFLINE.toInt()
-          bean.ERRCODE = resScan.ERRCODE
-          bean.ERRMSG = resScan.ERRMSG
-          bean.ACCALIAS = when(bean.ACC_TYPE){
-               1 -> "现金账号"
-               2 -> "餐补账户"
-               3 -> "餐补账户1"
-               else -> ""
-          }
-          bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-          bean.BUSINESS_NAME = "彦诺智能测试园区"
-          bean.paymentDishesList = mutableListOf()
-          data.forEach {
-               bean.paymentDishesList.add(PaymentDishesList(
-                    it.dishesId,
-                    it.dishesName,
-                    it.count,
-                    it.price
-               ))
-          }
-
-          val responseScanPay = mRespository.synCsRecord(bean)
-          LogUtil.i(TAG,Gson().toJson(responseScanPay))
-          if (responseScanPay.code != HttpURLConnection.HTTP_OK){
-               saveFailureRecord(bean)
-               LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${responseScanPay.data}")
-          }else {
-               LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
-          }
-
-     }
-
-     //保存上传失败记录
-     private fun saveFailureRecord(bean: SynConsumeRecordBean){
-          val saveOrder = OwnOrder()
-          bean.apply {
-               saveOrder.deviceSerialNumber = deviceSerialNumber
-               saveOrder.businessId = businessId
-               saveOrder.counterId = counterId
-               saveOrder.consumptionType = consumptionType
-               saveOrder.result = RESULT
-               saveOrder.cusT_ID = CUST_ID
-               saveOrder.payment = PAYMENT ?:0.0
-
-               saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
-               saveOrder.acC_NO = ACC_NO
-               saveOrder.acC_BAL = ACC_BAL ?:0.0
-               saveOrder.acC_TYPE = ACC_TYPE ?:1
-               saveOrder.traceid = TRACEID
-               saveOrder.ordeR_ID = ORDER_ID
-               saveOrder.traN_RESULT = TRAN_RESULT ?: 3
-               saveOrder.offline = OFFLINE
-               saveOrder.errcode = ERRCODE
-               saveOrder.errmsg = ERRMSG
-               saveOrder.accalias = ACCALIAS
-               saveOrder.paytime = PAYTIME
-               saveOrder.businesS_NAME = BUSINESS_NAME
-          }
-          DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
-
-          val saveDishList = mutableListOf<OrderDishList>()
-          bean.paymentDishesList.forEach {
-               val dish = OrderDishList()
-               dish.dishesId = it.dishesId
-               dish.dishesName = it.dishesName
-               dish.dishesNumber = it.dishesNumber
-               dish.dishesPrice = it.dishesPrice
-               dish.order = saveOrder
-               saveDishList.add(dish)
-          }
-          DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
-     }
 
 
      fun release() {
@@ -411,45 +305,6 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           }
           payBean.order_id= NumberGenerateUtil.getOrderNumber()
 
-          var builder = StringBuilder()
-          builder.append("BUSINESS_ID=")
-          builder.append(payBean.business_id)
-          builder.append("&VPOS_ID=")
-          builder.append(payBean.vpos_id)
-          builder.append("&PAYMENT=")
-          builder.append(payBean.payment)
-          builder.append("&ACTUAL_PAYMENT=")
-          builder.append(payBean.actual_payment)
-          builder.append("&COUPON_INFO=")
-          builder.append(payBean.coupon_info)
-          builder.append("&OFFLINE=")
-          builder.append(payBean.offline)
-          builder.append("&SIGN_TIME=")
-          builder.append(payBean.sign_time)
-//          builder.append("&ACC_NOS=")
-//          builder.append(payBean.acc_nos)
-          builder.append("&CARD_ID=")
-          builder.append(payBean.card_id)
-          builder.append("&CUST_ID=")
-          builder.append(payBean.cust_id)
-          builder.append("&ORDER_ID=")
-          builder.append(payBean.order_id)
-
-          val ccbSafeParam = CanteenEncryptionUtil.encryption(builder.toString())
-
-          builder = StringBuilder()
-          builder.append("http://121.40.54.232:8090/CCBIS/B2CMainPlat_00_ZHST")
-          builder.append("?CCB_IBSVersion=V6&PT_STYLE=8&PT_LANGUAGE=CN&CAMPUS_ID=")
-          builder.append(payBean.campus_id)
-          builder.append("&TXCODE=")
-          builder.append(payBean.txcode)
-          builder.append("&CORP_ID=")
-          builder.append(payBean.corp_id)
-          builder.append("&ccbSafeParam=")
-          builder.append(ccbSafeParam)
-
-          payBean.cipherUrl = builder.toString()
-
           val payState = PayResultForUI()
           payState.way = "刷卡支付"
           payState.orderid = payBean.order_id
@@ -466,17 +321,24 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           when(payBean.offline){
                "0" -> {
                     runBlocking {
-                         val res = mRespository.getScanQrData(payBean.cipherUrl)
+
+                         val map = CanteenEncryptionUtil.getCardToPay(payBean)
+                         val res = mRespository.getCcbData(map).body()?.let { //扫码支付
+                              Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                         }
+
                          LogUtil.e("ning", Gson().toJson(res))
-                         if (res.RESULT.toString() == "Y"){
-                              payState.payment = res.ACTUAL_PAYMENT
-                              payState.acc_no = res.ACC_NO
-                              payState.acc_bal = res.ACC_BAL
+                         if (res?.RESULT.toString() == "Y"){
+                              payState.payment = res?.ACTUAL_PAYMENT
+                              payState.acc_no = res?.ACC_NO
+                              payState.acc_bal = res?.ACC_BAL
                               payState.result = PayResultForUI.Result.SUCCESS
-                              mDishes?.let { cardConsumeRecord(payBean,res, it.products) }
+                              if (mDishes != null && res != null){
+                                   mDataPresenter.cardConsumeRecord(payBean, res, mDishes!!.products)
+                              }
                          }else {
                               payState.result = PayResultForUI.Result.FAIL
-                              payState.errormsg = "error ${res.ERRCODE} ${res.ERRMSG} "
+                              payState.errormsg = "error ${res?.ERRCODE} ${res?.ERRMSG} "
                          }
                          listener?.onOtherListener(3,payState)
                     }
@@ -503,55 +365,4 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           }
      }
 
-     suspend fun cardConsumeRecord(scanPay :CardPay, resScan : ScanQrResultBean, data :MutableList<DishesInfo>){
-          val bean = SynConsumeRecordBean()
-          bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-          bean.businessId = scanPay.business_id
-          bean.counterId = scanPay.vpos_id
-          bean.consumptionType = 2    //1：刷脸，2：扫码，3：离线订单
-          bean.RESULT  = resScan.RESULT.toString()
-          bean.CUST_ID = scanPay.cust_id
-          bean.PAYMENT = resScan.PAYMENT?.toDouble()
-          bean.ACTUAL_PAYMENT = resScan.ACTUAL_PAYMENT?.toDouble()
-          bean.ACC_NO = resScan.ACC_NO
-          bean.ACC_BAL = resScan.ACC_BAL?.toDouble()
-          bean.ACC_TYPE = resScan.ACC_TYPE?.toInt()
-          bean.TRACEID = ""
-          bean.ORDER_ID = scanPay.order_id
-          bean.TRAN_RESULT =  when(resScan.RESULT.toString()){
-               "Y" -> 3
-               "N" -> 2
-               else -> null
-          }
-          bean.OFFLINE = scanPay.offline.toInt()
-          bean.ERRCODE = resScan.ERRCODE
-          bean.ERRMSG = resScan.ERRMSG
-          bean.ACCALIAS = when(bean.ACC_TYPE){
-               1 -> "现金账号"
-               2 -> "餐补账户"
-               3 -> "餐补账户1"
-               else -> ""
-          }
-          bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-          bean.BUSINESS_NAME = "彦诺智能测试园区"
-          bean.paymentDishesList = mutableListOf()
-          data.forEach {
-               bean.paymentDishesList.add(PaymentDishesList(
-                    it.dishesId,
-                    it.dishesName,
-                    it.count,
-                    it.price
-               ))
-          }
-
-          val responseScanPay = mRespository.synCsRecord(bean)
-          LogUtil.i(TAG,Gson().toJson(responseScanPay))
-          if (responseScanPay.code != HttpURLConnection.HTTP_OK){
-               saveFailureRecord(bean)
-               LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${responseScanPay.data}")
-          }else {
-               LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
-          }
-
-     }
 }

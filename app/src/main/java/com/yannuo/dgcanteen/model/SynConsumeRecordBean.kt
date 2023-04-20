@@ -6,7 +6,7 @@ class SynConsumeRecordBean{
     var deviceSerialNumber :String ?= null //设备序列号
     var businessId :String ?= null            //商家Id
     var counterId :String ?= null          //柜台号
-    var consumptionType :Int = 0       //消费类型：1：刷脸，2：扫码，3：离线订单
+    var consumptionType :Int = 0       //消费类型：1：刷脸，2：扫码，3：刷卡
     var RESULT :String ?= null             //订单结果: N：失败，Y：成功
     var CUST_ID :String ?= null            //用户唯一标识
     var PAYMENT :Double ?= null            //原始金额

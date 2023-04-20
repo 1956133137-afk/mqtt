@@ -43,7 +43,7 @@ public class RetrofitClient {
     public static ApiService getApiCcb(){
         if (mCcbService == null) {
             synchronized (RetrofitClient.class) {
-                String basePath = "http://121.40.54.232:8090/CCBIS/B2CMainPlat_00_ZHST";
+                String basePath = "http://121.40.54.232:8090/CCBIS/";
                 mCcbService = new Retrofit.Builder()
                         .client(OkHttpUtils.Companion.getInstance())
                         .baseUrl(basePath)

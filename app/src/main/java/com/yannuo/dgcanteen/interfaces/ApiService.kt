@@ -17,13 +17,6 @@ interface ApiService {
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
-    //
-    @Headers("content-type: application/x-www-form-urlencoded")
-    @FormUrlEncoded
-    @POST()
-    suspend fun payByCard(@FieldMap map: Map<String,String>): Response<ResponseBody>
-
-
     // 获取菜品
     @Headers("content-type: application/json")
     @GET("android/getDishes")
@@ -39,51 +32,10 @@ interface ApiService {
     @POST("deviceData/byCardIdSelectUser")
     suspend fun userInfo(@Body map: Map<String,String>) : CanteenResponse<UserInfoBean>
 
-    //解析用户付款码
+    //智慧食堂请求
     @Headers("content-type: application/x-www-form-urlencoded")
-    @POST
-    suspend fun scanQrAnalysis(@Url url: String?): ScanAnalysisBean
-
-    //二维码被扫支付  //刷卡支付
-    @Headers("content-type: application/x-www-form-urlencoded")
-    @POST
-    suspend fun scanQrPay(@Url url: String?): ScanQrResultBean
-
-    //被扫支付结果查询
-    @Headers("content-type: application/x-www-form-urlencoded")
-    @POST
-    suspend fun scanQuery(@Url url: String?): ScanQueryBean
-
-//    // 同步消费记录
-//    @Headers("content-type: application/json")
-//    @POST("deviceData/insertPaymentRecord")
-//    suspend fun synConsumeRecord(@Body data: SynConsumeRecordBean)
-//
-//
-//    //  建行
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/panda/swept")
-//    suspend fun ccbPay(  @Query("carrier")sn : String): PayResponse<String>
-//
-//    //建行  查询支付状态
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/panda/payState")
-//    suspend fun ccbPayState(  @Query("carrier")sn : String): PayResponse<String>
-//
-//
-//    //建行  获取支付动态二维码
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/panda/dynamicQr")
-//    suspend fun ccbDynamicQr(  @Query("carrier")sn : String): PayResponse<String>
-//
-//    //建行  获取支聚合支付动态二维码
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/aggregation")
-//    suspend fun ccbAggregation(  @Query("carrier")sn : String): PayResponse<String>
-//
-//    //建行  查询聚合支付支付状态
-//    @Headers("content-type: application/json")
-//    @POST("pay/ccb/aggregation/payState")
-//    suspend fun ccbAggregationState(  @Query("carrier")sn : String): PayResponse<String>
+    @FormUrlEncoded
+    @POST("B2CMainPlat_00_ZHST")
+    suspend fun ccbRequestNet(@FieldMap map: Map<String,String>): Response<ResponseBody>
 
 }

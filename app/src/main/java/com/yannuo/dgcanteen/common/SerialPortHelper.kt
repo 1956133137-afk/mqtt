@@ -101,7 +101,9 @@ class SerialPortHelper() {
 //                            content =""
 //                        }
                         content = content.replace("\r\n","")
-                        readDataListener?.numberOfIcCard(content)
+                        if (read > 1){
+                            readDataListener?.numberOfIcCard(content)
+                        }
                         content =""
                         read = -1
                     }

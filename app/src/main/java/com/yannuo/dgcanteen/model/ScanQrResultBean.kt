@@ -7,8 +7,9 @@ class ScanQrResultBean {
     var ACTUAL_PAYMENT :String ?= null   //实际支付金额
     var ACC_NO :String ?= null           //支付账号
     var ACC_TYPE :String ?= null         //账号类型
-    var ORDER_ID :String ?= null         //订单号
+    var ORDERID :String ?= null         //订单号
     var ACC_BAL :String ?= null          //虚账户余额
+    var REMAIN_BAL :String ?= null
     var ERRCODE :String ?= null         //错误码
     var ERRMSG :String ?= null          //错误信息
 
@@ -20,10 +21,6 @@ class ScanQrResultBean {
     constructor(code: String?, msg: String?) {
         this.ERRCODE = code.toString()
         this.ERRMSG = msg
-    }
-
-    override fun toString(): String {
-        return "ScanQrResultBean(RESULT=$RESULT, PAYMENT=$PAYMENT, ACTUAL_PAYMENT=$ACTUAL_PAYMENT, ACC_NO=$ACC_NO, ACC_TYPE=$ACC_TYPE, ORDER_ID=$ORDER_ID, ACC_BAL=$ACC_BAL, ERRCODE=$ERRCODE, ERRMSG=$ERRMSG)"
     }
 
     enum class Result{

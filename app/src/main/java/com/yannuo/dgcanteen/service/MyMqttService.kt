@@ -14,11 +14,12 @@ import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.activitys.presenters.PayPresenter
+import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
+import com.yannuo.dgcanteen.dao.OffLineTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
@@ -55,6 +56,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private lateinit var mScope : CoroutineScope
     private lateinit var mHandle : CoroutineExceptionHandler
     private lateinit var mRespository : PayRepositoryOfPay
+    private lateinit var mDataPresenter : DataPresenter
 
 
 
@@ -68,6 +70,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         mScope.launch {
 
             mRespository = PayRepositoryOfPay()
+            mDataPresenter = DataPresenter()
             binder = InteractionBinder(this@MyMqttService)
             mqttStateListener = MqttConnectState()
             binder.registerListener(mqttStateListener)
@@ -181,14 +184,16 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     val gson = Gson()
                     do {
                         val order = DishesDBHelper.getInstance().queryOffLineOrder()
-                        order?.also {
+                        order?.also { it ->
                             val js = gson.toJson(order)
                             LogUtil.d(TAG, js)
-                            val bean = gson.fromJson(js, CcbScanPayBean::class.java)
-                            val url = CanteenEncryptionUtil.requestScanData(bean)
-                            val res = mRespository.getScanQrData(url)
-                            if (res.RESULT.toString() == "Y"){
-                                LogUtil.d(TAG,"离线订单${bean.ORDER_ID} 补扣成功")
+                            val bean = gson.fromJson(js, OffLineTable::class.java)
+                            val map = CanteenEncryptionUtil.getScanToPay(bean)
+                            val res = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                            }
+                            if (res?.RESULT.toString() == "Y"){
+                                LogUtil.d(TAG,"离线订单${bean.ordeR_ID} 补扣成功")
                                 val dishes: MutableList<DishesInfo> = mutableListOf()
                                 it.offLineDishesList.forEach {
                                     dishes.add(
@@ -206,20 +211,18 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                     )
                                 }
 
-                                val scanPayPresenter = PayPresenter()
                                 //上传消费记录
-                                scanPayPresenter.consumeRecord( bean, res, dishes)
+                                res?.let { mDataPresenter.consumeRecord( bean, it, dishes) }
 
                                 //删除对应离线记录的菜品
                                 DishesDBHelper.getInstance().deleteOffLineDish(it.offLineDishesList[0].orderid)
                                 //删除对应的离线订单记录
                                 DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
-                                LogUtil.i(TAG,"离线订单${bean.ORDER_ID} 上传成功!")
+                                LogUtil.i(TAG,"离线订单${bean.ordeR_ID} 上传成功!")
                             }else {
-                                LogUtil.e(TAG,"离线补扣${bean.ORDER_ID} 订单失败==\n${res.ERRMSG}")
+                                LogUtil.e(TAG,"离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
                                 //修改请求标志
                                 it.postTag = true
-//                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
                                 DishesDBHelper.getInstance().updateOffLineOrder(it)
                             }
                         }
@@ -243,12 +246,16 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     val gson = Gson()
                     do {
                         val order = DishesDBHelper.getInstance().queryCardOrder()
-                        order?.also {
+                        order?.also { it ->
                             val js = gson.toJson(order)
                             LogUtil.d(TAG, js)
                             val bean = gson.fromJson(js, CardPay::class.java)
-                            val res = mRespository.getScanQrData(bean.cipherUrl)
-                            if (res.RESULT.toString() == "Y"){
+                            val map = CanteenEncryptionUtil.getCardToPay(bean)
+                            val res = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                            }
+
+                            if (res?.RESULT.toString() == "Y"){
                                 LogUtil.d(TAG,"离线订单${bean.order_id} 补扣成功")
                                 val dishes: MutableList<DishesInfo> = mutableListOf()
                                 it.cardDishesList.forEach {
@@ -267,9 +274,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                     )
                                 }
 
-                                val scanPayPresenter = PayPresenter()
                                 //上传消费记录
-                                scanPayPresenter.cardConsumeRecord( bean, res, dishes)
+                                res?.let { mDataPresenter.cardConsumeRecord( bean, it, dishes) }
 
                                 //删除对应离线记录的菜品
                                 DishesDBHelper.getInstance().deleteCardDish(it.cardDishesList[0].orderid)
@@ -277,7 +283,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                 DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
                                 LogUtil.i(TAG,"离线订单${bean.order_id} 上传成功!")
                             }else {
-                                LogUtil.e(TAG,"离线补扣${bean.order_id} 订单失败==\n${res.ERRMSG}")
+                                LogUtil.e(TAG,"离线补扣${bean.order_id} 订单失败==\n${res?.ERRMSG}")
                                 //修改请求标志
                                 it.up = true
                                 DishesDBHelper.getInstance().updateCardOrder(it)
