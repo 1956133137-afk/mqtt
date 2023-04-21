@@ -5,12 +5,19 @@ import android.util.Log;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class DES3CBCUtil {
 
@@ -55,6 +62,35 @@ public class DES3CBCUtil {
             e.printStackTrace();
         }
         return "";
+    }
+
+
+
+    public static String decryptRSA(String result,String pkey){
+        String res = "";
+
+        try {
+            byte[] rsaDeBytes = Base64.decode(pkey.getBytes(), Base64.NO_WRAP);
+            PKCS8EncodedKeySpec rsaDeKeySpec = new PKCS8EncodedKeySpec(rsaDeBytes);
+            KeyFactory rsaDeFactory = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = rsaDeFactory.generatePrivate(rsaDeKeySpec);
+            Cipher rsaDeCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            rsaDeCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] rsaDeMsgBytes = rsaDeCipher.doFinal(Base64.decode(result.substring(result.length() - 172), Base64.NO_WRAP));
+            String ppk = new String(rsaDeMsgBytes,"utf-8");
+
+            // dse解密
+            Cipher deCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            KeySpec deKeySpec = new DESKeySpec(ppk.getBytes());
+            SecretKeyFactory deDecretKeyFactory = SecretKeyFactory.getInstance("DES");
+            SecretKey deSecretKey = deDecretKeyFactory.generateSecret(deKeySpec);
+            deCipher.init(Cipher.DECRYPT_MODE, deSecretKey,new SecureRandom());
+            byte[] deMsgBytes = deCipher.doFinal(Base64.decode(result.substring(0,result.length() - 172),Base64.NO_WRAP));
+            res = new String(deMsgBytes);
+        }catch (Exception e){
+            LogUtil.e("decryptRSA", e.getMessage());
+        }
+        return res;
     }
 
 }

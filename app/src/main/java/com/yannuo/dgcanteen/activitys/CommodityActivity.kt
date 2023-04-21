@@ -274,7 +274,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
     private fun updatePayState(data : PayResultForUI){
         val count = binding.flPayResult.childCount
-        binding.mvControl.text = "支付数据更新啦"
         when(data.result){
             PayResultForUI.Result.SUCCESS ->{
                 if (count == 1){
@@ -303,6 +302,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 refreshFailState(data)
             }
         }
+        binding.mvControl.text = "支付数据更新啦"
     }
 
 

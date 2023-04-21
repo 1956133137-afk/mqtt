@@ -73,7 +73,7 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         binding.btnExitAlive.setOnClickListener(view -> { //退出保活
-
+            WorkManager.getInstance(this).cancelUniqueWork(Constant.PERIODIC_WORK_KEY);
         });
 
         binding.btnSave.setOnClickListener(view -> { //保存信息

@@ -12,8 +12,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-//        private final static  String BASE_URL ="http://192.168.2.50:28099/";
-    private final  String BASE_URL ="https://test.yannuozhineng.com/ccb/canteen/api/";
+//        private final static  String BASE_URL ="http://192.168.2.82:9001/";
+//    private final  String BASE_URL ="https://test.yannuozhineng.com/ccb/canteen/api/";
     private static ApiService mService ;
     private static ApiService mCcbService ;
 
@@ -22,6 +22,7 @@ public class RetrofitClient {
         mService = new Retrofit.Builder()
                 .client(OkHttpUtils.Companion.getInstance())
                 .baseUrl(MMKV.defaultMMKV().decodeString(Constant.ADDRESS))
+//                .baseUrl(BASE_URL)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

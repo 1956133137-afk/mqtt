@@ -8,49 +8,37 @@ object Constant {
     //mqtt地址
     const val mqttAddressKey = "mqtt"
     const val mqttAddressValue = "tcp://acms.yannuozhineng.com:3883"
-
     //mqtt账号
     const val mqttAccountKey = "mqtta"
     const val mqttAccountValue = "acms"
-
     //mqtt密码
     const val mqttPassworkKey = "mqttp"
     const val mqttPassworkValue = "ACMS2022~!@"
-
     //周期任务-检查软件版本
     const val PERIODIC_WORK_KEY = "app-update-task"
-
 //    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
-
     //服务器地址
     const val ADDRESS = "Address"
-
     //是否离线
     const val SWITCH = "Switch"
-
     //mqtt服务地址
     const val MQTT_ADDRESS = "MqttAddress"
-
     //mqtt账号
     const val MQTT_ACCOUNT = "MqttAccount"
-
     //mqtt密码
     const val MQTT_PASSWORD = "MqttPassword"
-
     //菜品数据最后同步时间
     const val FINAL_TIME = "FinalTime"
-
     //支付配置信息
     const val PAY_CONFIG = "PCfg"
-
     //当前版本
     const val VERSION = "Version"
     //菜品更新更新标志
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年
-
     const val PIC_DIR = "pic" //菜品图片保存目录
-
+    const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
+    const val CURRENT_PAGE = "page" //当前人员下载页
 
 
 

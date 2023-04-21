@@ -95,6 +95,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
         //离线刷卡补扣
         cardFillMoney()
+        //下载人员
+        downPerson()
 
         LogUtil.d(TAG,"服务启动")
 
@@ -322,20 +324,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     }
 
 
-    override fun onDestroy() {
-        WorkManager.getInstance(this).cancelUniqueWork(Constant.PERIODIC_WORK_KEY)
-        LogUtil.d(TAG,"服务关闭")
-        //取消mqtt监听
-        binder.unRegisterListener()
-        //断开mqtt
-        binder.disconnect()
-
-        //取消网络状态监听
-        NetworkStateManager.getInstance().unRegisterObserver(this)
-        //关闭扫码头
-        ScanDevice.closeScan();
-        super.onDestroy()
-    }
 
     override fun netWorkStatus(statue: String?) {
         runTask = if (statue.equals("0")) {
@@ -498,6 +486,56 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     }
 
 
+    @OptIn(ExperimentalTime::class)
+    private fun downPerson(){
+        mScope.launch {
+            val prvKey ="MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIGRJ0RqOaaYrem6zmTo" +
+                    "/SF2OROMcJwRws/b05kaG0N90ZKFdRucIuiWvCiU4y9LLD6yNaCIyDGH0VubFOGnwzF7BqGR" +
+                    "4LTJgCHtfYodkE8XA99/P/cT/gi38uoX+UBnjxR2WeJPhHEr59tvVejb93KJQPMnhs7wJnxX" +
+                    "YycTmJuLAgMBAAECgYAvoMcZfB7jIb7Ua2oRaCAc29ORXw/KHzFIrVs0LYeWILsYLFznIFco" +
+                    "vrg+BrUYnn6OMX5LG9zTcETCctiTNtMmaBwG6J41GNWdwwJDdTmhjXs/jh6q1Wp3oT4jzlJW" +
+                    "DozrwTWnzxFg/zoywntSFd46xzlt0YIXxpSQR8e0WxktYQJBAME/MTnp8csABoZ/OGhIS4qb" +
+                    "xlVayHS+H8qCOU1mdb/aYDoiqf94LYpebqkCwcerjhz02ZX9xwqWTA2TUib8p1ECQQCrpDDi" +
+                    "/M+mU2f63qs66usmLCIeJpaD56AeYIm5TdVC7PI6ZOx/FsBxJGkk1b6pmrOEAKQ7lFhMoq4U" +
+                    "Z2I28hYbAkAqQF/J8s2L/ehvVbeGjW/+0UpO9Tdo1vzqcQiIVMOf++YYL+YNVkBWxYjaaSDn" +
+                    "QColSJ+ePMtdFDlyqmhG3+zRAkAghHq+hibQ2/xXCthl0Ru7n6DXFXhuhPNQzflJofVFOJ6r" +
+                    "cXNcoHLU/JDu6Y+1khlwaK60muYfnrJcKznwLu0BAkAKhJcHprKRRCJpT//A169jrbfuX1B6" +
+                    "mFcOGXwPzO2s1JYzUlXCU4ylOVrLmdOpV+e7OSkrKNihVeIUm+TJt4MK"
+            while (isActive) {
+                val mv = MMKV.defaultMMKV()
+                val upTime = mv.decodeLong(Constant.PERSONINFO_TIME,0)
+                var currentPage = mv.decodeInt(Constant.CURRENT_PAGE,0)
+                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(2))
+                if(currentPage ==0)currentPage+=1
+                if (timeout || (currentPage != 0)){
+                    LogUtil.d(TAG,"准备全量更新人员")
+                    val res = mRespository.downPerson(2, 1)
+                    val result = DES3CBCUtil.decryptRSA(res.data,prvKey)
+                    val bean = Gson().fromJson(result, PersonList::class.java)
+                    currentPage++
+                }
+                delay(Duration.minutes(30))
+            }
+        }
+    }
 
+
+
+    override fun onDestroy() {
+
+
+        LogUtil.d(TAG,"服务关闭")
+        //取消mqtt监听
+        binder.unRegisterListener()
+        //断开mqtt
+        binder.disconnect()
+
+        //取消网络状态监听
+        NetworkStateManager.getInstance().unRegisterObserver(this)
+        //关闭扫码头
+        ScanDevice.closeScan()
+        mScope.cancel()
+        super.onDestroy()
+    }
 
 }

@@ -1,8 +1,10 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
+import com.google.gson.Gson
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.paymoney.utils.ApiException
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +34,19 @@ class PayRepositoryOfPay {
         return apiCall {
             val request = PayCfgRequest(CommonAndDpToPxUtil.getDeviceSerial())
             RetrofitClient.getApi().getPayCfg(request)
+        }
+    }
+
+    /**
+     *
+     * @param pageSize Int 每页大小
+     * @param page Int  第几页
+     * @return CanteenResponse<PayCfg>
+     */
+    suspend fun downPerson(pageSize :Int ,page : Int):CanteenResponse<String>{
+        return apiCall {
+            val request = PersonRequest(CommonAndDpToPxUtil.getDeviceSerial(),page,pageSize)
+            RetrofitClient.getApi().downPerson(request)
         }
     }
 

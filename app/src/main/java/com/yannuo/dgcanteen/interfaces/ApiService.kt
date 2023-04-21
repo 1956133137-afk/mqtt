@@ -26,6 +26,16 @@ interface ApiService {
     @POST("deviceData/selectDeviceData")
     suspend fun getPayCfg(@Body sn : PayCfgRequest):CanteenResponse<PayCfg>
 
+
+    /**
+     * 下载园区人员
+     */
+
+    @Headers("content-type: application/json")
+    @POST("deviceData/selectUserData")
+    suspend fun downPerson(@Body request : PersonRequest):CanteenResponse<String>
+
+
     // 获取菜品
     @Headers("content-type: application/json")
     @GET("android/getDishes")
