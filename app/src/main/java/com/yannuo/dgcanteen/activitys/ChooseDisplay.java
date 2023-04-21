@@ -67,12 +67,13 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         binding.rvSecondDetail.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rvSecondDetail.setAdapter(mShopsAdapter);
         mPresenter = new PayPresenter();
+
+        //设置菜品数据
+        mPresenter.setMDishes(mDishes);
         //监听交易过程
         mPresenter.setListener(this);
         //打开IC开
-
-        mPresenter.openIcCard();
-        mPresenter.setMDishes(mDishes);
+//        mPresenter.openIcCard();
     }
 
     private void initView() {

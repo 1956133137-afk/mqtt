@@ -43,11 +43,15 @@ class ProductsVM :ViewModel() {
     private val TAG = javaClass.simpleName
     private lateinit var mRespository :PayRepositoryOfPay
     private var exceptionHandler :CoroutineExceptionHandler
+    private lateinit var kv : MMKV
+    private lateinit var mPayCfg : PayCfg
 
     var listener : IProductsVM?= null
 
 
     init {
+        kv = MMKV.defaultMMKV()
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)!!
         showToastEvent = MutableLiveData()
         loadingEvent = MutableLiveData()
         mRespository =  PayRepositoryOfPay()
@@ -64,7 +68,7 @@ class ProductsVM :ViewModel() {
      * @return Boolean
      */
     private fun checkIsNeedUpdate() :Boolean{
-        val kv = MMKV.defaultMMKV()
+//        val kv = MMKV.defaultMMKV()
         val old = kv.decodeString(Constant.UPDATE_TIME,Constant.update_time)
         val now = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString()
         return  (old!!.toInt() >= now.toInt())
@@ -126,7 +130,7 @@ class ProductsVM :ViewModel() {
                     downLoadPic(picList)
 
                     //设置菜品数据已更新
-                    val kv = MMKV.defaultMMKV()
+//                    val kv = MMKV.defaultMMKV()
                     val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
                     kv.encode(Constant.UPDATE_TIME,now.substring(0,8))
                     kv.encode(Constant.FINAL_TIME,now )
@@ -151,13 +155,13 @@ class ProductsVM :ViewModel() {
      */
     fun startPayWithFace(service: ZHSTFacePayService?, detail: ProductsDetail) {
         viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
-            val mv = MMKV.defaultMMKV()
-            val payCfg = mv.decodeParcelable(
-                Constant.PAY_CONFIG,
-                PayCfg::class.java
-            )
-            if (payCfg == null || TextUtils.isEmpty(payCfg.campusId) ||
-                TextUtils.isEmpty(payCfg.businessId) || TextUtils.isEmpty(payCfg.counterId)
+//            val mv = MMKV.defaultMMKV()
+//            val payCfg = kv.decodeParcelable(
+//                Constant.PAY_CONFIG,
+//                PayCfg::class.java
+//            )
+            if (mPayCfg == null || TextUtils.isEmpty(mPayCfg.campusId) ||
+                TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)
             ) {
                 LogUtil.e(TAG, "未配置支付环境")
                 throw Throwable("未配置支付环境")
@@ -167,17 +171,17 @@ class ProductsVM :ViewModel() {
                 stringBuffer.append("${ da.dishesName};")
             }
             var offline = 0  //在线
-            if (mv.decodeBool(Constant.SWITCH)) {
+            if (kv.decodeBool(Constant.SWITCH)) {
                 offline = 1  //离线
             }
 
 
             val bean = CcbFacePayBean()
-            bean.CAMPUS_ID = "441999527"
-            bean.CORP_ID = "1041"
+            bean.CAMPUS_ID = mPayCfg.campusId.toString()
+            bean.CORP_ID = mPayCfg.corp_id.toString()
             bean.PAYMENT = detail.totalMoney.replace('元',' ')
-            bean.BUSINESS_ID = "SJ2023032511004"
-            bean.VPOS_ID = "V00463775"
+            bean.BUSINESS_ID = mPayCfg.businessId.toString()
+            bean.VPOS_ID = mPayCfg.counterId.toString()
             bean.REMARK = stringBuffer.toString()
             bean.OFFLINE = offline.toString()
 
@@ -233,8 +237,8 @@ class ProductsVM :ViewModel() {
 
             val bean = SynConsumeRecordBean()
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-            bean.businessId = "SJ2023032511004"
-            bean.counterId = "V00463775"
+            bean.businessId = mPayCfg.businessId
+            bean.counterId = mPayCfg.counterId
             bean.consumptionType = 1
             bean.RESULT  = "Y"
             bean.CUST_ID = payResult.CUST_ID

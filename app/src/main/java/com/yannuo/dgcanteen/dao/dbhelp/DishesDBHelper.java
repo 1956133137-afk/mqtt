@@ -136,14 +136,6 @@ public class DishesDBHelper {
                 .list();
     }
 
-    public List<DishesTable> queryDishesByStatus(int Status){
-
-        return  mDishesTableDao.queryBuilder()
-                .where(DishesTableDao.Properties.Status.eq(Status))
-                .build()
-                .list();
-    }
-
     public List<DishesTable> queryDishesByMealIdAneStatus(int MealId,int Status){
 
         return  mDishesTableDao.queryBuilder()
@@ -172,13 +164,6 @@ public class DishesDBHelper {
                 .build().unique();
         dish.setStatus(status);
         mDishesTableDao.update(dish);
-//        List<DishesTable> dishes = mDishesTableDao.queryBuilder()
-//                .where(DishesTableDao.Properties.DishesId.eq(id))
-//                .build().list();
-//        for (DishesTable u : dishes){
-//            u.setStatus(status);
-//            mDishesTableDao.update(u);
-//        }
     }
 
     /**
@@ -207,6 +192,7 @@ public class DishesDBHelper {
                 .build()
                 .unique();
     }
+
     public List<MealTable> queryAllMeals(){
         return mMealTableDao.queryBuilder()
                 .build()

@@ -18,8 +18,6 @@ interface ApiService {
     @POST
     fun checkAppUpdate(@Url url: String?, @Body info: AppInfoB?): Observable<AppUpdateResultB>
 
-
-
    /**
      * 获取设备指定的支付配置
      */
@@ -27,7 +25,6 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("deviceData/selectDeviceData")
     suspend fun getPayCfg(@Body sn : PayCfgRequest):CanteenResponse<PayCfg>
-
 
     // 获取菜品
     @Headers("content-type: application/json")

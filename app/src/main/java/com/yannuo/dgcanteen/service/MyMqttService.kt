@@ -96,10 +96,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         //离线刷卡补扣
         cardFillMoney()
 
-
         LogUtil.d(TAG,"服务启动")
-
-
 
     }
 
@@ -184,23 +181,18 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun offLineFillMoney(){
         mScope.launch {
             while (isActive){
-                LogUtil.i(TAG,"离线订单补扣开始请求...")
                 delay(Duration.hours(1))
-                //进行离线补扣
-                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态
-                    val gson = Gson()
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态 //进行离线补扣
+                    LogUtil.i(TAG,"离线订单补扣开始请求...")
                     do {
                         val order = DishesDBHelper.getInstance().queryOffLineOrder()
                         order?.also { it ->
-                            val js = gson.toJson(order)
-                            LogUtil.d(TAG, js)
-                            val bean = gson.fromJson(js, OffLineTable::class.java)
+                            val bean = Gson().fromJson(Gson().toJson(order), OffLineTable::class.java)
                             val map = CanteenEncryptionUtil.getScanToPay(bean)
                             val res = mRespository.getCcbData(map).body()?.let { //扫码支付
                                 Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
                             }
                             if (res?.RESULT.toString() == "Y"){
-                                LogUtil.d(TAG,"离线订单${bean.ordeR_ID} 补扣成功")
                                 val dishes: MutableList<DishesInfo> = mutableListOf()
                                 it.offLineDishesList.forEach {
                                     dishes.add(
@@ -247,23 +239,18 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun cardFillMoney(){
         mScope.launch {
             while (isActive){
-                LogUtil.i(TAG,"离线刷卡订单请求开始...")
                 delay(Duration.hours(1))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
-                    val gson = Gson()
+                    LogUtil.i(TAG,"离线刷卡订单请求开始...")
                     do {
                         val order = DishesDBHelper.getInstance().queryCardOrder()
                         order?.also { it ->
-                            val js = gson.toJson(order)
-                            LogUtil.d(TAG, js)
-                            val bean = gson.fromJson(js, CardPay::class.java)
+                            val bean = Gson().fromJson(Gson().toJson(order), CardPay::class.java)
                             val map = CanteenEncryptionUtil.getCardToPay(bean)
                             val res = mRespository.getCcbData(map).body()?.let { //扫码支付
                                 Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
                             }
-
                             if (res?.RESULT.toString() == "Y"){
-                                LogUtil.d(TAG,"离线订单${bean.order_id} 补扣成功")
                                 val dishes: MutableList<DishesInfo> = mutableListOf()
                                 it.cardDishesList.forEach {
                                     dishes.add(

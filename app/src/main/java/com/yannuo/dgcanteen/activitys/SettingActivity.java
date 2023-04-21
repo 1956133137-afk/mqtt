@@ -68,6 +68,10 @@ public class SettingActivity extends AppCompatActivity {
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(Constant.PERIODIC_WORK_KEY, ExistingPeriodicWorkPolicy.REPLACE,work);
         });
 
+        binding.btnSynPerson.setOnClickListener(view -> { //同步人员信息
+
+        });
+
         binding.btnExitAlive.setOnClickListener(view -> { //退出保活
 
         });

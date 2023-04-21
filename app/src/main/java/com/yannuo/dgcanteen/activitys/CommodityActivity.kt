@@ -388,14 +388,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         }
     }
 
-    /**
-     * 被扫结果回调
-     * @param data PayResultForUI
-     */
-    override fun onScanPayResult(data: PayResultForUI) {
-
-    }
-
     inner class MyHandler(context : CommodityActivity) : Handler(){
         private var reference : WeakReference<CommodityActivity> = WeakReference(context)
 
@@ -447,10 +439,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         mProductsDisplay = DifferentDisplay( this, displays)
         mProductsDisplay?.show()
     }
-
-
-
-
 
     override fun onDestroy() {
         release()
@@ -509,9 +497,5 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         }
 
     }
-
-
-
-
 
 }

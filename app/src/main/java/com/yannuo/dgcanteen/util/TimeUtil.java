@@ -75,15 +75,4 @@ public class TimeUtil {
         return days * 24 + hours;
     }
 
-    //转时间戳
-    public static String DateToTimestamp() throws ParseException {
-        Calendar calendar = Calendar.getInstance();
-        String year = String.valueOf(calendar.get(Calendar.YEAR));
-        Date time = new SimpleDateFormat("yyyyMMddHHmmss").parse(year + "0101000000");
-        String result = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString() +
-                String.format("%11s",(System.currentTimeMillis() - time.getTime())).replace(" ","0");
-        return result;
-    }
-
-
 }

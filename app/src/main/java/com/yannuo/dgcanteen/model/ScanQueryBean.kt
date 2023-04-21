@@ -10,15 +10,6 @@ class ScanQueryBean {
     var ERRCODE :String ?= null         //错误码
     var ERRMSG :String ?= null          //错误信息
 
-    constructor(code: Int?, msg: String?) {
-        this.ERRCODE = code.toString()
-        this.ERRMSG = msg
-    }
-
-    override fun toString(): String {
-        return "ScanAnalysisBean(RESULT=$RESULT, PAYMENT=$CUST_ID,PAYMENT=$PAYMENT, ACTUAL_PAYMENT=$ACTUAL_PAYMENT, TRAN_RESULT=$TRAN_RESULT, ERRCODE=$ERRCODE, ERRMSG=$ERRMSG)"
-    }
-
     enum class Result{
         Y, N
     }

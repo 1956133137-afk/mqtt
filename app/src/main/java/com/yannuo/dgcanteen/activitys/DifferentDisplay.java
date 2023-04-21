@@ -8,16 +8,17 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Display;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
-import com.yannuo.dgcanteen.activitys.presenters.PayForPresenter;
+import com.yannuo.dgcanteen.activitys.presenters.DataPresenter;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
-import com.yannuo.dgcanteen.common.MyApplication;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
@@ -37,12 +38,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import kotlinx.coroutines.CoroutineScope;
 
 public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
@@ -53,7 +49,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private ProductsAdapter adapterDishes;
     private CoroutineScope scope;
     private MyHandler handler;
-    private PayForPresenter presenter;
+    private DataPresenter presenter;
     private PayForAdapter adapterPayFor;
     private DishesInfo data;
 
@@ -83,19 +79,16 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         dishesData();
 
         handler = new MyHandler();
-        presenter = new PayForPresenter(handler,getContext());
+        presenter = new DataPresenter();
         adapterPayFor = new PayForAdapter();
         adapterPayFor.setListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.rvSelectItem.setLayoutManager(linearLayoutManager);
-//        presenter.scanListener();  //监听扫码头数据
         initData();
     }
 
     private void initView() {
-
         binding.rvSelectItem.setAdapter(adapterPayFor);
-
     }
 
     private void initData() {
@@ -124,13 +117,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
 
     private final void initEvent() {
-        binding.ibDelAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (adapterPayFor.getData().size() < 1)
-                    return;
-                clearShoppingCart();
-            }
+        binding.ibDelAll.setOnClickListener(view -> {
+            if (adapterPayFor.getData().size() < 1)
+                return;
+            clearShoppingCart();
         });
 
 
@@ -193,10 +183,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     }
 
-
-
-
-
     @Override
     public void onEventClick(int position) {
         data = adapterDishes.getData(position);
@@ -208,26 +194,13 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     @Override
     public void onEventClick(@NonNull DishesInfo data) {
 //      清除单个菜品
-        if (data == null){
-            for (DishesInfo u : adapterDishes.getData()){
-                if (u.getCount() !=0){
-                    u.setCount(0);
-                    adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(u),"count");
-                }
-            }
-        }else{
-            adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(data), "count");
-        }
+        adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(data), "count");
         float[] res = presenter.calculate(adapterPayFor.getData());
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
 
-
-
-
     public final class MyHandler extends Handler{
-
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
         }
@@ -237,15 +210,11 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     public void subScreenView(int mealId, StringBuilder str){
         if (mealIds != mealId){
             mealIds = mealId;
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    binding.mealTime.setText(str);
-                    dishesData();
-                }
+            handler.post(() -> {
+                binding.mealTime.setText(str);
+                dishesData();
             });
         }
-
     }
 
     //副屏重新加载时，更新餐别
