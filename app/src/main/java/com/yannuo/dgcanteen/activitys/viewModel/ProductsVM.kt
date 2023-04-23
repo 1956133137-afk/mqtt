@@ -44,14 +44,14 @@ class ProductsVM :ViewModel() {
     private lateinit var mRespository :PayRepositoryOfPay
     private var exceptionHandler :CoroutineExceptionHandler
     private lateinit var kv : MMKV
-    private lateinit var mPayCfg : PayCfg
+    private var mPayCfg : PayCfg ?= null
 
     var listener : IProductsVM?= null
 
 
     init {
         kv = MMKV.defaultMMKV()
-        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)!!
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
         showToastEvent = MutableLiveData()
         loadingEvent = MutableLiveData()
         mRespository =  PayRepositoryOfPay()
@@ -160,8 +160,8 @@ class ProductsVM :ViewModel() {
 //                Constant.PAY_CONFIG,
 //                PayCfg::class.java
 //            )
-            if (mPayCfg == null || TextUtils.isEmpty(mPayCfg.campusId) ||
-                TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)
+            if (mPayCfg == null || TextUtils.isEmpty(mPayCfg!!.campusId) ||
+                TextUtils.isEmpty(mPayCfg!!.businessId) || TextUtils.isEmpty(mPayCfg!!.counterId)
             ) {
                 LogUtil.e(TAG, "未配置支付环境")
                 throw Throwable("未配置支付环境")
@@ -177,11 +177,11 @@ class ProductsVM :ViewModel() {
 
 
             val bean = CcbFacePayBean()
-            bean.CAMPUS_ID = mPayCfg.campusId.toString()
-            bean.CORP_ID = mPayCfg.corp_id.toString()
+            bean.CAMPUS_ID = mPayCfg!!.campusId.toString()
+            bean.CORP_ID = mPayCfg!!.corp_id.toString()
             bean.PAYMENT = detail.totalMoney.replace('元',' ')
-            bean.BUSINESS_ID = mPayCfg.businessId.toString()
-            bean.VPOS_ID = mPayCfg.counterId.toString()
+            bean.BUSINESS_ID = mPayCfg!!.businessId.toString()
+            bean.VPOS_ID = mPayCfg!!.counterId.toString()
             bean.REMARK = stringBuffer.toString()
             bean.OFFLINE = offline.toString()
 
@@ -237,8 +237,8 @@ class ProductsVM :ViewModel() {
 
             val bean = SynConsumeRecordBean()
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-            bean.businessId = mPayCfg.businessId
-            bean.counterId = mPayCfg.counterId
+            bean.businessId = mPayCfg?.businessId
+            bean.counterId = mPayCfg?.counterId
             bean.consumptionType = 1
             bean.RESULT  = "Y"
             bean.CUST_ID = payResult.CUST_ID
