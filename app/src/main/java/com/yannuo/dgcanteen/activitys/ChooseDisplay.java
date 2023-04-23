@@ -73,7 +73,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         //监听交易过程
         mPresenter.setListener(this);
         //打开IC开
-//        mPresenter.openIcCard();
+        mPresenter.openIcCard();
     }
 
     private void initView() {
