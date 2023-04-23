@@ -4,6 +4,7 @@ class PayResultForUI {
 
     var result : Result = Result.FAIL
     var cust_name: String ?= null  //用户名
+    var custId   : String? = null//智慧食堂用户唯一标识（建行平台）
     var orderid :String ?= null  //订单号
     var payment :String ?= null   //金额
     var acc_no: String ?= null  //支付账户

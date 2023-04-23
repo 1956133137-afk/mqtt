@@ -32,14 +32,11 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
     private ChooseSecondDisplayBinding binding;
     private String TAG = getClass().getSimpleName();
-
-    private ZHSTFacePayService  mFacePayService = null;
     private ShopsAdapter mShopsAdapter;
     private ProductsDetail mDishes;
     private WaitForPayDialog waitForPayDialog;
     private LoadingDialog loadingDialog;
     private PayPresenter mPresenter;
-
 
 
     public ChooseDisplay(Context outerContext, ProductsDetail dishes , Display display) {
@@ -86,12 +83,10 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             ScanDevice.INSTANCE.setCallbackListener(null);
             CommonAndDpToPxUtil.speakWork("开始人脸支付");
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
-            dismiss();
         });
 
         binding.btPayQrcode.setOnClickListener(view -> {
             CommonAndDpToPxUtil.speakWork("请出示付款码支付");
-
             if (waitForPayDialog != null) waitForPayDialog.cancel();
             if (waitForPayDialog == null) {
                 waitForPayDialog = new WaitForPayDialog(getContext());
@@ -114,7 +109,6 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         if (mPresenter != null) {
             mPresenter.release();
         }
-
         super.onStop();
     }
 
@@ -141,7 +135,6 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                        .observeOn(AndroidSchedulers.mainThread())
                        .subscribe(integer -> {
                            if (loadingDialog != null) loadingDialog.cancel();
-
                            Toast.makeText(getContext(), (String)any, Toast.LENGTH_SHORT).show();
                        });
                break;
@@ -154,7 +147,6 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                            if (loadingDialog != null) loadingDialog.cancel();
                        });
                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
-               cancel();
                break;
            case 5: //离线码过期或者二维码无效
                Observable.just(1)
@@ -178,8 +170,6 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                        });
                break;
        }
-
-
     }
 
 

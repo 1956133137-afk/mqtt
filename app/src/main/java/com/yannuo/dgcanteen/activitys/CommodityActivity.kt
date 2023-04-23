@@ -55,29 +55,22 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     )
 
     private lateinit var mProductsVM :ProductsVM
-
     private lateinit var handler : MyHandler
     private var value = 0
     private var mXService : MyService ?= null
     private var navigation = true
     private var displays : Display?= null
     private var mFacePayService: ZHSTFacePayService? = null
-
     private var mProductsDisplay : DifferentDisplay ?= null  //点餐界面
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
     private var mPayResultDisplay : PayResultDisplay ?= null  //支付结果界面
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private val messageWhatThird = 3
-    private val messageWhatFourth = 4
     private  var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
-
     private var mMealId = 0
     private var mealId = 0
-
-
-
     private var successBinding : PaySuccessHostBinding ?= null
     private var failBinding : PayFailureHostBinding ?= null
 
@@ -99,7 +92,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
 
-
     @SuppressLint("CheckResult")
     override fun onInit() {
         mXService = MyService(this)
@@ -112,13 +104,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             initObj()
             initView()
             initEvent()
-
             timer = Timer()
             timer!!.schedule(timerTask,0,1000)
-
         }
     }
-
 
 
     private fun initPresentation() {
@@ -143,7 +132,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         mProductsVM.listener = this
         EventBus.getDefault().register(this)
 
-
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
@@ -151,11 +139,9 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //注册网络状态监听
         NetworkStateManager.getInstance().registerObserver(this)
 
-
     }
 
     private fun initView() {
-
         //吐司信息显示
         mProductsVM.showToastEvent.observe(this){
             ToastShowUtil.show(it)
@@ -171,7 +157,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             }
         }
         mProductsVM.upDataDishes()
-
         if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
             binding.onOffLine.setImageResource(R.drawable.ic_drama_no)
         }
@@ -189,7 +174,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             true
         }
 
-
         //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
             mChooseDisplay?.closeWaitDialog()
@@ -197,7 +181,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
-
             mProductsDisplay.also {
                 if (it !=null && it.isShowing) {
                     return@also
@@ -254,6 +237,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 event.any?.also {
                     (it as? PayResultForUI)?.also {fit ->
                         updatePayResult(fit)
+                        mChooseDisplay?.cancel()
+                        mChooseDisplay = null
                     }
                 }
             }
@@ -323,12 +308,17 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
     private fun refreshSuccessState(data : PayResultForUI){
+        val persons = DishesDBHelper.getInstance().queryPerson(data.custId)
+        var cls = ""
+        if (persons != null) {
+            cls = persons.grade + persons.userClass
+        }
         //更新数据
         (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
         successBinding!!.tvSum.text = " ${data.piece} 件"
         successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
         successBinding!!.tvName.text = data.cust_name
-        successBinding!!.tvClass.text = "20(15)班"
+        successBinding!!.tvClass.text = cls
         successBinding!!.tvPayTime.text = data.timestamp
         successBinding!!.tvTransNumber.text = data.orderid
     }
@@ -351,7 +341,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             mMealId = TimeUtil.CurrentTimeSection()
             if (mMealId != mealId){
                 mealId = mMealId
-                var str = StringBuilder()
+                val str = StringBuilder()
                 when(mealId){
                     0 -> str.append(resources.getString(R.string.unOpen_meal))
                     else ->{
@@ -361,10 +351,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                         str.append(DateFormat.format("HH:mm",meal.endTime).toString())
                     }
                 }
-                runOnUiThread(Runnable {
+                runOnUiThread {
                     binding.mealTime.text = str
-                })
-                mProductsDisplay?.subScreenView(mealId,str)
+                    mProductsDisplay?.subScreenView(mealId, str)
+                }
             }
         }
     }
@@ -411,13 +401,9 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 ref.messageWhatThird ->{
                     startDishDisplay();
                 }
-                ref.messageWhatFourth ->{
-
-                }
             }
         }
     }
-
 
 
     /**
@@ -450,6 +436,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
         binding.mvControl.stopAnima()
+        timer?.cancel()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
@@ -495,7 +482,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 }
             }
         }
-
     }
 
 }

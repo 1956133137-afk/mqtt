@@ -50,4 +50,5 @@ object Constant {
     const val EVENT_FIFTH = 5 //菜品更新
     const val EVENT_NINTH = 9 //mqtt设置变更
     const val EVENT_TENTH = 10 //mqtt连接状态
+
 }

@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.dao;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
 public class Persons {
@@ -11,6 +12,7 @@ public class Persons {
 
 //    private String campusId;  //园区ID（建行平台）
     private String cardId;  //卡号
+    @Unique()
     private String custId;//智慧食堂用户唯一标识（建行平台）
 //    private String deptId;//所属分组Id
     private String grade;//年级

@@ -47,8 +47,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private DifferrentDialogBinding binding;
     private int mealIds = 0;
     private ProductsAdapter adapterDishes;
-    private CoroutineScope scope;
-    private MyHandler handler;
+
     private DataPresenter presenter;
     private PayForAdapter adapterPayFor;
     private DishesInfo data;
@@ -78,7 +77,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         adapterDishes.setImgSize(gridLayoutManager);
         dishesData();
 
-        handler = new MyHandler();
         presenter = new DataPresenter();
         adapterPayFor = new PayForAdapter();
         adapterPayFor.setListener(this);
@@ -116,7 +114,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
 
 
-    private final void initEvent() {
+    private void initEvent() {
         binding.ibDelAll.setOnClickListener(view -> {
             if (adapterPayFor.getData().size() < 1)
                 return;
@@ -138,6 +136,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                 LogUtil.e(TAG,"请配置支付环境");
                 return;
             }
+            binding.btSureMeal.setEnabled(false);
             ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
 
@@ -172,15 +171,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void arrive(MessageEvent event){
         LogUtil.d(TAG, "event : "+event.getCode());
-        switch(event.getCode()){
-            case Constant.EVENT_FIFTH : {
-                clearShoppingCart();
-                dishesData();
-                break;
-            }
-            default:
+        if(event.getCode() == Constant.EVENT_FIFTH ){
+            clearShoppingCart();
+            dishesData();
         }
-
     }
 
     @Override
@@ -200,20 +194,13 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
 
-    public final class MyHandler extends Handler{
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-        }
-    }
 
     //根据餐别时间，更新餐别
     public void subScreenView(int mealId, StringBuilder str){
         if (mealIds != mealId){
             mealIds = mealId;
-            handler.post(() -> {
-                binding.mealTime.setText(str);
-                dishesData();
-            });
+            binding.mealTime.setText(str);
+            dishesData();
         }
     }
 

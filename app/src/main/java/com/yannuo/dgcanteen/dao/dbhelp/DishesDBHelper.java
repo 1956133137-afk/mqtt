@@ -21,6 +21,8 @@ import com.yannuo.dgcanteen.dao.OrderDishList;
 import com.yannuo.dgcanteen.dao.OrderDishListDao;
 import com.yannuo.dgcanteen.dao.OwnOrder;
 import com.yannuo.dgcanteen.dao.OwnOrderDao;
+import com.yannuo.dgcanteen.dao.Persons;
+import com.yannuo.dgcanteen.dao.PersonsDao;
 
 import java.util.List;
 
@@ -60,6 +62,7 @@ public class DishesDBHelper {
     private OffLineDishTableDao mOffLineDishTableDao;
     private CardPayDao mCardPayDao;
     private CardDishTableDao mCardDishTableDao;
+    private PersonsDao mPersonsDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -80,6 +83,7 @@ public class DishesDBHelper {
         return mDBHelper;
     }
 
+
     /**
      * 初始化
      * @param context
@@ -98,6 +102,7 @@ public class DishesDBHelper {
         mOffLineDishTableDao = mDaoSession.getOffLineDishTableDao();
         mCardPayDao = mDaoSession.getCardPayDao();
         mCardDishTableDao = mDaoSession.getCardDishTableDao();
+        mPersonsDao = mDaoSession.getPersonsDao();
     }
 
     /**
@@ -208,7 +213,27 @@ public class DishesDBHelper {
         mOwnOrderDao.insert(order);
     }
 
+    /**
+     * 保存人员
+     * @param persons
+     */
+    public void insertPersons(List<Persons> persons){
+        mPersonsDao.insertOrReplaceInTx(persons);
+    }
 
+    /**
+     *
+     * @param id 卡号 或人员Id
+     * @return
+     */
+    public Persons queryPerson(String id){
+        if (id == null)return null;
+      return  mPersonsDao.queryBuilder()
+                .whereOr(PersonsDao.Properties.CustId.eq(id),
+                        PersonsDao.Properties.CardId.eq(id))
+                .build()
+                .unique();
+    }
     /**
      * 保存自有平台消费订单中的消费菜品
      * @param dishes
@@ -283,6 +308,8 @@ public class DishesDBHelper {
     public void insertCardDishes(List<CardDishTable> dishes){
         mCardDishTableDao.insertInTx(dishes);
     }
+
+
 
     /**
      * 删除对应刷卡离线菜品

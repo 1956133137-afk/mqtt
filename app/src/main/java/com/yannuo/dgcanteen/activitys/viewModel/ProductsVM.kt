@@ -188,7 +188,7 @@ class ProductsVM :ViewModel() {
             service!!.startFacePay(
                 Gson().toJson(bean),  bean.OFFLINE, object : PayResultListener.Stub() { @Throws(RemoteException::class)
                 override fun onResult(result: String) {
-                    LogUtil.d(TAG, "" + result)
+                    LogUtil.d(TAG, result)
                     val payResult = Gson().fromJson(result,CcbFacePayResultBean::class.java)
                     val payState = PayResultForUI()
                     payState.way = "人脸支付"
@@ -199,6 +199,7 @@ class ProductsVM :ViewModel() {
                     when(payResult.RESULT){
                         "Y" -> { //订单状态,成功
                             payState.cust_name = payResult.CUST_NAME
+                            payState.custId = payResult.CUST_ID
                             payState.payment = payResult.PAYMENT
                             if (offline == 0) payState.payment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
                             payState.acc_no =  payResult.ACC_NO

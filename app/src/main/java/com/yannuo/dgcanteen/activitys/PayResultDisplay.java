@@ -13,6 +13,8 @@ import com.google.gson.reflect.TypeToken;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.PayResultAdapter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
+import com.yannuo.dgcanteen.dao.Persons;
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.databinding.PayFailureBinding;
 import com.yannuo.dgcanteen.databinding.PaySuccessBinding;
@@ -99,12 +101,16 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initView() {
-
+        Persons persons = DishesDBHelper.getInstance().queryPerson(mPayResult.getCustId());
+        String cls = "";
+        if (persons != null){
+            cls = persons.getGrade() + persons.getUserClass();
+        }
         mPayResultAdapter.setData(mPayResult.getDishes());
         mBinding.tvSum.setText(""+mPayResult.getPiece()+"件");
         mBinding.payTotalMoney.setText(String.format("￥ %s 元",mPayResult.getPayment()));
         mBinding.tvName.setText(mPayResult.getCust_name());
-        mBinding.tvClass.setText("20(15)班");
+        mBinding.tvClass.setText(cls);
         mBinding.tvPayTime.setText(mPayResult.getTimestamp());
         mBinding.tvTransNumber.setText(mPayResult.getOrderid());
 

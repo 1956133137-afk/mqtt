@@ -92,6 +92,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           val payState = PayResultForUI()
           payState.way = type
           payState.orderid = data.ordeR_ID
+          payState.custId = data.cusT_ID
           payState.timestamp = data.sigN_TIME
           payState.dishes = mDishes?.products
           payState.piece = mDishes?.count?.toInt() ?: 0

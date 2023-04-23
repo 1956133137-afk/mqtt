@@ -13,6 +13,7 @@ import com.yannuo.dgcanteen.dao.OffLineDishTableDao;
 import com.yannuo.dgcanteen.dao.OffLineTableDao;
 import com.yannuo.dgcanteen.dao.OrderDishListDao;
 import com.yannuo.dgcanteen.dao.OwnOrderDao;
+import com.yannuo.dgcanteen.dao.PersonsDao;
 
 import org.greenrobot.greendao.database.Database;
 
@@ -43,7 +44,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 OrderDishListDao.class,
                 OwnOrderDao.class,
                 CardPayDao.class,
-                CardDishTableDao.class
+                CardDishTableDao.class,
+                PersonsDao.class
         );
     }
 }

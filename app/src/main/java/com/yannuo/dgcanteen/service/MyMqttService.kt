@@ -14,6 +14,7 @@ import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.CardPay
@@ -30,6 +31,8 @@ import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -113,6 +116,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             LogUtil.w(TAG,"更新配置信息失败！")
         }
     }
+
+
 
 
     /**
@@ -501,18 +506,39 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     "QColSJ+ePMtdFDlyqmhG3+zRAkAghHq+hibQ2/xXCthl0Ru7n6DXFXhuhPNQzflJofVFOJ6r" +
                     "cXNcoHLU/JDu6Y+1khlwaK60muYfnrJcKznwLu0BAkAKhJcHprKRRCJpT//A169jrbfuX1B6" +
                     "mFcOGXwPzO2s1JYzUlXCU4ylOVrLmdOpV+e7OSkrKNihVeIUm+TJt4MK"
+            val mv = MMKV.defaultMMKV()
             while (isActive) {
-                val mv = MMKV.defaultMMKV()
+
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME,0)
-                var currentPage = mv.decodeInt(Constant.CURRENT_PAGE,0)
-                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(2))
-                if(currentPage ==0)currentPage+=1
-                if (timeout || (currentPage != 0)){
+                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
+                var finish = false
+                var currentPage = 1
+                var failTime = 0
+                if (timeout){
                     LogUtil.d(TAG,"准备全量更新人员")
-                    val res = mRespository.downPerson(2, 1)
-                    val result = DES3CBCUtil.decryptRSA(res.data,prvKey)
-                    val bean = Gson().fromJson(result, PersonList::class.java)
-                    currentPage++
+                    do {
+                        val res = mRespository.downPerson(2, currentPage)
+                        try {
+                            if (res.code == 200) {
+                                val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
+                                val bean = Gson().fromJson(result, PersonList::class.java)
+                                DishesDBHelper.getInstance().insertPersons(bean.list)
+                                if (currentPage == bean.totalPage) {
+                                    finish = true
+                                    mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
+                                }
+                                else {
+                                    currentPage = bean.page + 1
+                                }
+                            } else {
+                                LogUtil.e(TAG, "人员下载错误 ${res.msg}")
+                            }
+                        } catch (e: Exception) {
+                            failTime++
+                            LogUtil.e(TAG, "error ${e.message}")
+                        }
+                    }while (runTask && !finish &&  (failTime <20) )
+                    LogUtil.d(TAG,"全量更新人员完成")
                 }
                 delay(Duration.minutes(30))
             }
