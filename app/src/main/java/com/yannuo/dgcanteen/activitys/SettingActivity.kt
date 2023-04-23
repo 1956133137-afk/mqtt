@@ -92,7 +92,8 @@ class SettingActivity : AppCompatActivity() {
             downPerson()
         }
         binding!!.btnExitAlive.setOnClickListener { view: View? ->  //退出保活
-            WorkManager.getInstance(this).cancelUniqueWork(Constant.PERIODIC_WORK_KEY)
+            WorkManager.getInstance(this).cancelAllWork()
+
         }
         binding!!.btnSave.setOnClickListener { view: View? ->  //保存信息
             save()

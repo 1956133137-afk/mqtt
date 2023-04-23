@@ -136,9 +136,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-//    implementation project(path: ':core')
-//    implementation project(path: ':file')
-//    implementation project(path: ':converter:gson')
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

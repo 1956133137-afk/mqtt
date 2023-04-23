@@ -111,7 +111,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         if (result.code == 200){
             val mv = MMKV.defaultMMKV()
             mv.encode(Constant.PAY_CONFIG,result.data)
-            LogUtil.i(TAG,"更新配置信息！")
+            LogUtil.i(TAG,"已更新配置信息！")
         }else{
             LogUtil.w(TAG,"更新配置信息失败！")
         }
@@ -517,7 +517,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                 if (timeout){
                     LogUtil.d(TAG,"准备全量更新人员")
                     do {
-                        val res = mRespository.downPerson(2, currentPage)
+                        val res = mRespository.downPerson(100, currentPage)
                         try {
                             if (res.code == 200) {
                                 val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
