@@ -102,9 +102,9 @@ public class PayResultDisplay extends Presentation {
 
     private void initView() {
         Persons persons = DishesDBHelper.getInstance().queryPerson(mPayResult.getCustId());
-        String cls = "";
+        String cls = "***";
         if (persons != null){
-            cls = persons.getGrade() + persons.getUserClass();
+            cls = persons.getGrade() + "("+persons.getUserClass()+")";
         }
         mPayResultAdapter.setData(mPayResult.getDishes());
         mBinding.tvSum.setText(""+mPayResult.getPiece()+"件");
@@ -124,6 +124,5 @@ public class PayResultDisplay extends Presentation {
 
     private void back(){
         EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD,null));
-        cancel();
     }
 }

@@ -2,13 +2,13 @@ package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
-import android.media.MediaRouter
 import android.os.*
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -28,6 +28,7 @@ import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
+import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
@@ -41,6 +42,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 import java.util.*
+
 
 class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     NetworkStateManager.NetWorkListener {
@@ -59,7 +61,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     private var value = 0
     private var mXService : MyService ?= null
     private var navigation = true
-    private var displays : Display?= null
+    private var secondDisplays : Display?= null
     private var mFacePayService: ZHSTFacePayService? = null
     private var mProductsDisplay : DifferentDisplay ?= null  //点餐界面
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
@@ -105,24 +107,19 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             initView()
             initEvent()
             timer = Timer()
-            timer!!.schedule(timerTask,0,1000)
+            timer?.schedule(timerTask,0,3000)
         }
     }
 
 
     private fun initPresentation() {
-        val mediaRouter = getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter?
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
         displayManager?.displays?.also {
-            displays =it[1]
+            secondDisplays = it[1]
         }
-        val route = mediaRouter!!.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO)
-        if (route != null) {
-            val presentationDisplay = route.presentationDisplay
-            if (presentationDisplay != null){
-                mProductsDisplay = DifferentDisplay( this, displays)
-                mProductsDisplay?.show()
-            }
+        secondDisplays?.also {
+            mProductsDisplay = DifferentDisplay( this, secondDisplays)
+            mProductsDisplay?.show()
         }
     }
 
@@ -166,8 +163,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         }
     }
 
-
+    override fun onResume() {
+        super.onResume()
+        mXService?.hideNavBar = true
+    }
     private fun initEvent(){
+
         binding.tvTitle.setOnLongClickListener {
             navigation  =!navigation
             mXService?.hideNavBar = navigation
@@ -176,7 +177,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
         //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
-            mChooseDisplay?.closeWaitDialog()
+
             mChooseDisplay?.cancel()
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
@@ -185,7 +186,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 if (it !=null && it.isShowing) {
                     return@also
                 }
-                mProductsDisplay = DifferentDisplay( this, displays)
+                mProductsDisplay = DifferentDisplay( this, secondDisplays)
                 mProductsDisplay?.show()
             }
         }
@@ -195,12 +196,18 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             val passwordDialog = LoginPasswordDialog()
             val display = this.windowManager.defaultDisplay
             passwordDialog.PasswordDialog(this,display)
+            passwordDialog.setListener(object : CloseEvent {
+                override fun onEvent(code: Int, msg: String?) {
+                    finish()
+                }
+            })
         }
 
         //菜品管理界面
         binding.btnDishMenu.setOnClickListener {
             val intent = Intent(this, DishManageActivity::class.java)
             startActivity(intent)
+            finish()
         }
 
         //菜品同步
@@ -311,9 +318,9 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
     private fun refreshSuccessState(data : PayResultForUI){
         val persons = DishesDBHelper.getInstance().queryPerson(data.custId)
-        var cls = ""
+        var cls = "***"
         if (persons != null) {
-            cls = persons.grade + persons.userClass
+            cls = "${persons.grade}(${persons.userClass})"
         }
         //更新数据
         (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
@@ -374,7 +381,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
     private fun updatePayResult(data : PayResultForUI){
         runOnUiThread {
-            mPayResultDisplay = PayResultDisplay(this,data, displays)
+            mPayResultDisplay = PayResultDisplay(this,data, secondDisplays)
             mPayResultDisplay?.show()
             updatePayState(data )
         }
@@ -398,8 +405,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                     ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
                     ref.mChooseDisplay?.cancel()
                     ref.mChooseDisplay = null
-                }
 
+                }
                 ref.messageWhatThird ->{
                     startDishDisplay();
                 }
@@ -413,19 +420,25 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      * @param list ProductsDetail
      */
     private fun dealWith(list : ProductsDetail){
-        mChooseDisplay = ChooseDisplay(this,list, displays)
+        mChooseDisplay = ChooseDisplay(this,list, secondDisplays)
         mChooseDisplay?.show()
-        mProductsDisplay?.cancel()
-        mProductsDisplay = null
+        handler.postDelayed({
+            mProductsDisplay?.cancel()
+            mProductsDisplay = null
+        },50)
     }
 
     /**
      * 打开选餐界面
      */
     private fun startDishDisplay(){
-        mPayResultDisplay = null
-        mProductsDisplay = DifferentDisplay( this, displays)
+        mProductsDisplay = DifferentDisplay( this, secondDisplays)
         mProductsDisplay?.show()
+        handler.postDelayed({
+            mPayResultDisplay?.cancel()
+            mPayResultDisplay = null
+        },50)
+
     }
 
     override fun onDestroy() {
@@ -434,6 +447,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
     private fun release(){
+        mProductsDisplay?.cancel()
+        mPayResultDisplay = null
+        mChooseDisplay?.cancel()
+        mChooseDisplay = null
+        mPayResultDisplay?.cancel()
+        mPayResultDisplay = null
+
         EventBus.getDefault().unregister(this)
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)

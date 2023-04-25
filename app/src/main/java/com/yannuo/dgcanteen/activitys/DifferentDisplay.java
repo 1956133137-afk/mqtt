@@ -65,6 +65,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         initObject();
         initView();
         initEvent();
+
     }
 
     private void initObject() {

@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.SettingActivity;
+import com.yannuo.dgcanteen.interfaces.CloseEvent;
 import com.yannuo.dgcanteen.util.ToastShowUtil;
 
 import java.util.Calendar;
@@ -26,6 +28,11 @@ public class LoginPasswordDialog extends AppCompatActivity {
     private AlertDialog dialog;
     private WindowManager.LayoutParams params;
     private EditText et;
+    private CloseEvent listener;
+
+    public void setListener(CloseEvent listener) {
+        this.listener = listener;
+    }
 
     public void PasswordDialog(Context context, Display display){
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -43,6 +50,7 @@ public class LoginPasswordDialog extends AppCompatActivity {
 
         et = dialog.getWindow().findViewById(R.id.input_password);
         et.addTextChangedListener(new HideTextWatcher(context,4));
+
     }
 
     private class HideTextWatcher implements TextWatcher {
@@ -61,9 +69,10 @@ public class LoginPasswordDialog extends AppCompatActivity {
             if (editable.length() == mMaxLength){
                 if (editable.toString().equals(getCurrentTime())){
                     dialog.dismiss();
-                    ToastShowUtil.show(this.context,"密码正确，正在跳转页面");
                     intent = new Intent(this.context, SettingActivity.class);
                     this.context.startActivity(intent);
+                    if (listener != null)listener.onEvent(0,null);
+                    finish();
                 } else {
                     et.setText(null);
                     ToastShowUtil.show(this.context,"密码错误，请重新输入");
@@ -72,12 +81,6 @@ public class LoginPasswordDialog extends AppCompatActivity {
         }
     }
     private String getCurrentTime(){
-        Calendar calendar = Calendar.getInstance();
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        StringBuilder builder = new StringBuilder();
-        builder.append(month < 10 ? "0" + month : month);
-        builder.append(day < 10 ? "0" + day : day);
-        return builder.toString();
+        return DateFormat.format("MMdd",System.currentTimeMillis()).toString();
     }
 }

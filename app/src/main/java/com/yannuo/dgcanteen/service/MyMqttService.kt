@@ -365,7 +365,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         }
 
         override fun onConnectLost(reason: String?) {
-
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_TENTH,false))
         }
 
     }

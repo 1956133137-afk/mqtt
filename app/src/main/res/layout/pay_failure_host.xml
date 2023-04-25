@@ -50,7 +50,6 @@
             android:layout_height="wrap_content"
             android:gravity="end|center_vertical"
             android:maxLines="2"
-            android:text="失败原因"
             android:textColor="#6C6C6C"
             android:textSize="30sp"/>
 

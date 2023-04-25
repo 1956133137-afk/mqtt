@@ -19,48 +19,35 @@ import java.util.List;
 public class KeepAliveJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
-//        Log.i("KeepAliveJobService", "JobService onStartJob 保活中");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             // 如果当前设备大于 7.0 , 延迟 5 秒 , 再次执行一次
             startJob(this);
         }
 
-        // 判定本地前台进程是否正在运行
-//        boolean isLocalServiceRunning =
-//                ServiceUtils.isServiceRunning(this, LocalForegroundService.class.getName());
-//        if (!isLocalServiceRunning){
-//            startService(new Intent(this, LocalForegroundService.class));
-//        }
-
         // 判定远程前台进程是否正在运行
         boolean isRemoteServiceRunning = false;
-//                =
-//                ServiceUtils.isServiceRunning(this, RemoteForegroundService.class.getName());
-//        if (!isRemoteServiceRunning){
-//            startService(new Intent(this, RemoteForegroundService.class));
-//        }
-       try {
-           ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-           List<ActivityManager.RunningTaskInfo> list = null;
-           if (activityManager != null) {
-               list = activityManager.getRunningTasks(100);
-           }
-           if (list != null && list.size() > 0) {
-               for (ActivityManager.RunningTaskInfo info : list) {
-                   if (info.baseActivity.getPackageName().equals(getPackageName())) {
-                       isRemoteServiceRunning = true;
-                   }
-               }
-           }
+        try {
+            ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningTaskInfo> list = null;
+            if (activityManager != null) {
+                list = activityManager.getRunningTasks(100);
+            }
+            if (list != null && list.size() > 0) {
+                for (ActivityManager.RunningTaskInfo info : list) {
+                    if (info.baseActivity.getPackageName().equals(getPackageName())) {
+                        isRemoteServiceRunning = true;
+                    }
+                }
+            }
 
-           if (!isRemoteServiceRunning) {
-               Intent lIntentt = getPackageManager().getLaunchIntentForPackage(getPackageName());
-               lIntentt.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-               startActivity(lIntentt);
-           }
-       }catch (Exception e){
-           e.printStackTrace();
-       }
+            if (!isRemoteServiceRunning) {
+                Intent lIntentt = getPackageManager().getLaunchIntentForPackage(getPackageName());
+                lIntentt.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(lIntentt);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return false;
     }
 
@@ -82,18 +69,8 @@ public class KeepAliveJobService extends JobService {
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(10,
                 new ComponentName(context.getPackageName(), KeepAliveJobService.class.getName()))
                 .setPersisted(true);
-
-        // 7.0 以下的版本, 可以每隔 5000 毫秒执行一次任务
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N){
-//            jobInfoBuilder.setPeriodic(5_000);
-//
-//        }else{
-            // 7.0 以上的版本 , 设置延迟 5 秒执行
-            // 该时间不能小于 JobInfo.getMinLatencyMillis 方法获取的最小值
-            jobInfoBuilder.setMinimumLatency(20_000);
-//            jobInfoBuilder.setPeriodic(10_000);
+        jobInfoBuilder.setMinimumLatency(40_000);
 //        }
-
         // 开启定时任务
         jobScheduler.schedule(jobInfoBuilder.build());
 

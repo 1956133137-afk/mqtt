@@ -44,7 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="东港第二中学第一食堂 - 粉面档口"
             android:textSize="24sp"
             android:textColor="#4F4F4F"/>
 
@@ -77,15 +76,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
-
-        <com.yannuo.dgcanteen.views.MoveTextview
-            android:id="@+id/mv_control"
-            android:textSize="30sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            app:layout_constraintEnd_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -120,7 +110,7 @@
                 <TextClock
                     android:layout_width="280dp"
                     android:layout_height="wrap_content"
-                    android:format24Hour="HH:mm:ss"
+                    android:format24Hour="yyyy-MM-dd HH:mm:ss"
                     android:gravity="center"
                     android:textColor="#4F4F4F"
                     android:textSize="38sp" />
@@ -129,7 +119,7 @@
                 android:id="@+id/bt_back_pay"
                 android:layout_width="250dp"
                 android:layout_height="100dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="50dp"
                 android:background="@drawable/shape_normal_bt_bg"
                 android:text="退出支付"
                 android:textColor="#FFFFFF"
@@ -167,6 +157,14 @@
 
         </LinearLayout>
 
+        <com.yannuo.dgcanteen.views.MoveTextview
+            android:id="@+id/mv_control"
+            android:textSize="30sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

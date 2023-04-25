@@ -273,7 +273,7 @@ class ProductsVM :ViewModel() {
                 ))
             }
             var needSave = true
-            if(bean.OFFLINE.equals("0")){
+            if(bean.OFFLINE == 0){
                 val res = mRespository.synCsRecord(bean)
                 if (res.code == HttpURLConnection.HTTP_OK){
                     needSave = false

@@ -1,18 +1,13 @@
 package com.yannuo.dgcanteen.mqtt
 
-import android.content .Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.Context
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.common.MyPreference
-import com.yannuo.dgcanteen.common.MyThreadPool
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
-
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers

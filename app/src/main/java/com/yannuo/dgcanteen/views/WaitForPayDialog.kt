@@ -7,6 +7,7 @@ import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.util.LogUtil
 import java.util.concurrent.TimeUnit
 
@@ -76,8 +77,5 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
 
     }
 
-    interface CloseEvent{
-        fun onEvent(code: Int,msg :String?)
-    }
 
 }

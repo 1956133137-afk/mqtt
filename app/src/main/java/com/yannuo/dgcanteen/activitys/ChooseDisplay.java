@@ -17,6 +17,7 @@ import com.yannuo.dgcanteen.activitys.presenters.PayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
+import com.yannuo.dgcanteen.interfaces.CloseEvent;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
@@ -106,6 +107,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
     @Override
     protected void onStop() {
+        closeWaitDialog();
         if (mPresenter != null) {
             mPresenter.release();
         }
@@ -173,7 +175,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     }
 
 
-    private class WaitDialogEvent implements WaitForPayDialog.CloseEvent {
+    private class WaitDialogEvent implements CloseEvent {
 
         @Override
         public void onEvent(int code, @Nullable String msg) {

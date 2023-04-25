@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,6 +85,8 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
         });
 
         binding.ibtBack.setOnClickListener(view -> {
+            Intent intent =new Intent(this,CommodityActivity.class);
+            startActivity(intent);
             finish();
         });
     }

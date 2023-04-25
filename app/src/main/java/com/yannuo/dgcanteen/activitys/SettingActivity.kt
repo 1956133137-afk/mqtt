@@ -1,33 +1,32 @@
 package com.yannuo.dgcanteen.activitys
 
-import androidx.appcompat.app.AppCompatActivity
-import com.tencent.mmkv.MMKV
-import android.os.Bundle
+import android.app.job.JobScheduler
+import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.work.PeriodicWorkRequest
-import com.yannuo.dgcanteen.download.CheckVersionWorker
-import com.yannuo.dgcanteen.util.ToastShowUtil
-import androidx.work.WorkManager
-import androidx.work.ExistingPeriodicWorkPolicy
-import com.yannuo.dgcanteen.nets.RetrofitClient
-import org.greenrobot.eventbus.EventBus
-import com.yannuo.dgcanteen.model.MessageEvent
-import android.view.WindowManager
 import android.os.Build
+import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
+import com.yannuo.dgcanteen.download.CheckVersionWorker
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
+import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
-import java.lang.RuntimeException
+import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 class SettingActivity : AppCompatActivity() {
@@ -92,13 +91,17 @@ class SettingActivity : AppCompatActivity() {
             downPerson()
         }
         binding!!.btnExitAlive.setOnClickListener { view: View? ->  //退出保活
-            WorkManager.getInstance(this).cancelAllWork()
-
+            // 创建 JobScheduler
+            val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+            jobScheduler?.cancelAll()
+            ToastShowUtil.show("已取消保活")
         }
         binding!!.btnSave.setOnClickListener { view: View? ->  //保存信息
             save()
         }
         binding!!.ibtBack.setOnClickListener { view: View? ->  //返回
+            val intent = Intent(this,CommodityActivity::class.java)
+            startActivity(intent)
             finish()
         }
     }
