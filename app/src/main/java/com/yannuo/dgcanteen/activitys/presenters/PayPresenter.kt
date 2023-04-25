@@ -56,7 +56,6 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       */
      fun setScanState(state : ScanState){
           scanState = state
-//          mDishes = data
      }
 
      /**
@@ -89,6 +88,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * res  返回结果
       */
      private fun resForUI( type : String, data : OffLineTable, res : ScanQrResultBean?) : PayResultForUI{
+          val persons = DishesDBHelper.getInstance().queryPerson(data.cusT_ID)
           val payState = PayResultForUI()
           payState.way = type
           payState.orderid = data.ordeR_ID
@@ -96,7 +96,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           payState.timestamp = data.sigN_TIME
           payState.dishes = mDishes?.products
           payState.piece = mDishes?.count?.toInt() ?: 0
-          payState.cust_name = data.cusT_ID
+          payState.cust_name = persons?.personName ?: ""
           payState.payment = data.payment
           if (res == null || res.RESULT.toString() == "Y"){
                payState.result = PayResultForUI.Result.SUCCESS
@@ -294,17 +294,11 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           }
           payBean.sign_time = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
           payBean.card_id = cardId
-          runBlocking {
-               val map = mutableMapOf<String,String>()
-               map["campusId"] = payBean.campus_id
-               map["cardId"] = payBean.card_id
-               val res1 = mRespository.getUserInfo(map)
-               LogUtil.i(TAG,Gson().toJson(res1))
-               if (res1.code == HttpURLConnection.HTTP_OK){
-                    payBean.cust_id = res1.data?.custId ?: ""
-               }
-          }
           payBean.order_id= NumberGenerateUtil.getOrderNumber()
+          val persons = DishesDBHelper.getInstance().queryPerson(payBean.card_id)
+          if (persons != null) {
+               payBean.cust_id = persons.custId
+          }
 
           val ccbBean = OffLineTable()
           ccbBean.ordeR_ID = payBean.order_id
@@ -325,27 +319,37 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                                    mDataPresenter.cardConsumeRecord(payBean, res!!, mDishes!!.products)
                               }
                          }
-                         listener?.onOtherListener(3,resForUI("刷卡支付", ccbBean, res))
+                         if (persons != null) {
+                              listener?.onOtherListener(3,resForUI("刷卡支付", ccbBean, res))
+                         }else {
+                              res = ScanQrResultBean("","用户不存在")
+                              listener?.onOtherListener(3,resForUI("刷卡支付", ccbBean, res))
+                         }
                     }
                }
                "1" -> {
-                    payBean.up = false
-                    DishesDBHelper.getInstance().insertCardOrder(payBean)
+                    if (persons != null){
+                         payBean.up = false
+                         DishesDBHelper.getInstance().insertCardOrder(payBean)
 
-                    val dishList = mutableListOf<CardDishTable>()
-                    mDishes?.products?.forEach {
-                         var dish = CardDishTable()
-                         dish.dishesId = it.dishesId
-                         dish.dishesName = it.dishesName
-                         dish.dishesNumber = it.count
-                         dish.dishesPrice = it.price
-                         dish.order = payBean
-                         dishList.add(dish)
+                         val dishList = mutableListOf<CardDishTable>()
+                         mDishes?.products?.forEach {
+                              var dish = CardDishTable()
+                              dish.dishesId = it.dishesId
+                              dish.dishesName = it.dishesName
+                              dish.dishesNumber = it.count
+                              dish.dishesPrice = it.price
+                              dish.order = payBean
+                              dishList.add(dish)
+                         }
+                         DishesDBHelper.getInstance().insertCardDishes(dishList)
+
+                         LogUtil.d(TAG,"离线订单已保存")
+                         listener?.onOtherListener(4,resForUI("刷卡支付", ccbBean, res))
+                    }else {
+                         res = ScanQrResultBean("","用户不存在")
+                         listener?.onOtherListener(3,resForUI("刷卡支付", ccbBean, res))
                     }
-                    DishesDBHelper.getInstance().insertCardDishes(dishList)
-
-                    LogUtil.d(TAG,"离线订单已保存")
-                    listener?.onOtherListener(4,resForUI("刷卡支付", ccbBean, res))
                }
           }
      }
