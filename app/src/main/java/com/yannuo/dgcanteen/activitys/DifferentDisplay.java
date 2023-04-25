@@ -197,11 +197,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     //根据餐别时间，更新餐别
     public void subScreenView(int mealId, StringBuilder str){
-        if (mealIds != mealId){
-            mealIds = mealId;
-            binding.mealTime.setText(str);
-            dishesData();
-        }
+        mealIds = mealId;
+        binding.mealTime.setText(str);
+        dishesData();
     }
 
     //副屏重新加载时，更新餐别

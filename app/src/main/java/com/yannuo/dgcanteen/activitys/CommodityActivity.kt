@@ -206,6 +206,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //菜品同步
         binding.btnSynDishes.setOnClickListener {
             mProductsVM.upDataDishes(true)
+            TimeUtil.mealTables = null
+            mealId = 0
         }
 
     }

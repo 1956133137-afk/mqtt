@@ -1,21 +1,15 @@
 package com.yannuo.dgcanteen.util;
 
-import android.text.format.DateFormat;
 import android.text.format.Time;
-import android.util.Log;
 
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class TimeUtil {
 
-    private static List<MealTable> mealTables = null;
+    public static List<MealTable> mealTables = null;
     public static int CurrentTimeSection(){
         int result = 0;
         if (mealTables != null && mealTables.size() > 0){
