@@ -234,6 +234,19 @@ public class DishesDBHelper {
                 .build()
                 .unique();
     }
+
+    /**
+     * cidNo
+     * @param personNumber
+     * @return
+     */
+    public Persons queryPersonToNumber(String personNumber){
+        if (personNumber == null)return null;
+        return  mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.PersonNumber.eq(personNumber))
+                .build()
+                .unique();
+    }
     /**
      * 保存自有平台消费订单中的消费菜品
      * @param dishes

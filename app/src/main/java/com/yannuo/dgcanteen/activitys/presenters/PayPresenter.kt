@@ -88,11 +88,21 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * res  返回结果
       */
      private fun resForUI( type : String, data : OffLineTable, res : ScanQrResultBean?) : PayResultForUI{
+          if (data.decryptionCode != null){
+               val str = data.decryptionCode.substring(0,data.decryptionCode.indexOf("@"))
+               val str1 = DishesDBHelper.getInstance().queryPersonToNumber(str)
+               if (data.cusT_ID == "" && str1 != null){
+                    data.cusT_ID = str1.custId
+               }
+          }
           val persons = DishesDBHelper.getInstance().queryPerson(data.cusT_ID)
           val payState = PayResultForUI()
           payState.way = type
           payState.orderid = data.ordeR_ID
           payState.custId = data.cusT_ID
+          if (data.cusT_ID == "" || data.cusT_ID == null){
+               payState.custId = "***"
+          }
           payState.timestamp = data.sigN_TIME
           payState.dishes = mDishes?.products
           payState.piece = mDishes?.count?.toInt() ?: 0
