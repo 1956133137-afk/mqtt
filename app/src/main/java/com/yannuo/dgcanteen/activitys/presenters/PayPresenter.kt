@@ -100,13 +100,10 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           payState.way = type
           payState.orderid = data.ordeR_ID
           payState.custId = data.cusT_ID
-          if (data.cusT_ID == "" || data.cusT_ID == null){
-               payState.custId = "***"
-          }
           payState.timestamp = data.sigN_TIME
           payState.dishes = mDishes?.products
           payState.piece = mDishes?.count?.toInt() ?: 0
-          payState.cust_name = persons?.personName ?: ""
+          payState.cust_name = persons?.personName ?: "***"
           payState.payment = data.payment
           if (res == null || res.RESULT.toString() == "Y"){
                payState.result = PayResultForUI.Result.SUCCESS
