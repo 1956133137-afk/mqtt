@@ -7,6 +7,10 @@ import android.util.Log
 import android_serialport_api.SerialPort
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.util.LogUtil
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.io.*
 import java.nio.ByteBuffer
 
@@ -38,6 +42,9 @@ class SerialPortHelper() {
     // private var isParse = true   //false为发送数据的响应模式，true为接收数据的解析模式，主要是解析一帧数据
     private var rxArray = ByteArray(byteBufferLength)
     private var rxBuffer = ByteBuffer.wrap(rxArray)
+
+
+
 
 
 

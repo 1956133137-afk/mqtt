@@ -107,7 +107,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             initView()
             initEvent()
             timer = Timer()
-            timer?.schedule(timerTask,0,3000)
+            timer?.schedule(timerTask,0,2000)
         }
     }
 
@@ -213,8 +213,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //菜品同步
         binding.btnSynDishes.setOnClickListener {
             mProductsVM.upDataDishes(true)
-            TimeUtil.mealTables = null
-            mealId = 0
         }
 
     }
@@ -320,7 +318,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         val persons = DishesDBHelper.getInstance().queryPerson(data.custId)
         var cls = "***"
         if (persons != null) {
-            cls = "${persons.grade}(${persons.userClass})"
+            cls = persons.grade + persons.userClass
         }
         //更新数据
         (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
