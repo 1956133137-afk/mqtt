@@ -98,19 +98,13 @@ class SerialPortHelper() {
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
-//                        if (mBufferedInputStream?.available() == 0) {
-//                            if (content.length >= 10){
-//                                content = hex2Str(content)
-//                                content = content.replace("\r\n","")
-//                                readDataListener?.numberOfIcCard(content)
-//                            }
-//                            content =""
-//                        }
-                        content = content.replace("\r\n","")
-                        if (read > 1){
-                            readDataListener?.numberOfIcCard(content)
+                        if (mBufferedInputStream?.available() == 0) {
+                            content = content.replace("\r\n","")
+                            if (read > 1){
+                                readDataListener?.numberOfIcCard(content)
+                            }
+                            content =""
                         }
-                        content =""
                         read = -1
                     }
                     sleep(50)

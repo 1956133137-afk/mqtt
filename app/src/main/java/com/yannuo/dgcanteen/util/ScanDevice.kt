@@ -17,8 +17,8 @@ object ScanDevice {
      * 打开扫码头
      */
     fun openScan(){
-//        val path = "/dev/ttyS4"
-        val path = "/dev/ttyXRUSB0"
+        val path = "/dev/ttyS4"
+//        val path = "/dev/ttyXRUSB0"
         ScanThread.ScanThreadEnum.INSTNACE.instance.open(path, callback)
     }
 

@@ -89,6 +89,7 @@ class SettingActivity : AppCompatActivity() {
             loadingDialog = LoadingDialog(this)
             loadingDialog?.show()
             downPerson()
+            ToastShowUtil.show("人员信息已同步~")
         }
         binding!!.btnExitAlive.setOnClickListener { view: View? ->  //退出保活
             // 创建 JobScheduler

@@ -178,7 +178,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
 
-            mChooseDisplay?.cancel()
+            if (mChooseDisplay != null){
+                CommonAndDpToPxUtil.speakWork("取消支付");
+                mChooseDisplay!!.cancel()
+            }
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
