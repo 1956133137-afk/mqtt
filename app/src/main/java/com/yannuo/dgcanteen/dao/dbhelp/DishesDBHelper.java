@@ -222,15 +222,25 @@ public class DishesDBHelper {
     }
 
     /**
-     *
-     * @param id 卡号 或人员Id
+     * @param id 人员Id
      * @return
      */
-    public Persons queryPerson(String id){
+    public Persons queryPersonToCustId(String id){
         if (id == null)return null;
       return  mPersonsDao.queryBuilder()
-                .whereOr(PersonsDao.Properties.CustId.eq(id),
-                        PersonsDao.Properties.CardId.eq(id))
+                .where(PersonsDao.Properties.CustId.eq(id))
+                .build()
+                .unique();
+    }
+
+    /**
+     * @param id 卡号
+     * @return
+     */
+    public Persons queryPersonToCardId(String id){
+        if (id == null)return null;
+        return  mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.CardId.eq(id))
                 .build()
                 .unique();
     }
