@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.safframework.log.LogLevel;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.service.MyMqttService;
@@ -34,6 +35,8 @@ public class MyApplication extends Application {
         applicationContext = this;
         LogManager.initLog();
         LogUtil.setLev(LogLevel.DEBUG);
+
+        CrashReport.initCrashReport(this, "fd7e9dd24e", false); //初始化Bugly
 
         DishesDBHelper.getInstance(this);
         CommonAndDpToPxUtil.speakInit();

@@ -17,6 +17,11 @@ android {
         versionCode 2
         versionName "1.0.1"
 
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'arm64-v8a' //'armeabi', 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     kotlinOptions { jvmTarget = 1.8}
@@ -83,6 +88,8 @@ dependencies {
     implementation files('libs/bcprov-jdk14-128.jar')
     implementation files('libs/COM.CCB.EnDecryptAlgorithm_v1.0_20120220.jar')
 
+    //Bugly
+    implementation 'com.tencent.bugly:crashreport:latest.release' //latest.release指代最新版本
 
     implementation project(path: ':core')
     implementation project(path: ':file')
