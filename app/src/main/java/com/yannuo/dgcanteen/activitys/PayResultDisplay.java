@@ -101,7 +101,7 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initView() {
-        Persons persons = DishesDBHelper.getInstance().queryPerson(mPayResult.getCustId());
+        Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.getCustId());
         String cls = "***";
         if (persons != null){
             cls = persons.getGrade() + "("+persons.getUserClass()+")";

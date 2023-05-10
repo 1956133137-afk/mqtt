@@ -318,7 +318,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
     private fun refreshSuccessState(data : PayResultForUI){
-        val persons = DishesDBHelper.getInstance().queryPerson(data.custId)
+        val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.custId)
         var cls = "***"
         if (persons != null) {
             cls = persons.grade + persons.userClass

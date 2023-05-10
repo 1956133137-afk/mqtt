@@ -95,7 +95,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     data.cusT_ID = str1.custId
                }
           }
-          val persons = DishesDBHelper.getInstance().queryPerson(data.cusT_ID)
+          val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.cusT_ID)
           val payState = PayResultForUI()
           payState.way = type
           payState.orderid = data.ordeR_ID
@@ -302,7 +302,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           payBean.sign_time = DateFormat.format("yyyyMMddHHmmss",System.currentTimeMillis()).toString()
           payBean.card_id = cardId
           payBean.order_id= NumberGenerateUtil.getOrderNumber()
-          val persons = DishesDBHelper.getInstance().queryPerson(payBean.card_id)
+          val persons = DishesDBHelper.getInstance().queryPersonToCardId(payBean.card_id)
           if (persons != null) {
                payBean.cust_id = persons.custId
           }
