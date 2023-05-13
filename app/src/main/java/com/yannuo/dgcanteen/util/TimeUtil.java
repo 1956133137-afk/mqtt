@@ -10,6 +10,7 @@ import java.util.List;
 public class TimeUtil {
 
     public static List<MealTable> mealTables = null;
+
     public static int CurrentTimeSection(){
         int result = 0;
         if (mealTables != null && mealTables.size() > 0){

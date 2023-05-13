@@ -46,7 +46,7 @@ public class CornerMarkView extends FrameLayout {
         Drawable mainBg = attrsArray.getDrawable(R.styleable.corner_mainBg);
         Drawable secondaryBg = attrsArray.getDrawable(R.styleable.corner_secondaryBg);
 
-        LogUtil.i(TAG,"mainSize:"+ mMainSize +" secondarySize:"+ mSecondarySize);
+//        LogUtil.i(TAG,"mainSize:"+ mMainSize +" secondarySize:"+ mSecondarySize);
         ImageView mainView = new ImageView(cnt);
         mSecondView = new TextView(cnt);
         mSecondView.setTextSize(mSecondarySize);

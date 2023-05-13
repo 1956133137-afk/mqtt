@@ -81,7 +81,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
 
             //打开扫码器
-            ScanDevice.openScan()
+//            ScanDevice.openScan()
             //新版本检查任务
             checkNewAppAndKeepAlive()
             //网络状态监听
@@ -559,7 +559,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
         //关闭扫码头
-        ScanDevice.closeScan()
+//        ScanDevice.closeScan()
         mScope.cancel()
         super.onDestroy()
     }

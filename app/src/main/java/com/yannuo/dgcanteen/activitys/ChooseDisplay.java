@@ -40,6 +40,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     private PayPresenter mPresenter;
 
 
+
     public ChooseDisplay(Context outerContext, ProductsDetail dishes , Display display) {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
@@ -72,17 +73,21 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mPresenter.setListener(this);
         //打开IC开
         mPresenter.openIcCard();
+
+
+
     }
 
     private void initView() {
         binding.tvPayMoney.setText("￥"+mDishes.getTotalMoney());
         mShopsAdapter.setData(mDishes.getProducts());
+//        binding.btPayFace.requestFocus();
     }
 
     private void initEvent() {
         binding.btPayFace.setOnClickListener(view -> {
-            ScanDevice.INSTANCE.setCallbackListener(null);
-            CommonAndDpToPxUtil.speakWork("开始人脸支付");
+            mPresenter.release();//注意释放扫码和串口，防止干扰AIDL
+            binding.btPayFace.setEnabled(false);
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
         });
 
@@ -94,6 +99,9 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                 waitForPayDialog.setListener(new WaitDialogEvent());
             }
             waitForPayDialog.show();
+            //扫码
+            mPresenter.openScan();
+
             //使能扫码支付
             mPresenter.setScanState(PayPresenter.ScanState.PAY);
         });
@@ -107,6 +115,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         if (mPresenter != null) {
             mPresenter.release();
         }
+        LogUtil.i(TAG,"stop...");
         super.onStop();
     }
 
@@ -175,13 +184,11 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
         @Override
         public void onEvent(int code, @Nullable String msg) {
+            LogUtil.i(TAG,"扫码交易:" + msg);
             if (code == 1){
                 CommonAndDpToPxUtil.speakWork("超时未完成支付");
-                LogUtil.i(TAG,"扫码交易:" + msg);
             }else if (code == 0){
                 //todo 取消处理逻辑
-//                CommonAndDpToPxUtil.speakWork("取消支付");
-                LogUtil.i(TAG,"扫码交易:" + msg);
             }
         }
     }

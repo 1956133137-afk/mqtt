@@ -3,7 +3,7 @@ package com.yannuo.dgcanteen.util
 import com.yannuo.libscan.ScanListener
 import com.yannuo.libscan.ScanThread
 
-object ScanDevice {
+class ScanDevice {
     private val TAG = javaClass.simpleName
     private var callback :MyScanListener?= null
     private var dataCallBack :DataCallBack ?= null
@@ -17,6 +17,7 @@ object ScanDevice {
      * 打开扫码头
      */
     fun openScan(){
+        if(scanopenState)return
         val path = "/dev/ttyS4"
 //        val path = "/dev/ttyXRUSB0"
         ScanThread.ScanThreadEnum.INSTNACE.instance.open(path, callback)
@@ -45,7 +46,7 @@ object ScanDevice {
     }
 
     //扫码回调
-  private class MyScanListener : ScanListener() {
+    inner class MyScanListener : ScanListener() {
         override fun onOpen(code: Int) {
             super.onOpen(code)
             scanopenState = true

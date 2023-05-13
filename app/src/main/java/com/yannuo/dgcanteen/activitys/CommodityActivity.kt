@@ -2,14 +2,16 @@ package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
-import android.os.*
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
@@ -37,6 +39,7 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import com.yannuo.dgcanteen.views.LoginPasswordDialog
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -69,12 +72,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private val messageWhatThird = 3
-    private  var loadingDialog : LoadingDialog? =null //后台加载框
+    private var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
     private var mMealId = 0
     private var mealId = 0
     private var successBinding : PaySuccessHostBinding ?= null
     private var failBinding : PayFailureHostBinding ?= null
+    private var mScope : CoroutineScope ?=null
 
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -106,8 +110,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             initObj()
             initView()
             initEvent()
-            timer = Timer()
-            timer?.schedule(timerTask,0,2000)
+            mScope = CoroutineScope(Dispatchers.Default)
+            checkTime()
         }
     }
 
@@ -180,7 +184,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
             if (mChooseDisplay != null){
                 CommonAndDpToPxUtil.speakWork("取消支付");
-                mChooseDisplay!!.cancel()
+                mChooseDisplay?.cancel()
             }
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
@@ -230,25 +234,41 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 event.any?.also {
                     val data = it as ProductsDetail
                     val copy = data.copy()
+                    handler.removeMessages(messageWhat)
                     handler.sendMessage(handler.obtainMessage(messageWhat, copy))
                 }
             }
             Constant.EVENT_SECOND -> {
                 event.any?.also {
                     (it as? ProductsDetail)?.also {iit ->
-                        handler.sendMessage(handler.obtainMessage(messageWhatSecond, iit))
+                        if (mFacePayService ==null){
+                            handler.post {
+                                ToastShowUtil.show("获取不到人脸句柄")
+                                //重新连接服务
+                                val lIntent = Intent()
+                                lIntent.action = "com.ccb.smartcanteen.FacePayService"
+                                lIntent.setPackage("com.ccb.smartcanteen")
+                                bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
+                            }
+                            LogUtil.e(TAG,"获取不到人脸句柄")
+                            return
+                        }
+                        mChooseDisplay?.cancel()
+                        mChooseDisplay = null
+                        mProductsVM.startPayWithFace(mFacePayService,iit)
                     }
                 }
             }
             Constant.EVENT_THIRD -> {
+                handler.removeMessages(messageWhatThird)
                 handler.sendMessage(handler.obtainMessage(messageWhatThird))
             }
             Constant.EVENT_FOURTH ->{
                 event.any?.also {
                     (it as? PayResultForUI)?.also {fit ->
-                        updatePayResult(fit)
                         mChooseDisplay?.cancel()
                         mChooseDisplay = null
+                        updatePayResult(fit)
                     }
                 }
             }
@@ -297,7 +317,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 refreshFailState(data)
             }
         }
-        binding.mvControl.text = "支付数据更新啦"
+        handler.postDelayed(Runnable {
+            binding.mvControl.text = "支付数据更新啦"
+        },200)
+
     }
 
 
@@ -313,7 +336,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         val payResultAdapter =  PayResultAdapter()
         successBinding!!.rvDishList.layoutManager = LinearLayoutManager(this)
         successBinding!!.rvDishList.adapter = payResultAdapter
-
 
     }
 
@@ -345,31 +367,34 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
 
-    //    定时器
-    private val timerTask: TimerTask = object : TimerTask() {
-        override fun run() {
-            mMealId = TimeUtil.CurrentTimeSection()
-            if (mMealId != mealId){
-                mealId = mMealId
-                val str = StringBuilder()
-                when(mealId){
-                    0 -> str.append(resources.getString(R.string.unOpen_meal))
-                    else ->{
-                        val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
-                        str.append(meal.mealName + " ")
-                        str.append(DateFormat.format("HH:mm",meal.startTime).toString() + "~")
-                        str.append(DateFormat.format("HH:mm",meal.endTime).toString())
+
+    private fun checkTime(){
+        mScope?.launch {
+            while (isActive) {
+                if (mProductsDisplay != null) {
+                    mMealId = TimeUtil.CurrentTimeSection()
+                    if (mMealId != mealId) {
+                        mealId = mMealId
+                        val str = StringBuilder()
+                        when (mealId) {
+                            0 -> str.append(resources.getString(R.string.unOpen_meal))
+                            else -> {
+                                val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                                str.append(meal.mealName + " ")
+                                str.append(DateFormat.format("HH:mm", meal.startTime).toString() + "~")
+                                str.append(DateFormat.format("HH:mm", meal.endTime).toString())
+                            }
+                        }
+                        withContext(Dispatchers.Main) {
+                            binding.mealTime.text = str
+                            mProductsDisplay?.subScreenView(mealId, str)
+                        }
                     }
                 }
-                runOnUiThread {
-                    binding.mealTime.text = str
-                    mProductsDisplay?.subScreenView(mealId, str)
-                }
+                delay(5000)
             }
         }
     }
-
-
 
     /**
      * 刷脸结果回调
@@ -397,19 +422,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 ref.messageWhat ->{
                     dealWith(msg.obj as ProductsDetail)
                 }
-                ref.messageWhatSecond ->{
-                    if (ref.mFacePayService ==null){
-                        ToastShowUtil.show("获取不到人脸句柄")
-                        LogUtil.e(TAG,"获取不到人脸句柄")
-                        return
-                    }
-                    ref.mProductsVM.startPayWithFace(ref.mFacePayService,msg.obj as ProductsDetail)
-                    ref.mChooseDisplay?.cancel()
-                    ref.mChooseDisplay = null
-
-                }
                 ref.messageWhatThird ->{
-                    startDishDisplay();
+                    startDishDisplay()
                 }
             }
         }
@@ -421,25 +435,21 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      * @param list ProductsDetail
      */
     private fun dealWith(list : ProductsDetail){
+        mProductsDisplay?.cancel()
+        mProductsDisplay = null
         mChooseDisplay = ChooseDisplay(this,list, secondDisplays)
         mChooseDisplay?.show()
-        handler.postDelayed({
-            mProductsDisplay?.cancel()
-            mProductsDisplay = null
-        },50)
+
     }
 
     /**
      * 打开选餐界面
      */
     private fun startDishDisplay(){
+        mPayResultDisplay?.cancel()
+        mPayResultDisplay = null
         mProductsDisplay = DifferentDisplay( this, secondDisplays)
         mProductsDisplay?.show()
-        handler.postDelayed({
-            mPayResultDisplay?.cancel()
-            mPayResultDisplay = null
-        },50)
-
     }
 
     override fun onDestroy() {
@@ -448,6 +458,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
     private fun release(){
+        mScope?.cancel()
         mProductsDisplay?.cancel()
         mPayResultDisplay = null
         mChooseDisplay?.cancel()

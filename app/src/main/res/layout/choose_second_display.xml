@@ -6,6 +6,7 @@
     android:id="@+id/second_display"
     android:background="#E3E3E3"
     android:orientation="vertical"
+
     android:layout_width="1280px"
     android:layout_height="800px">
 

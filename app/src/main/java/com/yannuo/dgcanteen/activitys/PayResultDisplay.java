@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.activitys;
 import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.yannuo.dgcanteen.model.PayResultForUI;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,6 +44,7 @@ public class PayResultDisplay extends Presentation {
 
     private PayResultAdapter mPayResultAdapter;
     private PayResultForUI mPayResult;
+    private CountDownTimer countDownTimer;
 
     public PayResultDisplay(Context outerContext, PayResultForUI payResult , Display display) {
         super(outerContext, display);
@@ -53,6 +56,7 @@ public class PayResultDisplay extends Presentation {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (mPayResult.getResult() == PayResultForUI.Result.FAIL){
             mFailBinding = PayFailureBinding.inflate(getLayoutInflater());
             setContentView(mFailBinding.getRoot());
@@ -65,6 +69,34 @@ public class PayResultDisplay extends Presentation {
             initView();
         }
 
+        if (mPayResult.getWay().equals("人脸支付")){
+            if (mPayResult.getResult() == PayResultForUI.Result.FAIL)
+                mFailBinding.btBack.setEnabled(false);
+            else
+                mBinding.btBack.setEnabled(false);
+            countDownTimer = new CountDownTimer(3100, 1000) {
+                @Override
+                public void onTick(long mil) {
+                    if (mPayResult.getResult() == PayResultForUI.Result.FAIL)
+                        mFailBinding.btBack.setText("返回"+(mil)/1000+"秒");
+                    else
+                        mBinding.btBack.setText("返回"+(mil)/1000+"秒");
+                }
+
+                @Override
+                public void onFinish() {
+                    if (mPayResult.getResult() == PayResultForUI.Result.FAIL) {
+                        mFailBinding.btBack.setEnabled(true);
+                        mFailBinding.btBack.setText("返回");
+                    }
+                    else {
+                        mBinding.btBack.setEnabled(true);
+                        mBinding.btBack.setText("返回");
+                    }
+                }
+            };
+            countDownTimer.start();
+        }
 
     }
 
@@ -90,12 +122,11 @@ public class PayResultDisplay extends Presentation {
         mPayResultAdapter = new PayResultAdapter();
         mBinding.rvDishList.setLayoutManager(new LinearLayoutManager(getContext()));
         mBinding.rvDishList.setAdapter(mPayResultAdapter);
-//        mBinding.rvDishList.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         MMKV kv = MMKV.defaultMMKV();
         if (!kv.decodeBool(Constant.SWITCH)){
             CommonAndDpToPxUtil.speakWork("欢迎用餐");
         }else{
-            CommonAndDpToPxUtil.speakWork("该笔为离线订单后续补扣");
+            CommonAndDpToPxUtil.speakWork("离线订单后续补扣");
         }
 
     }
@@ -124,5 +155,14 @@ public class PayResultDisplay extends Presentation {
 
     private void back(){
         EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD,null));
+    }
+
+    @Override
+    protected void onStop() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        LogUtil.i(TAG,"stop...");
+        super.onStop();
     }
 }

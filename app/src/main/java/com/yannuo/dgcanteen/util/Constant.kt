@@ -2,18 +2,18 @@ package com.yannuo.dgcanteen.util
 
 object Constant {
     //配置文件名
-    const val fileName = "mmkv"
-    const val strDefault  =""
+//    const val fileName = "mmkv"
+//    const val strDefault  =""
     //事件通知
     //mqtt地址
-    const val mqttAddressKey = "mqtt"
-    const val mqttAddressValue = "tcp://acms.yannuozhineng.com:3883"
+//    const val mqttAddressKey = "mqtt"
+//    const val mqttAddressValue = "tcp://acms.yannuozhineng.com:3883"
     //mqtt账号
-    const val mqttAccountKey = "mqtta"
-    const val mqttAccountValue = "acms"
+//    const val mqttAccountKey = "mqtta"
+//    const val mqttAccountValue = "acms"
     //mqtt密码
-    const val mqttPassworkKey = "mqttp"
-    const val mqttPassworkValue = "ACMS2022~!@"
+//    const val mqttPassworkKey = "mqttp"
+//    const val mqttPassworkValue = "ACMS2022~!@"
     //周期任务-检查软件版本
     const val PERIODIC_WORK_KEY = "app-update-task"
 //    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
@@ -38,7 +38,7 @@ object Constant {
     const val update_time = "19700000"  //默认1970年
     const val PIC_DIR = "pic" //菜品图片保存目录
     const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
-    const val CURRENT_PAGE = "page" //当前人员下载页
+//    const val CURRENT_PAGE = "page" //当前人员下载页
 
 
 

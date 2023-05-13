@@ -17,10 +17,12 @@
         android:icon="@mipmap/ic_app"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:screenOrientation="landscape"
         android:supportsRtl="true"
         android:theme="@style/Theme.CommodityPay">
         <activity
             android:name=".activitys.DishManageActivity"
+
             android:exported="false" />
         <activity
             android:name=".activitys.SettingActivity"

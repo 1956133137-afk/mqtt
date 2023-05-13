@@ -84,7 +84,7 @@ class ProductsVM :ViewModel() {
                 if (rs.code == HttpURLConnection.HTTP_OK){
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
-                     val picList =  mutableListOf<String>() //菜品图片
+                    val picList =  mutableListOf<String>() //菜品图片
                     for (da in rs.data!!){
                         val meal = MealTable()
                         meal.mealId = da.mealId
@@ -186,8 +186,10 @@ class ProductsVM :ViewModel() {
             bean.OFFLINE = offline.toString()
 
             service!!.startFacePay(
-                Gson().toJson(bean),  bean.OFFLINE, object : PayResultListener.Stub() { @Throws(RemoteException::class)
+                Gson().toJson(bean),  bean.OFFLINE, object : PayResultListener.Stub() {
+
                 override fun onResult(result: String) {
+
                     LogUtil.d(TAG, result)
                     val payResult = Gson().fromJson(result,CcbFacePayResultBean::class.java)
                     val payState = PayResultForUI()
@@ -222,6 +224,7 @@ class ProductsVM :ViewModel() {
                     }
                     listener?.onFacePayResult(payState)
                 }
+
                 })
         }
     }

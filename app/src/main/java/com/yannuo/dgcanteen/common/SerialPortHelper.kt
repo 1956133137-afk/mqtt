@@ -7,10 +7,7 @@ import android.util.Log
 import android_serialport_api.SerialPort
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.util.LogUtil
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
 
@@ -43,33 +40,27 @@ class SerialPortHelper() {
     private var rxArray = ByteArray(byteBufferLength)
     private var rxBuffer = ByteBuffer.wrap(rxArray)
 
+    private var mScope :CoroutineScope ?= null
 
 
-
-
-
+    init {
+        mScope = CoroutineScope(Dispatchers.IO)
+    }
 
     fun openSerialPort(port: String, baudrate: Int = 9600): Boolean {
         this.baudrate = baudrate
-        if (mPort != port) {
-            mPort = port
-            closeSerialPort()
-            initSerialPort()
-        } else {
             mPort = port
             if (mSerialPort == null) {
                 initSerialPort()
             }
-        }
+
         startReadThread()
         return true
     }
 
     private fun initSerialPort() {
         try {
-            //   mSerialPort = SerialPort(File(mPort), null, baudrate, 0, 8, 1, 0, 0)
             mSerialPort = SerialPort(File(mPort),  baudrate, 0)
-//            mSerialPort?.tcflush()
             mOutputStream = mSerialPort!!.outputStream
             mInputStream = mSerialPort!!.inputStream
             if (mInputStream != null) {
@@ -81,7 +72,6 @@ class SerialPortHelper() {
     }
 
     private inner class ReadThread() : Thread() {
-        //  val lock = Any()
         override fun run() {
             super.run()
             if (!startRead) {
@@ -92,15 +82,16 @@ class SerialPortHelper() {
             while (!isInterrupted && mBufferedInputStream != null) {
                 try {
                     var read = -1
-                    read = mBufferedInputStream!!.read(rxArray)
+                    read = mBufferedInputStream?.read(rxArray) ?: -1
                     while (read > 0) {
                         SystemClock.sleep(readTime)
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
+                        SystemClock.sleep(readTime)
                         if (mBufferedInputStream?.available() == 0) {
                             content = content.replace("\r\n","")
-                            if (read > 1){
+                            if (content.length >= 5){
                                 readDataListener?.numberOfIcCard(content)
                             }
                             content =""
@@ -149,26 +140,6 @@ class SerialPortHelper() {
         return HexCode.get(d1) + HexCode.get(d2)
     }
 
-    /*fun send(bytes: ByteArray) :Boolean{
-        if (mOutputStream != null) {
-            try {
-                SystemClock.sleep(10);
-                val stringBuilder = StringBuilder()
-                stringBuilder.append("串口工具类发送串口数据:  ")
-                stringBuilder.append(bytes.size)
-                LogUtil.i(tag, stringBuilder.toString());
-                isParse = false
-                mOutputStream!!.write(bytes)
-                mOutputStream!!.flush()
-                LogUtil.i(tag, "===========发送串口数据结束============");
-                return true
-            } catch (e: IOException) {
-                e.printStackTrace();
-                LogUtil.i(tag, "===========发送串口数据异常============");
-            }
-        }
-        return false
-    }*/
     fun send(bytes: ByteArray) :Boolean{
         if (mOutputStream != null) {
             try {
@@ -176,8 +147,6 @@ class SerialPortHelper() {
                 val stringBuilder = StringBuilder()
                 stringBuilder.append("串口工具类发送串口数据: ")
                 stringBuilder.append(bytes.size)
-//                LogUtil.i(tag, stringBuilder.toString()+","+ HexUtils.bytesToHexString(bytes,bytes.size))
-                //  this.isParse = isParse
                 mOutputStream!!.write(bytes)
                 mOutputStream!!.flush()
                 LogUtil.i(tag, "===========发送串口数据结束============");
@@ -235,7 +204,8 @@ class SerialPortHelper() {
     }
 
     fun closeSerialPort() {
-        closeReadThread()
+//        closeReadThread()
+        mScope?.cancel()
         if (mBufferedInputStream != null) {
             mBufferedInputStream!!.close()
             mBufferedInputStream = null
@@ -266,18 +236,33 @@ class SerialPortHelper() {
         }
     }
 
-    fun startReadThread() {
-        startRead = true
-        if (mReadThread == null) {
-            mReadThread = ReadThread()
-            mReadThread!!.start()
-        } else if (mReadThread != null && mReadThread!!.isAlive) {
-            if (mReadThread!!.isInterrupted) {
-                mReadThread = ReadThread()
-                mReadThread!!.start()
-            } else {
-                mReadThread!!.interrupt()
-                mReadThread!!.start()
+   private fun startReadThread() {
+        mScope?.launch {
+            var content =""
+            while (isActive) {
+                try {
+                    var read = -1
+                    read = mBufferedInputStream?.read(rxArray) ?: -1
+                    while (read > 0) {
+                        SystemClock.sleep(readTime)
+                        val buffer = ByteArray(read)
+                        System.arraycopy(rxArray, 0, buffer, 0, read)
+                        content += byteArrayToHexString(buffer)
+                        delay(readTime)
+                        if (mBufferedInputStream?.available() == 0) {
+                            content = content.replace("\r\n","")
+                            if (content.length >= 5){
+                                readDataListener?.numberOfIcCard(content)
+                            }
+                            content =""
+                        }
+                        read = -1
+                    }
+                    delay(50)
+                } catch (e: Exception) {
+                    Log.i(tag, "SerialPortHelper  Exception ...")
+                    e.printStackTrace()
+                }
             }
         }
     }

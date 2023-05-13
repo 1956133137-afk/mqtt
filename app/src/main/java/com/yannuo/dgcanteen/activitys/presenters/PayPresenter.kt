@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.activitys.presenters
 import android.os.RemoteException
 import android.text.format.DateFormat
 import com.google.gson.Gson
+import com.safframework.log.extension.msgFunction
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.SerialPortHelper
@@ -28,6 +29,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private lateinit var mCardHandle :SerialPortHelper
      private lateinit var kv : MMKV
      private lateinit var mPayCfg : PayCfg
+     private var mScanDevice : ScanDevice ?= null
 
      init {
           kv = MMKV.defaultMMKV()
@@ -35,7 +37,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           mRespository = PayRepositoryOfPay()
           mDataPresenter = DataPresenter()
           //开始监听扫码数据
-          ScanDevice.setCallbackListener(this)
+//          ScanDevice.setCallbackListener(this)
           mCardHandle = SerialPortHelper()
 
      }
@@ -62,9 +64,28 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * 打开IC卡串口
       */
      fun openIcCard(){
+//          mCardHandle.openSerialPort("/dev/ttyXRUSB0")
           mCardHandle.openSerialPort("/dev/ttyXRUSB0")
           cardState = ScanState.INVALID
           mCardHandle.readDataListener = this
+     }
+
+     /**
+      * 取消扫码器数据监听，防止干扰
+      */
+     fun clearScanListener(){
+          mScanDevice?.setCallbackListener(null)
+     }
+
+     /**
+      * 打开扫码器
+      */
+     fun openScan(){
+          if (mScanDevice == null) {
+               mScanDevice = ScanDevice()
+          }
+          mScanDevice?.openScan()
+          mScanDevice?.setCallbackListener(this)
      }
 
      override fun onData(data: String) {
@@ -269,8 +290,10 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
 
      fun release() {
           //取消扫码监听
-          ScanDevice.setCallbackListener(null)
-          mCardHandle.readDataListener = this
+          mScanDevice?.setCallbackListener(null)
+          mScanDevice?.closeScan()
+//          ScanDevice.setCallbackListener(null)
+          mCardHandle.readDataListener = null
           mCardHandle.closeSerialPort()
      }
 

@@ -84,10 +84,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         binding.rvSelectItem.setLayoutManager(linearLayoutManager);
         initData();
+
     }
 
     private void initView() {
         binding.rvSelectItem.setAdapter(adapterPayFor);
+//        binding.rvSelectItem.requestFocus();
     }
 
     private void initData() {
@@ -221,6 +223,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     @Override
     protected void onStop() {
         EventBus.getDefault().unregister(this);
+        LogUtil.i(TAG,"stop...");
         super.onStop();
     }
 }
