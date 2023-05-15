@@ -129,7 +129,7 @@
 
         </LinearLayout>
         
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/bt_back"
             android:layout_width="180px"
             android:layout_height="50px"

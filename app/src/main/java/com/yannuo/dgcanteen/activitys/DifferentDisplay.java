@@ -8,6 +8,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
@@ -54,11 +55,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
-        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         super.onCreate(savedInstanceState);
         binding = DifferrentDialogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -70,7 +72,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     private void initObject() {
         refreshMeal();
-        adapterDishes = new ProductsAdapter(mealIds,getContext());
+        adapterDishes = new ProductsAdapter(getContext());
         adapterDishes.setListener(this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),3);
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
@@ -89,7 +91,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     private void initView() {
         binding.rvSelectItem.setAdapter(adapterPayFor);
-//        binding.rvSelectItem.requestFocus();
     }
 
     private void initData() {
@@ -144,6 +145,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
 
         });
+
+
 
     }
 

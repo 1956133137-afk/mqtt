@@ -21,16 +21,15 @@ import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.PictureUtil
 
 
-class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
+class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
     private var listener: WorkListener ?= null
     private var cnt = context
     private var wh: GridLayoutManager? = null
     private var sizeWH = 200
     private var firstCaclulate = true
 
-    init {
-        TAG = "ProductsAdapter-$title"
-    }
+
+
 
     fun update(da :DishesInfo){
         var result = false
@@ -50,7 +49,7 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
     }
 
     override fun bindHolder(holder: Holder, position: Int) {
-//        LogUtil.d(TAG,"bindHolder(holder: Holder, $position: Int)")
+
         val data = mData.get(position)
         holder.binding.tvName.text = data.dishesName
         cnt?.also {
@@ -58,7 +57,6 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
             spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             holder.binding.tvNumber.text = spanStr
         }
-//        holder.binding.tvIndex.text = "${(position+1)}"
         holder.binding.cvCountAdd.updateValue(data.count)
         val layoutParams = holder.binding.ivPic.layoutParams
 
@@ -77,10 +75,8 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
         layoutParams.width = sizeWH
 
         holder.binding.ivPic.layoutParams = layoutParams
-//        if (data.filename.isNullOrEmpty().not()) {
         cnt?.let { Glide.with(it).load(PictureUtil.getPictureName(data.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
             .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }
-//        }
 
     }
 
@@ -97,16 +93,6 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
 
 
     override fun addEventListener(holder :Holder) {
-
-//        holder.binding.cvCountAdd.setOnClickListener {
-//            val position = holder.adapterPosition
-//            LogUtil.d(TAG,"添加 $position")
-//            if (position == RecyclerView.NO_POSITION)return@setOnClickListener
-//            mData.get(position).count +=1
-//            notifyItemChanged(position,"count")
-//            listener?.onEventClick(position)
-//        }
-
         holder.itemView.setOnClickListener {
             val position = holder.adapterPosition
             LogUtil.d(TAG,"添加 $position")
@@ -124,10 +110,7 @@ class ProductsAdapter(title :Int?,context :Context?) : BaseAdapter<DishesInfo,Pr
     }
 
     fun setImgSize(manager: GridLayoutManager) {
-//        wh = manager.width -  (manager.paddingLeft + manager.paddingRight)
         wh =manager
-
-
     }
 
     interface WorkListener{

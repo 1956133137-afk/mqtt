@@ -22,7 +22,7 @@
     <color name="red">#FFFF0000</color>
     <color name="pass_color">#26DA6F</color>
     <color name="table_selet">#FF8000</color>
-    <color name="table_unselet">#4095E5</color>
+    <color name="table_unselet">#ff4095E5</color>
     <color name="text_color_one">#E7E7E7</color>
     <color name="background_color_one">#1A8CFF</color><!--灰色 -->
 </resources>

@@ -10,9 +10,6 @@ import com.yannuo.dgcanteen.util.LogUtil
 
 class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
     private var listener: WorkListener ?= null
-    //    private var cnt = context
-    private var TAG = javaClass.simpleName
-
     init {
         map = HashMap()
     }
@@ -28,7 +25,6 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
 
         holder.binding.tvItemName.text = data.get(position).dishesName
         holder.binding.tvThisMoney.text = "￥${data.get(position).price}"
-//        holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
         holder.binding.adAddSubtract.setCount(data.get(position).count)
     }
 
@@ -36,7 +32,6 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
         map.set(data[position].dishesId,position) //维护数据位置
         if (payloads.isEmpty().not()){
             holder.binding.tvThisMoney.text = "￥${data.get(position).price}"
-//            holder.binding.tvThisMoney.text = "￥${calculate(data.get(position))}"
             holder.binding.adAddSubtract.setCount(data.get(position).count)
             LogUtil.d(TAG,"update payload:  ${payloads.get(0)}")
         }

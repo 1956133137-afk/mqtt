@@ -1,7 +1,6 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -15,6 +14,7 @@ import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
+import android.view.MotionEvent
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -70,7 +70,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
     private var mPayResultDisplay : PayResultDisplay ?= null  //支付结果界面
     private val messageWhat = 1
-    private val messageWhatSecond = 2
+//    private val messageWhatSecond = 2
     private val messageWhatThird = 3
     private var loadingDialog : LoadingDialog? =null //后台加载框
     private var timer: Timer? = null
@@ -98,7 +98,6 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
 
-    @SuppressLint("CheckResult")
     override fun onInit() {
         mXService = MyService(this)
 
@@ -120,12 +119,11 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
         displayManager?.displays?.also {
             secondDisplays = it[1]
-        }
-        secondDisplays?.also {
             mProductsDisplay = DifferentDisplay( this, secondDisplays)
             mProductsDisplay?.show()
         }
     }
+
 
     private fun initObj(){
         handler = MyHandler(this)
@@ -143,6 +141,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     }
 
     private fun initView() {
+
         //吐司信息显示
         mProductsVM.showToastEvent.observe(this){
             ToastShowUtil.show(it)
@@ -171,6 +170,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         super.onResume()
         mXService?.hideNavBar = true
     }
+
     private fun initEvent(){
 
         binding.tvTitle.setOnLongClickListener {
@@ -181,6 +181,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
         //退出支付，回到选餐界面
         binding.btBackPay.setOnClickListener {
+            mProductsDisplay.also {
+                if (it !=null && it.isShowing) {
+                    return@also
+                }
+                mProductsDisplay = DifferentDisplay( this, secondDisplays)
+                mProductsDisplay?.show()
+            }
 
             if (mChooseDisplay != null){
                 CommonAndDpToPxUtil.speakWork("取消支付");
@@ -189,13 +196,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
-            mProductsDisplay.also {
-                if (it !=null && it.isShowing) {
-                    return@also
-                }
-                mProductsDisplay = DifferentDisplay( this, secondDisplays)
-                mProductsDisplay?.show()
-            }
+
         }
 
         //设置界面
@@ -435,10 +436,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      * @param list ProductsDetail
      */
     private fun dealWith(list : ProductsDetail){
-        mProductsDisplay?.cancel()
-        mProductsDisplay = null
         mChooseDisplay = ChooseDisplay(this,list, secondDisplays)
         mChooseDisplay?.show()
+        handler.postDelayed({
+            mProductsDisplay?.cancel()
+            mProductsDisplay = null
+        },50)
 
     }
 
@@ -446,10 +449,12 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      * 打开选餐界面
      */
     private fun startDishDisplay(){
-        mPayResultDisplay?.cancel()
-        mPayResultDisplay = null
         mProductsDisplay = DifferentDisplay( this, secondDisplays)
         mProductsDisplay?.show()
+        handler.postDelayed({
+            mPayResultDisplay?.cancel()
+            mPayResultDisplay = null
+        },50)
     }
 
     override fun onDestroy() {
