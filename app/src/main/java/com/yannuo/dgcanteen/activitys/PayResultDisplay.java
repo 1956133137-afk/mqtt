@@ -50,7 +50,6 @@ public class PayResultDisplay extends Presentation {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         mPayResult = payResult;
-
     }
 
     @Override

@@ -23,7 +23,7 @@ class SerialPortHelper() {
     var readDataListener : OnReadDataListener?= null
     private var byteBufferLength = 128
     private var sleepTime = 2L
-    private var readTime = 5L
+    private var readTime = 10L
     private var baudrate = 9600
 
     private var mBufferedInputStream: BufferedInputStream? = null
@@ -244,7 +244,7 @@ class SerialPortHelper() {
                     var read = -1
                     read = mBufferedInputStream?.read(rxArray) ?: -1
                     while (read > 0) {
-                        SystemClock.sleep(readTime)
+//                        SystemClock.sleep(readTime)
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)

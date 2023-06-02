@@ -8,6 +8,7 @@ class ScanDevice {
     private var callback :MyScanListener?= null
     private var dataCallBack :DataCallBack ?= null
     private var scanopenState = false  //扫码头打开状态
+    @Volatile private var startTime = 0L //开始
 
     init {
         callback = MyScanListener()
@@ -18,8 +19,9 @@ class ScanDevice {
      */
     fun openScan(){
         if(scanopenState)return
-        val path = "/dev/ttyS4"
-//        val path = "/dev/ttyXRUSB0"
+        startTime = System.currentTimeMillis()
+//        val path = "/dev/ttyS4"
+        val path = "/dev/ttyXRUSB0"
         ScanThread.ScanThreadEnum.INSTNACE.instance.open(path, callback)
     }
 
@@ -54,9 +56,11 @@ class ScanDevice {
         }
 
         override fun onRead(dat: String?) {
+
             dat?.trim()?.also {
                 LogUtil.i(TAG, "扫码数据: $it")
                 if(it.isEmpty())return
+                if (System.currentTimeMillis()-startTime <1000)return
                 dataCallBack?.onData(it)
             }
         }

@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="1280px"
-    android:layout_height="800px"
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activitys.CommodityActivity"
     android:background="@color/white"
     android:orientation="horizontal">
 
@@ -136,6 +136,7 @@
             android:layout_marginTop="40px"
             android:background="@drawable/shape_btn_bg"
             android:text="@string/btn_back"
+            android:gravity="center"
             android:textSize="20px"
             android:textColor="#215476"/>
 

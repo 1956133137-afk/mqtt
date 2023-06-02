@@ -64,8 +64,8 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
       * 打开IC卡串口
       */
      fun openIcCard(){
+          mCardHandle.openSerialPort("/dev/ttyS4")
 //          mCardHandle.openSerialPort("/dev/ttyXRUSB0")
-          mCardHandle.openSerialPort("/dev/ttyXRUSB0")
           cardState = ScanState.INVALID
           mCardHandle.readDataListener = this
      }
@@ -302,8 +302,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           number?.trim()?.also {
 //               cardState = ScanState.INVALID
                LogUtil.d(TAG,"number :${number}")
-               payByCard(it.toUpperCase())
-
+               payByCard(it.uppercase())
           }
 
      }

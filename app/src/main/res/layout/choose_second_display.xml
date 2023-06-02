@@ -3,14 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/second_display"
+
     android:background="#E3E3E3"
     android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activitys.CommodityActivity"
+  >
 
-    android:layout_width="1280px"
-    android:layout_height="800px">
-
-
+    <!--    android:id="@+id/second_display"-->
+<!--    android:layout_width="1280px"-->
+<!--    android:layout_height="800px"-->
+<!--    -->
         <LinearLayout
             android:layout_width="match_parent"
             android:orientation="horizontal"
@@ -54,6 +58,7 @@
             android:layout_width="match_parent"
             android:background="@color/white"
             android:padding="8px"
+
             android:layout_height="match_parent">
 
             <TextView
@@ -86,27 +91,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-<!--            <Button-->
-<!--                android:id="@+id/bt_pay_card"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="50px"-->
-<!--                android:background="@drawable/common_bt_bg"-->
-<!--                android:drawablePadding="8px"-->
-<!--                android:drawableStart="@drawable/ic_card"-->
-<!--                android:gravity="center"-->
-<!--                android:padding="8px"-->
-<!--                android:paddingEnd="10px"-->
-<!--                android:paddingStart="10px"-->
-<!--                android:text="刷卡支付"-->
-<!--                android:textColor="@color/white"-->
-<!--                android:textSize="39px"-->
-<!--                android:textStyle="bold"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toStartOf="@+id/bt_pay_face"-->
-<!--                app:layout_constraintTop_toTopOf="parent" />-->
-
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/bt_pay_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -127,7 +112,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/bt_pay_qrcode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

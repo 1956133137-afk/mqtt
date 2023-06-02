@@ -13,23 +13,29 @@ class PayCfg() :Parcelable{
     var campusId :String ?= null //园区ID
     var corp_id :String ?= "1041" //合作方ID
     var businessId :String ?= null //商家ID
-    //    var business_name :String ?= null //商家名称
+    var business_name :String ?= null //商家名称
     var counterId :String ?= null //柜台号
+    var windowId :String ?= null //窗口Id
+    var windowName :String ?= null //窗口名称
 
     constructor(parcel: Parcel) : this() {
         campusId = parcel.readString()
         corp_id = parcel.readString()
         businessId = parcel.readString()
-//        business_name = parcel.readString()
+        business_name = parcel.readString()
         counterId = parcel.readString()
+        windowId = parcel.readString()
+        windowName = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(campusId)
         parcel.writeString(corp_id)
         parcel.writeString(businessId)
-//        parcel.writeString(business_name)
+        parcel.writeString(business_name)
         parcel.writeString(counterId)
+        parcel.writeString(windowId)
+        parcel.writeString(windowName)
     }
 
     override fun describeContents(): Int {
@@ -45,7 +51,6 @@ class PayCfg() :Parcelable{
             return arrayOfNulls(size)
         }
     }
-
 
 
 }

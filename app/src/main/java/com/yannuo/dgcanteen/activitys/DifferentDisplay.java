@@ -91,6 +91,11 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     private void initView() {
         binding.rvSelectItem.setAdapter(adapterPayFor);
+        MMKV mv = MMKV.defaultMMKV();
+        PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
+        if (payCfg != null){
+            binding.selectStopper.setText(payCfg.getWindowName());
+        }
     }
 
     private void initData() {
