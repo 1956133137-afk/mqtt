@@ -211,36 +211,38 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     }
                }
                else ->{
-                    ccbBean.offline = "0"
-                    try { //解析二维码
-                         ccbBean.txcode = "PAY002"
-                         ccbBean.qR_CODE = qrcode
-                         var map = CanteenEncryptionUtil.getAnalysisQr(ccbBean)
-                         runBlocking (Dispatchers.IO) {
-                              res = mRespository.getCcbData(map).body()?.let { //解析二维码
-                                   Gson().fromJson(it.string().replace("\r\n",""), ScanAnalysisBean::class.java)
-                              }
-                         }
-                         if (res?.RESULT.toString() == "Y"){
-                              ccbBean.txcode = "PAY003"
-                              ccbBean.cusT_ID = res?.CUST_ID.toString()
-                              if (validCode == 3){
-                                   map = CanteenEncryptionUtil.getScanToPay(ccbBean)
-                                   runBlocking (Dispatchers.IO) {
-                                        responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
-                                             Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
-                                        }
-                                        if (responseScanPay?.RESULT.toString() == "N"){
-                                             validCode = 2
-                                        }
+                    if (validCode == 3){
+                         ccbBean.offline = "0"
+                         try { //解析二维码
+                              ccbBean.txcode = "PAY002"
+                              ccbBean.qR_CODE = qrcode
+                              var map = CanteenEncryptionUtil.getAnalysisQr(ccbBean)
+                              runBlocking (Dispatchers.IO) {
+                                   res = mRespository.getCcbData(map).body()?.let { //解析二维码
+                                        Gson().fromJson(it.string().replace("\r\n",""), ScanAnalysisBean::class.java)
                                    }
                               }
-                         }else{
-                              responseScanPay = ScanQrResultBean(res?.ERRCODE,res?.ERRMSG)
-                              validCode = 2
+                              if (res?.RESULT.toString() == "Y"){
+                                   ccbBean.txcode = "PAY003"
+                                   ccbBean.cusT_ID = res?.CUST_ID.toString()
+                                   if (validCode == 3){
+                                        map = CanteenEncryptionUtil.getScanToPay(ccbBean)
+                                        runBlocking (Dispatchers.IO) {
+                                             responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                                  Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                                             }
+                                             if (responseScanPay?.RESULT.toString() == "N"){
+                                                  validCode = 2
+                                             }
+                                        }
+                                   }
+                              }else{
+                                   responseScanPay = ScanQrResultBean(res?.ERRCODE,res?.ERRMSG)
+                                   validCode = 2
+                              }
+                         }catch (e: RemoteException) {
+                              e.printStackTrace()
                          }
-                    }catch (e: RemoteException) {
-                         e.printStackTrace()
                     }
                }
           }
