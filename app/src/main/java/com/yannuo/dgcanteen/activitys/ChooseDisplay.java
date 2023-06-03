@@ -115,7 +115,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         if (mPresenter != null) {
             mPresenter.release();
         }
-        LogUtil.i(TAG,"stop...");
+        LogUtil.d(TAG,"stop...");
         super.onStop();
     }
 

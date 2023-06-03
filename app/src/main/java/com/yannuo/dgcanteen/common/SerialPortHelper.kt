@@ -23,14 +23,14 @@ class SerialPortHelper() {
     var readDataListener : OnReadDataListener?= null
     private var byteBufferLength = 128
     private var sleepTime = 2L
-    private var readTime = 10L
+    private var readTime = 20L
     private var baudrate = 9600
 
     private var mBufferedInputStream: BufferedInputStream? = null
     private var mInputStream: InputStream? = null
     private var mOutputStream: OutputStream? = null
     private var mSerialPort: SerialPort? = null
-    private var mReadThread: ReadThread? = null
+    //    private var mReadThread: ReadThread? = null
     private var mPort : String ?= null
     private var startRead = false
 
@@ -49,11 +49,10 @@ class SerialPortHelper() {
 
     fun openSerialPort(port: String, baudrate: Int = 9600): Boolean {
         this.baudrate = baudrate
-            mPort = port
-            if (mSerialPort == null) {
-                initSerialPort()
-            }
-
+        mPort = port
+        if (mSerialPort == null) {
+            initSerialPort()
+        }
         startReadThread()
         return true
     }
@@ -71,41 +70,41 @@ class SerialPortHelper() {
         }
     }
 
-    private inner class ReadThread() : Thread() {
-        override fun run() {
-            super.run()
-            if (!startRead) {
-                Log.i(tag, "读取线程停止读取数据...")
-                return
-            }
-            var content =""
-            while (!isInterrupted && mBufferedInputStream != null) {
-                try {
-                    var read = -1
-                    read = mBufferedInputStream?.read(rxArray) ?: -1
-                    while (read > 0) {
-                        SystemClock.sleep(readTime)
-                        val buffer = ByteArray(read)
-                        System.arraycopy(rxArray, 0, buffer, 0, read)
-                        content += byteArrayToHexString(buffer)
-                        SystemClock.sleep(readTime)
-                        if (mBufferedInputStream?.available() == 0) {
-                            content = content.replace("\r\n","")
-                            if (content.length >= 5){
-                                readDataListener?.numberOfIcCard(content)
-                            }
-                            content =""
-                        }
-                        read = -1
-                    }
-                    sleep(50)
-                } catch (e: Exception) {
-                    Log.i(tag, "SerialPortHelper  Exception ...")
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
+//    private inner class ReadThread() : Thread() {
+//        override fun run() {
+//            super.run()
+//            if (!startRead) {
+//                Log.i(tag, "读取线程停止读取数据...")
+//                return
+//            }
+//            var content =""
+//            while (!isInterrupted && mBufferedInputStream != null) {
+//                try {
+//                    var read = -1
+//                    read = mBufferedInputStream?.read(rxArray) ?: -1
+//                    while (read > 0) {
+//                        SystemClock.sleep(readTime)
+//                        val buffer = ByteArray(read)
+//                        System.arraycopy(rxArray, 0, buffer, 0, read)
+//                        content += byteArrayToHexString(buffer)
+//                        SystemClock.sleep(readTime)
+//                        if (mBufferedInputStream?.available() == 0) {
+//                            content = content.replace("\r\n","")
+//                            if (content.length >= 5){
+//                                readDataListener?.numberOfIcCard(content)
+//                            }
+//                            content =""
+//                        }
+//                        read = -1
+//                    }
+//                    sleep(50)
+//                } catch (e: Exception) {
+//                    Log.i(tag, "SerialPortHelper  Exception ...")
+//                    e.printStackTrace()
+//                }
+//            }
+//        }
+//    }
 
 
     // 16进制转ASCII文本
@@ -140,68 +139,68 @@ class SerialPortHelper() {
         return HexCode.get(d1) + HexCode.get(d2)
     }
 
-    fun send(bytes: ByteArray) :Boolean{
-        if (mOutputStream != null) {
-            try {
-                SystemClock.sleep(10);
-                val stringBuilder = StringBuilder()
-                stringBuilder.append("串口工具类发送串口数据: ")
-                stringBuilder.append(bytes.size)
-                mOutputStream!!.write(bytes)
-                mOutputStream!!.flush()
-                LogUtil.i(tag, "===========发送串口数据结束============");
-                return true
-            } catch (e: IOException) {
-                e.printStackTrace();
-                LogUtil.i(tag, "===========发送串口数据异常============");
-            }
-        }
-        return false
-    }
+//    fun send(bytes: ByteArray) :Boolean{
+//        if (mOutputStream != null) {
+//            try {
+//                SystemClock.sleep(10);
+//                val stringBuilder = StringBuilder()
+//                stringBuilder.append("串口工具类发送串口数据: ")
+//                stringBuilder.append(bytes.size)
+//                mOutputStream!!.write(bytes)
+//                mOutputStream!!.flush()
+//                LogUtil.i(tag, "===========发送串口数据结束============");
+//                return true
+//            } catch (e: IOException) {
+//                e.printStackTrace();
+//                LogUtil.i(tag, "===========发送串口数据异常============");
+//            }
+//        }
+//        return false
+//    }
 
-    fun stopReadData() {
-        startRead = false
-    }
+//    fun stopReadData() {
+//        startRead = false
+//    }
 
-    fun startReadData() {
-        startRead = true
-    }
+//    fun startReadData() {
+//        startRead = true
+//    }
 
     /**
      * 读取之前，先清空输入流,接收数据连续的时候以下不用写
      */
-    fun flushInputStream() {
-        if (mBufferedInputStream != null) {
-            try {
-                while (mBufferedInputStream!!.available() > 0) {
-                    mBufferedInputStream!!.read()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
+//    fun flushInputStream() {
+//        if (mBufferedInputStream != null) {
+//            try {
+//                while (mBufferedInputStream!!.available() > 0) {
+//                    mBufferedInputStream!!.read()
+//                }
+//            } catch (e: IOException) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
     /**
      * 设置读取线程，读一次数据的缓存字节数组长度
      */
-    fun setByteBufferLength(length: Int) {
-        byteBufferLength = length
-        rxArray = ByteArray(byteBufferLength)
-    }
+//    fun setByteBufferLength(length: Int) {
+//        byteBufferLength = length
+//        rxArray = ByteArray(byteBufferLength)
+//    }
     /**
      * 设置读取串口数据的时间，readTime
      */
-    fun setReadTime(readTime: Long) {
-        this.readTime = readTime
-    }
+//    fun setReadTime(readTime: Long) {
+//        this.readTime = readTime
+//    }
 
     /**
      * 设置线程读取一次数据的时间，sleepTime，线程心跳
      */
-    fun setSleepTime(sleepTime: Long) {
-        this.sleepTime = sleepTime
-    }
+//    fun setSleepTime(sleepTime: Long) {
+//        this.sleepTime = sleepTime
+//    }
 
     fun closeSerialPort() {
 //        closeReadThread()
@@ -225,18 +224,18 @@ class SerialPortHelper() {
         rxBuffer.clear()
     }
 
-    fun closeReadThread() {
-        startRead = false
+//    fun closeReadThread() {
+//        startRead = false
+//
+//        if (mReadThread != null && mReadThread!!.isAlive) {
+//            if (!mReadThread!!.isInterrupted) {
+//                mReadThread!!.interrupt()
+//            }
+//            mReadThread = null
+//        }
+//    }
 
-        if (mReadThread != null && mReadThread!!.isAlive) {
-            if (!mReadThread!!.isInterrupted) {
-                mReadThread!!.interrupt()
-            }
-            mReadThread = null
-        }
-    }
-
-   private fun startReadThread() {
+    private fun startReadThread() {
         mScope?.launch {
             var content =""
             while (isActive) {
@@ -244,7 +243,6 @@ class SerialPortHelper() {
                     var read = -1
                     read = mBufferedInputStream?.read(rxArray) ?: -1
                     while (read > 0) {
-//                        SystemClock.sleep(readTime)
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
@@ -267,9 +265,9 @@ class SerialPortHelper() {
         }
     }
 
-    fun setOnReadDataListener(readDataListener: OnReadDataListener?) {
-        this.readDataListener = readDataListener
-    }
+//    fun setOnReadDataListener(readDataListener: OnReadDataListener?) {
+//        this.readDataListener = readDataListener
+//    }
 
 
 }

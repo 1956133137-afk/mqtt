@@ -59,6 +59,7 @@ class ProductsVM :ViewModel() {
         exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
             LogUtil.e(TAG,"协程异常： $throwable ${throwable.printStackTrace()}")
             showToastEvent.postValue("错误： ${throwable.message}")
+            loadingEvent.postValue(false)
         }
     }
 
