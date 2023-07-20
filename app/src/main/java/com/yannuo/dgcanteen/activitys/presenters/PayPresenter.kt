@@ -3,9 +3,9 @@ package com.yannuo.dgcanteen.activitys.presenters
 import android.os.RemoteException
 import android.text.format.DateFormat
 import com.google.gson.Gson
-import com.safframework.log.extension.msgFunction
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.dao.CardDishTable
 import com.yannuo.dgcanteen.dao.CardPay
@@ -14,11 +14,12 @@ import com.yannuo.dgcanteen.dao.OffLineTable
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
+import com.yannuo.dgcanteen.interfaces.ReadCardListener
 import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.net.HttpURLConnection
 
 class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private val TAG = javaClass.simpleName
@@ -30,6 +31,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private lateinit var kv : MMKV
      private lateinit var mPayCfg : PayCfg
      private var mScanDevice : ScanDevice ?= null
+     var mReadCardListener : ReadCardListener ?= null
 
      init {
           kv = MMKV.defaultMMKV()
@@ -211,37 +213,38 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                     }
                }
                else ->{
-                    ccbBean.offline = "0"
-                    try { //解析二维码
-                         ccbBean.txcode = "PAY002"
-                         ccbBean.qR_CODE = qrcode
-                         var map = CanteenEncryptionUtil.getAnalysisQr(ccbBean)
-                         runBlocking (Dispatchers.IO) {
-                              res = mRespository.getCcbData(map).body()?.let { //解析二维码
-                                   Gson().fromJson(it.string().replace("\r\n",""), ScanAnalysisBean::class.java)
-                              }
-                         }
-                         if (res?.RESULT.toString() == "Y"){
-                              ccbBean.txcode = "PAY003"
-                              ccbBean.cusT_ID = res?.CUST_ID.toString()
-                              if (validCode == 3){
-                                   map = CanteenEncryptionUtil.getScanToPay(ccbBean)
-                                   LogUtil.e("TEST", Gson().toJson(map))
-                                   runBlocking (Dispatchers.IO) {
-                                        responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
-                                             Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
-                                        }
-                                        if (responseScanPay?.RESULT.toString() == "N"){
-                                             validCode = 2
-                                        }
+                    if (validCode == 3){
+                         ccbBean.offline = "0"
+                         try { //解析二维码
+                              ccbBean.txcode = "PAY002"
+                              ccbBean.qR_CODE = qrcode
+                              var map = CanteenEncryptionUtil.getAnalysisQr(ccbBean)
+                              runBlocking (Dispatchers.IO) {
+                                   res = mRespository.getCcbData(map).body()?.let { //解析二维码
+                                        Gson().fromJson(it.string().replace("\r\n",""), ScanAnalysisBean::class.java)
                                    }
                               }
-                         }else{
-                              responseScanPay = ScanQrResultBean(res?.ERRCODE,res?.ERRMSG)
-                              validCode = 2
+                              if (res?.RESULT.toString() == "Y"){
+                                   ccbBean.txcode = "PAY003"
+                                   ccbBean.cusT_ID = res?.CUST_ID.toString()
+                                   if (validCode == 3){
+                                        map = CanteenEncryptionUtil.getScanToPay(ccbBean)
+                                        runBlocking (Dispatchers.IO) {
+                                             responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
+                                                  Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)
+                                             }
+                                             if (responseScanPay?.RESULT.toString() == "N"){
+                                                  validCode = 2
+                                             }
+                                        }
+                                   }
+                              }else{
+                                   responseScanPay = ScanQrResultBean(res?.ERRCODE,res?.ERRMSG)
+                                   validCode = 2
+                              }
+                         }catch (e: RemoteException) {
+                              e.printStackTrace()
                          }
-                    }catch (e: RemoteException) {
-                         e.printStackTrace()
                     }
                }
           }
@@ -320,6 +323,10 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           payBean.payment = mDishes?.totalMoney
           payBean.actual_payment = mDishes?.totalMoney
           payBean.offline = "0"
+          if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){
+               mReadCardListener?.cardCallback(true)
+               return
+          }
           if (kv.decodeBool(Constant.SWITCH)){
                payBean.offline = "1"
           }

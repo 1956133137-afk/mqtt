@@ -13,17 +13,21 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 import com.ccb.smartcanteen.ZHSTFacePayService;
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.activitys.presenters.PayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.interfaces.CloseEvent;
+import com.yannuo.dgcanteen.interfaces.ReadCardListener;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.ProductsDetail;
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogUtil;
 import com.yannuo.dgcanteen.util.ScanDevice;
+import com.yannuo.dgcanteen.util.ToastShowUtil;
 import com.yannuo.dgcanteen.views.LoadingDialog;
 import com.yannuo.dgcanteen.views.WaitForPayDialog;
 
@@ -73,9 +77,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mPresenter.setListener(this);
         //打开IC开
         mPresenter.openIcCard();
-
-
-
+        //监听IC卡
+        mPresenter.setMReadCardListener(new CardCallBack());
     }
 
     private void initView() {
@@ -92,6 +95,10 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         });
 
         binding.btPayQrcode.setOnClickListener(view -> {
+            if (!NetworkStateManager.getInstance().isOnline(getContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){
+                CommonAndDpToPxUtil.speakWork("当前无网络，请打开设备离线模式");
+                return;
+            }
             CommonAndDpToPxUtil.speakWork("请出示付款码支付");
             if (waitForPayDialog != null) waitForPayDialog.cancel();
             if (waitForPayDialog == null) {
@@ -193,7 +200,12 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         }
     }
 
-
-
-
+    static class CardCallBack implements ReadCardListener {
+        @Override
+        public void cardCallback(boolean state) {
+            if (state){
+                CommonAndDpToPxUtil.speakWork("当前无网络，请打开设备离线模式");
+            }
+        }
+    }
 }
