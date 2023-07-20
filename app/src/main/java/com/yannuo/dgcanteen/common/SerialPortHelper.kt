@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.util.Log
 import android_serialport_api.SerialPort
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
+import com.yannuo.dgcanteen.util.BytesUtils
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.*
 import java.io.*
@@ -26,7 +27,7 @@ class SerialPortHelper() {
     private var readTime = 20L
     private var baudrate = 9600
 
-    private var mBufferedInputStream: BufferedInputStream? = null
+    //    private var mBufferedInputStream: BufferedInputStream? = null
     private var mInputStream: InputStream? = null
     private var mOutputStream: OutputStream? = null
     private var mSerialPort: SerialPort? = null
@@ -62,9 +63,12 @@ class SerialPortHelper() {
             mSerialPort = SerialPort(File(mPort),  baudrate, 0)
             mOutputStream = mSerialPort!!.outputStream
             mInputStream = mSerialPort!!.inputStream
-            if (mInputStream != null) {
-                mBufferedInputStream = BufferedInputStream(mInputStream)
-            }
+//            if (mInputStream != null && mInputStream != null) {
+//                mBufferedInputStream = BufferedInputStream(mInputStream)
+//                mOutputStream?.write(BytesUtils.hex2Bytes("AABB0600000001060304"))
+//                mOutputStream?.flush()
+
+//            }
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -205,10 +209,10 @@ class SerialPortHelper() {
     fun closeSerialPort() {
 //        closeReadThread()
         mScope?.cancel()
-        if (mBufferedInputStream != null) {
-            mBufferedInputStream!!.close()
-            mBufferedInputStream = null
-        }
+//        if (mBufferedInputStream != null) {
+//            mBufferedInputStream!!.close()
+//            mBufferedInputStream = null
+//        }
         if (mInputStream != null) {
             mInputStream!!.close()
             mInputStream = null
@@ -237,19 +241,22 @@ class SerialPortHelper() {
 
     private fun startReadThread() {
         mScope?.launch {
+
             var content =""
             while (isActive) {
                 try {
                     var read = -1
-                    read = mBufferedInputStream?.read(rxArray) ?: -1
+                    read = mInputStream?.read(rxArray) ?: -1
                     while (read > 0) {
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
                         delay(readTime)
-                        if (mBufferedInputStream?.available() == 0) {
+                        if (mInputStream?.available() == 0) {
                             content = content.replace("\r\n","")
                             if (content.length >= 5){
+                                mOutputStream?.write(BytesUtils.hex2Bytes("AABB0600000001060304"))
+                                mOutputStream?.flush()
                                 readDataListener?.numberOfIcCard(content)
                             }
                             content =""

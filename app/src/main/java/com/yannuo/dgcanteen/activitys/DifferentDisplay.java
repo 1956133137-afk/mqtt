@@ -52,6 +52,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private DataPresenter presenter;
     private PayForAdapter adapterPayFor;
     private DishesInfo data;
+    private boolean flag = false;
 
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
@@ -145,7 +146,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                 LogUtil.e(TAG,"请配置支付环境");
                 return;
             }
-            binding.btSureMeal.setEnabled(false);
+            if (flag)return;
+            flag = true;
+//            binding.btSureMeal.setEnabled(false);
             ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
 

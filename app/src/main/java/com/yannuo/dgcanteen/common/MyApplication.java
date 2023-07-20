@@ -70,6 +70,9 @@ public class MyApplication extends Application {
         if (kv.decodeString(Constant.FINAL_TIME) == null){
             kv.encode(Constant.FINAL_TIME, new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
         }
+        if (kv.decodeInt(Constant.SHOW_TIME,-2) == -2){
+            kv.encode(Constant.SHOW_TIME,2);
+        }
     }
 
 

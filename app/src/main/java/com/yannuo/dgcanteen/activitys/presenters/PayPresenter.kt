@@ -226,6 +226,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                               ccbBean.cusT_ID = res?.CUST_ID.toString()
                               if (validCode == 3){
                                    map = CanteenEncryptionUtil.getScanToPay(ccbBean)
+                                   LogUtil.e("TEST", Gson().toJson(map))
                                    runBlocking (Dispatchers.IO) {
                                         responseScanPay = mRespository.getCcbData(map).body()?.let { //扫码支付
                                              Gson().fromJson(it.string().replace("\r\n",""), ScanQrResultBean::class.java)

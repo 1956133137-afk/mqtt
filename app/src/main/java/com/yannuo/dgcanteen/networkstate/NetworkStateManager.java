@@ -243,20 +243,20 @@ public class NetworkStateManager {
                         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                         ipAddress = intIP2StringIP(wifiInfo.getIpAddress());
-                        Log.d("MacAddressUtil", " connected: TYPE_WIFI  ip--> " +ipAddress);
+//                        Log.d("MacAddressUtil", " connected: TYPE_WIFI  ip--> " +ipAddress);
                         break;
 
-                    case ConnectivityManager.TYPE_MOBILE :
-                        Log.d("MacAddressUtil", " connected: TYPE_MOBILE" );
-                        break;
+//                    case ConnectivityManager.TYPE_MOBILE :
+//                        Log.d("MacAddressUtil", " connected: TYPE_MOBILE" );
+//                        break;
                     case ConnectivityManager.TYPE_ETHERNET :
 
                         ipAddress = getLocalIp();
-                        Log.d("MacAddressUtil", " connected: TYPE_ETHERNET ip--> "+ipAddress );
+//                        Log.d("MacAddressUtil", " connected: TYPE_ETHERNET ip--> "+ipAddress );
                         break;
 
-                    default:
-                        Log.d("MacAddressUtil", " connected is other" );
+//                    default:
+//                        Log.d("MacAddressUtil", " connected is other" );
                 }
             }
         }

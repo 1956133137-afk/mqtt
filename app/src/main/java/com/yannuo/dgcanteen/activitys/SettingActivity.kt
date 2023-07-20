@@ -114,6 +114,7 @@ class SettingActivity : AppCompatActivity() {
         binding!!.etMqttAccount.setText(kv!!.decodeString(Constant.MQTT_ACCOUNT))
         binding!!.etMqttPassword.setText(kv!!.decodeString(Constant.MQTT_PASSWORD))
         binding!!.tvFinalTime.text = kv!!.decodeString(Constant.FINAL_TIME)
+        binding!!.etShowTime.setText("${kv!!.decodeInt(Constant.SHOW_TIME)}")
     }
 
     private fun save() {
@@ -141,6 +142,7 @@ class SettingActivity : AppCompatActivity() {
             //mqtt配置变更
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_NINTH, null))
         }
+        kv!!.encode(Constant.SHOW_TIME, binding!!.etShowTime.text.toString().toInt())
         ToastShowUtil.show(this, "保存成功:" + this.filesDir.absolutePath + "/mmkv")
     }
 
@@ -202,9 +204,10 @@ class SettingActivity : AppCompatActivity() {
                         failTime++
                     }
                 } catch (e: Exception) {
+                    failTime++
                     LogUtil.e(TAG, "error ${e.message}")
                 }
-            }while (!finish && (failTime <20) )
+            }while (!finish && (failTime <10) )
             LogUtil.d(TAG,"全量更新人员完成")
             withContext(Dispatchers.Main){
                 loadingDialog?.cancel()

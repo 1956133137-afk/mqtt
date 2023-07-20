@@ -197,7 +197,7 @@
                 android:background="@color/common_line" />
 
 
-                <androidx.appcompat.widget.AppCompatButton
+                <Button
                     android:id="@+id/bt_sure_meal"
                     android:layout_width="230px"
                     android:layout_height="60px"

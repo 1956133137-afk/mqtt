@@ -52,6 +52,7 @@ class MoveTextview : androidx.appcompat.widget.AppCompatTextView {
 
 
     override fun setText(text: CharSequence?, type: BufferType?) {
+
         super.setText(text, type)
         anima?.also {
             it.cancel()

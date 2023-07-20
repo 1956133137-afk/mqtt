@@ -154,7 +154,7 @@ dependencies {
 
 }
 greendao {
-    schemaVersion 11 //指定数据库schema版本号，迁移等操作会用到;
+    schemaVersion 13 //指定数据库schema版本号，迁移等操作会用到;
     daoPackage 'com.yannuo.dgcanteen.dao' //dao的包名，包名默认是entity所在的包；
     targetGenDir 'src/main/java'//生成数据库文件的目录;
 }

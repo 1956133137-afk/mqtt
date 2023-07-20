@@ -121,7 +121,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
     @Override
     public void onOtherListener(int event, @Nullable Object any) {
-        LogUtil.i(TAG,"event: " +event);
+        LogUtil.i(TAG,"扫码处理code: " +event);
        switch (event){
            case 1:
                Observable.just(1)

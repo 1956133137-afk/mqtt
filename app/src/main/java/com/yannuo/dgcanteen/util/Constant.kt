@@ -33,6 +33,8 @@ object Constant {
     const val PAY_CONFIG = "PCfg"
     //当前版本
     const val VERSION = "Version"
+    //支付结果显示时间
+    const val SHOW_TIME = "show_time"
     //菜品更新更新标志
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年

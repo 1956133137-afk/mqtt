@@ -229,7 +229,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun eventArrive(event : MessageEvent){
-        LogUtil.d(TAG, "event : ${event.code}")
+        LogUtil.d(TAG, "EventBus : ${event.code}")
         when(event.code) {
             Constant.EVENT_FIRST -> {
                 event.any?.also {
@@ -244,13 +244,10 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                     (it as? ProductsDetail)?.also {iit ->
                         if (mFacePayService ==null){
                             handler.post {
-                                ToastShowUtil.show("获取不到人脸句柄")
-                                //重新连接服务
-                                val lIntent = Intent()
-                                lIntent.action = "com.ccb.smartcanteen.FacePayService"
-                                lIntent.setPackage("com.ccb.smartcanteen")
-                                bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
+                                ToastShowUtil.show("人脸服务连接异常")
                             }
+                            //重新连接服务
+                            CommonAndDpToPxUtil.speakWork("人脸服务连接异常,请重启设备")
                             LogUtil.e(TAG,"获取不到人脸句柄")
                             return
                         }
@@ -350,7 +347,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
         successBinding!!.tvSum.text = " ${data.piece} 件"
         successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
-        successBinding!!.tvName.text = data.cust_name
+
+        successBinding!!.tvName.text = data.cust_name ?: "***"
         successBinding!!.tvClass.text = cls
         successBinding!!.tvPayTime.text = data.timestamp
         successBinding!!.tvTransNumber.text = data.orderid

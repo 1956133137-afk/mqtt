@@ -61,7 +61,7 @@ public class CommonAndDpToPxUtil {
             Class<?> aClass = Class.forName("android.os.SystemProperties");
             Method get = aClass.getMethod("get", String.class);
             serial = (String) get.invoke(aClass, "ro.serialno");
-            LogUtil.d("CommonAndDpToPxUtil", "SDK_INT < 8.0 --> "+serial);
+//            LogUtil.d("CommonAndDpToPxUtil", "SDK_INT < 8.0 --> "+serial);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -91,7 +91,9 @@ public class CommonAndDpToPxUtil {
 //            am.setStreamVolume(AudioManager.STREAM_MUSIC,100 ,0);
             sBundle = new Bundle();
             sBundle.putFloat(KEY_PARAM_VOLUME, 0.2f);
+
             mSpeech = new TextToSpeech(MyApplication.applicationContext, new MySpeechListener());
+
             sBundle = null;
         }
     }
@@ -101,6 +103,7 @@ public class CommonAndDpToPxUtil {
         if (mSpeech == null) speakInit();
         boolean speaking = mSpeech.isSpeaking();
         if (speaking)mSpeech.stop();
+        mSpeech.setSpeechRate(2.0f);
         mSpeech.speak( work, TextToSpeech.QUEUE_FLUSH,sBundle, null);
     }
 
@@ -119,7 +122,7 @@ public class CommonAndDpToPxUtil {
             if (status == TextToSpeech.SUCCESS) {
                 LogUtil.i("CommonAndDpToPxUtil", "onInit: TTS INIT OK!");
                 mSpeech.setLanguage(Locale.CHINESE);
-                mSpeech.setSpeechRate(1.9f);
+//                mSpeech.setSpeechRate(1.8f);
             }
             else{
                 LogUtil.i("CommonAndDpToPxUtil", "onInit:  TTS INIT NOK!");

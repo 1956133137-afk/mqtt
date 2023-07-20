@@ -1,3 +1,13 @@
+生产配置环境：
+生产环境API地址：https://canteen.yannuozhineng.com/api/
+MQTT生产环境：tcp://acms.yannuozhineng.com:3883
+MQTT生产环境
+username: acms
+password: ACMS2022~!@
+
+测试环境：
+
+
 注意：
 2023-04-13
 1、

@@ -27,8 +27,6 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
 
         tv_close.setOnClickListener(this)
 
-
-
     }
 
     override fun show() {

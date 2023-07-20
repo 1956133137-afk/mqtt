@@ -266,7 +266,7 @@ class ProductsVM :ViewModel() {
             bean.ACCALIAS =payResult.ACCALIAS
 
             bean.PAYTIME = payResult.PAYTIME
-            bean.BUSINESS_NAME = "彦诺智能测试园区"
+            bean.BUSINESS_NAME = "智慧食堂园区"
             bean.paymentDishesList = mutableListOf()
             products.forEach {
                 bean.paymentDishesList.add(PaymentDishesList(

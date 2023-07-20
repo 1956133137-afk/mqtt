@@ -510,7 +510,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             while (isActive) {
 
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME,0)
-                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
+                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
+                timeout = true
                 var finish = false
                 var currentPage = 1
                 var failTime = 0
@@ -532,12 +533,13 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                 }
                             } else {
                                 LogUtil.e(TAG, "人员下载错误 ${res.msg}")
+                                failTime++
                             }
                         } catch (e: Exception) {
                             failTime++
                             LogUtil.e(TAG, "error ${e.message}")
                         }
-                    }while (runTask && !finish &&  (failTime <20) )
+                    }while (runTask && !finish &&  (failTime <10) )
                     LogUtil.d(TAG,"全量更新人员完成")
                 }
                 delay(Duration.minutes(30))
@@ -548,7 +550,6 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
 
     override fun onDestroy() {
-
 
         LogUtil.d(TAG,"服务关闭")
         //取消mqtt监听
