@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-import com.ccb.smartcanteen.ZHSTFacePayService;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.activitys.presenters.PayPresenter;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
@@ -26,8 +25,6 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogUtil;
-import com.yannuo.dgcanteen.util.ScanDevice;
-import com.yannuo.dgcanteen.util.ToastShowUtil;
 import com.yannuo.dgcanteen.views.LoadingDialog;
 import com.yannuo.dgcanteen.views.WaitForPayDialog;
 
@@ -129,61 +126,61 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     @Override
     public void onOtherListener(int event, @Nullable Object any) {
         LogUtil.i(TAG,"扫码处理code: " +event);
-       switch (event){
-           case 1:
-               Observable.just(1)
-                       .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(integer -> {
-                           if (loadingDialog != null) loadingDialog.cancel();
-                           if (loadingDialog == null) {
-                               loadingDialog = new LoadingDialog(getContext());
-                               loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-                           }
-                           waitForPayDialog.cancel();
-                           loadingDialog.show();
-                       });
-               break;
+        switch (event){
+            case 1:
+                Observable.just(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            if (loadingDialog != null) loadingDialog.cancel();
+                            if (loadingDialog == null) {
+                                loadingDialog = new LoadingDialog(getContext());
+                                loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                            }
+                            waitForPayDialog.cancel();
+                            loadingDialog.show();
+                        });
+                break;
 
-           case 2: //异常
-               Observable.just(1)
-                       .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(integer -> {
-                           if (loadingDialog != null) loadingDialog.cancel();
-                           Toast.makeText(getContext(), (String)any, Toast.LENGTH_SHORT).show();
-                       });
-               break;
+            case 2: //异常
+                Observable.just(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            if (loadingDialog != null) loadingDialog.cancel();
+                            Toast.makeText(getContext(), (String)any, Toast.LENGTH_SHORT).show();
+                        });
+                break;
 
-           case 3: //在线订单
-           case 4: //离线订单
-               Observable.just(1)
-                       .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(integer -> {
-                           if (loadingDialog != null) loadingDialog.cancel();
-                       });
-               EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
-               break;
-           case 5: //离线码过期或者二维码无效
-               Observable.just(1)
-                       .observeOn(AndroidSchedulers.mainThread())
-                       .subscribe(integer -> {
-                           if ((Integer) any == 1){
-                               CommonAndDpToPxUtil.speakWork("请刷新付款码再支付");
-                           }else {
-                               CommonAndDpToPxUtil.speakWork("请切换离线码再支付");
-                           }
+            case 3: //在线订单
+            case 4: //离线订单
+                Observable.just(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            if (loadingDialog != null) loadingDialog.cancel();
+                        });
+                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
+                break;
+            case 5: //离线码过期或者二维码无效
+                Observable.just(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(integer -> {
+                            if ((Integer) any == 1){
+                                CommonAndDpToPxUtil.speakWork("请刷新付款码再支付");
+                            }else {
+                                CommonAndDpToPxUtil.speakWork("请切换离线码再支付");
+                            }
 
-                           if (waitForPayDialog != null) waitForPayDialog.cancel();
-                           if (waitForPayDialog == null) {
-                               waitForPayDialog = new WaitForPayDialog(getContext());
-                               waitForPayDialog.setListener(new WaitDialogEvent());
-                           }
-                           waitForPayDialog.show();
+                            if (waitForPayDialog != null) waitForPayDialog.cancel();
+                            if (waitForPayDialog == null) {
+                                waitForPayDialog = new WaitForPayDialog(getContext());
+                                waitForPayDialog.setListener(new WaitDialogEvent());
+                            }
+                            waitForPayDialog.show();
 
-                           //使能扫码支付
-                           mPresenter.setScanState(PayPresenter.ScanState.PAY);
-                       });
-               break;
-       }
+                            //使能扫码支付
+                            mPresenter.setScanState(PayPresenter.ScanState.PAY);
+                        });
+                break;
+        }
     }
 
 

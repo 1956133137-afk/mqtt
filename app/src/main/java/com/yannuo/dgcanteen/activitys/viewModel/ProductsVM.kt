@@ -38,8 +38,6 @@ import java.util.*
 class ProductsVM :ViewModel() {
     var showToastEvent : MutableLiveData<String>
     var loadingEvent : MutableLiveData<Boolean>
-
-
     private val TAG = javaClass.simpleName
     private lateinit var mRespository :PayRepositoryOfPay
     private var exceptionHandler :CoroutineExceptionHandler
@@ -77,7 +75,7 @@ class ProductsVM :ViewModel() {
 
 
     fun upDataDishes(force :Boolean = false){
-        viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
+        viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val check = checkIsNeedUpdate()
             if (check.not() || force){
                 loadingEvent.postValue(true)
@@ -155,12 +153,7 @@ class ProductsVM :ViewModel() {
      * @throws RemoteException
      */
     fun startPayWithFace(service: ZHSTFacePayService?, detail: ProductsDetail) {
-        viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
-//            val mv = MMKV.defaultMMKV()
-//            val payCfg = kv.decodeParcelable(
-//                Constant.PAY_CONFIG,
-//                PayCfg::class.java
-//            )
+        viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             if (mPayCfg == null || TextUtils.isEmpty(mPayCfg!!.campusId) ||
                 TextUtils.isEmpty(mPayCfg!!.businessId) || TextUtils.isEmpty(mPayCfg!!.counterId)
             ) {
@@ -172,10 +165,7 @@ class ProductsVM :ViewModel() {
                 stringBuffer.append("${ da.dishesName};")
             }
             var offline = 0  //在线
-            if (kv.decodeBool(Constant.SWITCH)) {
-                offline = 1  //离线
-            }
-
+            if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
 
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg!!.campusId.toString()
@@ -187,47 +177,51 @@ class ProductsVM :ViewModel() {
             bean.OFFLINE = offline.toString()
 
             service!!.startFacePay(
-                Gson().toJson(bean),  bean.OFFLINE, object : PayResultListener.Stub() {
-
-                override fun onResult(result: String) {
-
-                    LogUtil.d(TAG, result)
-                    val payResult = Gson().fromJson(result,CcbFacePayResultBean::class.java)
-                    val payState = PayResultForUI()
-                    payState.way = "人脸支付"
-                    payState.orderid = payResult.ORDER_ID
-                    payState.timestamp = payResult.PAYTIME
-                    payState.dishes = detail.products
-                    payState.piece = detail.count.toInt()
-                    when(payResult.RESULT){
-                        "Y" -> { //订单状态,成功
-                            payState.cust_name = payResult.CUST_NAME
-                            payState.custId = payResult.CUST_ID
-                            payState.payment = payResult.PAYMENT
-                            if (offline == 0) payState.payment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                            payState.acc_no =  payResult.ACC_NO
-                            payState.acc_bal = payResult.ACC_BAL
-                            //检查支付结果，
-                            when(payResult.TRAN_RESULT){
-                                "3"->{  //3支付成功
-                                    payState.result = PayResultForUI.Result.SUCCESS
-                                    payState.traceid  = payResult.TRACEID
-                                    saveOrSynConsumeRecord(payResult,detail.products)
-                                }
-                                else ->{ //1 -待支付、2-支付失败
-                                    payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                Gson().toJson(bean),
+                bean.OFFLINE,
+                object : PayResultListener.Stub() {
+                    override fun onResult(result: String) {
+                        LogUtil.d(TAG, result)
+                        val payResult =
+                            Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                        val payState = PayResultForUI()
+                        payState.way = "人脸支付"
+                        payState.orderid = payResult.ORDER_ID
+                        payState.timestamp = payResult.PAYTIME
+                        payState.dishes = detail.products
+                        payState.piece = detail.count.toInt()
+                        when (payResult.RESULT) {
+                            "Y" -> { //订单状态,成功
+                                payState.cust_name = payResult.CUST_NAME
+                                payState.custId = payResult.CUST_ID
+                                payState.payment = payResult.PAYMENT
+                                if (offline == 0) payState.payment =
+                                    payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                                payState.acc_no = payResult.ACC_NO
+                                payState.acc_bal = payResult.ACC_BAL
+                                //检查支付结果，
+                                when (payResult.TRAN_RESULT) {
+                                    "3" -> {  //3支付成功
+                                        payState.result = PayResultForUI.Result.SUCCESS
+                                        payState.traceid = payResult.TRACEID
+                                        saveOrSynConsumeRecord(payResult, detail.products)
+                                    }
+                                    else -> { //1 -待支付、2-支付失败
+                                        payState.errormsg =
+                                            "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                                    }
                                 }
                             }
+                            else -> { //订单状态,失败
+                                payState.errormsg =
+                                    "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                            }
                         }
-                        else ->{ //订单状态,失败
-                            payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                        }
+                        listener?.onFacePayResult(payState)
                     }
-                    listener?.onFacePayResult(payState)
-                }
-
                 })
         }
+
     }
 
 
@@ -238,8 +232,7 @@ class ProductsVM :ViewModel() {
         payResult: CcbFacePayResultBean,
         products: MutableList<DishesInfo>
     ) {
-        viewModelScope.launch(exceptionHandler + Dispatchers.Default) {
-
+        viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val bean = SynConsumeRecordBean()
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
             bean.businessId = mPayCfg?.businessId

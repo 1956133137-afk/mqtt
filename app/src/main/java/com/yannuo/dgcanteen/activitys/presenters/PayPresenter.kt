@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.dao.CardDishTable
 import com.yannuo.dgcanteen.dao.CardPay
@@ -30,8 +31,9 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private lateinit var mCardHandle :SerialPortHelper
      private lateinit var kv : MMKV
      private lateinit var mPayCfg : PayCfg
-     private var mScanDevice : ScanDevice ?= null
+     private var mScanDevice : ScanDevice?= null
      var mReadCardListener : ReadCardListener ?= null
+     private var realse = false
 
      init {
           kv = MMKV.defaultMMKV()
@@ -297,7 +299,6 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           //取消扫码监听
           mScanDevice?.setCallbackListener(null)
           mScanDevice?.closeScan()
-//          ScanDevice.setCallbackListener(null)
           mCardHandle.readDataListener = null
           mCardHandle.closeSerialPort()
      }
@@ -305,6 +306,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      //IC卡数据
      override fun numberOfIcCard(number: String?) {
           number?.trim()?.also {
+               if (cardState == ScanState.INVALID)return@also
                cardState = ScanState.INVALID
                LogUtil.d(TAG,"number :${number}")
                payByCard(it.uppercase())

@@ -524,7 +524,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                                 val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
                                 val bean = Gson().fromJson(result, PersonList::class.java)
                                 DishesDBHelper.getInstance().insertPersons(bean.list)
-                                if (currentPage == bean.totalPage) {
+                                if (currentPage >= bean.totalPage) {
                                     finish = true
                                     mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
                                 }

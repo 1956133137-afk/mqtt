@@ -14,7 +14,6 @@ import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
-import android.view.MotionEvent
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -44,7 +43,6 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
-import java.util.*
 
 
 class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
@@ -66,14 +64,19 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     private var navigation = true
     private var secondDisplays : Display?= null
     private var mFacePayService: ZHSTFacePayService? = null
+
+    @Volatile
     private var mProductsDisplay : DifferentDisplay ?= null  //点餐界面
+    @Volatile
     private var mChooseDisplay : ChooseDisplay ?= null  //付款选择界面
+    @Volatile
     private var mPayResultDisplay : PayResultDisplay ?= null  //支付结果界面
+
     private val messageWhat = 1
-//    private val messageWhatSecond = 2
+    private val messageWhatSecond = 2
     private val messageWhatThird = 3
     private var loadingDialog : LoadingDialog? =null //后台加载框
-    private var timer: Timer? = null
+    //    private var timer: Timer? = null
     private var mMealId = 0
     private var mealId = 0
     private var successBinding : PaySuccessHostBinding ?= null
@@ -109,7 +112,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             initObj()
             initView()
             initEvent()
-            mScope = CoroutineScope(Dispatchers.Default)
+            mScope = CoroutineScope(Dispatchers.IO)
             checkTime()
         }
     }
@@ -176,6 +179,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         binding.tvTitle.setOnLongClickListener {
             navigation  =!navigation
             mXService?.hideNavBar = navigation
+            if (!navigation)ToastShowUtil.show("导航可用")
             true
         }
 
@@ -221,6 +225,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         //菜品同步
         binding.btnSynDishes.setOnClickListener {
             mProductsVM.upDataDishes(true)
+
         }
 
     }
@@ -229,25 +234,28 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun eventArrive(event : MessageEvent){
-        LogUtil.d(TAG, "EventBus : ${event.code}")
         when(event.code) {
             Constant.EVENT_FIRST -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收取餐事件~")
                 event.any?.also {
                     val data = it as ProductsDetail
                     val copy = data.copy()
-                    handler.removeMessages(messageWhat)
-                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
+                    handler.post {
+                        dealWith(copy)
+                    }
+//                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
                 }
             }
             Constant.EVENT_SECOND -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启人脸支付事件~")
                 event.any?.also {
                     (it as? ProductsDetail)?.also {iit ->
                         if (mFacePayService ==null){
-                            handler.post {
+                            runOnUiThread {
                                 ToastShowUtil.show("人脸服务连接异常")
                             }
                             //重新连接服务
-                            CommonAndDpToPxUtil.speakWork("人脸服务连接异常,请重启设备")
+                            CommonAndDpToPxUtil.speakWork("人脸服务连接异常")
                             LogUtil.e(TAG,"获取不到人脸句柄")
                             return
                         }
@@ -258,20 +266,28 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 }
             }
             Constant.EVENT_THIRD -> {
-                handler.removeMessages(messageWhatThird)
-                handler.sendMessage(handler.obtainMessage(messageWhatThird))
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收返回点餐页面事件~")
+                handler.post {
+                    startDishDisplay()
+                }
+
             }
+
             Constant.EVENT_FOURTH ->{
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收扫码/IC支付完事件,将跳转结果展示~")
                 event.any?.also {
                     (it as? PayResultForUI)?.also {fit ->
-                        mChooseDisplay?.cancel()
-                        mChooseDisplay = null
+                        handler.postDelayed({
+                            mChooseDisplay?.cancel()
+                            mChooseDisplay = null
+                        },50)
                         updatePayResult(fit)
                     }
                 }
             }
 
             Constant.EVENT_TENTH ->{
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收mqtt状态变更事件~")
                 runOnUiThread {
                     val connect = event.any as Boolean
                     if (connect){
@@ -315,9 +331,16 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 refreshFailState(data)
             }
         }
-        handler.postDelayed(Runnable {
-            binding.mvControl.text = "支付数据更新啦"
-        },200)
+        mScope?.launch {
+            delay(20)
+            withContext(Dispatchers.Main){
+                binding.mvControl.text = "支付数据更新啦"
+            }
+        }
+//        handler.postDelayed(Runnable {
+//
+//        },200)
+
 
     }
 
@@ -350,7 +373,24 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
 
         successBinding!!.tvName.text = data.cust_name ?: "***"
         successBinding!!.tvClass.text = cls
-        successBinding!!.tvPayTime.text = data.timestamp
+
+        var time = data.timestamp ?:""
+        if (time.isEmpty().not()) {
+            val buffer = StringBuffer()
+            buffer.append(data.timestamp!!.substring(0, 4))
+                .append("-")
+                .append(data.timestamp!!.substring(4, 6)).append("-")
+                .append(data.timestamp!!.substring(6, 8))
+                .append(" ")
+                .append(data.timestamp!!.substring(8, 10))
+                .append(":")
+                .append(data.timestamp!!.substring(10,12))
+                .append(":")
+                .append(data.timestamp!!.substring(12)).toString()
+            time = buffer.toString()
+        }
+
+        successBinding!!.tvPayTime.text = time
         successBinding!!.tvTransNumber.text = data.orderid
     }
 
@@ -359,8 +399,19 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         if (!TextUtils.isEmpty(data.errormsg)) {
             failBinding!!.payFailMsg.text = data.errormsg
         }
-        if (!TextUtils.isEmpty(data.timestamp)) {
-            failBinding!!.payTime.text = data.timestamp
+        if (data.timestamp.isNullOrEmpty().not()) {
+            val buffer = StringBuffer()
+            buffer.append(data.timestamp!!.substring(0, 4))
+                .append("-")
+                .append(data.timestamp!!.substring(4, 6)).append("-")
+                .append(data.timestamp!!.substring(6, 8))
+                .append(" ")
+                .append(data.timestamp!!.substring(8, 10))
+                .append(":")
+                .append(data.timestamp!!.substring(10,12))
+                .append(":")
+                .append(data.timestamp!!.substring(12)).toString()
+            failBinding!!.payTime.text = buffer.toString()
         }
 
     }
@@ -400,8 +451,8 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
      * @param data PayResultForUI
      */
     override fun onFacePayResult(data : PayResultForUI) {
+        LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
         updatePayResult(data)
-
     }
 
     private fun updatePayResult(data : PayResultForUI){
@@ -412,22 +463,41 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         }
     }
 
-    inner class MyHandler(context : CommodityActivity) : Handler(){
-        private var reference : WeakReference<CommodityActivity> = WeakReference(context)
+//    inner class MyHandler(context : CommodityActivity) : Handler(){
+//        private var reference : WeakReference<CommodityActivity> = WeakReference(context)
+//
+//        override fun handleMessage(msg: Message) {
+//            val  ref = reference.get() ?: return
+//            when(msg.what){
+//                ref.messageWhat ->{
+////                    dealWith(msg.obj as ProductsDetail)
+//                }
+//                ref.messageWhatThird ->{
+//                    startDishDisplay()
+//                }
+//            }
+//        }
+//    }
 
-        override fun handleMessage(msg: Message) {
-            val  ref = reference.get() ?: return
-            when(msg.what){
-                ref.messageWhat ->{
-                    dealWith(msg.obj as ProductsDetail)
-                }
-                ref.messageWhatThird ->{
-                    startDishDisplay()
-                }
-            }
-        }
-    }
 
+    /**
+     * 取餐处理
+     * @param list ProductsDetail
+     */
+//    private fun dealWith(list : ProductsDetail){
+//
+//        mScope?.launch {
+//            withContext(Dispatchers.Main){
+//                mChooseDisplay = ChooseDisplay(this@CommodityActivity,list, secondDisplays)
+//                mChooseDisplay?.show()
+//            }
+//            delay(50)
+//            withContext(Dispatchers.Main){
+//                mProductsDisplay?.cancel()
+//                mProductsDisplay = null
+//            }
+//        }
+//    }
 
     /**
      * 取餐处理
@@ -446,6 +516,22 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     /**
      * 打开选餐界面
      */
+//    private fun startDishDisplay(){
+//        mScope?.launch {
+//            withContext(Dispatchers.Main){
+//                mProductsDisplay = DifferentDisplay( this@CommodityActivity, secondDisplays)
+//                mProductsDisplay?.show()
+//                delay(50)
+//                mPayResultDisplay?.cancel()
+//                mPayResultDisplay = null
+//            }
+//        }
+//    }
+
+
+    /**
+     * 打开选餐界面
+     */
     private fun startDishDisplay(){
         mProductsDisplay = DifferentDisplay( this, secondDisplays)
         mProductsDisplay?.show()
@@ -460,6 +546,24 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         super.onDestroy()
     }
 
+
+    inner class MyHandler(context : CommodityActivity) : Handler(){
+        private var reference : WeakReference<CommodityActivity> = WeakReference(context)
+
+        override fun handleMessage(msg: Message) {
+            val  ref = reference.get() ?: return
+            when(msg.what){
+//                ref.messageWhat ->{
+//                    dealWith(msg.obj as ProductsDetail)
+//                }
+//                ref.messageWhatThird ->{
+//                    startDishDisplay()
+//                }
+            }
+        }
+    }
+
+
     private fun release(){
         mScope?.cancel()
         mProductsDisplay?.cancel()
@@ -467,13 +571,13 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
         mChooseDisplay?.cancel()
         mChooseDisplay = null
         mPayResultDisplay?.cancel()
-        mPayResultDisplay = null
 
+        unbindService(mServiceConnection)
         EventBus.getDefault().unregister(this)
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
         binding.mvControl.stopAnima()
-        timer?.cancel()
+//        timer?.cancel()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {

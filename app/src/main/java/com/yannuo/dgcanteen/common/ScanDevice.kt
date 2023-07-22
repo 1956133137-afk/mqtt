@@ -1,12 +1,13 @@
-package com.yannuo.dgcanteen.util
+package com.yannuo.dgcanteen.common
 
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.libscan.ScanListener
 import com.yannuo.libscan.ScanThread
 
 class ScanDevice {
     private val TAG = javaClass.simpleName
-    private var callback :MyScanListener?= null
-    private var dataCallBack :DataCallBack ?= null
+    private var callback : MyScanListener?= null
+    private var dataCallBack : DataCallBack?= null
     private var scanopenState = false  //扫码头打开状态
     @Volatile private var startTime = 0L //开始
 
@@ -26,7 +27,7 @@ class ScanDevice {
     }
 
     fun setCallbackListener(dataListener : DataCallBack?){
-        if (!scanopenState)  LogUtil.w(TAG, "扫码头未打开!")
+        if (!scanopenState) LogUtil.w(TAG, "扫码头未打开!")
         dataCallBack = dataListener
     }
 

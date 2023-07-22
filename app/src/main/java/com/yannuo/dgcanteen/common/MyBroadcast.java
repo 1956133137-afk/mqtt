@@ -14,11 +14,12 @@ public class MyBroadcast extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = "android.intent.action.BOOT_COMPLETED";
-        if (intent.getAction().equals(action)){
+        if (intent.getAction().equals(action) && (!MyApplication.getCreate())){
             ToastShowUtil.show("boot");
             LogUtil.i("MyBroadcast", "reboot...");
             Intent intent1 = new Intent(context, CommodityActivity.class);
             intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent1.addCategory(Intent.CATEGORY_LAUNCHER);
             context.startActivity(intent1);
         }

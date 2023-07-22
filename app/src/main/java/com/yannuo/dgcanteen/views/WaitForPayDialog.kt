@@ -35,7 +35,7 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
         countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time)+200,1000) {
             override fun onTick(mil: Long) {
                 tv_count.text = "请在有效时间内完成支付 ${TimeUnit.MILLISECONDS.toSeconds(mil)} s"
-                LogUtil.i(TAG,"${tv_count.text}")
+//                LogUtil.i(TAG,"${tv_count.text}")
             }
 
             override fun onFinish() {

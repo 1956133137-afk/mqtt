@@ -27,11 +27,13 @@ public class MyApplication extends Application {
     private String TAG = "MyApplication";
 
     private MMKV kv;
+    private volatile static boolean create = false;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
+        create = true;
         applicationContext = this;
         LogManager.initLog();
         LogUtil.setLev(LogLevel.DEBUG);
@@ -53,13 +55,17 @@ public class MyApplication extends Application {
 
     }
 
+    public static boolean getCreate(){
+       return create ;
+    }
+
     public void initMMKV(){
         kv = MMKV.defaultMMKV();
         if (kv.decodeString(Constant.ADDRESS) == null){
-            kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
+            kv.encode(Constant.ADDRESS,"https://canteen.yannuozhineng.com/api/");
         }
         if (kv.decodeString(Constant.MQTT_ADDRESS) == null){
-            kv.encode(Constant.MQTT_ADDRESS,"tcp://test.yannuozhineng.com:1883");
+            kv.encode(Constant.MQTT_ADDRESS,"tcp://acms.yannuozhineng.com:3883");
         }
         if (kv.decodeString(Constant.MQTT_ACCOUNT) == null){
             kv.encode(Constant.MQTT_ACCOUNT,"acms");

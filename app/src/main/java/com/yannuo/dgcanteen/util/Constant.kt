@@ -47,8 +47,8 @@ object Constant {
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
-    const val EVENT_THIRD = 3 // 返回点餐界面
-    const val EVENT_FOURTH = 4 //被扫支付
+    const val EVENT_FOURTH = 3 //被扫支付
+    const val EVENT_THIRD = 4 // 返回点餐界面
     const val EVENT_FIFTH = 5 //菜品更新
     const val EVENT_NINTH = 9 //mqtt设置变更
     const val EVENT_TENTH = 10 //mqtt连接状态

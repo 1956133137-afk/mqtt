@@ -37,7 +37,7 @@ object NumberGenerateUtil {
         for (i in 0 until re){
             content.append(0)
         }
-        LogUtil.d(TAG,"$content")
+//        LogUtil.d(TAG,"$content")
         return content.toString()
     }
 
@@ -48,7 +48,7 @@ object NumberGenerateUtil {
         val minDate = sDateTimeFormat.format(Date())
         val date = sDateFormat.format(Date())
 //        date = date.substring(2)
-         LogUtil.d(TAG,"$date$minDate")
+//         LogUtil.d(TAG,"$date$minDate")
         return "$date$minDate"
     }
 

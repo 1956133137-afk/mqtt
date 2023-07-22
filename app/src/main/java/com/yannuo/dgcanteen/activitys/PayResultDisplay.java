@@ -22,6 +22,8 @@ import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.text.SimpleDateFormat;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class PayResultDisplay extends Presentation {
@@ -77,7 +79,18 @@ public class PayResultDisplay extends Presentation {
             mFailBinding.payFailMsg.setText(mPayResult.getErrormsg());
         }
         if (!TextUtils.isEmpty(mPayResult.getTimestamp())) {
-            mFailBinding.payTime.setText(mPayResult.getTimestamp());
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(mPayResult.getTimestamp().substring(0,4))
+                    .append("-")
+                    .append(mPayResult.getTimestamp().substring(4,6)).append("-")
+                    .append(mPayResult.getTimestamp().substring(6,8))
+                    .append(" ")
+                    .append(mPayResult.getTimestamp().substring(8,10))
+                    .append(":")
+                    .append(mPayResult.getTimestamp().substring(10,12))
+                    .append(":")
+                    .append(mPayResult.getTimestamp().substring(12)).toString();
+            mFailBinding.payTime.setText(buffer.toString());
         }
         CommonAndDpToPxUtil.speakWork("支付失败");
         initFailEvent();
@@ -121,8 +134,22 @@ public class PayResultDisplay extends Presentation {
             cls ="***";
         }
         mBinding.tvName.setText(cls);
-
-        mBinding.tvPayTime.setText(mPayResult.getTimestamp());
+        String time ="";
+        if (!mPayResult.getTimestamp().isEmpty()){
+            StringBuffer buffer = new StringBuffer();
+            time = buffer.append(mPayResult.getTimestamp().substring(0,4))
+                    .append("-")
+                    .append(mPayResult.getTimestamp().substring(4,6))
+                    .append("-")
+                    .append(mPayResult.getTimestamp().substring(6,8))
+                    .append(" ")
+                    .append(mPayResult.getTimestamp().substring(8,10))
+                    .append(":")
+                    .append(mPayResult.getTimestamp().substring(10,12))
+                    .append(":")
+                    .append(mPayResult.getTimestamp().substring(12)).toString();
+        }
+        mBinding.tvPayTime.setText(time);
         mBinding.tvTransNumber.setText(mPayResult.getOrderid());
 
     }
@@ -141,7 +168,7 @@ public class PayResultDisplay extends Presentation {
 
 
     private void dida(int tm){
-         if (tm == 0)return;
+        if (tm == 0)return;
         countDownTimer = new CountDownTimer(tm * 1000 +100, 1000) {
             @Override
             public void onTick(long mil) {
