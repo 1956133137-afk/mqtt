@@ -24,6 +24,7 @@ import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.adapters.HostPayResultAdapter
 import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
@@ -200,7 +201,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             mChooseDisplay = null
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
-
+            binding.btBackPay.text = "支付解锁\n(选餐页面)"
         }
 
         //设置界面
@@ -242,6 +243,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                     val copy = data.copy()
                     handler.post {
                         dealWith(copy)
+                        binding.btBackPay.text = "支付解锁\n(支付页面)"
                     }
 //                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
                 }
@@ -268,6 +270,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             Constant.EVENT_THIRD -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收返回点餐页面事件~")
                 handler.post {
+                    binding.btBackPay.text = "支付解锁\n(选餐页面)"
                     startDishDisplay()
                 }
 
@@ -280,6 +283,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                         handler.postDelayed({
                             mChooseDisplay?.cancel()
                             mChooseDisplay = null
+                            binding.btBackPay.text = "支付解锁\n(结果页面)"
                         },50)
                         updatePayResult(fit)
                     }
@@ -331,16 +335,9 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
                 refreshFailState(data)
             }
         }
-        mScope?.launch {
-            delay(20)
-            withContext(Dispatchers.Main){
-                binding.mvControl.text = "支付数据更新啦"
-            }
-        }
-//        handler.postDelayed(Runnable {
-//
-//        },200)
-
+        handler.postDelayed({
+            binding.mvControl.text = "支付数据更新啦"
+        },20)
 
     }
 
@@ -354,7 +351,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
     private fun initSuccessBinding(){
         if (successBinding != null)return
         successBinding = PaySuccessHostBinding.inflate(layoutInflater,null,false)
-        val payResultAdapter =  PayResultAdapter()
+        val payResultAdapter =  HostPayResultAdapter(this)
         successBinding!!.rvDishList.layoutManager = LinearLayoutManager(this)
         successBinding!!.rvDishList.adapter = payResultAdapter
 
@@ -367,7 +364,7 @@ class CommodityActivity :BaseActivity<ActivityCommodityBinding>(),IProductsVM,
             cls = persons.grade + persons.userClass
         }
         //更新数据
-        (successBinding!!.rvDishList.adapter as PayResultAdapter).data = data.dishes
+        (successBinding!!.rvDishList.adapter as HostPayResultAdapter).data = data.dishes
         successBinding!!.tvSum.text = " ${data.piece} 件"
         successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
 

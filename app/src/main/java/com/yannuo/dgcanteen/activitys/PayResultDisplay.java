@@ -106,7 +106,7 @@ public class PayResultDisplay extends Presentation {
 
 
     private void initData() {
-        mPayResultAdapter = new PayResultAdapter();
+        mPayResultAdapter = new PayResultAdapter(this.getContext());
         mBinding.rvDishList.setLayoutManager(new LinearLayoutManager(getContext()));
         mBinding.rvDishList.setAdapter(mPayResultAdapter);
 

@@ -63,8 +63,8 @@ android {
     productFlavors{
         //标准
         dg {
-            versionCode 2
-            versionName "1.0.2"
+            versionCode 3
+            versionName "1.0.3"
             buildConfigField "int", "CHANNEL", "0"
         }
 
