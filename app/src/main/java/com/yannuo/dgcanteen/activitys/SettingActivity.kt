@@ -101,8 +101,8 @@ class SettingActivity : AppCompatActivity() {
             save()
         }
         binding!!.ibtBack.setOnClickListener { view: View? ->  //返回
-            val intent = Intent(this,CommodityActivity::class.java)
-            startActivity(intent)
+//            val intent = Intent(this,CommodityActivity::class.java)
+//            startActivity(intent)
             finish()
         }
     }

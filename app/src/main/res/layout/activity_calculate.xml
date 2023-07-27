@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:orientation="vertical"
+    tools:context=".activitys.CalculateActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/meal_time"
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
+            android:layout_marginStart="50dp"
+            android:background="@drawable/shape_tv_bg"
+            android:gravity="center"
+            android:minWidth="350dp"
+            android:text="@string/unOpen_meal"
+            android:textSize="35sp" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:text="@string/dg_canteen"
+            android:textColor="#4095E5"
+            android:textSize="48sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/select_stopper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="#4F4F4F"
+            android:textSize="24sp" />
+
+        <ImageButton
+            android:id="@+id/on_off_line"
+            android:layout_width="wrap_content"
+            android:layout_height="27dp"
+            android:layout_marginStart="30dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_drama" />
+
+        <ImageButton
+            android:id="@+id/server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_server" />
+
+        <ImageButton
+            android:id="@+id/network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="50dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_wifi" />
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="35dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="35dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <fragment
+                android:id="@+id/input_keyboard"
+                android:name="com.yannuo.dgcanteen.activitys.KeyBoardFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3">
+
+            </fragment>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="35dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextClock
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:format24Hour="yyyy-MM-dd HH:mm:ss"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="38sp" />
+
+                <Button
+                    android:id="@+id/btn_fix_pay"
+                    android:layout_width="250dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="50dp"
+                    android:background="@drawable/click_button_blue"
+                    android:text="固定金额收款"
+                    android:textColor="#FFFFFF"
+                    android:textSize="38sp" />
+
+                <Button
+                    android:id="@+id/btn_off"
+                    android:layout_width="250dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="90dp"
+                    android:background="@drawable/click_button"
+                    android:text="启动离线模式"
+                    android:textColor="#4F4F4F"
+                    android:textSize="38sp" />
+
+                <Button
+                    android:id="@+id/btn_setting"
+                    android:layout_width="250dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="90dp"
+                    android:background="@drawable/click_button"
+                    android:text="@string/setting"
+                    android:textColor="#4F4F4F"
+                    android:textSize="38sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.yannuo.dgcanteen.views.MoveTextview
+            android:id="@+id/mv_control"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:textColor="@color/white"
+            android:textSize="50sp"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

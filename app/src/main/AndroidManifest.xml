@@ -28,9 +28,15 @@
         <activity
             android:name=".activitys.SettingActivity"
             android:exported="false" />
-
         <activity
             android:name=".activitys.CommodityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activitys.CalculateActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activitys.InitActivity"
             android:exported="true">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
