@@ -16,8 +16,9 @@
             android:layout_centerHorizontal="true"
             android:background="@drawable/click_button"
             android:gravity="center"
-            android:text="请输入收款金额"
-            android:textColor="#8A8686"
+            android:hint="请输入收款金额"
+            android:textColorHint="#8A8686"
+            android:textColor="#4F4F4F"
             android:textSize="50sp"
             android:textStyle="bold" />
 

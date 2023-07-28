@@ -25,12 +25,15 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     }
 
     private fun initView() {
-        when (kv.decodeInt(Constant.APP_MODE)) {
-            1 -> {
+        binding.order.text = Constant.ORDERING_FOOD_MODE
+        binding.collection.text = Constant.PROCEEDS_MODE
+
+        when (kv.decodeString(Constant.APP_MODE)) {
+            Constant.ORDERING_FOOD_MODE -> {
                 startActivity(Intent(this, CommodityActivity::class.java))
                 finish()
             }
-            2 -> {
+            Constant.PROCEEDS_MODE -> {
                 startActivity(Intent(this, CalculateActivity::class.java))
                 finish()
             }
@@ -39,14 +42,14 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
     private fun initEvent() {
 
-        binding.select.setOnClickListener {
-            kv.encode(Constant.APP_MODE, 1)
+        binding.order.setOnClickListener {
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
             startActivity(Intent(this, CommodityActivity::class.java))
             finish()
         }
 
-        binding.pay.setOnClickListener {
-            kv.encode(Constant.APP_MODE, 2)
+        binding.collection.setOnClickListener {
+            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
             startActivity(Intent(this, CalculateActivity::class.java))
             finish()
         }

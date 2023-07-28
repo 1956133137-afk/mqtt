@@ -3,8 +3,12 @@ package com.yannuo.dgcanteen.activitys
 import android.app.job.JobScheduler
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StyleSpan
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -15,6 +19,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
@@ -27,15 +32,17 @@ import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 import kotlin.time.ExperimentalTime
 
 class SettingActivity : AppCompatActivity() {
     private var binding: ActivitySettingBinding? = null
     private var kv: MMKV? = null
-    private lateinit var mScope : CoroutineScope
-    private lateinit var mHandle : CoroutineExceptionHandler
-    private var loadingDialog: LoadingDialog ?= null
+    private lateinit var mScope: CoroutineScope
+    private lateinit var mHandle: CoroutineExceptionHandler
+    private var loadingDialog: LoadingDialog? = null
     private var TAG = javaClass.simpleName
+    private lateinit var confirmDialog: ConfirmDialog
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,10 +74,14 @@ class SettingActivity : AppCompatActivity() {
         mHandle = CoroutineExceptionHandler { coroutineContext, e ->
             LogUtil.e(TAG, "CoroutineExceptionHandler $e ${e.message}")
         }
-        mScope = CoroutineScope (Dispatchers.Default + mHandle)
+        mScope = CoroutineScope(Dispatchers.Default + mHandle)
     }
 
     private fun initEvent() {
+        binding!!.appMode.setOnClickListener { //切换模式
+            if (!this::confirmDialog.isInitialized) confirmDialog = ConfirmDialog(this)
+            changeMode()
+        }
         binding!!.btnVersion.setOnClickListener { view: View? ->  //版本更新
             val work = PeriodicWorkRequest.Builder(
                 CheckVersionWorker::class.java,
@@ -110,6 +121,7 @@ class SettingActivity : AppCompatActivity() {
     private fun reload() {
         binding!!.etAddress.setText(kv!!.decodeString(Constant.ADDRESS))
         binding!!.switchLine.isChecked = kv!!.decodeBool(Constant.SWITCH, false)
+        binding!!.appMode.text = kv!!.decodeString(Constant.APP_MODE)
         binding!!.etMqttAddress.setText(kv!!.decodeString(Constant.MQTT_ADDRESS))
         binding!!.etMqttAccount.setText(kv!!.decodeString(Constant.MQTT_ACCOUNT))
         binding!!.etMqttPassword.setText(kv!!.decodeString(Constant.MQTT_PASSWORD))
@@ -146,6 +158,50 @@ class SettingActivity : AppCompatActivity() {
         ToastShowUtil.show(this, "保存成功:" + this.filesDir.absolutePath + "/mmkv")
     }
 
+    private fun changeMode() {
+        confirmDialog.apply {
+            show()
+            val strText = when (kv?.decodeString(Constant.APP_MODE)) {
+                Constant.ORDERING_FOOD_MODE -> "是否切换为 ${Constant.PROCEEDS_MODE} 并且重启应用？"
+                Constant.PROCEEDS_MODE -> "是否切换为 ${Constant.ORDERING_FOOD_MODE} 并且重启应用？"
+                else -> "是否切换为  并且重启应用？"
+            }
+            val str = SpannableString(strText)
+            str.setSpan(
+                StyleSpan(Typeface.BOLD),
+                5,
+                strText.length - 7,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            binding.tvText.text = str
+
+            setListener(object : ConfirmDialog.OnConfirmCallback {
+                override fun confirmCallback(flag: Boolean) {
+                    if (flag) {
+                        when (kv?.decodeString(Constant.APP_MODE)) {
+                            Constant.ORDERING_FOOD_MODE -> kv!!.encode(
+                                Constant.APP_MODE,
+                                Constant.PROCEEDS_MODE
+                            )
+                            Constant.PROCEEDS_MODE -> kv!!.encode(
+                                Constant.APP_MODE,
+                                Constant.ORDERING_FOOD_MODE
+                            )
+                        }
+                        val restartIntent = packageManager.getLaunchIntentForPackage(packageName)
+                        restartIntent?.addFlags(
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        )
+                        startActivity(restartIntent)
+                        exitProcess(0)
+                    }
+                }
+            })
+        }
+    }
+
     private fun initScreen() {
         val params = window.attributes
         params.systemUiVisibility =
@@ -165,9 +221,9 @@ class SettingActivity : AppCompatActivity() {
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun downPerson(){
+    private fun downPerson() {
         mScope.launch {
-            val prvKey ="MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIGRJ0RqOaaYrem6zmTo" +
+            val prvKey = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIGRJ0RqOaaYrem6zmTo" +
                     "/SF2OROMcJwRws/b05kaG0N90ZKFdRucIuiWvCiU4y9LLD6yNaCIyDGH0VubFOGnwzF7BqGR" +
                     "4LTJgCHtfYodkE8XA99/P/cT/gi38uoX+UBnjxR2WeJPhHEr59tvVejb93KJQPMnhs7wJnxX" +
                     "YycTmJuLAgMBAAECgYAvoMcZfB7jIb7Ua2oRaCAc29ORXw/KHzFIrVs0LYeWILsYLFznIFco" +
@@ -184,7 +240,7 @@ class SettingActivity : AppCompatActivity() {
             var finish = false
             var currentPage = 1
             var failTime = 0
-            LogUtil.d(TAG,"准备全量更新人员")
+            LogUtil.d(TAG, "准备全量更新人员")
             do {
                 val res = repository.downPerson(100, currentPage)
                 try {
@@ -195,8 +251,7 @@ class SettingActivity : AppCompatActivity() {
                         if (currentPage == bean.totalPage) {
                             finish = true
                             mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
-                        }
-                        else {
+                        } else {
                             currentPage = bean.page + 1
                         }
                     } else {
@@ -207,14 +262,19 @@ class SettingActivity : AppCompatActivity() {
                     failTime++
                     LogUtil.e(TAG, "error ${e.message}")
                 }
-            }while (!finish && (failTime <10) )
-            LogUtil.d(TAG,"全量更新人员完成")
-            withContext(Dispatchers.Main){
+            } while (!finish && (failTime < 10))
+            LogUtil.d(TAG, "全量更新人员完成")
+            withContext(Dispatchers.Main) {
                 loadingDialog?.cancel()
                 if (!finish)
                     ToastShowUtil.show("同步失败，请重试！")
             }
         }
+    }
+
+    override fun onDestroy() {
+        if (this::confirmDialog.isInitialized) confirmDialog.cancel()
+        super.onDestroy()
     }
 
 }

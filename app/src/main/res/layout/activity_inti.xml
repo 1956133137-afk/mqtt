@@ -24,7 +24,7 @@
             android:padding="10dp">
 
             <Button
-                android:id="@+id/select"
+                android:id="@+id/order"
                 android:layout_width="400dp"
                 android:layout_height="200dp"
                 android:background="@drawable/shape_btn_two"
@@ -43,11 +43,11 @@
             android:padding="10dp">
 
             <Button
-                android:id="@+id/pay"
+                android:id="@+id/collection"
                 android:layout_width="400dp"
                 android:layout_height="200dp"
                 android:background="@drawable/shape_btn_two"
-                android:text="付款模式"
+                android:text="收款模式"
                 android:textColor="#FFFFFF"
                 android:textSize="70sp"
                 android:textStyle="bold" />

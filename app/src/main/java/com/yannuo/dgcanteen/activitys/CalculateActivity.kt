@@ -16,6 +16,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
     private var mXService: MyService? = null
     private var navigation = true
+    private lateinit var passwordDialog: PasswordDialog
 
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
@@ -23,6 +24,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
     override fun onInit() {
         mXService = MyService(this)
+        passwordDialog = PasswordDialog(this)
 
         initEvent()
     }
@@ -42,7 +44,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
         //设置界面
         binding.btnSetting.setOnClickListener {
-            PasswordDialog(this).apply {
+            passwordDialog.apply {
                 show()
                 binding.tvBack.text = "输入密码"
                 setListener(object : CloseEvent {
@@ -54,5 +56,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
         }
     }
 
+    override fun onDestroy() {
+        release()
+        super.onDestroy()
+    }
+
+    private fun release() {
+        passwordDialog.cancel()
+    }
 
 }

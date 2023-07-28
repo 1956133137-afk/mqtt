@@ -42,7 +42,9 @@ object Constant {
     const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
 //    const val CURRENT_PAGE = "page" //当前人员下载页
 
-    const val APP_MODE = "appMode" //1点餐模式 2付款模式
+    const val APP_MODE = "appMode" //点餐模式 付款模式
+    const val ORDERING_FOOD_MODE = "点餐模式"
+    const val PROCEEDS_MODE = "收款模式"
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
