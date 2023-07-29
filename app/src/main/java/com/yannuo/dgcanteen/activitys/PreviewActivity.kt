@@ -57,7 +57,7 @@
 //
 //        configAndInit()
 //        LogUtil.i(TAG,"进入人脸活检界面")
-//        FaceHandler.getFaceHInstance().lock = true
+//
 //    }
 //
 //    override fun onResume() {

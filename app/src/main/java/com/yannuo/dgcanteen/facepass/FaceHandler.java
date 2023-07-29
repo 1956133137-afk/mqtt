@@ -7,8 +7,22 @@ public class FaceHandler {
     private static CameraManager mCameraManager = null;
     private static FaceHandler mFaceHandler = null;
 
+
+
     volatile private boolean lock = false;
 
+    public  boolean isFaceInit() {
+        return faceInit;
+    }
+
+    public  void setFaceInit(boolean faceInit) {
+      this.faceInit = faceInit;
+    }
+
+    private volatile boolean faceInit = false ; //设备算法是否已初始化
+
+
+    private FaceHandler(){}
 
     public static CameraManager getInstance(Context context) {
         if (mCameraManager == null) {

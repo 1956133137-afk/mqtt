@@ -33,19 +33,13 @@ class HostActivity : AppCompatActivity() {
 //        intent.getParcelableExtra<>()
 //        val bundle = intent.(Constant.PAY_DATE) ?: throw Throwable("非法参数")
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
-        navHostFragment!!.navController.navigate(R.id.scanFragment)
+//        val navHostFragment =
+//            supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
+//        navHostFragment!!.navController.navigate(R.id.scanFragment)
 
     }
 
 
-    override fun onStart() {
-        super.onStart()
-//        val cl = binding.mainFragmentContainer.findNavController()
-////         findNavController()
-//        cl.navigate(R.id.scanFragment)
-    }
 
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

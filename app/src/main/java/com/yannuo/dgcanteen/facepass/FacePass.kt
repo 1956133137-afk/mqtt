@@ -71,7 +71,7 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
     private var yaw = 10f   //偏航角
 
     private var searchThreshold = 70f
-    private var livenessThreshold = 70f
+
     private var blurThreshold = 0.2f
     private var lowBrightnessThreshold = 70f
     private var handler :CoroutineExceptionHandler
@@ -204,25 +204,25 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
         }
     }
 
-    /**
-     * 设置人脸活检分数
-     *
-     */
-    fun setFaceLivenessThreshold(livenessThreshold :Float){
-        if (livenessThreshold<0 || livenessThreshold>100)return
-        this.livenessThreshold  = livenessThreshold
-        when(initializeResult){
-            -1 ->  {
-                LogUtil.d(TAG,"未初始化前 设置人脸活检分数")
-            }
-            0 -> {
-                val config = mFacePassHandler?.config
-                config?.livenessThreshold =  livenessThreshold
-                mFacePassHandler?.config = config
-                LogUtil.d(TAG,"初始化后 设置人脸活检分数")
-            }
-        }
-    }
+//    /**
+//     * 设置人脸活检分数
+//     *
+//     */
+//    fun setFaceLivenessThreshold(livenessThreshold :Float){
+//        if (livenessThreshold<0 || livenessThreshold>100)return
+//        this.livenessThreshold  = livenessThreshold
+//        when(initializeResult){
+//            -1 ->  {
+//                LogUtil.d(TAG,"未初始化前 设置人脸活检分数")
+//            }
+//            0 -> {
+//                val config = mFacePassHandler?.config
+//                config?.livenessThreshold =  livenessThreshold
+//                mFacePassHandler?.config = config
+//                LogUtil.d(TAG,"初始化后 设置人脸活检分数")
+//            }
+//        }
+//    }
 
 
     /**
@@ -304,27 +304,18 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                     try {
                         val config = FacePassConfig()
                         config.poseBlurModel = FacePassModel.initModel(mContext.assets, "attr.pose_blur.arm.190630.bin")
-//                   config.livenessModel = FacePassModel.initModel(MyApplication.applicationContext.getAssets(), "liveness.CPU.rgb.G.bin");
-//                     config.livenessModel = FacePassModel.initModel(MyApplication.applicationContext.getAssets(), "liveness.CPU.rgb.G.bin");
-                        config.rgbIrLivenessModel =
-                            FacePassModel.initModel(mContext.assets, "liveness.CPU.rgbir.G.bin")
+                        config.rgbIrLivenessModel = FacePassModel.initModel(mContext.assets, "liveness.CPU.rgbir.G.bin")
                         config.searchModel = FacePassModel.initModel(mContext.assets, "feat2.arm.J2.v1.0_1core.bin")
-                        config.detectModel =
-                            FacePassModel.initModel(mContext.assets, "detector.arm.G.bin")
-                        config.landmarkModel =
-                            FacePassModel.initModel(mContext.assets, "pf.lmk.arm.E.bin")
-                        config.detectRectModel =
-                            FacePassModel.initModel(mContext.assets, "detector_rect.arm.G.bin")
-                        config.rcAttributeModel =
-                            FacePassModel.initModel(mContext.assets, "attr.RC.arm.E.bin")
+                        config.detectModel = FacePassModel.initModel(mContext.assets, "detector.arm.G.bin")
+                        config.landmarkModel = FacePassModel.initModel(mContext.assets, "pf.lmk.arm.E.bin")
+                        config.detectRectModel = FacePassModel.initModel(mContext.assets, "detector_rect.arm.G.bin")
+                        config.rcAttributeModel = FacePassModel.initModel(mContext.assets, "attr.RC.arm.E.bin")
                         config.occlusionFilterModel = FacePassModel.initModel(mContext.assets, "attr.occlusion.arm.20201209.bin")
 
                         //识别阈值
-                        config.searchThreshold = searchThreshold
+                        config.searchThreshold =  mv.decodeFloat(Constant.RECOGNIZE_VALUE_SET,Constant.RECOGNIZE_VALUE_SET_V)
                         //活体阈值
-                        //活体阈值
-                        livenessThreshold = mv.decodeFloat(Constant.LIVE_VALUE_SET,Constant.LIVE_VALUE_SET_V) //活检阈值
-                        config.livenessThreshold = livenessThreshold
+                        config.livenessThreshold = mv.decodeFloat(Constant.LIVE_VALUE_SET,Constant.LIVE_VALUE_SET_V) //活检阈值
                         //活体开关
                         config.livenessEnabled = false
                         //红外活体开关
@@ -341,17 +332,17 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                             0.5f -> 120
                             else -> 100
                         }
-                        minFaceThreshold = 80
                         config.faceMinThreshold = minFaceThreshold
+                        this@FacePass.roll = mv.decodeFloat(Constant.ROLL_SET,Constant.ROLL_SET_V)
                         config.poseThreshold = FacePassPose(this@FacePass.roll, this@FacePass.pitch, this@FacePass.yaw)
 
                         config.blurThreshold = blurThreshold
                         config.lowBrightnessThreshold = lowBrightnessThreshold
                         config.highBrightnessThreshold = 210f
                         config.brightnessSTDThreshold = 80f
-                        config.retryCount = 100
+                        config.retryCount = 99
                         config.smileEnabled = false
-                        config.maxFaceEnabled = false
+                        config.maxFaceEnabled = true
                         config.fileRootPath = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.absolutePath
                         /* 创建SDK实例 */
 
