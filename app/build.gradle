@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.greenrobot.greendao'
     id 'org.jetbrains.kotlin.android'
+    id("androidx.navigation.safeargs")
 }
 //apply plugin: 'kotlin-android'
 
@@ -80,14 +81,18 @@ android {
 }
 
 dependencies {
-
-    implementation files('libs/myservice.jar')
-    implementation files('libs/libscan-release.aar')
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+//    implementation files('libs/myservice.jar')
+//    implementation files('libs/libscan-release.aar')
 
     //建行食堂开发平台
     implementation files('libs/bcprov-jdk14-128.jar')
     implementation files('libs/COM.CCB.EnDecryptAlgorithm_v1.0_20120220.jar')
 
+    implementation "androidx.navigation:navigation-fragment-ktx:2.3.2"
+    implementation "androidx.navigation:navigation-ui-ktx:2.3.2"
+    // Feature module Support
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.3.2")
     //Bugly
     implementation 'com.tencent.bugly:crashreport:latest.release' //latest.release指代最新版本
 

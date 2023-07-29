@@ -53,4 +53,38 @@ object Constant {
     const val EVENT_NINTH = 9 //mqtt设置变更
     const val EVENT_TENTH = 10 //mqtt连接状态
 
+
+    //手输入金额使用的配置
+    //1)状态码
+    const val NO_ERROR = 1000
+    const val OPEN_CAMERA_ERROR_TYPE = 1001 //相机打开失败
+
+    //传递参数
+    const val PAY_DATE = "data"  //支付信息
+
+    //2）设置配置
+    const val YAW_SET = "yaw" //相机偏航角
+    const val YAW_SET_V = 25 //相机偏航角
+    const val PITCH_SET = "pith" //相机俯仰角
+    const val PITCH_SET_V = 25 //相机俯仰角
+    const val ROLL_SET = "roll" //相机翻滚角
+    const val ROLL_SET_ = 25 //相机翻滚角
+    const val ROTATE_SET = "rotate" //相机旋转角
+    const val ROTATE_SET_V = 0 //相机旋转角
+    const val PRE_ANGLE_SET = "pv_ag" //预览角度
+    const val PRE_ANGLE_SET_V = 0 //预览角度
+    const val MIRROR_SET = "mirror" //相机镜像
+    const val MIRROR_SET_V = false //相机镜像
+    const val LIVE_VALUE_SET = "live_vl" //活检阈值
+    const val LIVE_VALUE_SET_V = 70f //活检阈值
+    const val LIVE_ENABLE_SET = "live_en"  //活检开关
+    const val LIVE_ENABLE_SET_V = false  //活检默认关闭
+    const val RECOGNIZE_VALUE_SET = "regn_vl" //识别阈值
+    const val RECOGNIZE_VALUE_SET_V = 70 //识别阈值
+    const val DISTANCE_SET = "distance" //识别距离阈值
+    const val DISTANCE_SET_V = 0.8f //识别距离阈值(米)
+    const val VOICE_ENABLE_SET = "voice_en" //人脸识别语音播报
+    const val VOICE_ENABLE_SET_V = true //人脸识别语音播报
+
+
 }
