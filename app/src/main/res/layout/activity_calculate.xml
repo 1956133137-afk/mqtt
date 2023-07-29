@@ -90,7 +90,7 @@
 
             <fragment
                 android:id="@+id/input_keyboard"
-                android:name="com.yannuo.dgcanteen.activitys.KeyBoardFragment"
+                android:name="com.yannuo.dgcanteen.activitys.fragment.KeyBoardFragment"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="3">

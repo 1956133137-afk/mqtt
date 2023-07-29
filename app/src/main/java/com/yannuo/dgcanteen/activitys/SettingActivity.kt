@@ -82,6 +82,15 @@ class SettingActivity : AppCompatActivity() {
             if (!this::confirmDialog.isInitialized) confirmDialog = ConfirmDialog(this)
             changeMode()
         }
+        binding!!.switchLine.setOnClickListener { //离线模式
+            kv!!.encode(Constant.SWITCH, binding!!.switchLine.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
+        }
+        binding!!.switchFixed.setOnClickListener { //定额模式
+            kv!!.encode(Constant.QUOTA_SWITCH, binding!!.switchFixed.isChecked)
+            kv!!.encode(Constant.QUOTA_AMOUNT, binding!!.fixedSum.text.toString())
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
+        }
         binding!!.btnVersion.setOnClickListener { view: View? ->  //版本更新
             val work = PeriodicWorkRequest.Builder(
                 CheckVersionWorker::class.java,
@@ -121,6 +130,8 @@ class SettingActivity : AppCompatActivity() {
     private fun reload() {
         binding!!.etAddress.setText(kv!!.decodeString(Constant.ADDRESS))
         binding!!.switchLine.isChecked = kv!!.decodeBool(Constant.SWITCH, false)
+        binding!!.switchFixed.isChecked = kv!!.decodeBool(Constant.QUOTA_SWITCH, false)
+        binding!!.fixedSum.setText(kv!!.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding!!.appMode.text = kv!!.decodeString(Constant.APP_MODE)
         binding!!.etMqttAddress.setText(kv!!.decodeString(Constant.MQTT_ADDRESS))
         binding!!.etMqttAccount.setText(kv!!.decodeString(Constant.MQTT_ACCOUNT))
@@ -136,7 +147,7 @@ class SettingActivity : AppCompatActivity() {
             kv!!.encode(Constant.ADDRESS, binding!!.etAddress.text.toString())
             RetrofitClient.overLoad() //更新服务器地址
         }
-        kv!!.encode(Constant.SWITCH, binding!!.switchLine.isChecked)
+        kv!!.encode(Constant.QUOTA_AMOUNT, binding!!.fixedSum.text.toString())
         change = true
         if (kv!!.decodeString(Constant.MQTT_ADDRESS) != binding!!.etMqttAddress.text.toString()) {
             change = false

@@ -1,6 +1,5 @@
-package com.yannuo.dgcanteen.activitys
+package com.yannuo.dgcanteen.activitys.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.yannuo.dgcanteen.activitys.viewModel.ProceedsVM
-import com.yannuo.dgcanteen.databinding.ItemInputKeyboardBinding
-import com.yannuo.dgcanteen.facepass.FaceHandler
-import com.yannuo.dgcanteen.model.OrderPayInfo
-import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
 
@@ -23,7 +19,7 @@ import java.util.*
 class KeyBoardFragment : Fragment() {
     private val TAG = javaClass.simpleName
 
-    private lateinit var binding: ItemInputKeyboardBinding
+    private lateinit var binding: FragmentInputKeyboardBinding
     private lateinit var viewModel: ProceedsVM
     private var amount = 0F
     private var value: StringBuilder = StringBuilder()
@@ -35,7 +31,7 @@ class KeyBoardFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = ItemInputKeyboardBinding.inflate(inflater, container, false)
+        binding = FragmentInputKeyboardBinding.inflate(inflater, container, false)
         initObject()
         initEvent()
 
@@ -65,7 +61,7 @@ class KeyBoardFragment : Fragment() {
         binding.point.setOnClickListener { inputFields(".") }       //.
         binding.multiply.setOnClickListener { calculateValue("×") } //×
         binding.addition.setOnClickListener { calculateValue("+") } //+
-        binding.equal.setOnClickListener { totalValue() }
+        binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
             totalValue()
             viewModel.getAmount(value.toString(), ProceedsVM.PayStatus.PAY)
@@ -125,24 +121,6 @@ class KeyBoardFragment : Fragment() {
             binding.inputAmount.text = str
             value.append(str)
             tvText.append(str)
-
-            if (FaceHandler.getFaceHInstance().lock)ToastShowUtil.show("支付未完成")
-            //TODO 跳转页面
-            var payType = Constant.PAY_FACE_TYPE  //0 人脸支付 1、刷卡 、2 扫毛
-            if (payType == 0) {
-                if (!FaceHandler.getFaceHInstance().isFaceInit) {
-                    ToastShowUtil.show("人脸服务未启动,请重启软件")
-                    return
-                }
-            }
-
-            val bean = OrderPayInfo()
-            bean.type = payType
-
-            val payIntent = Intent(requireContext(),HostActivity::class.java)
-            payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            payIntent.putExtra(Constant.PAY_DATE,bean)
-            startActivity(payIntent)
         }
     }
 

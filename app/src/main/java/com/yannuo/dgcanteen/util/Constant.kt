@@ -46,6 +46,9 @@ object Constant {
     const val ORDERING_FOOD_MODE = "点餐模式"
     const val PROCEEDS_MODE = "收款模式"
 
+    const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
+    const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
@@ -54,6 +57,8 @@ object Constant {
     const val EVENT_FIFTH = 5 //菜品更新
     const val EVENT_NINTH = 9 //mqtt设置变更
     const val EVENT_TENTH = 10 //mqtt连接状态
+    const val EVENT_OFF_CHANGE = 21 //离线模式改变
+    const val EVENT_QUOTA_CHANGE = 22 //定额模式改变
 
 
     //手输入金额使用的配置

@@ -87,6 +87,37 @@
                 android:layout_marginTop="25dp"
                 android:layout_marginEnd="35dp"
                 android:background="@drawable/shape_btn_bg_white"
+                android:gravity="center_vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="40dp"
+                    android:layout_weight="1"
+                    android:text="@string/off_line_scan_face"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+                <CheckBox
+                    android:id="@+id/switch_line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="45dp"
+                    android:background="@drawable/select_switch"
+                    android:button="@null"
+                    android:checked="false"
+                    android:padding="5dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="35dp"
+                android:background="@drawable/shape_btn_bg_white"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_vertical">
@@ -109,36 +140,6 @@
                     android:text="https://test.yannuozhineng.com/"
                     android:textColor="#4F4F4F"
                     android:textSize="28sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginStart="35dp"
-                android:layout_marginTop="25dp"
-                android:layout_marginEnd="35dp"
-                android:background="@drawable/shape_btn_bg_white"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="40dp"
-                    android:layout_weight="1"
-                    android:text="@string/off_line_scan_face"
-                    android:textColor="#4F4F4F"
-                    android:textSize="28sp" />
-
-                <CheckBox
-                    android:id="@+id/switch_line"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="45dp"
-                    android:background="@drawable/select_switch"
-                    android:button="@null"
-                    android:checked="false"
-                    android:padding="5dp" />
 
             </LinearLayout>
 
@@ -270,6 +271,49 @@
                     android:textColor="#4F4F4F"
                     android:textSize="28sp" />
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginEnd="35dp"
+                android:background="@drawable/shape_btn_bg_white"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="45dp"
+                    android:text="定额收款模式"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+                <EditText
+                    android:id="@+id/fixed_sum"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="right"
+                    android:inputType="number|numberDecimal"
+                    android:text="10.0"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+
+                <CheckBox
+                    android:id="@+id/switch_fixed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="45dp"
+                    android:background="@drawable/select_switch"
+                    android:button="@null"
+                    android:checked="false" />
             </LinearLayout>
 
             <LinearLayout
