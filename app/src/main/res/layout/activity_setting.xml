@@ -9,62 +9,57 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="#FFFFFF"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/ibt_back"
             android:layout_width="115dp"
             android:layout_height="50dp"
-            android:layout_marginStart="44dp"
+            android:layout_marginStart="45dp"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/shape_btn_bg_white"
             android:src="@drawable/ic_back" />
 
-        <TextView
+        <RadioGroup
+            android:id="@+id/radio_Group"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/setting"
-            android:textColor="#101010"
-            android:textSize="36sp" />
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/basic"
+                style="@style/radiobutton"
+                android:text="基础设置" />
+
+            <RadioButton
+                android:id="@+id/mode"
+                style="@style/radiobutton"
+                android:text="模式设置" />
+
+            <RadioButton
+                android:id="@+id/face"
+                style="@style/radiobutton"
+                android:text="人脸算法设置" />
+        </RadioGroup>
 
         <Button
             android:id="@+id/btn_save"
             android:layout_width="115dp"
             android:layout_height="50dp"
-            android:layout_marginEnd="44dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="45dp"
             android:background="@drawable/shape_btn_bg_white"
             android:text="@string/btn_save"
             android:textColor="#101010"
             android:textSize="20sp" />
     </LinearLayout>
 
-    <RadioGroup
-        android:id="@+id/radio_Group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <RadioButton
-            android:id="@+id/basic"
-            style="@style/radiobutton"
-            android:text="基础设置" />
-        <RadioButton
-            android:id="@+id/mode"
-            style="@style/radiobutton"
-            android:text="模式设置" />
-        <RadioButton
-            android:id="@+id/camera"
-            style="@style/radiobutton"
-            android:text="相机设置" />
-        <RadioButton
-            android:id="@+id/face"
-            style="@style/radiobutton"
-            android:text="人脸识别设置" />
-    </RadioGroup>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

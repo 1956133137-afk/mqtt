@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,6 +10,397 @@
         android:orientation="vertical"
         android:paddingBottom="25dp">
 
-    </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="相机偏航角"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_yaw"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="35"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/camera_yaw"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text=""
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="相机仰俯角"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_pith"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="35"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/camera_pith"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text=""
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="相机翻滚角"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_roll"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="35"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/camera_roll"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text=""
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="相机旋转角"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_rotate"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="3"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/camera_rotate"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text="90"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="预觉角度"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_pv_ag"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="3"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/camera_pv_ag"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text="90"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:layout_weight="1"
+                android:text="相机镜像"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/switch_mirror"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:layout_weight="1"
+                android:text="人脸识别语音播报"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/voice_en"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="识别距离阀值"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_distance"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="10"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/distance"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text="100"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:layout_weight="1"
+                android:text="活检开关"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/live_en"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="40dp"
+                android:text="活检阈值"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <SeekBar
+                android:id="@+id/seekBar_live_vl"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="120dp"
+                android:max="100"
+                android:min="0"
+                android:minHeight="40dp" />
+
+            <EditText
+                android:id="@+id/live_vl"
+                android:layout_width="75dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:text="100"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </RelativeLayout>
+
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

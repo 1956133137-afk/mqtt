@@ -5,7 +5,6 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.BasicSettingFragment
-import com.yannuo.dgcanteen.activitys.fragment.CameraSettingFragment
 import com.yannuo.dgcanteen.activitys.fragment.FaceSettingFragment
 import com.yannuo.dgcanteen.activitys.fragment.ModeSettingFragment
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
@@ -15,7 +14,6 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
 
     private lateinit var basicFragment: BasicSettingFragment
     private lateinit var modeFragment: ModeSettingFragment
-    private lateinit var cameraFragment: CameraSettingFragment
     private lateinit var faceFragment: FaceSettingFragment
     private lateinit var fragments: Array<Fragment>
 
@@ -33,9 +31,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private fun initFragment() {
         basicFragment = BasicSettingFragment()
         modeFragment = ModeSettingFragment()
-        cameraFragment = CameraSettingFragment()
         faceFragment = FaceSettingFragment()
-        fragments = arrayOf(basicFragment, modeFragment, cameraFragment, faceFragment)
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment)
     }
 
     private fun initView() {
@@ -48,8 +45,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
             when (binding.viewPager.currentItem) {
                 0 -> basicFragment.save()
                 1 -> modeFragment.save()
-                2 -> LogUtil.d(TAG, "2")
-                3 -> LogUtil.d(TAG, "3")
+                2 -> faceFragment.save()
             }
         }
         binding.viewPager.adapter = object :
@@ -78,8 +74,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 when (position) {
                     0 -> binding.radioGroup.check(R.id.basic)
                     1 -> binding.radioGroup.check(R.id.mode)
-                    2 -> binding.radioGroup.check(R.id.camera)
-                    3 -> binding.radioGroup.check(R.id.face)
+                    2 -> binding.radioGroup.check(R.id.face)
                 }
             }
 
@@ -91,8 +86,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
             when (id) {
                 R.id.basic -> binding.viewPager.currentItem = 0
                 R.id.mode -> binding.viewPager.currentItem = 1
-                R.id.camera -> binding.viewPager.currentItem = 2
-                R.id.face -> binding.viewPager.currentItem = 3
+                R.id.face -> binding.viewPager.currentItem = 2
             }
         }
     }

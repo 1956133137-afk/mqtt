@@ -28,6 +28,7 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
+import java.util.*
 import kotlin.system.exitProcess
 import kotlin.time.ExperimentalTime
 
@@ -75,7 +76,7 @@ class ModeSettingFragment : Fragment() {
         }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
-            kv.encode(Constant.QUOTA_AMOUNT, binding.fixedSum.text.toString())
+            amountJudgment(binding.fixedSum.text.toString())
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
         binding.btnSynPerson.setOnClickListener { view: View? ->
@@ -93,8 +94,7 @@ class ModeSettingFragment : Fragment() {
     }
 
     fun save() {
-        kv.encode(Constant.QUOTA_AMOUNT, binding.fixedSum.text.toString())
-        ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
+        amountJudgment(binding.fixedSum.text.toString())
     }
 
     private fun reload() {
@@ -102,6 +102,30 @@ class ModeSettingFragment : Fragment() {
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
+    }
+
+    private fun amountJudgment(str: String) {
+        val amount = String.format(Locale.CHINA, "%.02f", str.toFloat())
+        if (isFormJudgment(amount)) {
+            kv.encode(Constant.QUOTA_AMOUNT, amount)
+            mScope.launch {
+                withContext(Dispatchers.Main) {
+                    binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT))
+                }
+            }
+            ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
+        } else {
+            binding.switchFixed.isChecked = false
+            ToastShowUtil.show("输入金额有误")
+        }
+    }
+
+    private fun isFormJudgment(str: String): Boolean { //判断格式
+        val regex = Regex(
+            """^(0|[1-9]\d{0,5})(\.\d{0,2})?$""",
+            RegexOption.IGNORE_CASE
+        )
+        return regex.matches(str)
     }
 
     private fun changeMode() {
