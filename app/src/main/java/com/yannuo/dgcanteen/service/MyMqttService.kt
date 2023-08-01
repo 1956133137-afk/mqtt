@@ -510,8 +510,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             while (isActive) {
 
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME,0)
-                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
-                timeout = true
+                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(2))
+//                timeout = true
                 var finish = false
                 var currentPage = 1
                 var failTime = 0

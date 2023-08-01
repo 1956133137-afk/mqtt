@@ -11,6 +11,7 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import com.yannuo.dgcanteen.dao.CardDishTable;
 import com.yannuo.dgcanteen.dao.CardPay;
 import com.yannuo.dgcanteen.dao.DishesTable;
+import com.yannuo.dgcanteen.dao.FaceTokens;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.OffLineDishTable;
 import com.yannuo.dgcanteen.dao.OffLineTable;
@@ -21,6 +22,7 @@ import com.yannuo.dgcanteen.dao.Persons;
 import com.yannuo.dgcanteen.dao.CardDishTableDao;
 import com.yannuo.dgcanteen.dao.CardPayDao;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
+import com.yannuo.dgcanteen.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.dao.MealTableDao;
 import com.yannuo.dgcanteen.dao.OffLineDishTableDao;
 import com.yannuo.dgcanteen.dao.OffLineTableDao;
@@ -40,6 +42,7 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig cardDishTableDaoConfig;
     private final DaoConfig cardPayDaoConfig;
     private final DaoConfig dishesTableDaoConfig;
+    private final DaoConfig faceTokensDaoConfig;
     private final DaoConfig mealTableDaoConfig;
     private final DaoConfig offLineDishTableDaoConfig;
     private final DaoConfig offLineTableDaoConfig;
@@ -50,6 +53,7 @@ public class DaoSession extends AbstractDaoSession {
     private final CardDishTableDao cardDishTableDao;
     private final CardPayDao cardPayDao;
     private final DishesTableDao dishesTableDao;
+    private final FaceTokensDao faceTokensDao;
     private final MealTableDao mealTableDao;
     private final OffLineDishTableDao offLineDishTableDao;
     private final OffLineTableDao offLineTableDao;
@@ -69,6 +73,9 @@ public class DaoSession extends AbstractDaoSession {
 
         dishesTableDaoConfig = daoConfigMap.get(DishesTableDao.class).clone();
         dishesTableDaoConfig.initIdentityScope(type);
+
+        faceTokensDaoConfig = daoConfigMap.get(FaceTokensDao.class).clone();
+        faceTokensDaoConfig.initIdentityScope(type);
 
         mealTableDaoConfig = daoConfigMap.get(MealTableDao.class).clone();
         mealTableDaoConfig.initIdentityScope(type);
@@ -91,6 +98,7 @@ public class DaoSession extends AbstractDaoSession {
         cardDishTableDao = new CardDishTableDao(cardDishTableDaoConfig, this);
         cardPayDao = new CardPayDao(cardPayDaoConfig, this);
         dishesTableDao = new DishesTableDao(dishesTableDaoConfig, this);
+        faceTokensDao = new FaceTokensDao(faceTokensDaoConfig, this);
         mealTableDao = new MealTableDao(mealTableDaoConfig, this);
         offLineDishTableDao = new OffLineDishTableDao(offLineDishTableDaoConfig, this);
         offLineTableDao = new OffLineTableDao(offLineTableDaoConfig, this);
@@ -101,6 +109,7 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(CardDishTable.class, cardDishTableDao);
         registerDao(CardPay.class, cardPayDao);
         registerDao(DishesTable.class, dishesTableDao);
+        registerDao(FaceTokens.class, faceTokensDao);
         registerDao(MealTable.class, mealTableDao);
         registerDao(OffLineDishTable.class, offLineDishTableDao);
         registerDao(OffLineTable.class, offLineTableDao);
@@ -113,6 +122,7 @@ public class DaoSession extends AbstractDaoSession {
         cardDishTableDaoConfig.clearIdentityScope();
         cardPayDaoConfig.clearIdentityScope();
         dishesTableDaoConfig.clearIdentityScope();
+        faceTokensDaoConfig.clearIdentityScope();
         mealTableDaoConfig.clearIdentityScope();
         offLineDishTableDaoConfig.clearIdentityScope();
         offLineTableDaoConfig.clearIdentityScope();
@@ -131,6 +141,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public DishesTableDao getDishesTableDao() {
         return dishesTableDao;
+    }
+
+    public FaceTokensDao getFaceTokensDao() {
+        return faceTokensDao;
     }
 
     public MealTableDao getMealTableDao() {

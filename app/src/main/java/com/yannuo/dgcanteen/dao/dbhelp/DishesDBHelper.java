@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.dao.dbhelp;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.yannuo.dgcanteen.dao.CardDishTable;
 import com.yannuo.dgcanteen.dao.CardDishTableDao;
@@ -11,6 +12,8 @@ import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DaoSession;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
+import com.yannuo.dgcanteen.dao.FaceTokens;
+import com.yannuo.dgcanteen.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.MealTableDao;
 import com.yannuo.dgcanteen.dao.OffLineDishTable;
@@ -23,6 +26,7 @@ import com.yannuo.dgcanteen.dao.OwnOrder;
 import com.yannuo.dgcanteen.dao.OwnOrderDao;
 import com.yannuo.dgcanteen.dao.Persons;
 import com.yannuo.dgcanteen.dao.PersonsDao;
+import com.yannuo.dgcanteen.util.LogUtil;
 
 import java.util.List;
 
@@ -63,6 +67,7 @@ public class DishesDBHelper {
     private CardPayDao mCardPayDao;
     private CardDishTableDao mCardDishTableDao;
     private PersonsDao mPersonsDao;
+    private FaceTokensDao mFaceTokensDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -83,6 +88,9 @@ public class DishesDBHelper {
         return mDBHelper;
     }
 
+    public DaoSession getsession(){
+       return mDaoSession;
+    }
 
     /**
      * 初始化
@@ -103,6 +111,7 @@ public class DishesDBHelper {
         mCardPayDao = mDaoSession.getCardPayDao();
         mCardDishTableDao = mDaoSession.getCardDishTableDao();
         mPersonsDao = mDaoSession.getPersonsDao();
+        mFaceTokensDao = mDaoSession.getFaceTokensDao();
     }
 
     /**
@@ -231,6 +240,25 @@ public class DishesDBHelper {
                 .where(PersonsDao.Properties.CustId.eq(id))
                 .build()
                 .unique();
+    }
+
+
+    /**
+     * 筛选有图片未更新的人员
+     * @return
+     */
+    public Persons queryOnePerson(){
+        return  mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.Update.in(false),
+                        PersonsDao.Properties.Image.isNotNull())
+                .limit(1)
+                .build()
+                .unique();
+    }
+
+    public void updatePeopleInfo(Persons info) {
+        mPersonsDao.update(info);
+        LogUtil.i(TAG,"Persons update");
     }
 
     /**
@@ -476,5 +504,40 @@ public class DishesDBHelper {
         mMealTableDao.deleteAll();
     }
 
+
+    //特征库相关
+    /**
+     * 通过人员ID查询人员特征信息
+     * @param number 人员ID
+     * @return
+     */
+    public FaceTokens searchFaceToken(String number){
+        if (TextUtils.isEmpty(number))return null;
+        return mFaceTokensDao.queryBuilder()
+                .where(FaceTokensDao.Properties.Number.eq(number))
+                .build()
+                .unique();
+    }
+
+    /**
+     * 根据行number删除人脸token记录
+     * @param number
+     */
+    public void deleteFaceToken(String number){
+        if (TextUtils.isEmpty(number))return;
+        mFaceTokensDao.queryBuilder()
+                .where(FaceTokensDao.Properties.Number.eq(number))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 插入人脸特征
+     * @param tokens
+     */
+    public void insertFaceToken(FaceTokens tokens){
+        if (tokens == null)return;
+        mFaceTokensDao.insertOrReplace(tokens);
+    }
 
 }

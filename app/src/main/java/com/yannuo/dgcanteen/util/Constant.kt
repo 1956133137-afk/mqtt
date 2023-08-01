@@ -39,6 +39,7 @@ object Constant {
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年
     const val PIC_DIR = "pic" //菜品图片保存目录
+    const val GROUP_NAME = "fp" //人脸特征库
     const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
 //    const val CURRENT_PAGE = "page" //当前人员下载页
 

@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.dao;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
@@ -11,6 +12,7 @@ public class Persons {
     private Long id;
 
 //    private String campusId;  //园区ID（建行平台）
+    @Index
     private String cardId;  //卡号
     @Unique()
     private String custId;//智慧食堂用户唯一标识（建行平台）
@@ -21,10 +23,14 @@ public class Persons {
 //    private String phone;//
 //    private String sex;//性别
     private String userClass;// 班级
-//    private String userId;  //用户ID
-    @Generated(hash = 701821712)
+    private String image;// 人脸图片路径
+    private String messageId ; //消息ID
+    private Boolean update = false ; //人脸照片是否下载成功
+
+@Generated(hash = 154759043)
     public Persons(Long id, String cardId, String custId, String grade,
-            String personName, String personNumber, String userClass) {
+            String personName, String personNumber, String userClass, String image,
+            String messageId, Boolean update) {
         this.id = id;
         this.cardId = cardId;
         this.custId = custId;
@@ -32,6 +38,9 @@ public class Persons {
         this.personName = personName;
         this.personNumber = personNumber;
         this.userClass = userClass;
+        this.image = image;
+        this.messageId = messageId;
+        this.update = update;
     }
     @Generated(hash = 1519000671)
     public Persons() {
@@ -77,6 +86,24 @@ public class Persons {
     }
     public void setUserClass(String userClass) {
         this.userClass = userClass;
+    }
+    public String getImage() {
+        return this.image;
+    }
+    public void setImage(String image) {
+        this.image = image;
+    }
+    public String getMessageId() {
+        return this.messageId;
+    }
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+    public Boolean getUpdate() {
+        return this.update;
+    }
+    public void setUpdate(Boolean update) {
+        this.update = update;
     }
 
 

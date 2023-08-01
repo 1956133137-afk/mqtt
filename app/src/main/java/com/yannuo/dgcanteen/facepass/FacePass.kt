@@ -28,7 +28,7 @@ import kotlin.math.abs
 class FacePass(context: Context) : CameraDataStream.CameraListener {
     private val TAG = "FacePass"
     private var mScope:CoroutineScope
-    private var mFacePassHandler : FacePassHandler? =null   //SDK实例
+    var mFacePassHandler : FacePassHandler? =null   //SDK实例
     private var mContext = context
     private var colorCameraChannel :Channel<CameraPreviewData>? = null   //彩色原始数据
     private var blackWhiteCameraChannel :Channel<CameraPreviewData> ?= null //黑白原始数据

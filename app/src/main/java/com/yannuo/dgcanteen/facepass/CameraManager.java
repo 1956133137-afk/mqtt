@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import mcv.facepass.FacePassHandler;
+
 
 public class CameraManager {
     private int colorPreViewWidth ;   //预览宽度
@@ -117,6 +119,14 @@ public class CameraManager {
         cameraData.setListener(mFacePass);
         mFacePass.config(callback);
         return this;
+    }
+
+    /**
+     * 获取人脸操作句柄
+     * @return
+     */
+    public FacePassHandler getKSHandler(){
+        return mFacePass.getMFacePassHandler();
     }
 
 

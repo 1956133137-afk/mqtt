@@ -26,7 +26,6 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         if (payInfo.type == Constant.PAY_IC_TYPE) {
             val navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
             navHostFragment!!.navController.navigate(R.id.scanFragment)
-
         }
     }
 

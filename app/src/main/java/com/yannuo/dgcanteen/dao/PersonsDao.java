@@ -29,6 +29,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         public final static Property PersonName = new Property(4, String.class, "personName", false, "PERSON_NAME");
         public final static Property PersonNumber = new Property(5, String.class, "personNumber", false, "PERSON_NUMBER");
         public final static Property UserClass = new Property(6, String.class, "userClass", false, "USER_CLASS");
+        public final static Property Image = new Property(7, String.class, "image", false, "IMAGE");
+        public final static Property MessageId = new Property(8, String.class, "messageId", false, "MESSAGE_ID");
+        public final static Property Update = new Property(9, Boolean.class, "update", false, "UPDATE");
     }
 
 
@@ -50,7 +53,13 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
                 "\"GRADE\" TEXT," + // 3: grade
                 "\"PERSON_NAME\" TEXT," + // 4: personName
                 "\"PERSON_NUMBER\" TEXT," + // 5: personNumber
-                "\"USER_CLASS\" TEXT);"); // 6: userClass
+                "\"USER_CLASS\" TEXT," + // 6: userClass
+                "\"IMAGE\" TEXT," + // 7: image
+                "\"MESSAGE_ID\" TEXT," + // 8: messageId
+                "\"UPDATE\" INTEGER);"); // 9: update
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_PERSONS_CARD_ID ON \"PERSONS\"" +
+                " (\"CARD_ID\" ASC);");
     }
 
     /** Drops the underlying database table. */
@@ -97,6 +106,21 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         if (userClass != null) {
             stmt.bindString(7, userClass);
         }
+ 
+        String image = entity.getImage();
+        if (image != null) {
+            stmt.bindString(8, image);
+        }
+ 
+        String messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindString(9, messageId);
+        }
+ 
+        Boolean update = entity.getUpdate();
+        if (update != null) {
+            stmt.bindLong(10, update ? 1L: 0L);
+        }
     }
 
     @Override
@@ -137,6 +161,21 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         if (userClass != null) {
             stmt.bindString(7, userClass);
         }
+ 
+        String image = entity.getImage();
+        if (image != null) {
+            stmt.bindString(8, image);
+        }
+ 
+        String messageId = entity.getMessageId();
+        if (messageId != null) {
+            stmt.bindString(9, messageId);
+        }
+ 
+        Boolean update = entity.getUpdate();
+        if (update != null) {
+            stmt.bindLong(10, update ? 1L: 0L);
+        }
     }
 
     @Override
@@ -153,7 +192,10 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // grade
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // personName
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // personNumber
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // userClass
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // userClass
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // image
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // messageId
+            cursor.isNull(offset + 9) ? null : cursor.getShort(offset + 9) != 0 // update
         );
         return entity;
     }
@@ -167,6 +209,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         entity.setPersonName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setPersonNumber(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setUserClass(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setImage(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setMessageId(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setUpdate(cursor.isNull(offset + 9) ? null : cursor.getShort(offset + 9) != 0);
      }
     
     @Override

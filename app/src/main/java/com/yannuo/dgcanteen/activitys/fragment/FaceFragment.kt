@@ -81,9 +81,6 @@ class FaceFragment : Fragment() {
         binding.btChangPayByIc.setOnClickListener {
             timeOutJob?.cancel()
             Navigation.findNavController(it).navigate(FaceFragmentDirections.actionFaceToScan())
-//            onDestroy()
-
-//        binding!!.btToFail.setOnClickListener(this)
         }
     }
 
