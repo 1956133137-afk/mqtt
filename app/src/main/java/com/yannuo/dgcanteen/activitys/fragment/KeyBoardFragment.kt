@@ -6,9 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.yannuo.dgcanteen.activitys.HostActivity
-import com.yannuo.dgcanteen.activitys.viewModel.ProceedsVM
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.model.OrderPayInfo
@@ -25,8 +23,6 @@ class KeyBoardFragment : Fragment() {
     private val TAG = javaClass.simpleName
 
     private lateinit var binding: FragmentInputKeyboardBinding
-    private lateinit var viewModel: ProceedsVM
-    private var amount = 0F
     private var value: StringBuilder = StringBuilder()
     private var tvText: StringBuilder = StringBuilder()
     private var symbol = ""
@@ -44,12 +40,7 @@ class KeyBoardFragment : Fragment() {
     }
 
     private fun initObject() {
-        if (!this::viewModel.isInitialized) {
-            viewModel = ViewModelProvider(
-                this,
-                ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-            )[ProceedsVM::class.java]
-        }
+
     }
 
     private fun initEvent() {
@@ -69,9 +60,14 @@ class KeyBoardFragment : Fragment() {
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
             totalValue()
-            viewModel.getAmount(value.toString(), ProceedsVM.PayStatus.PAY)
-            value = StringBuilder()
-            tvText = StringBuilder()
+            if (value.isNotEmpty()) {
+                payPageJump(value.toString().toFloat())
+                value = StringBuilder()
+                tvText = StringBuilder()
+                binding.inputAmount.text = null
+            } else {
+                ToastShowUtil.show("请输入收款金额")
+            }
         }
         binding.cancel.setOnClickListener { clearData() } //清除
     }
@@ -126,29 +122,33 @@ class KeyBoardFragment : Fragment() {
             binding.inputAmount.text = str
             value.append(str)
             tvText.append(str)
-
-            if (FaceHandler.getFaceHInstance().lock)ToastShowUtil.show("支付未完成")
-            //TODO 跳转页面
-            var payType = Constant.PAY_FACE_TYPE  //0 人脸支付 1、刷卡 、2 扫毛
-            if (payType == 0) {
-                if (!FaceHandler.getFaceHInstance().isFaceInit) {
-                    ToastShowUtil.show("人脸服务未启动,请重启软件")
-                    return
-                }
-            }
-
-            val bean = OrderPayInfo()
-            bean.type = payType
-
-            val payIntent = Intent(requireContext(), HostActivity::class.java)
-            payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            payIntent.putExtra(Constant.PAY_DATE,bean)
-            startActivity(payIntent)
         }
     }
 
+    private fun payPageJump(amount: Float) {
+        if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
+        //TODO 跳转页面
+//        var payType = Constant.PAY_FACE_TYPE  //0 人脸支付 1、刷卡 、2 扫毛
+//        if (payType == 0) {
+//            if (!FaceHandler.getFaceHInstance().isFaceInit) {
+//                ToastShowUtil.show("人脸服务未启动,请重启软件")
+//                return
+//            }
+//        }
+
+        //刷卡
+        val bean = OrderPayInfo().apply {
+            type = Constant.PAY_IC_TYPE
+            payment = amount
+        }
+
+        val payIntent = Intent(requireContext(), HostActivity::class.java)
+        payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        payIntent.putExtra(Constant.PAY_DATE, bean)
+        startActivity(payIntent)
+    }
+
     private fun clearData() { //清除
-        amount = 0F
         value = StringBuilder()
         tvText = StringBuilder()
         symbol = ""

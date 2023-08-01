@@ -62,7 +62,8 @@ public class MyApplication extends Application {
     public void initMMKV(){
         kv = MMKV.defaultMMKV();
         if (kv.decodeString(Constant.ADDRESS) == null){
-            kv.encode(Constant.ADDRESS,"https://canteen.yannuozhineng.com/api/");
+//            kv.encode(Constant.ADDRESS,"https://canteen.yannuozhineng.com/api/");
+            kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
         }
         if (kv.decodeString(Constant.MQTT_ADDRESS) == null){
             kv.encode(Constant.MQTT_ADDRESS,"tcp://acms.yannuozhineng.com:3883");

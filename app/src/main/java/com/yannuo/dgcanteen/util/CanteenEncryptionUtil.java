@@ -23,8 +23,8 @@ public class CanteenEncryptionUtil {
     private final static String CCB_IBSVersion = "V6";
     private final static String PT_STYLE = "8";
     private final static String PT_LANGUAGE = "CN";
-//    private final static String STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG";
-    private final static String STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu";
+    private final static String STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG";
+//    private final static String STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu";
 
     /**
      * @param CAMPUS_ID

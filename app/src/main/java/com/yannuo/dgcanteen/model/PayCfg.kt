@@ -11,7 +11,7 @@ class PayCfg() :Parcelable{
 //    var vpos_id :String ?= "V00463775" //柜台号
 
     var campusId :String ?= null //园区ID
-    var corp_id :String ?= "1046" //合作方ID
+    var corp_id :String ?= "1041" //合作方ID  生产:1046 测试:1041
     var businessId :String ?= null //商家ID
     var business_name :String ?= null //商家名称
     var counterId :String ?= null //柜台号

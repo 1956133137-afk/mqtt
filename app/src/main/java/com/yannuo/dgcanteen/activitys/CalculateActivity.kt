@@ -4,11 +4,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Handler
 import android.widget.Button
-import androidx.lifecycle.ViewModelProvider
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.viewModel.ProceedsVM
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
@@ -31,7 +29,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
     private lateinit var passwordDialog: PasswordDialog
     private lateinit var kv: MMKV
     private val handler = Handler()
-//    private lateinit var viewModel: ProceedsVM
 
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
@@ -44,10 +41,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
     }
 
     private fun initObject() {
-//        viewModel = ViewModelProvider(
-//            this,
-//            ViewModelProvider.AndroidViewModelFactory(application)
-//        )[ProceedsVM::class.java]
         EventBus.getDefault().register(this)
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)

@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.os.Bundle
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.NavHostFragment
 import com.yannuo.dgcanteen.R
@@ -12,20 +13,23 @@ import com.yannuo.dgcanteen.util.LogUtil
 class HostActivity : BaseActivity<ActivityHostBinding>() {
 
 
-
     override fun bindLayout() {
         binding = ActivityHostBinding.inflate(layoutInflater)
     }
 
     override fun onInit() {
         val payInfo = intent.getParcelableExtra<OrderPayInfo>(Constant.PAY_DATE)
-        if (payInfo == null){
-            LogUtil.e(TAG,"非法参数")
+        if (payInfo == null) {
+            LogUtil.e(TAG, "非法参数")
             return
         }
+
         if (payInfo.type == Constant.PAY_IC_TYPE) {
+            val bundle = Bundle()
+            bundle.putParcelable(Constant.PAY_DATE, payInfo)
             val navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
-            navHostFragment!!.navController.navigate(R.id.scanFragment)
+            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
+
         }
     }
 

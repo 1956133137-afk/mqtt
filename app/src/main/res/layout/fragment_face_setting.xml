@@ -25,7 +25,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="相机偏航角"
+                android:text="相机偏航角(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -36,7 +36,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="120dp"
-                android:max="35"
+                android:max="30"
                 android:minHeight="40dp" />
 
             <EditText
@@ -68,7 +68,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="相机仰俯角"
+                android:text="相机仰俯角(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -79,7 +79,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="120dp"
-                android:max="35"
+                android:max="30"
                 android:minHeight="40dp" />
 
             <EditText
@@ -111,7 +111,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="相机翻滚角"
+                android:text="相机翻滚角(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -122,7 +122,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="120dp"
-                android:max="35"
+                android:max="30"
                 android:minHeight="40dp" />
 
             <EditText
@@ -154,7 +154,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="相机旋转角"
+                android:text="相机旋转角(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -197,7 +197,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="预觉角度"
+                android:text="预觉角度(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -300,7 +300,7 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="识别距离阀值"
+                android:text="识别距离阈值(m)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -311,7 +311,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="120dp"
-                android:max="10"
+                android:max="5"
                 android:minHeight="40dp" />
 
             <EditText
@@ -323,7 +323,7 @@
                 android:layout_marginEnd="45dp"
                 android:background="@null"
                 android:gravity="right"
-                android:text="100"
+                android:text=""
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
         </RelativeLayout>
@@ -384,8 +384,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="120dp"
-                android:max="100"
-                android:min="0"
+                android:max="50"
                 android:minHeight="40dp" />
 
             <EditText
@@ -397,7 +396,7 @@
                 android:layout_marginEnd="45dp"
                 android:background="@null"
                 android:gravity="right"
-                android:text="100"
+                android:text=""
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
         </RelativeLayout>

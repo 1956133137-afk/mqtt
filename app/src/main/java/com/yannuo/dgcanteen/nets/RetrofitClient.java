@@ -44,7 +44,8 @@ public class RetrofitClient {
     public static ApiService getApiCcb(){
         if (mCcbService == null) {
             synchronized (RetrofitClient.class) {
-                String basePath = "https://dining.icenter.ccb.com/CCBIS/";
+//                String basePath = "https://dining.icenter.ccb.com/CCBIS/"; //生产
+                String basePath = "http://121.40.54.232:8090/CCBIS/"; //测试
                 mCcbService = new Retrofit.Builder()
                         .client(OkHttpUtils.Companion.getInstance())
                         .baseUrl(basePath)
