@@ -31,7 +31,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
     override fun onResume() {
         super.onResume()
-        mXService?.hideNavBar = true
+//        mXService?.hideNavBar = true
     }
 
     private fun initEvent() {

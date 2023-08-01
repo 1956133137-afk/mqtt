@@ -1,10 +1,17 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
+import com.yannuo.dgcanteen.service.CameraService
+import com.yannuo.dgcanteen.service.MyMqttService
 import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.views.LoadingDialog
+import kotlinx.coroutines.*
 
 /**
  * Author: filowl
@@ -13,46 +20,134 @@ import com.yannuo.dgcanteen.util.LogUtil
  **/
 class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
+
     private val kv = MMKV.defaultMMKV()
+
+    private var mode = ""
+    private val PERMISSIONS_REQUEST = 1
+    private val Permission = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.INTERNET,
+        Manifest.permission.ACCESS_NETWORK_STATE,  //            Manifest.permission.SET_TIME,
+        //            Manifest.permission.CHANGE_CONFIGURATION,
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.READ_PHONE_STATE
+    )
+
+    private var loading : LoadingDialog ?= null
+    private lateinit var scope :CoroutineScope
 
     override fun bindLayout() {
         binding = ActivityIntiBinding.inflate(layoutInflater)
     }
 
     override fun onInit() {
-        initView()
-        initEvent()
+        loading = LoadingDialog(this)
+        scope = CoroutineScope(Dispatchers.IO)
+//        initView()
+//        initEvent()
     }
 
-    private fun initView() {
-        binding.order.text = Constant.ORDERING_FOOD_MODE
-        binding.collection.text = Constant.PROCEEDS_MODE
-
-        when (kv.decodeString(Constant.APP_MODE)) {
-            Constant.ORDERING_FOOD_MODE -> {
-                startActivity(Intent(this, CommodityActivity::class.java))
-                finish()
-            }
-            Constant.PROCEEDS_MODE -> {
-                startActivity(Intent(this, CalculateActivity::class.java))
-                finish()
+    /* 判断程序是否有所需权限 android22以上需要自申请权限 */
+    private fun hasPermission(): Boolean {
+        var result = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (pms in Permission) {
+                result = result and (checkSelfPermission(pms) == PackageManager.PERMISSION_GRANTED)
             }
         }
+        return result
     }
 
-    private fun initEvent() {
 
-        binding.order.setOnClickListener {
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-            startActivity(Intent(this, CommodityActivity::class.java))
-            finish()
-        }
+    /* 请求程序所需权限 */
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) requestPermissions(
+            Permission,
+            PERMISSIONS_REQUEST
+        )
+    }
 
-        binding.collection.setOnClickListener {
-            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
-            startActivity(Intent(this, CalculateActivity::class.java))
-            finish()
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST) {
+            var granted = true
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) granted = false
+            }
+            if (!granted) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//                    if (!shouldShowRequestPermissionRationale(PERMISSION_CAMERA)
+//                            || !shouldShowRequestPermissionRationale(PERMISSION_READ_STORAGE)
+//                            || !shouldShowRequestPermissionRationale(PERMISSION_WRITE_STORAGE)
+//                            || !shouldShowRequestPermissionRationale(PERMISSION_INTERNET)
+//                            || !shouldShowRequestPermissionRationale(PERMISSION_ACCESS_NETWORK_STATE)) {
+                Toast.makeText(applicationContext, "需要开启摄像头网络文件存储权限", Toast.LENGTH_SHORT).show()
+                //                    }
+            }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        initMode()
+    }
+
+
+    private fun initMode() {
+        scope.launch {
+            delay(500)
+            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
+            when (mode) {
+                Constant.ORDERING_FOOD_MODE -> {
+                    //TODO 初始化相关服务
+                    withContext(Dispatchers.Main){
+                        loading?.show("启动相关服务")
+                    }
+
+                    val intent = Intent(this@InitActivity, MyMqttService::class.java)
+                    startService(intent)
+                    startActivity(Intent(this@InitActivity, CommodityActivity::class.java))
+                    delay(50)
+                    finish()
+                }
+                Constant.PROCEEDS_MODE -> {
+
+                    if (!hasPermission()) {
+                        requestPermission()
+                    }else{
+                        withContext(Dispatchers.Main){
+                            loading?.show("启动相关服务")
+                        }
+                        //TODO 初始化相关服务
+                        val intent = Intent(this@InitActivity, CameraService::class.java)
+                        startService(intent)
+
+                        startActivity(Intent(this@InitActivity, CalculateActivity::class.java))
+                        delay(50)
+                        finish()
+                    }
+
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        loading?.cancel()
+        super.onDestroy()
+
+    }
+
+
+
+
 
 }

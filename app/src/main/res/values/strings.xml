@@ -46,5 +46,7 @@
     <string name="check_update">检查更新</string>
     <string name="syn_person">同步人员信息</string>
     <string name="exit_alive">退出保活</string>
+    <string name="search_name">姓名：</string>
+    <string name="search_icn">卡号：</string>
 
 </resources>

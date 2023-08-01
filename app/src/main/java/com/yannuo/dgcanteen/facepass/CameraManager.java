@@ -227,10 +227,10 @@ public class CameraManager {
         return this;
     }
 
-    public CameraManager setFaceLivenessThreshold(float livenessThreshold){
-        mFacePass.setFaceLivenessThreshold(livenessThreshold );
-        return this;
-    }
+//    public CameraManager setFaceLivenessThreshold(float livenessThreshold){
+//        mFacePass.setFaceLivenessThreshold(livenessThreshold );
+//        return this;
+//    }
 
     public CameraManager setFaceBlurThreshold(float blurThreshold ){
         mFacePass.setFaceBlurThreshold(blurThreshold);

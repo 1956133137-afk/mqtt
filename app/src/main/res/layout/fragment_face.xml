@@ -37,43 +37,23 @@
         app:layout_constraintStart_toStartOf="@+id/preview"
         app:layout_constraintTop_toTopOf="@+id/preview" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+
+    <TextView
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/shape_bg_rect"
-        android:gravity="center"
-        android:minWidth="50dp"
-        android:orientation="vertical"
-        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:paddingRight="15dp"
+        android:paddingLeft="15dp"
+        android:text="刷脸支付"
+        android:textColor="@color/white"
+        android:textSize="50sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/preview"
         app:layout_constraintStart_toStartOf="@+id/preview"
-        app:layout_constraintTop_toTopOf="@+id/preview">
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:padding="10dp"
-            android:textColor="@color/white"
-            android:textSize="50sp"
-            android:textStyle="bold" />
-
-
-        <TextView
-            android:id="@+id/tv_downTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="5dp"
-            android:textColor="@color/white"
-            android:textSize="40sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
+        app:layout_constraintTop_toTopOf="@+id/preview" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_layl_pic"
@@ -81,13 +61,13 @@
         android:layout_height="wrap_content"
 
         android:layout_marginEnd="80dp"
-        android:layout_marginTop="220dp"
 
+        android:layout_marginTop="50dp"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="15dp"
         app:cardElevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/bt_cancel">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -98,7 +78,8 @@
                 android:id="@+id/tv_host_title_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#4083FF"
+
+                android:background="#45B2B7"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="支付人员"
@@ -114,6 +95,28 @@
                 android:layout_margin="30dp"
                 android:background="@color/white"
                 android:src="@drawable/ic_person" />
+
+            <TextView
+                android:id="@+id/tv_people_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/search_name"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_people_ic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/search_icn"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
         </LinearLayout>
 
 
@@ -159,6 +162,36 @@
         app:layout_constraintBottom_toBottomOf="@+id/preview"
         app:layout_constraintEnd_toEndOf="@+id/preview"
         app:layout_constraintStart_toStartOf="@+id/preview" />
+
+    <Button
+        android:id="@+id/bt_chang_pay_by_ic"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="45dp"
+        android:background="@drawable/click_button_gred"
+        android:text="使用刷卡支付"
+        android:textColor="#FFFFFF"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toEndOf="@+id/cv_layl_pic"
+        app:layout_constraintStart_toStartOf="@+id/cv_layl_pic"
+        app:layout_constraintTop_toBottomOf="@+id/cv_layl_pic" />
+
+    <Button
+        android:id="@+id/bt_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="28dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/click_button_gred"
+        android:paddingBottom="10dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:paddingTop="10dp"
+        android:text="退出"
+        android:textColor="#FFFFFF"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,7 +27,7 @@ class LoadingDialog(context: Context) : Dialog(context) {
 
     }
 
-    fun updateText(){
+    private fun updateText(){
         scope.launch {
             val str = tv_hit.text
             var value = 0
@@ -39,14 +39,27 @@ class LoadingDialog(context: Context) : Dialog(context) {
         }
     }
 
+     fun show(str : String) {
+        if (!isShowing) {
+            super.show()
+        }
+         if (str.isEmpty())return
+         tv_hit.text = "$str..."
+    }
+
+    fun changeText(str : String){
+        if (str.isEmpty())return
+        tv_hit.text = "$str..."
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         updateText()
     }
 
     override fun onDetachedFromWindow() {
-        scope.cancel()
         super.onDetachedFromWindow()
+        scope.cancel()
     }
 
 

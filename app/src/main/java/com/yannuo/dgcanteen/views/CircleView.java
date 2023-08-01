@@ -44,7 +44,7 @@ public class CircleView extends androidx.appcompat.widget.AppCompatImageView {
         mPaint1 = new Paint();
         mPaint1.setAntiAlias(true);
         mPaint1.setDither(true);
-        mPaint1.setColor(Color.parseColor("#4083FF"));
+        mPaint1.setColor(Color.parseColor("#00ff00"));
         mPaint1.setStrokeWidth(5);
         mPaint1.setStrokeJoin(Paint.Join.ROUND);
         mPaint1.setStyle(Paint.Style.STROKE);

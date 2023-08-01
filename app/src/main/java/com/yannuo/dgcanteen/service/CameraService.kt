@@ -9,6 +9,7 @@ import android.os.IBinder
 import com.yannuo.dgcanteen.facepass.AuthFace
 import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.facepass.SDKInitResult
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import kotlinx.coroutines.*
@@ -34,13 +35,14 @@ class CameraService : Service() {
             override fun faceInitResult(code: Int, message: String) {
                 when(code){
                     0 -> {
-                        LogUtil.d(TAG,"已获取授权准备初始化 version: ${FacePassHandler.getVersion()} 算法")
-                        FaceHandler.getFaceHInstance().isFaceInit  = false
+                        LogUtil.d(TAG,"初始化 version: ${FacePassHandler.getVersion()} 算法完成")
+                        FaceHandler.getFaceHInstance().isFaceInit  = true
                     }
                     else -> {
                         //todo 算法初始化失败
                         LogUtil.e(TAG,"算法初始化失败")
                         ToastShowUtil.showt("算法初始化失败")
+                        CommonAndDpToPxUtil.speakWork("算法初始化失败")
                         FaceHandler.getFaceHInstance().isFaceInit  = false
                     }
                 }
@@ -55,6 +57,7 @@ class CameraService : Service() {
                     else -> {
                         //todo 算法授权失败
                         ToastShowUtil.showt("算法未授权")
+                        CommonAndDpToPxUtil.speakWork("算法未授权, $message")
                     }
                 }
             }
@@ -70,6 +73,8 @@ class CameraService : Service() {
 
 
     }
+
+
 
 
 

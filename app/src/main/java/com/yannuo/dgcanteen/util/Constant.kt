@@ -42,7 +42,7 @@ object Constant {
     const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
 //    const val CURRENT_PAGE = "page" //当前人员下载页
 
-    const val APP_MODE = "appMode" //点餐模式 付款模式
+    const val APP_MODE = "appMode" //点餐模式 、付款模式、未设置
     const val ORDERING_FOOD_MODE = "点餐模式"
     const val PROCEEDS_MODE = "收款模式"
 
@@ -60,6 +60,11 @@ object Constant {
     //1)状态码
     const val NO_ERROR = 1000
     const val OPEN_CAMERA_ERROR_TYPE = 1001 //相机打开失败
+
+    //支付方式
+    const val PAY_FACE_TYPE = 0 //刷脸
+    const val PAY_IC_TYPE = 1//刷脸
+    const val PAY_SCAN_TYPE = 2 //刷脸
 
     //传递参数
     const val PAY_DATE = "data"  //支付信息

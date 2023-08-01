@@ -7,23 +7,20 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Environment
-import android.text.TextUtils
-
 import com.my.yuvconvert.YuvUtil
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.facepass.*
 import com.yannuo.dgcanteen.model.FaceDataBean
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import mcv.facepass.FacePassException
 import mcv.facepass.FacePassHandler
 import mcv.facepass.types.*
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import kotlin.math.abs
 
@@ -51,12 +48,14 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
     private var bitmapUtil : MyBitmapUtil
     @Volatile private var clearHint  = false  //相机清楚提示
     @Volatile private var voiceHit  = true    //是否声音提示
-    @Volatile private var isMultiFace  = false //是否支持多人入境
+    //    @Volatile private var isMultiFace  = false //是否支持多人入境
     @Volatile private var protection = false  //掉线保护默认关闭
     @Volatile private var live = true //是否开启活检
     private var boardService : MyService  ?= null
-    private var delayTime = 3000L
+    private var delayTime = 4500L
 
+    /* 人脸识别Group */
+    private val group_name = "facepass"
 
     private var configJob : Job ?= null
     private var converJob : Job ?= null
@@ -334,10 +333,12 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                         }
                         config.faceMinThreshold = minFaceThreshold
                         this@FacePass.roll = mv.decodeFloat(Constant.ROLL_SET,Constant.ROLL_SET_V)
+                        this@FacePass.pitch = mv.decodeFloat(Constant.PITCH_SET,Constant.PITCH_SET_V)
+                        this@FacePass.yaw = mv.decodeFloat(Constant.YAW_SET,Constant.YAW_SET_V)
                         config.poseThreshold = FacePassPose(this@FacePass.roll, this@FacePass.pitch, this@FacePass.yaw)
-
+                        //抓拍清晰度
                         config.blurThreshold = blurThreshold
-                        config.lowBrightnessThreshold = lowBrightnessThreshold
+                        config.lowBrightnessThreshold = 30f
                         config.highBrightnessThreshold = 210f
                         config.brightnessSTDThreshold = 80f
                         config.retryCount = 99
@@ -347,6 +348,18 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                         /* 创建SDK实例 */
 
                         mFacePassHandler = FacePassHandler(config)
+                        val addFaceConfig: FacePassConfig = mFacePassHandler!!.addFaceConfig
+                        addFaceConfig.poseThreshold.pitch = 30f
+                        addFaceConfig.poseThreshold.roll = 30f
+                        addFaceConfig.poseThreshold.yaw = 25f
+                        addFaceConfig.blurThreshold = 0.8f
+                        addFaceConfig.lowBrightnessThreshold = 70f
+                        addFaceConfig.highBrightnessThreshold = 220f
+                        addFaceConfig.brightnessSTDThreshold = 60f
+                        addFaceConfig.faceMinThreshold = 35
+                        addFaceConfig.rcAttributeAndOcclusionMode = 2
+                        mFacePassHandler!!.addFaceConfig = addFaceConfig
+
                         LogUtil.i(TAG, "算法模型配置成功...")
                         initializeResult = 0
                         message="算法模型配置成功"
@@ -363,7 +376,6 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                         callback?.faceInitResult(initializeResult,message)
                     }
                 }
-
                 delay(100)
             }
         }
@@ -389,43 +401,26 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                     delay(50)
                     continue
                 }
-                val colorReceive = colorCameraChannel!!.receive()
-                val blackWhiteReceive = blackWhiteCameraChannel!!.receive()
-//                currentTime.set(System.currentTimeMillis())
-
-                var colorImage : FacePassImage
-                var blackWhiteImage : FacePassImage
                 try {
-                    colorImage = FacePassImage(colorReceive.nv21Data,colorReceive.width, colorReceive.height,colorReceive.rotation,FacePassImageType.NV21)
-                    blackWhiteImage = FacePassImage(blackWhiteReceive.nv21Data,blackWhiteReceive.width, blackWhiteReceive.height,blackWhiteReceive.rotation,FacePassImageType.NV21)
+                    val colorReceive = colorCameraChannel!!.receive()
+                    val blackWhiteReceive = blackWhiteCameraChannel!!.receive()
+                    val colorImage = FacePassImage(colorReceive.nv21Data,colorReceive.width, colorReceive.height,colorReceive.rotation,FacePassImageType.NV21)
+                    val blackWhiteImage = FacePassImage(blackWhiteReceive.nv21Data,blackWhiteReceive.width, blackWhiteReceive.height,blackWhiteReceive.rotation,FacePassImageType.NV21)
                     if (preViewRotation != blackWhiteReceive.preRotation) preViewRotation = blackWhiteReceive.preRotation
                     if (mirror != blackWhiteReceive.mirror) mirror = blackWhiteReceive.mirror
-                }catch (e :FacePassException) {
-                    e.printStackTrace()
-                    continue
-                }
-                try {
+
                     val detectionResult = mFacePassHandler!!.feedFrameRGBIR(colorImage, blackWhiteImage)
                     clearHit(lastTime)
                     if (detectionResult != null && detectionResult.faceList.isNotEmpty()) {
-                        LogUtil.d(TAG,"此帧人脸数  ${ detectionResult.faceList.size}")
                         val dataBean = FaceDataBean()
                         dataBean.detectionResult = detectionResult
                         dataBean.colorReceive = colorReceive
                         //计算出最大的人脸下标
                         calculatorMax(dataBean, colorReceive.rotation, mirror)
-                        val check = check(detectionResult.faceList[dataBean.index], lastTime,
-                            dataBean.rect, dataBean.detectionResult.faceList.size)
+                        val check = check(detectionResult.faceList[0], lastTime, dataBean.rect)
                         if (check != -1L)lastTime = check
-
-                        LogUtil.i(TAG,"实际检测出人脸数：${dataBean.detectionResult.faceList.size}  $isMultiFace")
-                        if( !isMultiFace && dataBean.detectionResult.faceList.size > 1){
-                            LogUtil.i(TAG,"不合格：多人脸")
-                            for (bean in dataBean.detectionResult.faceList) {
-                                mFacePassHandler?.setMessage(bean.trackId, FacePassTrackIdState.TRACK_ID_RETRY)
-                            }
-                        }
-                        else if (detectionResult.message.size != 0) {
+                        LogUtil.i(TAG,"实际检测出人脸数：${dataBean.detectionResult.faceList.size} ")
+                        if (detectionResult.message.isNotEmpty()) {
                             livenessChannel?.offer(dataBean)
                         }
                     }
@@ -436,24 +431,12 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
         }
     }
 
-    private fun check(face: FacePassFace,time :Long,rect :RectF?,faceCount :Int) :Long{
+    private fun check(face: FacePassFace,time :Long,rect :RectF?) :Long{
         //检测是否遮挡
         val lmkoccsta = lmkoccsta(face)
         var hit =""
         LogUtil.d(TAG, "人脸是否有遮挡：$lmkoccsta")
-        if (faceCount > 1){
-            if (!isMultiFace){
-                hit = "拍摄不支持多人入镜"
-                clearHint = true
-                LogUtil.d(TAG,hit)
-                listener?.onTips(hit)
-                if (sound && voiceHit && (System.currentTimeMillis() - time)>delayTime){
-                    CommonAndDpToPxUtil.speakWork(hit)
-                    return System.currentTimeMillis()
-                }
-            }
-        }
-        else if (lmkoccsta){
+        if (lmkoccsta){
             hit = "请不要遮挡脸部"
             clearHint = true
             LogUtil.d(TAG,hit)
@@ -573,74 +556,35 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                 try {
                     val faceData = livenessChannel!!.receive()
                     if (!detect)continue
-                    if (faceData.rect != null && ( isMultiFace || faceData.detectionResult.faceList.size < 2) ){
-                        val livenessClassify = mFacePassHandler!!.livenessClassify(faceData.detectionResult.message)
-                        if (livenessClassify != null && livenessClassify.isNotEmpty()) {
-                            for (bean in livenessClassify){
-                                if (bean.trackId != faceData.trackId)continue
-                                LogUtil.i(TAG, "活体阈值 -> ${bean.livenessThreshold} " + "活体识别分数 ->  ${bean.livenessScore}   FacePassLivenessState--> ${bean.livenessState}")
-                                when (bean.livenessState) {
-                                    0 -> {
-                                        val facePassImage = faceData.detectionResult.images[faceData.index]
-                                        var cropBitmap = bitmapUtil.nv21ToBitmap(
-                                            facePassImage.image,
-                                            facePassImage.width,
-                                            facePassImage.height
-                                        )
-                                        val matrix = Matrix()
-                                        matrix.setRotate(faceData.colorReceive!!.preRotation.toFloat())
-                                        cropBitmap = Bitmap.createBitmap(
-                                            cropBitmap, 0, 0, facePassImage.width,
-                                            facePassImage.height, matrix, false
-                                        )
-                                        val ruslt = ByteArray(faceData.colorReceive!!.nv21Data.size)
-                                        yuvUtil!!.yuvCompress(faceData.colorReceive!!.nv21Data, faceData.colorReceive!!.width,
-                                            faceData.colorReceive!!.height, ruslt, 1f, 1f, 0,
-                                            preViewRotation, mirror)
-                                        var width = faceData.colorReceive!!.width
-                                        var height = faceData.colorReceive!!.height
-                                        if (preViewRotation == 90 || preViewRotation == 270) {
-                                            width = faceData.colorReceive!!.height
-                                            height = faceData.colorReceive!!.width
-                                        }
-
-                                        LogUtil.i(TAG,"detect :${detect} listener:${listener}")
-                                        if (detect) {
-                                            val doubleArray = doubleArrayOf(
-                                                faceData.rect!!.left.toDouble(), faceData.rect!!.top.toDouble(),
-                                                faceData.rect!!.right.toDouble(), faceData.rect!!.bottom.toDouble()
-                                            )
-                                            listener?.onRecognized(
-                                                cropBitmap, ruslt, doubleArray, width, height,
-                                                String.format("%02d", bean.livenessThreshold.toInt()),
-                                                String.format("%02d", bean.livenessScore.toInt()))
-                                        }
-                                    }
-                                    else -> {
-                                        //活检失败
-                                        val message = when (bean.livenessErrorCode) {
-                                            1 -> "可能是irDetect没有检测到人脸、overlapScore小于阈值或者pf小于阈值"
-                                            2 -> "识别活体分数小于阈值"
-                                            else -> "未知错误"
-                                        }
-                                        LogUtil.e(TAG, "${bean.livenessErrorCode},message:${message}")
-                                        if (detect) listener?.onTips(bean.livenessErrorCode.toString() + message)
-                                    }
+                    val livenessClassify = mFacePassHandler!!.recognize(group_name,faceData.detectionResult.message)
+                    val localGroupFaceNum = mFacePassHandler?.getLocalGroupFaceNum(group_name) ?:0
+                    if (localGroupFaceNum < 1) LogUtil.e(TAG, "人脸库中检索不到人脸!")
+                    if (livenessClassify != null && livenessClassify.isNotEmpty()) {
+                        for (bean in livenessClassify){
+                            val token = bean.faceToken.toString(Charset.forName("utf-8"))
+                            if (bean.recognitionState == FacePassRecognitionState.RECOGNITION_PASS){
+                                if (detect) {
+                                    val cropBitmap = bitmapUtil.nv21ToBitmap(
+                                        faceData.detectionResult.images[0].image,
+                                        faceData.detectionResult.images[0].width,
+                                        faceData.detectionResult.images[0].height
+                                    )
+                                    listener?.onRecognized(cropBitmap,token,bean.detail.searchScore)
                                 }
                             }
+                            else  {
+                                //活检失败
+                                val message = when (bean.livenessErrorCode) {
+                                    1 -> "可能是irDetect没有检测到人脸、overlapScore小于阈值或者pf小于阈值"
+                                    2 -> "识别活体分数小于阈值"
+                                    else -> "未知错误"
+                                }
+                                listener?.onTips(bean.livenessErrorCode.toString() + message)
+                            }
+                            mFacePassHandler?.setMessage(bean.trackId, FacePassTrackIdState.TRACK_ID_RETRY)
                         }
-                    }
-                    else {
-                        try {
-                            mFacePassHandler!!.livenessClassify(faceData.detectionResult.message)
-                            LogUtil.d(TAG, "不在活检有效区域：${faceData.rect} ${isMultiFace}  ${faceData.detectionResult.faceList.size}")
-                            if (detect) listener?.onTips("不在活检有效区域或不支持多人识别")
-                        }catch (e :Exception){
-                            LogUtil.e(TAG,e.message)
-                        }
-                    }
-                    for (bean in faceData.detectionResult.faceList) {
-                        mFacePassHandler?.setMessage(bean.trackId, FacePassTrackIdState.TRACK_ID_RETRY)
+                    }else{
+                        listener?.onTips("陌生人!")
                     }
                 }catch (e :Exception){
                     LogUtil.e(TAG, "识别处理异常 ${e.message}")
@@ -816,8 +760,8 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
             val absValue = abs(drect.right - drect.left)
             if (absValue > maxWidth){
                 maxWidth = absValue
-                faceDataBean.index = index
-                faceDataBean.trackId = face.trackId
+//                faceDataBean.index = index
+//                faceDataBean.trackId = face.trackId
                 var region = false
                 if (rect == null){
                     faceDataBean.rect = drect

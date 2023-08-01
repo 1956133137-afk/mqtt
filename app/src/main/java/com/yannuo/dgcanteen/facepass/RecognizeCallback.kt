@@ -10,8 +10,7 @@ interface RecognizeCallback {
 
     /** 活检结果 */
     /** 活检结果 */
-    fun onRecognized(cropBitmap :Bitmap,byteArray: ByteArray ,rect : DoubleArray,width: Int,height: Int,
-                     livenessThreshold :String, livenessScore: String)
+    fun onRecognized(cropBitmap :Bitmap , token :String, livenessScore: Float)
 
     /** 活检提示 */
     fun onTips(msg :String)

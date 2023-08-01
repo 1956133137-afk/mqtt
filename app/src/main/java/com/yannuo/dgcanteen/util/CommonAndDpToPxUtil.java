@@ -103,7 +103,7 @@ public class CommonAndDpToPxUtil {
         if (mSpeech == null) speakInit();
         boolean speaking = mSpeech.isSpeaking();
         if (speaking)mSpeech.stop();
-        mSpeech.setSpeechRate(2.0f);
+        mSpeech.setSpeechRate(1.5f);
         mSpeech.speak( work, TextToSpeech.QUEUE_FLUSH,sBundle, null);
     }
 

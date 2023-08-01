@@ -48,8 +48,8 @@ public class MyApplication extends Application {
 
         initMMKV();
 
-        Intent intent = new Intent(this, MyMqttService.class);
-        startService(intent);
+//        Intent intent = new Intent(this, MyMqttService.class);
+//        startService(intent);
 
 
 

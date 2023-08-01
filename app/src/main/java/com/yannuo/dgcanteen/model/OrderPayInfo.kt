@@ -14,12 +14,12 @@ class OrderPayInfo() :Parcelable {
         type = parcel.readInt()
     }
 
-    override fun describeContents(): Int {
-        TODO("Not yet implemented")
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(type)
     }
 
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
-        TODO("Not yet implemented")
+    override fun describeContents(): Int {
+        return 0
     }
 
     companion object CREATOR : Parcelable.Creator<OrderPayInfo> {
@@ -31,5 +31,6 @@ class OrderPayInfo() :Parcelable {
             return arrayOfNulls(size)
         }
     }
+
 
 }
