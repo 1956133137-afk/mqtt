@@ -92,6 +92,7 @@ class BasicSettingFragment : Fragment() {
         binding.etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT))
         binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD))
         binding.etShowTime.setText("${kv.decodeInt(Constant.SHOW_TIME)}")
+        binding.awaitPayTime.setText("${kv.decodeInt(Constant.AWAIT_PAY_TIME, 30)}")
     }
 
     fun save() {
@@ -128,6 +129,7 @@ class BasicSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_NINTH, null))
         }
         kv.encode(Constant.SHOW_TIME, binding.etShowTime.text.toString().toInt())
+        kv.encode(Constant.AWAIT_PAY_TIME, binding.awaitPayTime.text.toString().toInt())
         if (flag) ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
     }
 

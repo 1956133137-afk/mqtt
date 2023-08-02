@@ -23,7 +23,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
     private val kv = MMKV.defaultMMKV()
 
-    private var mode = ""
+    private var mode: String? = null
     private val PERMISSIONS_REQUEST = 1
     private val Permission = arrayOf(
         Manifest.permission.CAMERA,
@@ -36,8 +36,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         Manifest.permission.READ_PHONE_STATE
     )
 
-    private var loading : LoadingDialog ?= null
-    private lateinit var scope :CoroutineScope
+    private var loading: LoadingDialog? = null
+    private lateinit var scope: CoroutineScope
 
     override fun bindLayout() {
         binding = ActivityIntiBinding.inflate(layoutInflater)
@@ -100,15 +100,27 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         initMode()
     }
 
+//    private fun initEvent() {
+//        binding.order.setOnClickListener {
+//            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+//            initMode()
+//        }
+//        binding.collection.setOnClickListener {
+//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
+//            initMode()
+//        }
+//    }
+
 
     private fun initMode() {
         scope.launch {
             delay(500)
+//            mode = kv.decodeString(Constant.APP_MODE)
             mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
             when (mode) {
                 Constant.ORDERING_FOOD_MODE -> {
                     //TODO 初始化相关服务
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         loading?.show("启动相关服务")
                     }
 
@@ -122,8 +134,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
                     if (!hasPermission()) {
                         requestPermission()
-                    }else{
-                        withContext(Dispatchers.Main){
+                    } else {
+                        withContext(Dispatchers.Main) {
                             loading?.show("启动相关服务")
                         }
                         //TODO 初始化相关服务
@@ -145,9 +157,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         super.onDestroy()
 
     }
-
-
-
 
 
 }

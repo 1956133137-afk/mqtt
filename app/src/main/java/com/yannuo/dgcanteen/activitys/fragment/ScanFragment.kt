@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.CardPresenter
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
@@ -21,6 +22,7 @@ import com.yannuo.dgcanteen.model.SimpleForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -30,6 +32,7 @@ class ScanFragment : Fragment(), CallbackListener {
 
     private lateinit var binding: FragmentScanBinding
     private lateinit var cardPresenter: CardPresenter
+    private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
     private val handler = Handler()
 
@@ -46,20 +49,25 @@ class ScanFragment : Fragment(), CallbackListener {
 
     private fun initObject() {
         if (!this::cardPresenter.isInitialized) cardPresenter = CardPresenter()
+        kv = MMKV.defaultMMKV()
     }
 
     private fun initEvent() {
         binding.btnBack.setOnClickListener {
+            CommonAndDpToPxUtil.speakWork("取消支付")
             requireActivity().finish()
         }
     }
 
     private fun initData() {
         val data = arguments?.getParcelable<OrderPayInfo>(Constant.PAY_DATE)
-        binding.payTitle.text = "请刷卡支付"
-        binding.payTotalMoney.text = "￥${data?.payment}"
-        onCountDownTimer(binding.btnBack, 60L)
-        if (data?.type == Constant.PAY_IC_TYPE) scanCardPay(data.payment)
+        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
+        if (data?.type == Constant.PAY_IC_TYPE) {
+            CommonAndDpToPxUtil.speakWork("请刷卡支付")
+            binding.payTitle.text = "请刷卡支付"
+            binding.payTotalMoney.text = "￥${String.format(Locale.CHINA, "%.02f", data.payment)}"
+            scanCardPay(data.payment)
+        }
     }
 
     private fun scanCardPay(payment: Float) {
@@ -87,10 +95,11 @@ class ScanFragment : Fragment(), CallbackListener {
                     }
                     if (data.result == PayResultForUI.Result.SUCCESS) {
                         CommonAndDpToPxUtil.speakWork("支付成功")
-                        val bundle = Bundle()
-                        bundle.putParcelable(Constant.PAY_RESULT, bean)
-                        findNavController().navigate(R.id.successFragment, bundle)
+                        val action = ScanFragmentDirections.actionScanToSuccess(bean)
+                        findNavController().navigate(action)
                     } else {
+                        val action = ScanFragmentDirections.actionScanToFail(bean)
+                        findNavController().navigate(action)
                         CommonAndDpToPxUtil.speakWork("支付失败")
                     }
                 }

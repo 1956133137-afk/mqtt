@@ -1,20 +1,69 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.FragmentFailBinding
+import com.yannuo.dgcanteen.util.Constant
+import java.util.concurrent.TimeUnit
 
 class FailFragment : Fragment() {
     private val TAG = javaClass.simpleName
-    private var binding: FragmentFailBinding? = null
+
+    private lateinit var binding: FragmentFailBinding
+    private lateinit var kv: MMKV
+    private var countDown: CountDownTimer? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFailBinding.inflate(inflater, container, false)
-        return binding!!.root
+        kv = MMKV.defaultMMKV()
+        initEvent()
+        initData()
+        return binding.root
+    }
+
+    private fun initEvent() {
+        binding.btnBack.setOnClickListener {
+            requireActivity().finish()
+        }
+    }
+
+    private fun initData() {
+        val data: FailFragmentArgs by navArgs()
+        data.simpleForUI.apply {
+            binding.tvName.text = custName
+            binding.payMsg.text = errorMsg
+            binding.tvTime.text = timestamp
+        }
+        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 2).toLong())
+    }
+
+    private fun onCountDownTimer(btnBack: Button?, time: Long) {
+        countDown?.cancel()
+        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time) + 200, 1000) {
+            override fun onTick(mil: Long) {
+                btnBack?.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
+            }
+
+            override fun onFinish() {
+                countDown?.cancel()
+                requireActivity().finish()
+            }
+        }
+        countDown?.start()
+    }
+
+    override fun onDestroy() {
+        countDown?.cancel()
+        super.onDestroy()
     }
 }
