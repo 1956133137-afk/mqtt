@@ -23,15 +23,18 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
             LogUtil.e(TAG, "非法参数")
             return
         }
+        val navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
+        val bundle = Bundle()
+        bundle.putParcelable(Constant.PAY_DATE, payInfo)
 
         if (payInfo.type == Constant.PAY_IC_TYPE) {
-            val bundle = Bundle()
-            bundle.putParcelable(Constant.PAY_DATE, payInfo)
-            val navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
-            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
-
+            navHostFragment?.navController!!.setGraph(R.navigation.ic_graph,bundle)
+//            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
+        }else{
+            navHostFragment?.navController!!.setGraph(R.navigation.nav_graph,bundle)
         }
     }
+
 
     override fun onBackPressed() {
     }

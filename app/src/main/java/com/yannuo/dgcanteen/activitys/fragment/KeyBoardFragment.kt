@@ -11,6 +11,7 @@ import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
 
@@ -128,19 +129,19 @@ class KeyBoardFragment : Fragment() {
     private fun payPageJump(amount: Float) {
         if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
         //TODO 跳转页面
-//        var payType = Constant.PAY_FACE_TYPE  //0 人脸支付 1、刷卡 、2 扫毛
-//        if (payType == 0) {
-//            if (!FaceHandler.getFaceHInstance().isFaceInit) {
-//                ToastShowUtil.show("人脸服务未启动,请重启软件")
-//                return
-//            }
-//        }
-
         //刷卡
         val bean = OrderPayInfo().apply {
             type = Constant.PAY_IC_TYPE
             payment = amount
         }
+
+        if (bean.type == 0) {
+            if (!FaceHandler.getFaceHInstance().isFaceInit) {
+                ToastShowUtil.show("人脸服务未启动,请重启软件")
+                return
+            }
+        }
+        LogUtil.d(TAG,"支付")
 
         val payIntent = Intent(requireContext(), HostActivity::class.java)
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)

@@ -84,9 +84,11 @@ class FaceFragment : Fragment() {
         }
     }
 
+
     override fun onStop() {
-        super.onStop()
         release()
+        super.onStop()
+
     }
 
 

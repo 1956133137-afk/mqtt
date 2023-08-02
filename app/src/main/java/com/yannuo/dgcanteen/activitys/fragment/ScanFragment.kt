@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.CardPresenter
@@ -88,7 +89,7 @@ class ScanFragment : Fragment(), CallbackListener {
                         CommonAndDpToPxUtil.speakWork("支付成功")
                         val bundle = Bundle()
                         bundle.putParcelable(Constant.PAY_RESULT, bean)
-                        Navigation.findNavController(binding.root).navigate(R.id.successFragment, bundle)
+                        findNavController().navigate(R.id.successFragment, bundle)
                     } else {
                         CommonAndDpToPxUtil.speakWork("支付失败")
                     }

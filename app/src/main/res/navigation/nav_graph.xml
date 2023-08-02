@@ -54,4 +54,6 @@
         android:name="com.yannuo.dgcanteen.activitys.fragment.FailFragment"
         android:label="fragment_about"
         tools:layout="@layout/fragment_fail" />
+    <action android:id="@+id/action_global_scanFragment" app:destination="@id/scanFragment" />
+    <action android:id="@+id/action_global_host_fg" app:destination="@id/host_fg" />
 </navigation>

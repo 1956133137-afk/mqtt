@@ -12,6 +12,7 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
     protected var TAG = javaClass.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
 
@@ -38,6 +39,9 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         onInit()
 
     }
+
+
+
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)

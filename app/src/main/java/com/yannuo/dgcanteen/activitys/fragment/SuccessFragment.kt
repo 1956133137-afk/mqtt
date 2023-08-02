@@ -28,3 +28,17 @@ class SuccessFragment : Fragment() {
         LogUtil.d(TAG, Gson().toJson(data))
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
