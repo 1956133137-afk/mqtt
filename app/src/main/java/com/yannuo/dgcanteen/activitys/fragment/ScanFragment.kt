@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.Navigation
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.CardPresenter
@@ -16,6 +16,7 @@ import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.SimpleForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
@@ -73,13 +74,21 @@ class ScanFragment : Fragment(), CallbackListener {
                 handler.post {
                     countDown?.cancel()
                     val data = any as PayResultForUI
-                    LogUtil.d(TAG,Gson().toJson(data))
+                    LogUtil.d(TAG, Gson().toJson(data))
+                    val bean = SimpleForUI().apply {
+                        custName = data.cust_name.toString()
+                        payment = data.payment?.toFloat()!!
+                        accNo = data.acc_no.toString()
+                        timestamp = data.timestamp.toString()
+                        tranId = data.traceid.toString()
+                        orderId = data.orderid.toString()
+                        errorMsg = data.errormsg.toString()
+                    }
                     if (data.result == PayResultForUI.Result.SUCCESS) {
                         CommonAndDpToPxUtil.speakWork("支付成功")
-//                    val bundle = Bundle()
-//                    bundle.putParcelable(Constant.PAY_DATE, payInfo)
-//                    val navHostFragment = requireActivity().supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
-//                    navHostFragment!!.navController.navigate(R.id.successFragment, bundle)
+                        val bundle = Bundle()
+                        bundle.putParcelable(Constant.PAY_RESULT, bean)
+                        Navigation.findNavController(binding.root).navigate(R.id.successFragment, bundle)
                     } else {
                         CommonAndDpToPxUtil.speakWork("支付失败")
                     }

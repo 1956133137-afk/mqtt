@@ -8,6 +8,7 @@ import com.yannuo.dgcanteen.dao.CardDishTableDao;
 import com.yannuo.dgcanteen.dao.CardPayDao;
 import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
+import com.yannuo.dgcanteen.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.dao.MealTableDao;
 import com.yannuo.dgcanteen.dao.OffLineDishTableDao;
 import com.yannuo.dgcanteen.dao.OffLineTableDao;
@@ -45,7 +46,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 OwnOrderDao.class,
                 CardPayDao.class,
                 CardDishTableDao.class,
-                PersonsDao.class
+                PersonsDao.class,
+                FaceTokensDao.class
         );
     }
 }

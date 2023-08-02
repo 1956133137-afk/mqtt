@@ -74,6 +74,7 @@ object Constant {
 
     //传递参数
     const val PAY_DATE = "data"  //支付信息
+    const val PAY_RESULT = "result" //支付结果信息
 
     //2）设置配置
     const val YAW_SET = "yaw" //相机偏航角
