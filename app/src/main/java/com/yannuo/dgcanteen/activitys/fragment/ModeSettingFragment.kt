@@ -1,8 +1,12 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.IBinder
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -18,14 +22,15 @@ import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentModeSettingBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
+import com.yannuo.dgcanteen.facepass.FaceHandler
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
-import com.yannuo.dgcanteen.nets.RetrofitClient
+import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
-import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import java.util.*
@@ -47,6 +52,24 @@ class ModeSettingFragment : Fragment() {
     private lateinit var confirmDialog: ConfirmDialog
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
+    private var mService: CameraService ?= null
+
+    private val connection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+
+            val binder = service as CameraService.LocalBinder
+            mService = binder.getService()
+
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            mService = null
+        }
+    }
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,6 +89,14 @@ class ModeSettingFragment : Fragment() {
             LogUtil.e(TAG, "CoroutineExceptionHandler $e ${e.message}")
         }
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
+
+        binding.tvPeopleCount.text = "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
+        val intent = Intent(requireContext(),CameraService::class.java)
+        requireActivity().bindService(intent,connection, Context.BIND_AUTO_CREATE)
+
+        val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?:0
+        binding.tvFaceCount.text = "人脸同步数：$count"
+
     }
 
     private fun initEvent() {
@@ -85,7 +116,37 @@ class ModeSettingFragment : Fragment() {
             awaitingDialog.show()
             awaitingDialog.updateText("同步中")
             downPerson()
-            ToastShowUtil.show("人员信息已同步~")
+//            ToastShowUtil.show("人员信息已同步~")
+        }
+
+        binding.btnSynFace.setOnClickListener { view: View? ->
+            if (!this::awaitingDialog.isInitialized)
+                awaitingDialog = AwaitingDialog(requireActivity())
+            awaitingDialog.show()
+            awaitingDialog.updateText("同步中")
+            if (mService == null){
+                ToastShowUtil.show("同步失败，服务异常")
+                return@setOnClickListener
+            }
+            mService?.synchFace(object : CallbackListener {
+                override fun onOtherListener(event: Int, any: Any?) {
+                    when(event){
+                        0 ->{
+                            requireActivity().runOnUiThread {
+                                awaitingDialog.setText(any as String)
+                            }
+                        }
+                        1-> {
+                            val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?:0
+                            requireActivity().runOnUiThread {
+                                awaitingDialog.cancel()
+                                binding.tvFaceCount.text = "同步人脸数：$count"
+                            }
+                        }
+                    }
+                }
+            })
+//            ToastShowUtil.show("人员信息已同步~")
         }
     }
 
@@ -193,6 +254,7 @@ class ModeSettingFragment : Fragment() {
             var finish = false
             var currentPage = 1
             var failTime = 0
+            DishesDBHelper.getInstance().deleteAllPersons()
             LogUtil.d(TAG, "准备全量更新人员")
             do {
                 val res = repository.downPerson(100, currentPage)
@@ -201,7 +263,7 @@ class ModeSettingFragment : Fragment() {
                         val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
                         val bean = Gson().fromJson(result, PersonList::class.java)
                         DishesDBHelper.getInstance().insertPersons(bean.list)
-                        if (currentPage == bean.totalPage) {
+                        if (currentPage >= bean.totalPage) {
                             finish = true
                             mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
                         } else {
@@ -219,8 +281,8 @@ class ModeSettingFragment : Fragment() {
             LogUtil.d(TAG, "全量更新人员完成")
             withContext(Dispatchers.Main) {
                 awaitingDialog.dismiss()
-                if (!finish)
-                    ToastShowUtil.show("同步失败，请重试！")
+                if (failTime !=0) ToastShowUtil.show("同步失败，请重试！")
+                binding.tvPeopleCount.text = "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
             }
         }
     }

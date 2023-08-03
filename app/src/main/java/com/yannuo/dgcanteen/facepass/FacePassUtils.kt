@@ -191,4 +191,25 @@ object FacePassUtils {
         }
         return faceToken
     }
+
+    /**
+     * 删除底库groupName，对应的也删除了groupName和faceToken的绑定关系。
+     * @param groupName
+     * @return
+     */
+    fun deleteFaceLocalGroup(handler : FacePassHandler?): Boolean {
+        if (handler == null) {
+            LogUtil.d(TAG, "handler is null")
+            return false
+        }
+        var isSuccess = false
+        try {
+            isSuccess = handler.clearAllGroupsAndFaces()
+
+        } catch (e: FacePassException) {
+            e.printStackTrace()
+        }
+        LogUtil.d(TAG, "删除底库:$isSuccess")
+        return isSuccess
+    }
 }

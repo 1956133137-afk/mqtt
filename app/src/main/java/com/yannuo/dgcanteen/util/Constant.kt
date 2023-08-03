@@ -69,6 +69,7 @@ object Constant {
     const val NO_ERROR = 1000
     const val OPEN_CAMERA_ERROR_TYPE = 1001 //相机打开失败
 
+
     //支付方式
     const val PAY_FACE_TYPE = 0 //刷脸
     const val PAY_IC_TYPE = 1//刷脸

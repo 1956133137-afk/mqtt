@@ -9,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import androidx.navigation.Navigator
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.FragmentFaceBinding
 import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.facepass.MyBitmapUtil
 import com.yannuo.dgcanteen.facepass.RecognizeCallback
+import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import io.reactivex.Observable
@@ -80,7 +83,14 @@ class FaceFragment : Fragment() {
         }
         binding.btChangPayByIc.setOnClickListener {
             timeOutJob?.cancel()
-            Navigation.findNavController(it).navigate(FaceFragmentDirections.actionFaceToScan())
+
+            Navigation.findNavController(it).navigate(R.id.scanFragment)
+        }
+
+        binding.btChangPayByQr.setOnClickListener {
+            timeOutJob?.cancel()
+
+            Navigation.findNavController(it).navigate(R.id.scanFragment)
         }
     }
 

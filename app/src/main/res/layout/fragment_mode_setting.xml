@@ -113,22 +113,67 @@
                 android:textSize="28sp" />
 
         </LinearLayout>
-
-        <Button
+        <LinearLayout
             android:id="@+id/btn_syn_person"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginStart="35dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:background="@drawable/shape_btn_bg_white"
-            android:gravity="start"
-            android:paddingStart="40dp"
-            android:paddingTop="20dp"
-            android:stateListAnimator="@null"
-            android:text="@string/syn_person"
-            android:textColor="#4F4F4F"
-            android:textSize="28sp" />
+            >
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="@string/syn_person"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tv_people_count"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="40dp"
+                android:textColor="#4F4F4F"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_syn_face"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/shape_btn_bg_white"
+            >
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="同步本地人脸库"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tv_face_count"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="40dp"
+                android:textColor="#4F4F4F"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

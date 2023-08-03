@@ -12,6 +12,8 @@ import com.yannuo.dgcanteen.dao.DaoMaster;
 import com.yannuo.dgcanteen.dao.DaoSession;
 import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.DishesTableDao;
+import com.yannuo.dgcanteen.dao.FaceRecord;
+import com.yannuo.dgcanteen.dao.FaceRecordDao;
 import com.yannuo.dgcanteen.dao.FaceTokens;
 import com.yannuo.dgcanteen.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.dao.MealTable;
@@ -68,6 +70,7 @@ public class DishesDBHelper {
     private CardDishTableDao mCardDishTableDao;
     private PersonsDao mPersonsDao;
     private FaceTokensDao mFaceTokensDao;
+    private FaceRecordDao mFaceRecordDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -112,6 +115,7 @@ public class DishesDBHelper {
         mCardDishTableDao = mDaoSession.getCardDishTableDao();
         mPersonsDao = mDaoSession.getPersonsDao();
         mFaceTokensDao = mDaoSession.getFaceTokensDao();
+        mFaceRecordDao = mDaoSession.getFaceRecordDao();
     }
 
     /**
@@ -231,6 +235,34 @@ public class DishesDBHelper {
     }
 
     /**
+     * 总人数人员
+     * @param
+     */
+    public long getPersonsCount( ){
+      return  mPersonsDao.count();
+    }
+
+    //删除人员信息表
+    public void deleteAllPersons(){
+        mPersonsDao.deleteAll();
+    }
+
+    /**
+     * 添加一条待入库的记录
+     * @param record
+     */
+    public void insertWaitAddFace(FaceRecord record){
+        mFaceRecordDao.insertOrReplaceInTx(record);
+    }
+
+    /**
+     * 清空待入库记录表
+     */
+    public void deleteAllWaitAddFace(){
+        mFaceRecordDao.deleteAll();
+    }
+
+    /**
      * @param id 人员Id
      * @return
      */
@@ -244,21 +276,67 @@ public class DishesDBHelper {
 
 
     /**
-     * 筛选有图片未更新的人员
+     * 筛选未更新的人员记录
      * @return
      */
-    public Persons queryOnePerson(){
-        return  mPersonsDao.queryBuilder()
-                .where(PersonsDao.Properties.Update.in(false),
-                        PersonsDao.Properties.Image.isNotNull())
+    public FaceRecord queryOnePerson(){
+        return mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.Tryd.eq(false))
                 .limit(1)
                 .build()
                 .unique();
     }
 
-    public void updatePeopleInfo(Persons info) {
-        mPersonsDao.update(info);
-        LogUtil.i(TAG,"Persons update");
+
+
+    public void updatePeopleInfo(FaceRecord info) {
+        mFaceRecordDao.update(info);
+        LogUtil.i(TAG,"FaceRecord update");
+    }
+
+    public void deleteFaceRecord(String custId){
+        mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.CustId.eq(custId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 分页查询图片添加记录
+     * @param page
+     * @param up
+     * @return
+     */
+    public List<FaceRecord> searchFaceRecords(int page ,boolean up){
+        return mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.Tryd.in(up))
+                .offset(page * 100)
+                .limit(100)
+                .build()
+                .list();
+
+    }
+
+    /**
+     * 分页查询人员
+     * @param page
+     * @return
+     */
+    public List<Persons> searchPersons(int page ){
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.Image.isNotNull())
+                .offset(page * 100)
+                .limit(100)
+                .build()
+                .list();
+    }
+
+    /**
+     * 批量修改未入库图片记录
+     * @param peopleInfo
+     */
+    public void insertFaceRecords(List<FaceRecord> peopleInfo){
+        mFaceRecordDao.insertOrReplaceInTx(peopleInfo);
     }
 
     /**
@@ -526,7 +604,7 @@ public class DishesDBHelper {
     public void deleteFaceToken(String number){
         if (TextUtils.isEmpty(number))return;
         mFaceTokensDao.queryBuilder()
-                .where(FaceTokensDao.Properties.Number.eq(number))
+                .where(FaceTokensDao.Properties.Number.in(number))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
     }
@@ -538,6 +616,13 @@ public class DishesDBHelper {
     public void insertFaceToken(FaceTokens tokens){
         if (tokens == null)return;
         mFaceTokensDao.insertOrReplace(tokens);
+    }
+
+    /**
+     * 清空人员特征表
+     */
+    public void deleteAllFaceToken(){
+        mFaceTokensDao.deleteAll();
     }
 
 }

@@ -42,6 +42,11 @@
         <action
             android:id="@+id/action_scan_to_success"
             app:destination="@id/successFragment" />
+
+        <argument
+            android:name="papData"
+            app:argType="com.yannuo.dgcanteen.model.OrderPayInfo" />
+
     </fragment>
     <fragment
         android:id="@+id/successFragment"

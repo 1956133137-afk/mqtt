@@ -25,14 +25,22 @@ class AwaitingDialog(context: Context) : BaseDialog<DialogAwaitBinding>(context)
     }
 
     fun updateText(str: String) {
-        val strText = "$str•••"
-        mScope.launch {
-            var value = 0
-            while (isActive) {
-                delay(200)
-                value++
-                binding.tvState.text = strText.substring(0, strText.length - 3 + value % 4)
-            }
-        }
+//        var strText = "•••"
+//        var lin = ""
+//        mScope.launch {
+//            var value = 0
+//            while (isActive) {
+//                delay(200)
+//                value++
+//                lin = binding.tvState.text.toString().replace("•","")
+//                 if (lin.isEmpty())lin = str
+//                binding.tvState.text = lin +strText.substring(0, value % 4)
+//            }
+//        }
+        binding.tvState.text = str
+    }
+
+    fun setText(str: String){
+        binding.tvState.text = str
     }
 }

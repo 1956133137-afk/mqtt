@@ -163,18 +163,31 @@
         app:layout_constraintEnd_toEndOf="@+id/preview"
         app:layout_constraintStart_toStartOf="@+id/preview" />
 
+
     <Button
         android:id="@+id/bt_chang_pay_by_ic"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginEnd="55dp"
+        android:layout_marginTop="56dp"
         android:background="@drawable/click_button_gred"
         android:text="使用刷卡支付"
         android:textColor="#FFFFFF"
         android:textSize="38sp"
-        app:layout_constraintEnd_toEndOf="@+id/cv_layl_pic"
-        app:layout_constraintStart_toStartOf="@+id/cv_layl_pic"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cv_layl_pic" />
+
+    <Button
+        android:id="@+id/bt_chang_pay_by_qr"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/click_button_gred"
+        android:text="切换扫码支付"
+        android:textColor="#FFFFFF"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toStartOf="@+id/bt_chang_pay_by_ic"
+        app:layout_constraintTop_toTopOf="@+id/bt_chang_pay_by_ic" />
 
     <Button
         android:id="@+id/bt_cancel"

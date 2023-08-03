@@ -1,8 +1,8 @@
 package com.yannuo.dgcanteen.dao;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Unique;
 
@@ -25,12 +25,11 @@ public class Persons {
     private String userClass;// 班级
     private String image;// 人脸图片路径
     private String messageId ; //消息ID
-    private Boolean update = false ; //人脸照片是否下载成功
-
-@Generated(hash = 154759043)
+//    private Boolean update = false ; //人脸照片是否下载成功
+    @Generated(hash = 1172284047)
     public Persons(Long id, String cardId, String custId, String grade,
             String personName, String personNumber, String userClass, String image,
-            String messageId, Boolean update) {
+            String messageId) {
         this.id = id;
         this.cardId = cardId;
         this.custId = custId;
@@ -40,7 +39,6 @@ public class Persons {
         this.userClass = userClass;
         this.image = image;
         this.messageId = messageId;
-        this.update = update;
     }
     @Generated(hash = 1519000671)
     public Persons() {
@@ -98,12 +96,6 @@ public class Persons {
     }
     public void setMessageId(String messageId) {
         this.messageId = messageId;
-    }
-    public Boolean getUpdate() {
-        return this.update;
-    }
-    public void setUpdate(Boolean update) {
-        this.update = update;
     }
 
 
