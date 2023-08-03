@@ -24,11 +24,7 @@ class KeyBoardFragment : Fragment() {
     private val TAG = javaClass.simpleName
 
     private lateinit var binding: FragmentInputKeyboardBinding
-    private var value: StringBuilder = StringBuilder()
     private var tvText: StringBuilder = StringBuilder()
-    private var symbol = ""
-    private val symbolKey = Stack<String>()
-    private val valueKey = Stack<Double>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -56,73 +52,98 @@ class KeyBoardFragment : Fragment() {
         binding.figureEig.setOnClickListener { inputFields("8") }   //8
         binding.figureNin.setOnClickListener { inputFields("9") }   //9
         binding.point.setOnClickListener { inputFields(".") }       //.
-        binding.multiply.setOnClickListener { calculateValue("×") } //×
-        binding.addition.setOnClickListener { calculateValue("+") } //+
+        binding.multiply.setOnClickListener { inputFields("×") } //×
+        binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
-            totalValue()
-            if (value.isNotEmpty()) {
-                payPageJump(value.toString().toFloat())
-                value = StringBuilder()
+            val count = totalValue()
+            if (count != null) {
+                payPageJump(count)
                 tvText = StringBuilder()
                 binding.inputAmount.text = null
-            } else {
-                ToastShowUtil.show("请输入收款金额")
             }
         }
-        binding.cancel.setOnClickListener { clearData() } //清除
+        binding.backspace.setOnClickListener { //回退
+            if (tvText.isNotEmpty()) {
+                tvText.deleteCharAt(tvText.length - 1)
+                binding.inputAmount.text = tvText
+            }
+        }
+        binding.cancel.setOnClickListener { //清除
+            tvText = StringBuilder()
+            binding.inputAmount.text = null
+        }
     }
 
     private fun inputFields(str: String) { //输入金额检测是否合法
-        if (isFormJudgment(tvText.append(str).toString())) {
-            value.append(str)
-            binding.inputAmount.text = tvText
+        if (tvText.isNotEmpty()) {
+            when (tvText[tvText.length - 1]) {
+                '+', '×' -> {
+                    when (str) {
+                        "+", "×" -> {
+                            tvText.deleteCharAt(tvText.length - 1)
+                            tvText.append(str)
+                            binding.inputAmount.text = tvText
+                        }
+                        else -> inputFigure(str)
+                    }
+                }
+                else -> inputFigure(str)
+            }
+        } else inputFigure(str)
+    }
+
+    private fun inputFigure(str: String) {
+        if (tvText.length < 28) {
+            if (isFormJudgment(tvText.append(str).toString())) {
+                binding.inputAmount.text = tvText
+            } else {
+                tvText.deleteCharAt(tvText.length - 1)
+                ToastShowUtil.show("格式有误")
+            }
         } else {
-            tvText.deleteCharAt(tvText.length - 1)
-            ToastShowUtil.show("格式有误")
+            ToastShowUtil.show("超出显示长度")
         }
     }
 
     private fun isFormJudgment(str: String): Boolean { //判断格式
         val regex = Regex(
-            """^((0|[1-9]\d{0,5})(\.\d{0,2})?(×|\+))*(0|[1-9]\d{0,5})(\.\d{0,2})?$""",
+            """^((0|[1-9]\d{0,5})(\.\d{0,2})?(×|\+))*(0|[1-9]\d{0,5})(\.\d{0,2})?(×|\+)?$""",
             RegexOption.IGNORE_CASE
         )
         return regex.matches(str)
     }
 
-    private fun calculateValue(str: String) { // × +
-        if (value.isNotEmpty()) {
-            if (symbol != "") symbolKey.push(symbol)
-            valueKey.push(value.toString().toDouble())
-            value = StringBuilder()
-            symbol = str
-            tvText.append(str)
-            if (!symbolKey.empty() && symbolKey.peek() == "×") {
-                symbolKey.pop()
-                valueKey.push(valueKey.pop() * valueKey.pop())
-            }
-            binding.inputAmount.text = tvText
+    private fun totalValue(): Float? { // = 收款
+        if (tvText[tvText.length - 1] == '+' || tvText[tvText.length - 1] == '×') {
+            ToastShowUtil.show("格式有误")
+            return null
         }
-    }
-
-    private fun totalValue() { // = 收款
-        if (value.isNotEmpty()) {
-            if (symbol != "") symbolKey.push(symbol)
-            valueKey.push(value.toString().toDouble())
-            value = StringBuilder()
-            symbol = ""
-            tvText = StringBuilder()
-            while (!symbolKey.empty()) {
-                when (symbolKey.pop()) {
-                    "+" -> valueKey.push(valueKey.pop() + valueKey.pop())
-                    "×" -> valueKey.push(valueKey.pop() * valueKey.pop())
+        var payment = 0.0F
+        val dataList = tvText.split("+")
+        dataList.forEach { compute ->
+            if (compute.isNotEmpty()) {
+                val mul = compute.split("×")
+                if (mul.size == 1) {
+                    payment += (compute).toFloat()
+                } else {
+                    var count = 1.0F
+                    mul.forEach {
+                        if (it.isNotEmpty()) count *= it.toFloat()
+                    }
+                    payment += count
                 }
             }
-            val str = String.format(Locale.CHINA, "%.02f", valueKey.peek())
-            binding.inputAmount.text = str
-            value.append(str)
+        }
+        if (tvText.isNotEmpty()) {
+            tvText = StringBuilder()
+            val str = String.format(Locale.CHINA, "%.02f", payment)
             tvText.append(str)
+            binding.inputAmount.text = str
+            return tvText.toString().toFloat()
+        } else {
+            ToastShowUtil.show("请输入收款金额")
+            return null
         }
     }
 
@@ -141,25 +162,11 @@ class KeyBoardFragment : Fragment() {
                 return
             }
         }
-        LogUtil.d(TAG,"支付")
+        LogUtil.d(TAG, "支付")
 
         val payIntent = Intent(requireContext(), HostActivity::class.java)
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         payIntent.putExtra(Constant.PAY_DATE, bean)
         startActivity(payIntent)
     }
-
-    private fun clearData() { //清除
-        value = StringBuilder()
-        tvText = StringBuilder()
-        symbol = ""
-        binding.inputAmount.text = null
-        while (!valueKey.empty()) {
-            valueKey.pop()
-        }
-        while (!symbolKey.empty()) {
-            symbolKey.pop()
-        }
-    }
-
 }

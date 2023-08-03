@@ -9,24 +9,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/input_amount"
+        <LinearLayout
+            android:id="@+id/input_back"
             android:layout_width="match_parent"
             android:layout_height="125dp"
             android:layout_centerHorizontal="true"
             android:background="@drawable/click_button"
-            android:gravity="center"
-            android:hint="请输入收款金额"
-            android:textColor="#4F4F4F"
-            android:textColorHint="#8A8686"
-            android:textSize="70sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/input_amount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:lines="1"
+                android:hint="请输入收款金额"
+                android:textColor="#4F4F4F"
+                android:textColorHint="#8A8686"
+                android:textSize="70sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/backspace"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:src="@drawable/ic_backspace" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/one"
             android:layout_width="match_parent"
             android:layout_height="125dp"
-            android:layout_below="@+id/input_amount"
+            android:layout_below="@+id/input_back"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="40dp">
 
