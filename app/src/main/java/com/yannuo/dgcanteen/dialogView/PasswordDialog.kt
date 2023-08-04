@@ -26,10 +26,9 @@ class PasswordDialog(context: Context) : BaseDialog<DialogPasswordBinding>(conte
 
     override fun initOperation() {
         binding.inputPassword.addTextChangedListener(HideTextWatcher(4))
-        binding.tvBack.setOnLongClickListener {//取消弹窗
+        binding.btnCancel.setOnClickListener {
             binding.inputPassword.text = null
             dismiss()
-            return@setOnLongClickListener true
         }
     }
 

@@ -1,9 +1,12 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.display.DisplayManager
 import android.os.Build
+import android.view.Display
 import android.widget.Toast
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
@@ -22,6 +25,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
 
     private val kv = MMKV.defaultMMKV()
+    private lateinit var displayManager: DisplayManager
+    private lateinit var secondDisplays: Display
+    private lateinit var simpleDisplay: SimpleDisplay
 
     private var mode: String? = null
     private val PERMISSIONS_REQUEST = 1
@@ -44,10 +50,11 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     }
 
     override fun onInit() {
+        initPresentation()
         loading = LoadingDialog(this)
         scope = CoroutineScope(Dispatchers.IO)
 //        initView()
-//        initEvent()
+        initEvent()
     }
 
     /* 判断程序是否有所需权限 android22以上需要自申请权限 */
@@ -100,23 +107,37 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         initMode()
     }
 
-//    private fun initEvent() {
-//        binding.order.setOnClickListener {
-//            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-//            initMode()
-//        }
-//        binding.collection.setOnClickListener {
-//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
-//            initMode()
-//        }
-//    }
+    private fun initPresentation() {
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
+        simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.show()
+    }
+
+    override fun onStop() {
+        simpleDisplay.cancel()
+        super.onStop()
+    }
+
+    private fun initEvent() {
+        binding.order.setOnClickListener {
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+            initMode()
+        }
+        binding.collection.setOnClickListener {
+            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
+            initMode()
+        }
+    }
 
 
     private fun initMode() {
         scope.launch {
             delay(500)
-//            mode = kv.decodeString(Constant.APP_MODE)
-            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
+            mode = kv.decodeString(Constant.APP_MODE)
+//            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
             when (mode) {
                 Constant.ORDERING_FOOD_MODE -> {
                     //TODO 初始化相关服务
@@ -131,7 +152,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                     finish()
                 }
                 Constant.PROCEEDS_MODE -> {
-
                     if (!hasPermission()) {
                         requestPermission()
                     } else {
@@ -146,7 +166,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         delay(50)
                         finish()
                     }
-
                 }
             }
         }
@@ -155,8 +174,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     override fun onDestroy() {
         loading?.cancel()
         super.onDestroy()
-
     }
-
 
 }

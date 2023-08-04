@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/simple_bg">
+
+    <TextClock
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="100px"
+        android:layout_marginBottom="50px"
+        android:format24Hour="yyyy-MM-dd HH:mm:ss"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="40px" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="智 慧 食 堂"
+        android:textColor="#FFFFFF"
+        android:textSize="150px"
+        android:textStyle="bold" />
+
+</RelativeLayout>

@@ -1,8 +1,11 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.hardware.display.DisplayManager
 import android.os.Handler
+import android.view.Display
 import android.widget.Button
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
@@ -31,6 +34,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private var navigation = true
     private lateinit var passwordDialog: PasswordDialog
     private lateinit var kv: MMKV
+    private lateinit var displayManager: DisplayManager
+    private lateinit var secondDisplays: Display
+    private lateinit var simpleDisplay: SimpleDisplay
     private val handler = Handler()
 
     override fun bindLayout() {
@@ -60,8 +66,23 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     override fun onResume() {
+        initPresentation()
         super.onResume()
 //        mXService?.hideNavBar = true
+    }
+
+    private fun initPresentation() {
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
+        simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.show()
+    }
+
+    override fun onStop() {
+        simpleDisplay.cancel()
+        super.onStop()
     }
 
     private fun initEvent() {
