@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.OwnOrder
@@ -15,8 +14,9 @@ import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ScanQrResultBean
 import com.yannuo.dgcanteen.model.SynConsumeRecordBean
-import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
@@ -37,6 +37,11 @@ class CardPresenter : OnReadDataListener {
     var listener: CallbackListener? = null
     private lateinit var mRespository: PayRepositoryOfPay
     private var cardStatus = CardStatus.INVALID
+
+    private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        LogUtil.e(TAG, "Exception $throwable ${throwable.message}")
+        listener?.onOtherListener(2, "${throwable.message}") //返回异常信息
+    }
 
     //支付状态
     enum class CardStatus {
@@ -65,8 +70,10 @@ class CardPresenter : OnReadDataListener {
      * 关闭IC卡串口
      */
     fun closeIcCard() {
-        mCardHandle.readDataListener = null
-        mCardHandle.closeSerialPort()
+        if (this::mCardHandle.isInitialized) {
+            mCardHandle.readDataListener = null
+            mCardHandle.closeSerialPort()
+        }
     }
 
     //返回读卡信息
@@ -80,6 +87,7 @@ class CardPresenter : OnReadDataListener {
     }
 
     private fun payByCard(cardId: String) {
+        listener?.onOtherListener(1)
         val payBean = CardPay()
         payBean.campus_id = mPayCfg.campusId
         payBean.corp_id = mPayCfg.corp_id
@@ -89,12 +97,7 @@ class CardPresenter : OnReadDataListener {
         payBean.payment = payAmount.toString()
         payBean.actual_payment = payAmount.toString()
         payBean.offline = "0"
-        if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
-            && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
-        ) {
-            //网络监听
-            return
-        }
+
         if (kv.decodeBool(Constant.SWITCH)) {
             payBean.offline = "1"
         }
@@ -109,7 +112,7 @@ class CardPresenter : OnReadDataListener {
         var res: ScanQrResultBean? = null
         when (payBean.offline) {
             "0" -> {
-                runBlocking {
+                runBlocking(Dispatchers.IO + mHandler) {
                     val map = CanteenEncryptionUtil.getCardToPay(payBean)
                     res = mRespository.getCcbData(map).body()?.let { //刷卡支付
                         Gson().fromJson(

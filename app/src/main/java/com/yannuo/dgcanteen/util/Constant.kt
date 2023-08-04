@@ -71,9 +71,11 @@ object Constant {
 
 
     //支付方式
-    const val PAY_FACE_TYPE = 0 //刷脸
-    const val PAY_IC_TYPE = 1//刷脸
-    const val PAY_SCAN_TYPE = 2 //刷脸
+    const val PAY_MODE = "payMode"
+    const val PAY_FACE_TYPE = 0     //刷脸
+    const val PAY_IC_TYPE = 1       //刷卡
+    const val PAY_CODE_TYPE = 2     //扫码
+    const val PAY_CODE_IC_TYPE = 3  //码卡
 
     //传递参数
     const val PAY_DATE = "data"  //支付信息

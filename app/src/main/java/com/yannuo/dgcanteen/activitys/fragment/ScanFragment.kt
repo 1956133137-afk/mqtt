@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.CardPresenter
+import com.yannuo.dgcanteen.activitys.presenters.CodePresenter
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
+import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayResultForUI
@@ -22,6 +22,7 @@ import com.yannuo.dgcanteen.model.SimpleForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,6 +33,8 @@ class ScanFragment : Fragment(), CallbackListener {
 
     private lateinit var binding: FragmentScanBinding
     private lateinit var cardPresenter: CardPresenter
+    private lateinit var codePresenter: CodePresenter
+    private lateinit var awaitPayDialog: AwaitingDialog
     private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
     private val handler = Handler()
@@ -49,6 +52,7 @@ class ScanFragment : Fragment(), CallbackListener {
 
     private fun initObject() {
         if (!this::cardPresenter.isInitialized) cardPresenter = CardPresenter()
+        if (!this::codePresenter.isInitialized) codePresenter = CodePresenter()
         kv = MMKV.defaultMMKV()
     }
 
@@ -62,11 +66,24 @@ class ScanFragment : Fragment(), CallbackListener {
     private fun initData() {
         val data = arguments?.getParcelable<OrderPayInfo>(Constant.PAY_DATE)
         onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
-        if (data?.type == Constant.PAY_IC_TYPE) {
-            CommonAndDpToPxUtil.speakWork("请刷卡支付")
-            binding.payTitle.text = "请刷卡支付"
-            binding.payTotalMoney.text = "￥${String.format(Locale.CHINA, "%.02f", data.payment)}"
-            scanCardPay(data.payment)
+        binding.payTotalMoney.text = "￥${String.format(Locale.CHINA, "%.02f", data?.payment)}"
+        when (data?.type) {
+            Constant.PAY_IC_TYPE -> {
+                CommonAndDpToPxUtil.speakWork("请刷卡支付")
+                binding.payTitle.text = "请刷卡支付"
+                scanCardPay(data.payment)
+            }
+            Constant.PAY_CODE_TYPE -> {
+                CommonAndDpToPxUtil.speakWork("请出示二维码支付")
+                binding.payTitle.text = "请出示二维码支付"
+                scanCodePay(data.payment)
+            }
+            Constant.PAY_CODE_IC_TYPE -> {
+                CommonAndDpToPxUtil.speakWork("请出示二维码或刷卡支付")
+                binding.payTitle.text = "请出示二维码或刷卡支付"
+                scanCardPay(data.payment)
+                scanCodePay(data.payment)
+            }
         }
     }
 
@@ -76,11 +93,29 @@ class ScanFragment : Fragment(), CallbackListener {
         cardPresenter.openIcCard(payment)
     }
 
+    private fun scanCodePay(payment: Float) {
+        codePresenter.initCode()
+        codePresenter.listener = this
+        codePresenter.openQrCode(payment)
+    }
+
     //刷卡返回数据
     override fun onOtherListener(event: Int, any: Any?) {
-        when (event) {
-            3, 4 -> { //
-                handler.post {
+        handler.post {
+            when (event) {
+                1 -> { //开始支付
+                    if (!this::awaitPayDialog.isInitialized) awaitPayDialog =
+                        AwaitingDialog(requireActivity())
+                    awaitPayDialog.show()
+                    awaitPayDialog.updateText("支付中")
+                }
+                2 -> { //异常
+                    awaitPayDialog.dismiss()
+                    ToastShowUtil.show("支付异常：$any")
+                    LogUtil.d(TAG, "支付异常：$any")
+                }
+                3, 4 -> { //支付结果
+                    awaitPayDialog.dismiss()
                     countDown?.cancel()
                     val data = any as PayResultForUI
                     LogUtil.d(TAG, Gson().toJson(data))
@@ -103,6 +138,20 @@ class ScanFragment : Fragment(), CallbackListener {
                         CommonAndDpToPxUtil.speakWork("支付失败")
                     }
                 }
+                5 -> { //无效码
+                    awaitPayDialog.dismiss()
+                    when (any as Int) {
+                        1 -> {
+                            ToastShowUtil.show("请刷新付款码再支付")
+                            CommonAndDpToPxUtil.speakWork("请刷新付款码再支付")
+                        }
+                        else -> {
+                            ToastShowUtil.show("请刷新付款码再支付")
+                            CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
+                        }
+                    }
+                    codePresenter.setPayStatus()
+                }
             }
         }
     }
@@ -124,7 +173,9 @@ class ScanFragment : Fragment(), CallbackListener {
     }
 
     override fun onDestroy() {
+        if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
         cardPresenter.closeIcCard()
+        codePresenter.closeQrCode()
         countDown?.cancel()
         super.onDestroy()
     }

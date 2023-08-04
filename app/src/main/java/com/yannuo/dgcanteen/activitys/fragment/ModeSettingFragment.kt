@@ -13,10 +13,13 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
+import android.widget.PopupWindow
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentModeSettingBinding
@@ -47,6 +50,11 @@ class ModeSettingFragment : Fragment() {
 
     private lateinit var binding: FragmentModeSettingBinding
     private lateinit var kv: MMKV
+    private var popup: PopupWindow = PopupWindow()
+    private var listView: ListView? = null
+    private val dataList: ArrayList<String> = arrayListOf<String>(
+        "刷脸支付模式", "刷卡支付模式", "扫码支付模式", "码卡支付模式"
+    )
     private lateinit var mScope: CoroutineScope
     private lateinit var mHandle: CoroutineExceptionHandler
     private lateinit var confirmDialog: ConfirmDialog
@@ -97,6 +105,11 @@ class ModeSettingFragment : Fragment() {
         val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?:0
         binding.tvFaceCount.text = "人脸同步数：$count"
 
+
+        listView = ListView(requireContext())
+        listView?.divider = null
+        listView?.isVerticalScrollBarEnabled = false
+        listView?.adapter = SimpleDownAdapter(requireContext(), dataList)
     }
 
     private fun initEvent() {
@@ -104,6 +117,23 @@ class ModeSettingFragment : Fragment() {
             if (!this::confirmDialog.isInitialized)
                 confirmDialog = ConfirmDialog(requireActivity())
             changeMode()
+        }
+        binding.payMode.setOnClickListener { //切换支付
+            popup.width = binding.payMode.width
+            popup.height = 400
+            popup.contentView = listView
+            popup.isOutsideTouchable = true
+            popup.showAsDropDown(binding.payMode, 0, 0)
+        }
+        listView?.setOnItemClickListener { adapterView, view, position, id -> //下拉框选择
+            binding.payMode.text = dataList[position]
+            popup.dismiss()
+            when (dataList[position]) {
+                "刷脸支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_FACE_TYPE)
+                "刷卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_IC_TYPE)
+                "扫码支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
+                "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+            }
         }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
@@ -156,10 +186,12 @@ class ModeSettingFragment : Fragment() {
 
     fun save() {
         amountJudgment(binding.fixedSum.text.toString())
+        EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
     }
 
     private fun reload() {
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
+        binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)]
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)

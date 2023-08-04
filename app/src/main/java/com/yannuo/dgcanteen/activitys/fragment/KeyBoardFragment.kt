@@ -2,17 +2,25 @@ package com.yannuo.dgcanteen.activitys.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.HostActivity
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.facepass.FaceHandler
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderPayInfo
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
@@ -25,19 +33,29 @@ class KeyBoardFragment : Fragment() {
 
     private lateinit var binding: FragmentInputKeyboardBinding
     private var tvText: StringBuilder = StringBuilder()
+    private val kv = MMKV.defaultMMKV()
+    private val handler = Handler()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentInputKeyboardBinding.inflate(inflater, container, false)
         initObject()
+        initView()
         initEvent()
-
         return binding.root
     }
 
     private fun initObject() {
+        EventBus.getDefault().register(this)
+    }
 
+    private fun initView() {
+        btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
+        if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
+            tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT))
+            binding.inputAmount.text = tvText
+        }
     }
 
     private fun initEvent() {
@@ -56,11 +74,16 @@ class KeyBoardFragment : Fragment() {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
-            val count = totalValue()
-            if (count != null) {
-                payPageJump(count)
-                tvText = StringBuilder()
-                binding.inputAmount.text = null
+            if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
+                val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
+                payPageJump(amount.toFloat())
+            } else {
+                val count = totalValue()
+                if (count != null) {
+                    payPageJump(count)
+                    tvText = StringBuilder()
+                    binding.inputAmount.text = null
+                }
             }
         }
         binding.backspace.setOnClickListener { //回退
@@ -73,6 +96,39 @@ class KeyBoardFragment : Fragment() {
             tvText = StringBuilder()
             binding.inputAmount.text = null
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun eventKeyBoard(event: MessageEvent) {
+        when (event.code) {
+            Constant.EVENT_QUOTA_CHANGE -> handler.post {
+                btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
+                tvText = StringBuilder()
+                if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
+                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT))
+                }
+                binding.inputAmount.text = tvText
+            }
+        }
+    }
+
+    private fun btnClickable(boolean: Boolean) {
+        binding.figureZero.isClickable = boolean
+        binding.figureOne.isClickable = boolean
+        binding.figureTwo.isClickable = boolean
+        binding.figureThr.isClickable = boolean
+        binding.figureFou.isClickable = boolean
+        binding.figureFiv.isClickable = boolean
+        binding.figureSix.isClickable = boolean
+        binding.figureSev.isClickable = boolean
+        binding.figureEig.isClickable = boolean
+        binding.figureNin.isClickable = boolean
+        binding.point.isClickable = boolean
+        binding.multiply.isClickable = boolean
+        binding.addition.isClickable = boolean
+        binding.equal.isClickable = boolean
+        binding.backspace.isClickable = boolean
+        binding.cancel.isClickable = boolean
     }
 
     private fun inputFields(str: String) { //输入金额检测是否合法
@@ -115,27 +171,27 @@ class KeyBoardFragment : Fragment() {
     }
 
     private fun totalValue(): Float? { // = 收款
-        if (tvText[tvText.length - 1] == '+' || tvText[tvText.length - 1] == '×') {
-            ToastShowUtil.show("格式有误")
-            return null
-        }
-        var payment = 0.0F
-        val dataList = tvText.split("+")
-        dataList.forEach { compute ->
-            if (compute.isNotEmpty()) {
-                val mul = compute.split("×")
-                if (mul.size == 1) {
-                    payment += (compute).toFloat()
-                } else {
-                    var count = 1.0F
-                    mul.forEach {
-                        if (it.isNotEmpty()) count *= it.toFloat()
+        if (tvText.isNotEmpty()) {
+            if (tvText[tvText.length - 1] == '+' || tvText[tvText.length - 1] == '×') {
+                ToastShowUtil.show("格式有误")
+                return null
+            }
+            var payment = 0.0F
+            val dataList = tvText.split("+")
+            dataList.forEach { compute ->
+                if (compute.isNotEmpty()) {
+                    val mul = compute.split("×")
+                    if (mul.size == 1) {
+                        payment += (compute).toFloat()
+                    } else {
+                        var count = 1.0F
+                        mul.forEach {
+                            if (it.isNotEmpty()) count *= it.toFloat()
+                        }
+                        payment += count
                     }
-                    payment += count
                 }
             }
-        }
-        if (tvText.isNotEmpty()) {
             tvText = StringBuilder()
             val str = String.format(Locale.CHINA, "%.02f", payment)
             tvText.append(str)
@@ -150,9 +206,8 @@ class KeyBoardFragment : Fragment() {
     private fun payPageJump(amount: Float) {
         if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
         //TODO 跳转页面
-        //刷卡
         val bean = OrderPayInfo().apply {
-            type = Constant.PAY_IC_TYPE
+            type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
             payment = amount
         }
 
@@ -162,11 +217,23 @@ class KeyBoardFragment : Fragment() {
                 return
             }
         }
-        LogUtil.d(TAG, "支付")
+
+        if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
+            && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
+        ) { //网络监听
+            CommonAndDpToPxUtil.speakWork("设备没有网络或者开启离线模式")
+            ToastShowUtil.show("设备没有网络或者开启离线模式")
+            return
+        }
 
         val payIntent = Intent(requireContext(), HostActivity::class.java)
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         payIntent.putExtra(Constant.PAY_DATE, bean)
         startActivity(payIntent)
+    }
+
+    override fun onDestroy() {
+        EventBus.getDefault().unregister(this)
+        super.onDestroy()
     }
 }

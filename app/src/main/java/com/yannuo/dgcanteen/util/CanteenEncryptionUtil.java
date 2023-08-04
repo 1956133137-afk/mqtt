@@ -75,8 +75,6 @@ public class CanteenEncryptionUtil {
              .append("&OFFLINE=" + ccbBean.getOFFLINE())
              .append("&SIGN_TIME=" + ccbBean.getSIGN_TIME());
 
-        LogUtil.e("TEST", param.toString());
-
         return getSamePart(ccbBean.getCAMPUS_ID(),
                             ccbBean.getTXCODE(),
                             ccbBean.getCORP_ID(),

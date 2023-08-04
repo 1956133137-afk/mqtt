@@ -251,8 +251,6 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                }
           }
 
-          LogUtil.e("test", Gson().toJson(responseScanPay))
-
           when(validCode) {
                3 -> { //支付成功
                     try {

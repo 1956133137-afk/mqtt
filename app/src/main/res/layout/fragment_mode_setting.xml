@@ -40,6 +40,37 @@
 
         </LinearLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="切换支付模式"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/pay_mode"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="30dp"
+                android:gravity="center"
+                android:text=""
+                android:textColor="#198AFA"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"

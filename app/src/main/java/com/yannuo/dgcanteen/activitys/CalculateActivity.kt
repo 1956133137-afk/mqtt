@@ -11,7 +11,9 @@ import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -22,7 +24,8 @@ import org.greenrobot.eventbus.ThreadMode
  * Description: ***
  * Date: 2023/7/27 15:46
  **/
-class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
+class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
+    NetworkStateManager.NetWorkListener {
 
     private var mXService: MyService? = null
     private var navigation = true
@@ -42,6 +45,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
     private fun initObject() {
         EventBus.getDefault().register(this)
+        NetworkStateManager.getInstance().registerObserver(this)
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
@@ -50,6 +54,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
     private fun initView() {
         btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
         btnViewChange(binding.btnOff, Constant.SWITCH)
+        if (NetworkStateManager.getInstance().isOnline(this).not()) {
+            binding.network.setImageResource(R.drawable.ic_wifi_no)
+        }
     }
 
     override fun onResume() {
@@ -66,35 +73,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
         }
 
         binding.btnFixPay.setOnClickListener { //固定金额
-            binding.btnFixPay.apply {
-                if (kv.decodeBool(Constant.QUOTA_SWITCH, false)) {
-                    text = "定额收款关闭"
-                    setBackgroundResource(R.drawable.click_button_white)
-                    setTextColor(Color.parseColor("#4F4F4F"))
-                    kv.encode(Constant.QUOTA_SWITCH, false)
-                } else {
-                    text = "定额收款开启"
-                    setBackgroundResource(R.drawable.click_button_blue)
-                    setTextColor(Color.parseColor("#FFFFFF"))
-                    kv.encode(Constant.QUOTA_SWITCH, true)
-                }
-            }
+            kv.encode(Constant.QUOTA_SWITCH, !kv.decodeBool(Constant.QUOTA_SWITCH, false))
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
 
         binding.btnOff.setOnClickListener { //开启离线模式
-            binding.btnOff.apply {
-                if (kv.decodeBool(Constant.SWITCH, false)) {
-                    text = "离线模式关闭"
-                    setBackgroundResource(R.drawable.click_button_white)
-                    setTextColor(Color.parseColor("#4F4F4F"))
-                    kv.encode(Constant.SWITCH, false)
-                } else {
-                    text = "离线模式开启"
-                    setBackgroundResource(R.drawable.click_button_blue)
-                    setTextColor(Color.parseColor("#FFFFFF"))
-                    kv.encode(Constant.SWITCH, true)
-                }
-            }
+            kv.encode(Constant.SWITCH, !kv.decodeBool(Constant.SWITCH, false))
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
         }
 
         binding.btnSetting.setOnClickListener {//设置界面
@@ -119,6 +104,15 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
             }
             Constant.EVENT_QUOTA_CHANGE -> handler.post {
                 btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
+            }
+            Constant.EVENT_TENTH -> handler.post {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收mqtt状态变更事件~")
+                val connect = event.any as Boolean
+                if (connect) {
+                    binding.server.setImageResource(R.drawable.ic_server)
+                } else {
+                    binding.server.setImageResource(R.drawable.ic_server_no)
+                }
             }
         }
     }
@@ -154,6 +148,19 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
         }
     }
 
+    override fun netWorkStatus(statue: String) {
+        handler.post {
+            when (statue) {
+                "0" -> {
+                    binding.network.setImageResource(R.drawable.ic_wifi)
+                }
+                else -> {
+                    binding.network.setImageResource(R.drawable.ic_wifi_no)
+                }
+            }
+        }
+    }
+
     override fun onDestroy() {
         release()
         super.onDestroy()
@@ -161,6 +168,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>() {
 
     private fun release() {
         passwordDialog.cancel()
+        NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
     }
 

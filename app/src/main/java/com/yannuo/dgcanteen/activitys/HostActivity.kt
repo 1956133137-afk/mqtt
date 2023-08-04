@@ -27,11 +27,11 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         val bundle = Bundle()
         bundle.putParcelable(Constant.PAY_DATE, payInfo)
 
-        if (payInfo.type == Constant.PAY_IC_TYPE) {
-            navHostFragment?.navController!!.setGraph(R.navigation.ic_graph,bundle)
+        if (payInfo.type != Constant.PAY_FACE_TYPE) {
+            navHostFragment?.navController!!.setGraph(R.navigation.ic_graph, bundle)
 //            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
-        }else{
-            navHostFragment?.navController!!.setGraph(R.navigation.nav_graph,bundle)
+        } else {
+            navHostFragment?.navController!!.setGraph(R.navigation.nav_graph, bundle)
         }
     }
 
