@@ -177,7 +177,6 @@ class CardPresenter : OnReadDataListener {
         bean.businessId = data.business_id
         bean.counterId = data.vpos_id
         bean.consumptionType = 3
-        bean.consumptionType = 2
         bean.RESULT = res.RESULT.toString()
         bean.CUST_ID = data.cust_id
         bean.PAYMENT = res.PAYMENT?.toDouble()

@@ -207,7 +207,7 @@ class KeyBoardFragment : Fragment() {
         if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
         //TODO 跳转页面
         val bean = OrderPayInfo().apply {
-            type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
+            type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
             payment = amount
         }
 

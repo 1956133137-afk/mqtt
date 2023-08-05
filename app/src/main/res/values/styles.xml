@@ -16,7 +16,6 @@
     </style>
 
     <style name="radiobutton">
-        <!--底部导航radiobutton的属性设置-->
         <item name="android:layout_weight">1</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:drawablePadding">4dp</item>
@@ -30,11 +29,23 @@
         <item name="android:textColor">@drawable/select_button_white</item>
     </style>
 
+    <style name="seekBer">
+        <item name="android:layout_width">500dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginEnd">120dp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:progressBackgroundTint">#14ABDA</item>
+        <item name="android:progressTint">#4095E5</item>
+        <item name="android:thumbTint">#4095E5</item>
+    </style>
+
     <declare-styleable name="corner">
-        <attr name="mainSize" format="dimension"/>
-        <attr name="secondarySize" format="dimension"/>
-        <attr name="mainBg" format="reference"/>
-        <attr name="secondaryBg" format="reference"/>
+        <attr name="mainSize" format="dimension" />
+        <attr name="secondarySize" format="dimension" />
+        <attr name="mainBg" format="reference" />
+        <attr name="secondaryBg" format="reference" />
     </declare-styleable>
 
     <style name="editText_one">

@@ -31,13 +31,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_yaw"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="30"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="30" />
 
             <EditText
                 android:id="@+id/camera_yaw"
@@ -74,13 +69,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_pith"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="30"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="30" />
 
             <EditText
                 android:id="@+id/camera_pith"
@@ -117,13 +107,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_roll"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="30"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="30" />
 
             <EditText
                 android:id="@+id/camera_roll"
@@ -160,13 +145,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_rotate"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="3"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="3" />
 
             <EditText
                 android:id="@+id/camera_rotate"
@@ -197,19 +177,14 @@
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="40dp"
-                android:text="预觉角度(°)"
+                android:text="预览角度(°)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
             <SeekBar
                 android:id="@+id/seekBar_pv_ag"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="3"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="3" />
 
             <EditText
                 android:id="@+id/camera_pv_ag"
@@ -306,13 +281,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_distance"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="5"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="5" />
 
             <EditText
                 android:id="@+id/distance"
@@ -379,13 +349,8 @@
 
             <SeekBar
                 android:id="@+id/seekBar_live_vl"
-                android:layout_width="500dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="120dp"
-                android:max="50"
-                android:minHeight="40dp" />
+                style="@style/seekBer"
+                android:max="50" />
 
             <EditText
                 android:id="@+id/live_vl"

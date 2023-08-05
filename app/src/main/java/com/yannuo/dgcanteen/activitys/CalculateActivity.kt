@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -15,6 +16,7 @@ import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
@@ -57,18 +59,21 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         passwordDialog = PasswordDialog(this)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initView() {
         btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
         }
+        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
+                "v${packageManager.getPackageInfo(packageName, 0).versionName}"
     }
 
     override fun onResume() {
         initPresentation()
         super.onResume()
-//        mXService?.hideNavBar = true
+        mXService?.hideNavBar = true
     }
 
     private fun initPresentation() {
@@ -174,6 +179,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             when (statue) {
                 "0" -> {
                     binding.network.setImageResource(R.drawable.ic_wifi)
+                    if (kv.decodeBool(Constant.SWITCH, false)) {
+                        kv.encode(Constant.SWITCH, !kv.decodeBool(Constant.SWITCH))
+                        EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
+                    }
                 }
                 else -> {
                     binding.network.setImageResource(R.drawable.ic_wifi_no)

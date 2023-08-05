@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.view.Display
+import android.view.View
 import android.widget.Toast
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
@@ -165,6 +166,12 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         startActivity(Intent(this@InitActivity, CalculateActivity::class.java))
                         delay(50)
                         finish()
+                    }
+                }
+                else -> {
+                    withContext(Dispatchers.Main) {
+                        binding.initFrame.visibility = View.VISIBLE
+                        binding.awaitFrame.visibility = View.INVISIBLE
                     }
                 }
             }

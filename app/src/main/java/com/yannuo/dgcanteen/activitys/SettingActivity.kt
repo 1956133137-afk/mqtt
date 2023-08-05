@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.BasicSettingFragment
+import com.yannuo.dgcanteen.activitys.fragment.DeviceInfoFragment
 import com.yannuo.dgcanteen.activitys.fragment.FaceSettingFragment
 import com.yannuo.dgcanteen.activitys.fragment.ModeSettingFragment
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
@@ -15,6 +16,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var basicFragment: BasicSettingFragment
     private lateinit var modeFragment: ModeSettingFragment
     private lateinit var faceFragment: FaceSettingFragment
+    private lateinit var deviceFragment: DeviceInfoFragment
     private lateinit var fragments: Array<Fragment>
 
     override fun bindLayout() {
@@ -32,7 +34,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         basicFragment = BasicSettingFragment()
         modeFragment = ModeSettingFragment()
         faceFragment = FaceSettingFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment)
+        deviceFragment = DeviceInfoFragment()
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment, deviceFragment)
     }
 
     private fun initView() {
@@ -46,6 +49,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 0 -> basicFragment.save()
                 1 -> modeFragment.save()
                 2 -> faceFragment.save()
+                else -> return@setOnClickListener
             }
         }
         binding.viewPager.adapter = object :
@@ -75,6 +79,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                     0 -> binding.radioGroup.check(R.id.basic)
                     1 -> binding.radioGroup.check(R.id.mode)
                     2 -> binding.radioGroup.check(R.id.face)
+                    3 -> binding.radioGroup.check(R.id.device)
                 }
             }
 
@@ -87,6 +92,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.basic -> binding.viewPager.currentItem = 0
                 R.id.mode -> binding.viewPager.currentItem = 1
                 R.id.face -> binding.viewPager.currentItem = 2
+                R.id.device -> binding.viewPager.currentItem = 3
             }
         }
     }

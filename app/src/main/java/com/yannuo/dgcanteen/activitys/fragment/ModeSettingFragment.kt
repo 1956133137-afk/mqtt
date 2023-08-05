@@ -191,7 +191,7 @@ class ModeSettingFragment : Fragment() {
 
     private fun reload() {
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
-        binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)]
+        binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)

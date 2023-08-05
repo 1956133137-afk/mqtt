@@ -252,7 +252,6 @@ class CodePresenter : ScanDevice.DataCallBack {
         bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
         bean.businessId = data.businesS_ID
         bean.counterId = data.vpoS_ID
-        bean.consumptionType = 3
         bean.consumptionType = 2
         bean.RESULT = res.RESULT.toString()
         bean.CUST_ID = data.cusT_ID
