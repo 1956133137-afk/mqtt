@@ -89,7 +89,6 @@ class FaceFragment : Fragment() {
 
         binding.btChangPayByQr.setOnClickListener {
             timeOutJob?.cancel()
-
             Navigation.findNavController(it).navigate(R.id.scanFragment)
         }
     }

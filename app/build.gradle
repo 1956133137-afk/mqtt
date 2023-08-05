@@ -69,12 +69,19 @@ android {
             buildConfigField "int", "CHANNEL", "0"
         }
 
+        //手动输入金额版本
+        iput {
+            versionCode 1
+            versionName "1.0.1"
+            buildConfigField "int", "CHANNEL", "1"
+        }
+
     }
 
     // 打包后的文件名
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "canteen-${variant.flavorName}${versionName}.apk"
+            outputFileName = "ct-${variant.flavorName}${versionName}.apk"
         }
     }
 

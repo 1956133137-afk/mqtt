@@ -565,6 +565,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             while (isActive) {
                 LogUtil.i(TAG, "离线消费上传任务开始...")
                 delay(Duration.minutes(30))
+//                delay(Duration.seconds(30))
                 val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline) continue
                 //在线模式下
@@ -612,6 +613,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         mScope.launch {
             while (isActive) {
                 delay(Duration.hours(1))
+//                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV()
                         .decodeBool(Constant.SWITCH)
                 ) { //有网并且不为离线状态 //进行离线补扣
@@ -648,10 +650,6 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
                                 //上传消费记录
                                 res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
-
-                                //删除对应离线记录的菜品
-                                DishesDBHelper.getInstance()
-                                    .deleteOffLineDish(it.offLineDishesList[0].orderid)
                                 //删除对应的离线订单记录
                                 DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
                                 LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
@@ -679,6 +677,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         mScope.launch {
             while (isActive) {
                 delay(Duration.hours(1))
+//                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     LogUtil.i(TAG, "离线刷卡订单请求开始...")
                     do {
@@ -713,9 +712,6 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                 //上传消费记录
                                 res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
 
-                                //删除对应离线记录的菜品
-                                DishesDBHelper.getInstance()
-                                    .deleteCardDish(it.cardDishesList[0].orderid)
                                 //删除对应的离线订单记录
                                 DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
                                 LogUtil.i(TAG, "离线订单${bean.order_id} 上传成功!")
