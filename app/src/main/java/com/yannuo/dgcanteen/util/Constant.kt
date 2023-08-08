@@ -1,6 +1,9 @@
 package com.yannuo.dgcanteen.util
 
 object Constant {
+
+
+
     //配置文件名
 //    const val fileName = "mmkv"
 //    const val strDefault  =""
@@ -48,6 +51,12 @@ object Constant {
     const val APP_MODE = "appMode" //点餐模式 、付款模式、未设置
     const val ORDERING_FOOD_MODE = "点餐模式"
     const val PROCEEDS_MODE = "收款模式"
+
+    lateinit var CORP_ID :String  //合作方ID
+    lateinit var CCB_API_PATH :String  //ccb开放平台接口地址
+    lateinit var STR_KEY :String  //扫码解码密码
+    lateinit var CIPHER :String  //离线码解码密码
+    lateinit var ENCRYPTION_VECTOR :String  //离线码加密向量
 
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
     const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额

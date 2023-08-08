@@ -105,7 +105,7 @@ class KeyBoardFragment : Fragment() {
                 btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
                 tvText = StringBuilder()
                 if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
-                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT))
+                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT,"0.00"))
                 }
                 binding.inputAmount.text = tvText
             }

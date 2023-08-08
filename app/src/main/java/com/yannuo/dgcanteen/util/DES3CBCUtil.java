@@ -26,10 +26,16 @@ public class DES3CBCUtil {
     //填充
     private static final String encryption = "DESede";
     //密码
-    private static final String cipher = "JfP81cjP2QYHjKsrmRKG49v0";
+//    private static final String cipher = "JfP81cjP2QYHjKsrmRKG49v0";
+    private static final String cipher = Constant.CIPHER;
     //加密向量
-    private static final String encryptionVector = "6Zt1MTo6";
+    private static final String encryptionVector = Constant.ENCRYPTION_VECTOR;
+//    private static final String encryptionVector = "6Zt1MTo6";
 
+
+
+    //private static final String cipher = "siclrkuYnJMEwGIy4bGGneqc";
+    //private static final String encryptionVector = "sps49NVv";
     /**
      * 返回离线码过期时间戳
      */

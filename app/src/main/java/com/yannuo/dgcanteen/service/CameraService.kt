@@ -116,7 +116,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                     else -> {
                         //todo 算法授权失败
                         ToastShowUtil.showt("算法未授权")
-                        CommonAndDpToPxUtil.speakWork("算法未授权, $message")
+//                        CommonAndDpToPxUtil.speakWork("算法未授权, $message")
                     }
                 }
             }

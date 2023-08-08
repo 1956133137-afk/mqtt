@@ -124,7 +124,7 @@ class ScanFragment : Fragment(), CallbackListener {
                         payment = data.payment?.toFloat()!!
                         accNo = data.acc_no.toString()
                         timestamp = data.timestamp.toString()
-                        tranId = data.traceid.toString()
+                        tranId = data.traceid ?: "---"
                         orderId = data.orderid.toString()
                         errorMsg = data.errormsg.toString()
                     }
