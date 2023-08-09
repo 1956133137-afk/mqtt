@@ -16,13 +16,14 @@
         android:textSize="40px" />
 
     <TextView
+        android:id="@+id/tv_z"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="智 慧 食 堂"
+        android:letterSpacing="0.2"
+        android:text="智慧食堂"
         android:textColor="#FFFFFF"
         android:textSize="150px"
         android:textStyle="bold" />
-
 </RelativeLayout>

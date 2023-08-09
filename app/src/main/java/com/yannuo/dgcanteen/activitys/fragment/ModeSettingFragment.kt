@@ -13,6 +13,7 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupWindow
 import androidx.fragment.app.Fragment
@@ -60,7 +61,7 @@ class ModeSettingFragment : Fragment() {
     private lateinit var confirmDialog: ConfirmDialog
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
-    private var mService: CameraService ?= null
+    private var mService: CameraService? = null
 
     private val connection = object : ServiceConnection {
 
@@ -75,8 +76,6 @@ class ModeSettingFragment : Fragment() {
             mService = null
         }
     }
-
-
 
 
     override fun onCreateView(
@@ -99,10 +98,11 @@ class ModeSettingFragment : Fragment() {
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
 
         binding.tvPeopleCount.text = "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
-        val intent = Intent(requireContext(),CameraService::class.java)
-        requireActivity().bindService(intent,connection, Context.BIND_AUTO_CREATE)
+        val intent = Intent(requireContext(), CameraService::class.java)
+        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
-        val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?:0
+        val count =
+            FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?: 0
         binding.tvFaceCount.text = "人脸同步数：$count"
 
 
@@ -137,7 +137,7 @@ class ModeSettingFragment : Fragment() {
         }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
-            amountJudgment(binding.fixedSum.text.toString())
+            amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
         binding.btnSynPerson.setOnClickListener { view: View? ->
@@ -154,20 +154,22 @@ class ModeSettingFragment : Fragment() {
                 awaitingDialog = AwaitingDialog(requireActivity())
             awaitingDialog.show()
             awaitingDialog.updateText("同步中")
-            if (mService == null){
+            if (mService == null) {
                 ToastShowUtil.show("同步失败，服务异常")
                 return@setOnClickListener
             }
             mService?.synchFace(object : CallbackListener {
                 override fun onOtherListener(event: Int, any: Any?) {
-                    when(event){
-                        0 ->{
+                    when (event) {
+                        0 -> {
                             requireActivity().runOnUiThread {
                                 awaitingDialog.setText(any as String)
                             }
                         }
-                        1-> {
-                            val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?:0
+                        1 -> {
+                            val count =
+                                FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME)
+                                    ?: 0
                             requireActivity().runOnUiThread {
                                 awaitingDialog.cancel()
                                 binding.tvFaceCount.text = "同步人脸数：$count"
@@ -185,31 +187,44 @@ class ModeSettingFragment : Fragment() {
     }
 
     fun save() {
-        amountJudgment(binding.fixedSum.text.toString())
-        EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
+        var flag = true
+        if (!(flag && amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT))) flag = false
+        if (!(flag && amountJudgment(binding.limitAmount, Constant.LIMIT_AMOUNT))) flag = false
+        kv.encode(Constant.TITLE_CONTENT, binding.titleContent.text.toString())
+        if (flag) {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
+            ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
+        }
     }
 
     private fun reload() {
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+        binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
+        binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
     }
 
-    private fun amountJudgment(str: String) {
-        val amount = String.format(Locale.CHINA, "%.02f", str.toFloat())
+    private fun amountJudgment(view: EditText, name: String): Boolean {
+        if (view.text.isEmpty()) {
+            ToastShowUtil.show("输入金额不可为空")
+            return false
+        }
+        val amount = String.format(Locale.CHINA, "%.02f", view.text.toString().toFloat())
         if (isFormJudgment(amount)) {
-            kv.encode(Constant.QUOTA_AMOUNT, amount)
+            kv.encode(name, amount)
             mScope.launch {
                 withContext(Dispatchers.Main) {
-                    binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT))
+                    view.setText(kv.decodeString(name))
                 }
             }
-            ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
+            return true
         } else {
-            binding.switchFixed.isChecked = false
+            if (view.id == binding.fixedSum.id) binding.switchFixed.isChecked = false
             ToastShowUtil.show("输入金额有误")
+            return false
         }
     }
 
@@ -313,8 +328,9 @@ class ModeSettingFragment : Fragment() {
             LogUtil.d(TAG, "全量更新人员完成")
             withContext(Dispatchers.Main) {
                 awaitingDialog.dismiss()
-                if (failTime !=0) ToastShowUtil.show("同步失败，请重试！")
-                binding.tvPeopleCount.text = "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
+                if (failTime != 0) ToastShowUtil.show("同步失败，请重试！")
+                binding.tvPeopleCount.text =
+                    "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
             }
         }
     }

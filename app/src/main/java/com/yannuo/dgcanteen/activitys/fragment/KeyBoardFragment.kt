@@ -74,12 +74,22 @@ class KeyBoardFragment : Fragment() {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
+            val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
+            val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
             if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
                 val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
+                if (amount.toFloat() > limitAmount) {
+                    ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+                    return@setOnClickListener
+                }
                 payPageJump(amount.toFloat())
             } else {
                 val count = totalValue()
                 if (count != null) {
+                    if (count > limitAmount) {
+                        ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+                        return@setOnClickListener
+                    }
                     payPageJump(count)
                     tvText = StringBuilder()
                     binding.inputAmount.text = null
@@ -105,7 +115,7 @@ class KeyBoardFragment : Fragment() {
                 btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
                 tvText = StringBuilder()
                 if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
-                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT,"0.00"))
+                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
                 }
                 binding.inputAmount.text = tvText
             }

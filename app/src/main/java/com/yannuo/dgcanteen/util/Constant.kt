@@ -61,6 +61,9 @@ object Constant {
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
     const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额
 
+    const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款
+    const val TITLE_CONTENT = "titleContent"//副屏标题设置
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
