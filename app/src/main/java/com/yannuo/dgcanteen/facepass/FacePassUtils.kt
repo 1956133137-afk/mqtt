@@ -7,6 +7,7 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import mcv.facepass.FacePassException
 import mcv.facepass.FacePassHandler
+import java.nio.charset.Charset
 
 object FacePassUtils {
     private val TAG = javaClass.simpleName
@@ -15,7 +16,7 @@ object FacePassUtils {
     private var msg = "" //绑定人脸信息
 
 
-    fun unbindFaceFromGroup(handler : FacePassHandler?, faceToken: String): Boolean {
+    fun unbindFaceFromGroup(handler : FacePassHandler?, faceToken: String?): Boolean {
         if (handler == null) {
             LogUtil.d(TAG, "handler is null")
             return false
@@ -23,7 +24,7 @@ object FacePassUtils {
         var result: Boolean
         try {
             if (TextUtils.isEmpty(faceToken)) return false
-            val token = faceToken.toByteArray()
+            val token = faceToken!!.toByteArray()
             result = handler.unBindGroup(Constant.GROUP_NAME, token)
             if (!result) return false
             LogUtil.i(TAG, "人脸解绑成功...")
@@ -36,6 +37,18 @@ object FacePassUtils {
         return true
     }
 
+    fun createGroup(handler : FacePassHandler?){
+
+        var result: Boolean = checkGroupExist(handler)
+        if (!result) {
+            LogUtil.i(TAG, "尝试创建人脸库")
+            result = createFaceGroup(handler)
+        }
+        if (!result) {
+            LogUtil.i(TAG, "创建人脸库失败")
+        }
+    }
+
     /***
      *
      * @param
@@ -46,13 +59,6 @@ object FacePassUtils {
             LogUtil.e(TAG, "图片对象空...")
             return false
         }
-
-        val token = registerFace(handler,bitmap)
-        if (token == null || token == "") {
-            LogUtil.e(TAG, "人脸入库失败")
-            return false
-        }
-        faceTokens.token = token
         var result: Boolean = checkGroupExist(handler)
         if (!result) {
             LogUtil.i(TAG, "尝试创建人脸库")
@@ -63,7 +69,14 @@ object FacePassUtils {
             msg = "创建人脸库失败"
             return false
         }
-        result = bindFaceToGroup(handler, token)
+
+        val token = registerFace(handler,bitmap)
+        if (token == null || token == "") {
+            LogUtil.e(TAG, "人脸入库失败")
+            return false
+        }
+        faceTokens.token = token
+        result = bindFaceToGroup(handler, faceTokens.token)
         if (!result) msg = "绑定人脸库失败"
         return result
     }
@@ -85,7 +98,8 @@ object FacePassUtils {
         }
         try {
             b = handler.bindGroup(Constant.GROUP_NAME, faceToken)
-            if (b) LogUtil.i(TAG, "bind  success !") else LogUtil.e(TAG, "bind  failed !")
+            if (b) LogUtil.i(TAG, "bind  success !")
+            else LogUtil.e(TAG, "bind  failed !")
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
             LogUtil.d(TAG, e.message)
@@ -117,7 +131,7 @@ object FacePassUtils {
             e.printStackTrace()
         }
         val haveGroup =  checkGroupExist(handler)
-        LogUtil.d(TAG, "create group $haveGroup")
+        LogUtil.d(TAG, "${Constant.GROUP_NAME} group created $haveGroup")
         return haveGroup
     }
     /**
@@ -165,7 +179,7 @@ object FacePassUtils {
             result?.also {
                 when(it.result){
                     0->{
-                        faceToken = it.faceToken.toString()
+                        faceToken = it.faceToken.toString(Charset.defaultCharset())
                         msg = "人脸添加成功"
                         addmsg = 200
                         LogUtil.i(TAG, "add face successfully！")

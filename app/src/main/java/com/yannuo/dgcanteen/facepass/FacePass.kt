@@ -345,6 +345,7 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                         config.smileEnabled = false
                         config.maxFaceEnabled = true
                         config.fileRootPath = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.absolutePath
+
                         /* 创建SDK实例 */
 
                         mFacePassHandler = FacePassHandler(config)
@@ -356,7 +357,7 @@ class FacePass(context: Context) : CameraDataStream.CameraListener {
                         addFaceConfig.lowBrightnessThreshold = 70f
                         addFaceConfig.highBrightnessThreshold = 220f
                         addFaceConfig.brightnessSTDThreshold = 60f
-                        addFaceConfig.faceMinThreshold = 35
+                        addFaceConfig.faceMinThreshold = 100
                         addFaceConfig.rcAttributeAndOcclusionMode = 2
                         mFacePassHandler!!.addFaceConfig = addFaceConfig
 

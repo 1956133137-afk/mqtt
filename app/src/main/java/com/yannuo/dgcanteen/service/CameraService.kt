@@ -60,6 +60,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private lateinit var mRespository: PayRepositoryOfPay
     private var runTask = true  //控制任务，无网络将睡眠
     private var faceAddTaskRunning = AtomicBoolean(false)  //人脸添加线程启动
+    private var faceExtract = AtomicBoolean(false)  //人脸记录提取
     private var stopAddPeopleTask = false  //停止人员添加任务
     private lateinit var mDataPresenter: DataPresenter
     private val mService = LocalBinder()
@@ -336,10 +337,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                     addLibSuccess++
                                 }
                                 else -> {
-                                    FacePassUtils.unbindFaceFromGroup(
-                                        handler,
-                                        faceTokens.token
-                                    )//删除入库人脸
+                                    FacePassUtils.unbindFaceFromGroup(handler, faceTokens.token)//删除入库人脸
                                     addLibFailed++
                                 }
                             }
@@ -353,9 +351,11 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                         DishesDBHelper.getInstance().updatePeopleInfo(info)
                     }
                     count++
-                    callbackListener?.onOtherListener(0, "$count")
+                    if ((count %10) == 0){
+                        callbackListener?.onOtherListener(0, "$count")
+                    }
                 }
-
+                callbackListener?.onOtherListener(0, "$count")
                 //重置下载失败的标志位，以便下载失败的图片下次可以再次下载
                 do {
                     val visitorList = DishesDBHelper.getInstance().searchFaceRecords(0, true)
@@ -370,13 +370,15 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 } while (visitorList.isNotEmpty())
                 faceAddTaskRunning.set(false)
                 LogUtil.i(
-                    TAG, "人员添加任务结束，成功下载$downloadSuccess 张图片，下载失败" + "$downloadFailed" +
-                            " 张图片，$addLibSuccess 张添加到人脸库，$addLibFailed 张添加人脸库失败"
+                    TAG, "人员添加任务结束，成功下载$downloadSuccess 张，下载失败" + "$downloadFailed" +
+                            " 张， 添加到人脸库$addLibSuccess 张， $addLibFailed 张添加人脸库失败"
                 )
-                callbackListener?.onOtherListener(1, null)
-                callbackListener = null
+
             } catch (e: Exception) {
                 e.printStackTrace()
+            }finally {
+                callbackListener?.onOtherListener(1, null)
+                callbackListener = null
             }
         }
     }
@@ -431,6 +433,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
     fun synchFace(callback: CallbackListener?) {
         this.callbackListener = callback
+        if (faceExtract.get()) return
+        faceExtract.set(true)
         mScope.launch {
             DishesDBHelper.getInstance().deleteAllWaitAddFace()
             DishesDBHelper.getInstance().deleteAllFaceToken()
@@ -438,6 +442,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             val handler = FaceHandler.getInstance()?.ksHandler
             //删除算法底库
             FacePassUtils.deleteFaceLocalGroup(handler)
+            FacePassUtils.createGroup(handler)
             callbackListener?.onOtherListener(0, "重新初始脸库")
             val size = 0
             var index = 0  //页码
@@ -455,7 +460,9 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 index++
             } while (size >= 100)
             callbackListener?.onOtherListener(0, "生成同步列表")
+            MMKV.defaultMMKV().encode(Constant.FIRST_START, true) //修改为非首次启动
             delay(10 * 1000)
+            faceExtract.set(false)
             processingData()
         }
 
@@ -482,7 +489,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME, 0)
                 var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
-                timeout = true
+//                timeout = true
                 var finish = false
                 var currentPage = 1
                 var failTime = 0
@@ -498,6 +505,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                 if (currentPage >= bean.totalPage) {
                                     finish = true
                                     mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
+                                    if (mv.decodeBool(Constant.FIRST_START, false).not()) synchFace(null) //首次启动将自动下载人脸图片
                                 } else {
                                     currentPage = bean.page + 1
                                 }
