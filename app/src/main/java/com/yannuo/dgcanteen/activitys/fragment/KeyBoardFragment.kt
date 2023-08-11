@@ -14,6 +14,7 @@ import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderPayInfo
+import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
@@ -74,6 +75,10 @@ class KeyBoardFragment : Fragment() {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
+            if (!judgePayCfg()) {
+                ToastShowUtil.show("商户信息不完整，请检查商户信息")
+                return@setOnClickListener
+            }
             val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
             val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
             if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
@@ -120,6 +125,12 @@ class KeyBoardFragment : Fragment() {
                 binding.inputAmount.text = tvText
             }
         }
+    }
+
+    //判断商家信息
+    private fun judgePayCfg(): Boolean {
+        val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+        return payCfg?.campusId != null && payCfg.corp_id != null && payCfg.businessId != null && payCfg.counterId != null
     }
 
     private fun btnClickable(boolean: Boolean) {

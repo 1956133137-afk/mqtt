@@ -21,7 +21,7 @@ class DeviceInfoFragment : Fragment() {
 
     private lateinit var binding: FragmentDeviceInfoBinding
     private lateinit var kv: MMKV
-    private lateinit var mPayCfg: PayCfg
+    private var mPayCfg: PayCfg? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,14 +36,14 @@ class DeviceInfoFragment : Fragment() {
 
     private fun initObject() {
         kv = MMKV.defaultMMKV()
-        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)!!
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
     }
 
     private fun initData() {
 //        binding.businessName.text = mPayCfg.business_name
-        binding.businessId.text = mPayCfg.businessId
-        binding.campusId.text = mPayCfg.campusId
-        binding.vposId.text = mPayCfg.counterId
+        binding.businessId.text = mPayCfg?.businessId ?: ""
+        binding.campusId.text = mPayCfg?.campusId ?: ""
+        binding.vposId.text = mPayCfg?.counterId ?: ""
         binding.serialNumber.text = CommonAndDpToPxUtil.getDeviceSerial()
     }
 }
