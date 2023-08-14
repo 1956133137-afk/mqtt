@@ -17,7 +17,7 @@
         android:gravity="center"
         android:text=""
         android:textColor="#4F4F4F"
-        android:textSize="24sp" />
+        android:textSize="48sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,10 +36,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/shape_normal_gray"
+                android:paddingStart="15dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="10dp"
                 android:stateListAnimator="@null"
                 android:text="取消"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="35sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -53,10 +57,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/shape_normal_bt_bg"
+                android:paddingStart="15dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="10dp"
                 android:stateListAnimator="@null"
                 android:text="确认"
                 android:textColor="#FFFFFF"
-                android:textSize="20sp" />
+                android:textSize="35sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

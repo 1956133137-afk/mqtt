@@ -12,6 +12,7 @@ import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.MessageEvent
@@ -35,6 +36,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private var mXService: MyService? = null
     private var navigation = true
     private lateinit var passwordDialog: PasswordDialog
+    private lateinit var confirmDialog: ConfirmDialog
     private lateinit var kv: MMKV
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
@@ -104,8 +106,24 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
 
         binding.btnOff.setOnClickListener { //开启离线模式
-            kv.encode(Constant.SWITCH, !kv.decodeBool(Constant.SWITCH, false))
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
+            if (!this::confirmDialog.isInitialized) confirmDialog = ConfirmDialog(this)
+            if (!kv.decodeBool(Constant.SWITCH, false)) {
+                confirmDialog.apply {
+                    show()
+                    binding.tvText.text = "您确定开启离线模式吗"
+                    setListener(object : ConfirmDialog.OnConfirmCallback {
+                        override fun confirmCallback(flag: Boolean) {
+                            if (flag) {
+                                kv.encode(Constant.SWITCH, true)
+                                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
+                            }
+                        }
+                    })
+                }
+            } else {
+                kv.encode(Constant.SWITCH, false)
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
+            }
         }
 
         binding.btnSetting.setOnClickListener {//设置界面
@@ -198,6 +216,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     private fun release() {
         passwordDialog.cancel()
+        confirmDialog.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
     }
