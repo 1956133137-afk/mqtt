@@ -72,8 +72,8 @@ android {
 
         //手动输入金额版本
         iput {
-            versionCode 3
-            versionName "1.0.3"
+            versionCode 4
+            versionName "1.0.4"
             buildConfigField "int", "CHANNEL", "1"
         }
 

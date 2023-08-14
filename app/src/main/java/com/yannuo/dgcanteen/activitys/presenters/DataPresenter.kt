@@ -67,7 +67,7 @@ class DataPresenter() {
             2 -> "餐补账户"
             else -> ""
         }
-        bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+        bean.PAYTIME = data.sigN_TIME
         bean.BUSINESS_NAME = "彦诺智能测试园区"
         bean.paymentDishesList = mutableListOf()
         DishesData.forEach {
@@ -101,6 +101,7 @@ class DataPresenter() {
         bean.cusT_ID = data.cust_id
         bean.ordeR_ID = data.order_id
         bean.offline = data.offline
+        bean.sigN_TIME = data.sign_time
 
         consumeRecord( bean, res, DishesData)
     }
