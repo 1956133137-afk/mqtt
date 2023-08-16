@@ -6,7 +6,9 @@ plugins {
 }
 //apply plugin: 'kotlin-android'
 
-
+def releaseTime() {
+    return new Date().format("yMMddHH", TimeZone.getDefault())
+}
 
 android {
     compileSdk 31
@@ -71,9 +73,9 @@ android {
         }
 
         //手动输入金额版本
-        iput {
-            versionCode 4
-            versionName "1.0.4"
+        input {
+            versionCode 5
+            versionName "1.0.5"
             buildConfigField "int", "CHANNEL", "1"
         }
 
@@ -82,7 +84,7 @@ android {
     // 打包后的文件名
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "ct-${variant.flavorName}${versionName}.apk"
+            outputFileName = "ct-${variant.flavorName}${versionName}-${releaseTime()}.apk"
         }
     }
 

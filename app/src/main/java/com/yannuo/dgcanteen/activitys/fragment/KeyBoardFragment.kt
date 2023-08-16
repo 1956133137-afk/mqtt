@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.HostActivity
+import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
-import com.yannuo.dgcanteen.facepass.FaceHandler
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayCfg
@@ -49,6 +49,9 @@ class KeyBoardFragment : Fragment() {
 
     private fun initObject() {
         EventBus.getDefault().register(this)
+        val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+        if (type == 0) CameraAIDL.connectAIDL()
+
     }
 
     private fun initView() {
@@ -225,7 +228,7 @@ class KeyBoardFragment : Fragment() {
     }
 
     private fun payPageJump(amount: Float) {
-        if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
+//        if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
         //TODO 跳转页面
         val bean = OrderPayInfo().apply {
             type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
@@ -233,8 +236,12 @@ class KeyBoardFragment : Fragment() {
         }
 
         if (bean.type == 0) {
-            if (!FaceHandler.getFaceHInstance().isFaceInit) {
-                ToastShowUtil.show("人脸服务未启动,请重启软件")
+//            if (!FaceHandler.getFaceHInstance().isFaceInit) {
+//                ToastShowUtil.show("人脸服务未启动,请重启软件")
+//                return
+//            }
+            if (CameraAIDL.connectAIDL()) { //服务未连接，返回
+                CommonAndDpToPxUtil.speakWork("正在连接人脸服务")
                 return
             }
         }

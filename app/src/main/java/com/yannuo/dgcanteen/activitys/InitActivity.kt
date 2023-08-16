@@ -9,13 +9,16 @@ import android.os.Build
 import android.view.Display
 import android.view.View
 import android.widget.Toast
+import android_serialport_api.SerialPort
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
+import com.yannuo.dgcanteen.util.BytesUtils
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
+import java.io.File
 
 /**
  * Author: filowl
@@ -136,7 +139,14 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
     private fun initMode() {
         scope.launch {
+            val serial = SerialPort(File("/dev/ttyS4"),  9600, 0)
+            serial.outputStream?.also {
+                it.write(BytesUtils.hex2Bytes("AABB0600000001060304"))
+                it.flush()
+            }
             delay(500)
+            serial.outputStream?.close()
+            serial.close()
             mode = kv.decodeString(Constant.APP_MODE)
 //            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
             when (mode) {

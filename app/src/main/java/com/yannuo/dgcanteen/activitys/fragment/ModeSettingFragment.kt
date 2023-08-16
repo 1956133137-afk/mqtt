@@ -26,8 +26,6 @@ import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentModeSettingBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
-import com.yannuo.dgcanteen.facepass.FaceHandler
-import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
 import com.yannuo.dgcanteen.service.CameraService
@@ -101,9 +99,8 @@ class ModeSettingFragment : Fragment() {
         val intent = Intent(requireContext(), CameraService::class.java)
         requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
-        val count =
-            FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?: 0
-        binding.tvFaceCount.text = "人脸同步数：$count"
+//        val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?: 0
+//        binding.tvFaceCount.text = "人脸同步数：$count"
 
 
         listView = ListView(requireContext())
@@ -158,26 +155,26 @@ class ModeSettingFragment : Fragment() {
                 ToastShowUtil.show("同步失败，服务异常")
                 return@setOnClickListener
             }
-            mService?.synchFace(object : CallbackListener {
-                override fun onOtherListener(event: Int, any: Any?) {
-                    when (event) {
-                        0 -> {
-                            requireActivity().runOnUiThread {
-                                awaitingDialog.setText(any as String)
-                            }
-                        }
-                        1 -> {
-                            val count =
-                                FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME)
-                                    ?: 0
-                            requireActivity().runOnUiThread {
-                                awaitingDialog.cancel()
-                                binding.tvFaceCount.text = "同步人脸数：$count"
-                            }
-                        }
-                    }
-                }
-            })
+//            mService?.synchFace(object : CallbackListener {
+//                override fun onOtherListener(event: Int, any: Any?) {
+//                    when (event) {
+//                        0 -> {
+//                            requireActivity().runOnUiThread {
+//                                awaitingDialog.setText(any as String)
+//                            }
+//                        }
+//                        1 -> {
+//                            val count =
+//                                FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME)
+//                                    ?: 0
+//                            requireActivity().runOnUiThread {
+//                                awaitingDialog.cancel()
+//                                binding.tvFaceCount.text = "同步人脸数：$count"
+//                            }
+//                        }
+//                    }
+//                }
+//            })
 //            ToastShowUtil.show("人员信息已同步~")
         }
     }

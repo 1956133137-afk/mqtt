@@ -3,51 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_host"
-    app:startDestination="@id/host_fg">
-    <fragment
-        android:id="@+id/host_fg"
-        android:name="com.yannuo.dgcanteen.activitys.fragment.FaceFragment"
-        android:label="人脸"
-        tools:layout="@layout/fragment_face">
-        <action
-            android:id="@+id/action_face_to_scan"
-            app:destination="@id/scanFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out" />
-        <action
-            android:id="@+id/action_face_to_success"
-            app:destination="@id/successFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out" />
-        <action
-            android:id="@+id/action_face_to_fail"
-            app:destination="@id/failFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/slide_in"
-            app:popExitAnim="@anim/slide_out" />
-    </fragment>
-    <fragment
-        android:id="@+id/scanFragment"
-        android:name="com.yannuo.dgcanteen.activitys.fragment.ScanFragment"
-        android:label="fragment_style"
-        tools:layout="@layout/fragment_scan">
-        <action
-            android:id="@+id/action_scan_to_fail"
-            app:destination="@id/failFragment" />
-        <action
-            android:id="@+id/action_scan_to_success"
-            app:destination="@id/successFragment" />
-
-        <argument
-            android:name="papData"
-            app:argType="com.yannuo.dgcanteen.model.OrderPayInfo" />
-
-    </fragment>
+    app:startDestination="@id/facFragment">
     <fragment
         android:id="@+id/successFragment"
         android:name="com.yannuo.dgcanteen.activitys.fragment.SuccessFragment"
@@ -66,6 +22,16 @@
             android:name="simpleForUI"
             app:argType="com.yannuo.dgcanteen.model.SimpleForUI" />
     </fragment>
-    <action android:id="@+id/action_global_scanFragment" app:destination="@id/scanFragment" />
-    <action android:id="@+id/action_global_host_fg" app:destination="@id/host_fg" />
+    <fragment
+        android:id="@+id/facFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.FacFragment"
+        android:label="fragment_fac"
+        tools:layout="@layout/fragment_fac" >
+        <action
+            android:id="@+id/action_facFragment_to_failFragment"
+            app:destination="@id/failFragment" />
+        <action
+            android:id="@+id/action_facFragment_to_successFragment"
+            app:destination="@id/successFragment" />
+    </fragment>
 </navigation>

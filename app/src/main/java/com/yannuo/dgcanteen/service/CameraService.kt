@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.graphics.BitmapFactory
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -20,9 +19,6 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.*
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
-import com.yannuo.dgcanteen.facepass.AuthFace
-import com.yannuo.dgcanteen.facepass.FaceHandler
-import com.yannuo.dgcanteen.facepass.FacePassUtils
 import com.yannuo.dgcanteen.facepass.SDKInitResult
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
@@ -31,7 +27,6 @@ import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
-import mcv.facepass.FacePassHandler
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.greenrobot.eventbus.EventBus
 import java.io.File
@@ -41,6 +36,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -90,46 +86,46 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             getPayCfg()//获取配置
         }
 
-        val authFace = AuthFace(this) //算法授权检查
-        initcallback = object : SDKInitResult {
-            override fun faceInitResult(code: Int, message: String) {
-                when (code) {
-                    0 -> {
-                        LogUtil.d(TAG, "初始化 version: ${FacePassHandler.getVersion()} 算法完成")
-                        FaceHandler.getFaceHInstance().isFaceInit = true
-                    }
-                    else -> {
-                        //todo 算法初始化失败
-                        LogUtil.e(TAG, "算法初始化失败")
-                        ToastShowUtil.showt("算法初始化失败")
-                        CommonAndDpToPxUtil.speakWork("算法初始化失败")
-                        FaceHandler.getFaceHInstance().isFaceInit = false
-                    }
-                }
-            }
-
-            override fun faceLicenseResult(code: Int, message: String) {
-                LogUtil.i(TAG, "算法授权: $message")
-                when (code) {
-                    0 -> {
-                        FaceHandler.getInstance(applicationContext).initAlgorithm(initcallback)
-                    }
-                    else -> {
-                        //todo 算法授权失败
-                        ToastShowUtil.showt("算法未授权")
-//                        CommonAndDpToPxUtil.speakWork("算法未授权, $message")
-                    }
-                }
-            }
-        }
-        authFace.authCheck(initcallback)
+//        val authFace = AuthFace(this) //算法授权检查
+//        initcallback = object : SDKInitResult {
+//            override fun faceInitResult(code: Int, message: String) {
+//                when (code) {
+//                    0 -> {
+//                        LogUtil.d(TAG, "初始化 version: ${FacePassHandler.getVersion()} 算法完成")
+//                        FaceHandler.getFaceHInstance().isFaceInit = true
+//                    }
+//                    else -> {
+//                        //todo 算法初始化失败
+//                        LogUtil.e(TAG, "算法初始化失败")
+//                        ToastShowUtil.showt("算法初始化失败")
+//                        CommonAndDpToPxUtil.speakWork("算法初始化失败")
+//                        FaceHandler.getFaceHInstance().isFaceInit = false
+//                    }
+//                }
+//            }
+//
+//            override fun faceLicenseResult(code: Int, message: String) {
+//                LogUtil.i(TAG, "算法授权: $message")
+//                when (code) {
+//                    0 -> {
+//                        FaceHandler.getInstance(applicationContext).initAlgorithm(initcallback)
+//                    }
+//                    else -> {
+//                        //todo 算法授权失败
+//                        ToastShowUtil.showt("算法未授权")
+////                        CommonAndDpToPxUtil.speakWork("算法未授权, $message")
+//                    }
+//                }
+//            }
+//        }
+//        authFace.authCheck(initcallback)
         deviceInit()
     }
 
 
     private fun deviceInit() {
         downPerson()//下载人员
-        processingData()   //启动图片下载重新入库任务
+//        processingData()   //启动图片下载重新入库任务
         synConsumerDish()   //同步消费记录
         offLineFillMoney() //离线补扣
         cardFillMoney() //离线刷卡补扣
@@ -148,9 +144,10 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
      * 新app检查,和开启软件保活
      */
     private fun checkNewAppAndKeepAlive() {
+
         val work = PeriodicWorkRequest.Builder(
             CheckVersionWorker::class.java,
-            15,
+            15L +Random.nextInt(15),
             TimeUnit.MINUTES
         ).build()
 
@@ -202,7 +199,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                             return@callInTx true
                         }
                         //启动处理任务
-                        processingData()
+//                        processingData()
                     } else {
                         //命令
                         controlDevice(bean)
@@ -270,134 +267,134 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
 
     /**
-     * 接口不统一，所以分开内部人员和访客记录保存
+     *
      */
     @SuppressLint("CheckResult")
-    fun processingData() {
-        if (faceAddTaskRunning.get()) return
-        faceAddTaskRunning.set(true)
-        stopAddPeopleTask = false
-        //先延迟一段时间，以便算法初始化
-        mScope.launch {
-            for (i in 1..60) {
-                delay(1000)
-                if (FaceHandler.getFaceHInstance().isFaceInit) break
-            }
-            if (FaceHandler.getFaceHInstance().isFaceInit.not()) {
-                LogUtil.w(TAG, "算法超时未初始化！")
-                faceAddTaskRunning.set(false)
-                return@launch
-            }
-
-            var info: FaceRecord
-            var downloadSuccess = 0   //成功下载条数
-            var downloadFailed = 0    //失败下载条数
-            var addLibSuccess = 0   //成功入库条数
-            var addLibFailed = 0    //失败入库条数
-            var count = 0
-            try {
-                while ((DishesDBHelper.getInstance()
-                        .queryOnePerson() != null) && !stopAddPeopleTask
-                ) {
-                    info = DishesDBHelper.getInstance().queryOnePerson()
-                    LogUtil.d(TAG, "下载图片 ${info.image}")
-                    var pic: File? = null
-                    try {
-                        pic = Glide.with(this@CameraService)
-                            .load(info.image)
-                            .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                            .get()
-                    } catch (e: Exception) {
-                        LogUtil.w(TAG, "下载失败${info.image}")
-                    }
-                    callbackListener?.onOtherListener(0, "")
-                    if (pic != null) {
-                        //下载成功
-                        downloadSuccess++
-                        val bitmap = BitmapFactory.decodeFile(pic.absolutePath)
-                        val faceTokens = FaceTokens()
-                        faceTokens.number = info.custId
-                        //获取人脸操作句柄
-                        val handler = FaceHandler.getInstance().ksHandler
-                        //获取旧记录
-                        DishesDBHelper.getInstance().searchFaceToken(faceTokens.number)?.also {
-                            FacePassUtils.unbindFaceFromGroup(handler, it.token)//解绑原有人脸
-                            DishesDBHelper.getInstance().deleteFaceToken(it.number) //清除特征记录
-                        }
-                        //提取特征并入库人脸
-                        val success = FacePassUtils.registerFaceForOne(handler, bitmap, faceTokens)
-                        LogUtil.d(TAG, "图片入库 $success")
-
-//                    deviceCallback(info.messageId,info.name,info.number) //回调通知添加结果
-                        DishesDBHelper.getInstance().getsession().callInTx {
-                            DishesDBHelper.getInstance().deleteFaceRecord(info.custId) //删除待入库的记录
-                            when (success) {
-                                true -> {
-                                    DishesDBHelper.getInstance().insertFaceToken(faceTokens)//特征保存
-                                    addLibSuccess++
-                                }
-                                else -> {
-                                    FacePassUtils.unbindFaceFromGroup(handler, faceTokens.token)//删除入库人脸
-                                    addLibFailed++
-                                }
-                            }
-                            return@callInTx true
-                        }
-                    } else {
-                        //下载失败
-                        downloadFailed++
-                        //修改更新标志
-                        info.tryd = true
-                        DishesDBHelper.getInstance().updatePeopleInfo(info)
-                    }
-                    count++
-                    if ((count %10) == 0){
-                        callbackListener?.onOtherListener(0, "$count")
-                    }
-                }
-                callbackListener?.onOtherListener(0, "$count")
-                //重置下载失败的标志位，以便下载失败的图片下次可以再次下载
-                do {
-                    val visitorList = DishesDBHelper.getInstance().searchFaceRecords(0, true)
-                    if (visitorList.isNotEmpty()) {
-                        for (vis in visitorList) {
-                            vis.tryd = false
-                            LogUtil.i(TAG, "重置下载标识 : ${vis.custId}")
-                        }
-                        DishesDBHelper.getInstance().insertFaceRecords(visitorList) //更新重试标志
-                    }
-
-                } while (visitorList.isNotEmpty())
-                faceAddTaskRunning.set(false)
-                LogUtil.i(
-                    TAG, "人员添加任务结束，成功下载$downloadSuccess 张，下载失败" + "$downloadFailed" +
-                            " 张， 添加到人脸库$addLibSuccess 张， $addLibFailed 张添加人脸库失败"
-                )
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }finally {
-                callbackListener?.onOtherListener(1, null)
-                callbackListener = null
-            }
-        }
-    }
+//    fun processingData() {
+//        if (faceAddTaskRunning.get()) return
+//        faceAddTaskRunning.set(true)
+//        stopAddPeopleTask = false
+//        //先延迟一段时间，以便算法初始化
+//        mScope.launch {
+//            for (i in 1..60) {
+//                delay(1000)
+//                if (FaceHandler.getFaceHInstance().isFaceInit) break
+//            }
+//            if (FaceHandler.getFaceHInstance().isFaceInit.not()) {
+//                LogUtil.w(TAG, "算法超时未初始化！")
+//                faceAddTaskRunning.set(false)
+//                return@launch
+//            }
+//
+//            var info: FaceRecord
+//            var downloadSuccess = 0   //成功下载条数
+//            var downloadFailed = 0    //失败下载条数
+//            var addLibSuccess = 0   //成功入库条数
+//            var addLibFailed = 0    //失败入库条数
+//            var count = 0
+//            try {
+//                while ((DishesDBHelper.getInstance()
+//                        .queryOnePerson() != null) && !stopAddPeopleTask
+//                ) {
+//                    info = DishesDBHelper.getInstance().queryOnePerson()
+//                    LogUtil.d(TAG, "下载图片 ${info.image}")
+//                    var pic: File? = null
+//                    try {
+//                        pic = Glide.with(this@CameraService)
+//                            .load(info.image)
+//                            .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+//                            .get()
+//                    } catch (e: Exception) {
+//                        LogUtil.w(TAG, "下载失败${info.image}")
+//                    }
+//                    callbackListener?.onOtherListener(0, "")
+//                    if (pic != null) {
+//                        //下载成功
+//                        downloadSuccess++
+//                        val bitmap = BitmapFactory.decodeFile(pic.absolutePath)
+//                        val faceTokens = FaceTokens()
+//                        faceTokens.number = info.custId
+//                        //获取人脸操作句柄
+//                        val handler = FaceHandler.getInstance().ksHandler
+//                        //获取旧记录
+//                        DishesDBHelper.getInstance().searchFaceToken(faceTokens.number)?.also {
+//                            FacePassUtils.unbindFaceFromGroup(handler, it.token)//解绑原有人脸
+//                            DishesDBHelper.getInstance().deleteFaceToken(it.number) //清除特征记录
+//                        }
+//                        //提取特征并入库人脸
+//                        val success = FacePassUtils.registerFaceForOne(handler, bitmap, faceTokens)
+//                        LogUtil.d(TAG, "图片入库 $success")
+//
+////                    deviceCallback(info.messageId,info.name,info.number) //回调通知添加结果
+//                        DishesDBHelper.getInstance().getsession().callInTx {
+//                            DishesDBHelper.getInstance().deleteFaceRecord(info.custId) //删除待入库的记录
+//                            when (success) {
+//                                true -> {
+//                                    DishesDBHelper.getInstance().insertFaceToken(faceTokens)//特征保存
+//                                    addLibSuccess++
+//                                }
+//                                else -> {
+//                                    FacePassUtils.unbindFaceFromGroup(handler, faceTokens.token)//删除入库人脸
+//                                    addLibFailed++
+//                                }
+//                            }
+//                            return@callInTx true
+//                        }
+//                    } else {
+//                        //下载失败
+//                        downloadFailed++
+//                        //修改更新标志
+//                        info.tryd = true
+//                        DishesDBHelper.getInstance().updatePeopleInfo(info)
+//                    }
+//                    count++
+//                    if ((count %10) == 0){
+//                        callbackListener?.onOtherListener(0, "$count")
+//                    }
+//                }
+//                callbackListener?.onOtherListener(0, "$count")
+//                //重置下载失败的标志位，以便下载失败的图片下次可以再次下载
+//                do {
+//                    val visitorList = DishesDBHelper.getInstance().searchFaceRecords(0, true)
+//                    if (visitorList.isNotEmpty()) {
+//                        for (vis in visitorList) {
+//                            vis.tryd = false
+//                            LogUtil.i(TAG, "重置下载标识 : ${vis.custId}")
+//                        }
+//                        DishesDBHelper.getInstance().insertFaceRecords(visitorList) //更新重试标志
+//                    }
+//
+//                } while (visitorList.isNotEmpty())
+//                faceAddTaskRunning.set(false)
+//                LogUtil.i(
+//                    TAG, "人员添加任务结束，成功下载$downloadSuccess 张，下载失败" + "$downloadFailed" +
+//                            " 张， 添加到人脸库$addLibSuccess 张， $addLibFailed 张添加人脸库失败"
+//                )
+//
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }finally {
+//                callbackListener?.onOtherListener(1, null)
+//                callbackListener = null
+//            }
+//        }
+//    }
 
 
     /**
      * 设备回调mqtt服务器
      * @param visitorInfo VisitorPeopleRecord
      */
-    private fun deviceCallback(messageId: String, name: String, number: String) {
-        val callback = MqttAddFaceCallback()
-        callback.code = FacePassUtils.getCode()
-        callback.msg = FacePassUtils.getMsg()
-        callback.messageId = messageId
-        callback.data =
-            MqttAddFaceCallback.DataBeanZ(name, number, CommonAndDpToPxUtil.getDeviceSerial())
-
-        binder.publish("deviceCallback", Gson().toJson(callback), 1)
-    }
+//    private fun deviceCallback(messageId: String, name: String, number: String) {
+//        val callback = MqttAddFaceCallback()
+//        callback.code = FacePassUtils.getCode()
+//        callback.msg = FacePassUtils.getMsg()
+//        callback.messageId = messageId
+//        callback.data =
+//            MqttAddFaceCallback.DataBeanZ(name, number, CommonAndDpToPxUtil.getDeviceSerial())
+//
+//        binder.publish("deviceCallback", Gson().toJson(callback), 1)
+//    }
 
     /**
      * 命令操作
@@ -431,42 +428,42 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //        }
     }
 
-    fun synchFace(callback: CallbackListener?) {
-        this.callbackListener = callback
-        if (faceExtract.get()) return
-        faceExtract.set(true)
-        mScope.launch {
-            DishesDBHelper.getInstance().deleteAllWaitAddFace()
-            DishesDBHelper.getInstance().deleteAllFaceToken()
-            //获取人脸操作句柄
-            val handler = FaceHandler.getInstance()?.ksHandler
-            //删除算法底库
-            FacePassUtils.deleteFaceLocalGroup(handler)
-            FacePassUtils.createGroup(handler)
-            callbackListener?.onOtherListener(0, "重新初始脸库")
-            val size = 0
-            var index = 0  //页码
-            do {
-                val searchPersons = DishesDBHelper.getInstance().searchPersons(index)
-                //图片不为空，    插入一条待入的记录
-                for (bean in searchPersons) {
-                    if (bean.image.isNotEmpty()) {
-                        val faceRecord = FaceRecord()
-                        faceRecord.custId = bean.custId
-                        faceRecord.image = bean.image
-                        DishesDBHelper.getInstance().insertWaitAddFace(faceRecord)
-                    }
-                }
-                index++
-            } while (size >= 100)
-            callbackListener?.onOtherListener(0, "生成同步列表")
-            MMKV.defaultMMKV().encode(Constant.FIRST_START, true) //修改为非首次启动
-            delay(10 * 1000)
-            faceExtract.set(false)
-            processingData()
-        }
-
-    }
+//    fun synchFace(callback: CallbackListener?) {
+//        this.callbackListener = callback
+//        if (faceExtract.get()) return
+//        faceExtract.set(true)
+//        mScope.launch {
+//            DishesDBHelper.getInstance().deleteAllWaitAddFace()
+//            DishesDBHelper.getInstance().deleteAllFaceToken()
+//            //获取人脸操作句柄
+//            val handler = FaceHandler.getInstance()?.ksHandler
+//            //删除算法底库
+//            FacePassUtils.deleteFaceLocalGroup(handler)
+//            FacePassUtils.createGroup(handler)
+//            callbackListener?.onOtherListener(0, "重新初始脸库")
+//            val size = 0
+//            var index = 0  //页码
+//            do {
+//                val searchPersons = DishesDBHelper.getInstance().searchPersons(index)
+//                //图片不为空，    插入一条待入的记录
+//                for (bean in searchPersons) {
+//                    if (bean.image.isNotEmpty()) {
+//                        val faceRecord = FaceRecord()
+//                        faceRecord.custId = bean.custId
+//                        faceRecord.image = bean.image
+//                        DishesDBHelper.getInstance().insertWaitAddFace(faceRecord)
+//                    }
+//                }
+//                index++
+//            } while (size >= 100)
+//            callbackListener?.onOtherListener(0, "生成同步列表")
+//            MMKV.defaultMMKV().encode(Constant.FIRST_START, true) //修改为非首次启动
+//            delay(10 * 1000)
+//            faceExtract.set(false)
+//            processingData()
+//        }
+//
+//    }
 
 
     @OptIn(ExperimentalTime::class)
@@ -505,7 +502,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                 if (currentPage >= bean.totalPage) {
                                     finish = true
                                     mv.encode(Constant.PERSONINFO_TIME, System.currentTimeMillis())
-                                    if (mv.decodeBool(Constant.FIRST_START, false).not()) synchFace(null) //首次启动将自动下载人脸图片
+//                                    if (mv.decodeBool(Constant.FIRST_START, false).not()) synchFace(null) //首次启动将自动下载人脸图片
                                 } else {
                                     currentPage = bean.page + 1
                                 }
@@ -539,7 +536,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
     private fun release() {
         mScope.cancel()
-        FaceHandler.getInstance()?.release()
+//        FaceHandler.getInstance()?.release()
         //取消mqtt监听
         binder.unRegisterListener()
         //断开mqtt
