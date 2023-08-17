@@ -78,31 +78,32 @@ class KeyBoardFragment : Fragment() {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
-            if (!judgePayCfg()) {
-                ToastShowUtil.show("商户信息不完整，请检查商户信息")
-                return@setOnClickListener
-            }
-            val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
-            val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
-            if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
-                val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
-                if (amount.toFloat() > limitAmount) {
-                    ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
-                    return@setOnClickListener
-                }
-                payPageJump(amount.toFloat())
-            } else {
-                val count = totalValue()
-                if (count != null) {
-                    if (count > limitAmount) {
-                        ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
-                        return@setOnClickListener
-                    }
-                    payPageJump(count)
-                    tvText = StringBuilder()
-                    binding.inputAmount.text = null
-                }
-            }
+            collectMoney()
+//            if (!judgePayCfg()) {
+//                ToastShowUtil.show("商户信息不完整，请检查商户信息")
+//                return@setOnClickListener
+//            }
+//            val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
+//            val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
+//            if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
+//                val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
+//                if (amount.toFloat() > limitAmount) {
+//                    ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+//                    return@setOnClickListener
+//                }
+//                payPageJump(amount.toFloat())
+//            } else {
+//                val count = totalValue()
+//                if (count != null) {
+//                    if (count > limitAmount) {
+//                        ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+//                        return@setOnClickListener
+//                    }
+//                    payPageJump(count)
+//                    tvText = StringBuilder()
+//                    binding.inputAmount.text = null
+//                }
+//            }
         }
         binding.backspace.setOnClickListener { //回退
             if (tvText.isNotEmpty()) {
@@ -126,6 +127,12 @@ class KeyBoardFragment : Fragment() {
                     tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
                 }
                 binding.inputAmount.text = tvText
+            }
+
+            Constant.EVENT_OTHER_PAY ->{
+                handler.post {
+                    collectMoney(event.any as Int)
+                }
             }
         }
     }
@@ -227,11 +234,11 @@ class KeyBoardFragment : Fragment() {
         }
     }
 
-    private fun payPageJump(amount: Float) {
+    private fun payPageJump(amount: Float,ways : Int? = null) {
 //        if (FaceHandler.getFaceHInstance().lock) ToastShowUtil.show("支付未完成")
         //TODO 跳转页面
         val bean = OrderPayInfo().apply {
-            type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+            type = ways ?: kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
             payment = amount
         }
 
@@ -258,6 +265,33 @@ class KeyBoardFragment : Fragment() {
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         payIntent.putExtra(Constant.PAY_DATE, bean)
         startActivity(payIntent)
+    }
+
+    private fun collectMoney(ways: Int? = null){
+        if (!judgePayCfg()) {
+            ToastShowUtil.show("商户信息不完整，请检查商户信息")
+
+        }
+        val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
+        val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
+        if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
+            val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
+            if (amount.toFloat() > limitAmount) {
+                ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+            }
+            payPageJump(amount.toFloat(),ways)
+        } else {
+            val count = totalValue()
+            if (count != null) {
+                if (count > limitAmount) {
+                    ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+
+                }
+                payPageJump(count,ways)
+                tvText = StringBuilder()
+                binding.inputAmount.text = null
+            }
+        }
     }
 
     override fun onDestroy() {

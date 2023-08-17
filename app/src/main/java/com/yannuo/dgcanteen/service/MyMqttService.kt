@@ -14,7 +14,6 @@ import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.CardPay
@@ -31,8 +30,6 @@ import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -41,6 +38,7 @@ import java.net.HttpURLConnection
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -90,17 +88,11 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             getPayCfg()
         }
 
-        //同步消费记录
-        synConsumerDish()
-
-        //离线补扣
-        offLineFillMoney()
-
-        //离线刷卡补扣
-        cardFillMoney()
-        //下载人员
-        downPerson()
-
+        synConsumerDish()//同步消费记录
+        offLineFillMoney() //离线补扣
+        cardFillMoney()    //离线刷卡补扣
+        downPerson()     //下载人员
+        upDataDishes()   //定时同步餐别和菜品图片、菜品价格
         LogUtil.d(TAG,"服务启动")
 
     }
@@ -371,7 +363,80 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     }
 
     /**
-     * 更新今天菜品和下载菜品图片
+     * 定时更新菜品
+     */
+    @OptIn(ExperimentalTime::class)
+    fun upDataDishes(){
+        mScope.launch() {
+            while (isActive) {
+                delay(Duration.minutes(80+ Random.nextInt(30)))
+                LogUtil.i(TAG,"定时任务:开始同步菜品")
+                val rs = mRespository.getDayDishes()
+                if (rs.code == HttpURLConnection.HTTP_OK) {
+                    val mealList = mutableListOf<MealTable>()
+                    val dishList = mutableListOf<DishesTable>()
+                    val picList = mutableListOf<String>() //菜品图片
+                    for (da in rs.data!!) {
+                        val meal = MealTable()
+                        meal.mealId = da.mealId
+                        meal.mealName = da.mealName
+
+                        da.startTime?.also {
+                            val split = it.split(":")
+                            val date = Date()
+                            date.hours = split[0].toInt()
+                            date.minutes = split[1].toInt()
+                            date.seconds = split[2].toInt()
+                            meal.startTime = date
+                        }
+
+                        da.endTime?.also {
+                            val split = it.split(":")
+                            val date = Date()
+                            date.hours = split[0].toInt()
+                            date.minutes = split[1].toInt()
+                            date.seconds = split[2].toInt()
+                            meal.endTime = date
+                        }
+
+                        mealList.add(meal)
+                        for (bean in da.selectedDishesList) {
+                            val dish = DishesTable()
+                            dish.dishesId = bean.dishesId
+                            dish.dishesName = bean.dishesName
+                            dish.mealId = da.mealId
+                            dish.price = bean.price.toDouble()
+                            dish.unit = bean.unit
+                            dish.imgUrl = bean.imgUrl
+                            dishList.add(dish)
+                            picList.add(bean.imgUrl)
+                        }
+                    }
+                    DishesDBHelper.getInstance().clearAllDishes()
+                    DishesDBHelper.getInstance().clearAllMeal()
+                    DishesDBHelper.getInstance().insertDishes(dishList)
+                    DishesDBHelper.getInstance().insertMeals(mealList)
+
+                    //下载菜品图片
+                    downLoadPic(picList)
+
+                    //设置菜品数据已更新
+                    val kv = MMKV.defaultMMKV()
+                    val now = DateFormat.format("yyyyMMdd HH:mm:ss", System.currentTimeMillis())
+                        .toString()
+                    kv.encode(Constant.UPDATE_TIME, now.substring(0, 8))
+                    kv.encode(Constant.FINAL_TIME, now)
+                    //发送菜品更新通知
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_FIFTH, null))
+                } else {
+                    LogUtil.e(TAG, "菜品下载出错 ${rs.msg}")
+                }
+            }
+        }
+    }
+
+    /**
+     * mqtt更新今天菜品和下载菜品图片
      */
     private fun updateMeal(payload :String){
         mScope.launch {

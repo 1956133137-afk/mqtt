@@ -3,4 +3,5 @@
     <dimen name="pay_nape">50dp</dimen>
     <dimen name="table_subitem">320dp</dimen>
     <dimen name="table_subitem_one">140dp</dimen>
+    <dimen name="bt_marg">30dp</dimen>
 </resources>

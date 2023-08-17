@@ -39,8 +39,7 @@ object CameraAIDL {
             MyApplication.applicationContext.bindService(
                 lIntent,
                 mServiceConnection,
-                AppCompatActivity.BIND_AUTO_CREATE
-            )
+                AppCompatActivity.BIND_AUTO_CREATE)
             return true
         }
         return false
@@ -54,6 +53,13 @@ object CameraAIDL {
             return
         }
         logic.startPayWithFace(mFacePayService,amount,listener)
+    }
+
+    fun unbind(){
+        mServiceConnection.also {
+            MyApplication.applicationContext.unbindService(it)
+        }
+
     }
 
 

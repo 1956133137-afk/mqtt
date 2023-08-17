@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_host"
+    android:id="@+id/ic_host"
     app:startDestination="@id/scanFragment">
     <fragment
         android:id="@+id/scanFragment"
@@ -26,6 +26,7 @@
             android:name="simpleForUI"
             app:argType="com.yannuo.dgcanteen.model.SimpleForUI" />
     </fragment>
+
     <fragment
         android:id="@+id/failFragment"
         android:name="com.yannuo.dgcanteen.activitys.fragment.FailFragment"

@@ -16,6 +16,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.dao.*
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
@@ -541,7 +542,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         binder.unRegisterListener()
         //断开mqtt
         binder.disconnect()
-
+        CameraAIDL.unbind()
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
     }

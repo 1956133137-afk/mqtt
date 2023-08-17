@@ -86,14 +86,14 @@
                 android:layout_marginTop="35dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:padding="18dp">
+                android:padding="10dp">
 
                 <TextClock
                     android:id="@+id/tv_clock"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:format24Hour="yyyy-MM-dd HH:mm:ss"
+                    android:format24Hour="MM-dd HH:mm:ss"
                     android:gravity="center"
                     android:textColor="#4F4F4F"
                     android:textSize="40sp" />
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_clock"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button_blue"
                     android:padding="10dp"
                     android:text="固定金额收款"
@@ -117,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/btn_fix_pay"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="90dp"
+                    android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button"
                     android:padding="10dp"
                     android:text="启动离线模式"
@@ -130,11 +130,52 @@
                     android:layout_height="80dp"
                     android:layout_below="@+id/btn_off"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="90dp"
+                    android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button"
                     android:padding="10dp"
                     android:text="@string/setting"
                     android:textColor="#4F4F4F"
+                    android:textSize="45sp" />
+
+
+                <Button
+                    android:id="@+id/btn_first"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_below="@+id/btn_setting"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/bt_marg"
+                    android:background="@drawable/click_button"
+                    android:padding="10dp"
+
+                    android:textColor="@color/table_unselet"
+                    android:textSize="45sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_second"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_below="@+id/btn_first"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/bt_marg"
+                    android:background="@drawable/click_button"
+                    android:padding="10dp"
+                    android:textStyle="bold"
+                    android:textColor="#45B2B7"
+                    android:textSize="45sp" />
+
+                <Button
+                    android:id="@+id/btn_third"
+                    android:layout_width="300dp"
+                    android:layout_height="80dp"
+                    android:layout_below="@+id/btn_second"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/bt_marg"
+                    android:background="@drawable/click_button"
+                    android:padding="10dp"
+                    android:textStyle="bold"
+                    android:textColor="#21D86E"
                     android:textSize="45sp" />
 
                 <TextView
@@ -144,7 +185,6 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
-                    android:text="12345"
                     android:textColor="#4F4F4F"
                     android:textSize="32sp" />
 

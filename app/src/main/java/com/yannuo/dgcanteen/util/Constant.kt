@@ -74,6 +74,10 @@ object Constant {
     const val EVENT_TENTH = 10 //mqtt连接状态
     const val EVENT_OFF_CHANGE = 21 //离线模式改变
     const val EVENT_QUOTA_CHANGE = 22 //定额模式改变
+    const val EVENT_OTHER_PAY = 23 //其它支付方式收款
+
+
+
 
 
     //手输入金额使用的配置

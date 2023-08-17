@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.common
 
 import android.os.RemoteException
 import android.text.TextUtils
+import android.text.format.DateFormat
 import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
@@ -48,6 +49,7 @@ class CameraLogic {
                 val err = PayResultForUI()
                 err.way = "人脸支付"
                 err.errormsg = "未配置支付环境"
+                err.timestamp = DateFormat.format("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis()).toString()
                 listener?.onFacePayResult(err)
                 return@launch
             }
@@ -65,38 +67,40 @@ class CameraLogic {
 
             service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
                 override fun onResult(result: String) {
-                    LogUtil.d(TAG, result)
-                    val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
-                    val payState = PayResultForUI()
-                    payState.way = "人脸支付"
-                    payState.orderid = payResult.ORDER_ID
-                    payState.timestamp = payResult.PAYTIME
-                    when (payResult.RESULT) {
-                        "Y" -> { //订单状态,成功
-                            payState.cust_name = payResult.CUST_NAME
-                            payState.custId = payResult.CUST_ID
-                            payState.payment = payResult.PAYMENT
-                            if (offline == 0) payState.payment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                            payState.acc_no = payResult.ACC_NO
-                            payState.acc_bal = payResult.ACC_BAL
-                            //检查支付结果，
-                            when (payResult.TRAN_RESULT) {
-                                "3" -> {  //3支付成功
-                                    payState.result = PayResultForUI.Result.SUCCESS
-                                    payState.traceid = payResult.TRACEID
-                                    saveOrSynConsumeRecord(payResult,payState,listener)
-                                }
-                                else -> { //1 -待支付、2-支付失败
-                                    payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                                    listener?.onFacePayResult(payState)
+                        LogUtil.d(TAG, result)
+                        val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                        val payState = PayResultForUI()
+                        payState.way = "人脸支付"
+                        payState.orderid = payResult.ORDER_ID
+                        payState.timestamp = payResult.PAYTIME
+                        when (payResult.RESULT) {
+                            "Y" -> { //订单状态,成功
+                                payState.cust_name = payResult.CUST_NAME
+                                payState.custId = payResult.CUST_ID
+                                payState.payment = payResult.PAYMENT
+                                if (offline == 0) payState.payment =
+                                    payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                                payState.acc_no = payResult.ACC_NO
+                                payState.acc_bal = payResult.ACC_BAL
+                                //检查支付结果，
+                                when (payResult.TRAN_RESULT) {
+                                    "3" -> {  //3支付成功
+                                        payState.result = PayResultForUI.Result.SUCCESS
+                                        payState.traceid = payResult.TRACEID
+                                        saveOrSynConsumeRecord(payResult, payState, listener)
+                                    }
+                                    else -> { //1 -待支付、2-支付失败
+                                        payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                                        listener?.onFacePayResult(payState)
+                                    }
                                 }
                             }
+                            else -> { //订单状态,失败
+                                payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                                payState.timestamp = DateFormat.format("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis()).toString()
+                                listener?.onFacePayResult(payState)
+                            }
                         }
-                        else -> { //订单状态,失败
-                            payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                            listener?.onFacePayResult(payState)
-                        }
-                    }
                 }
             })
         }
@@ -165,7 +169,8 @@ class CameraLogic {
                 saveOrder.cusT_ID = CUST_ID
                 saveOrder.payment = PAYMENT ?:0.0
 
-                saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
+//                saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
+                saveOrder.actuaL_PAYMENT = PAYMENT ?:0.0
                 saveOrder.acC_NO = ACC_NO
                 saveOrder.acC_BAL = ACC_BAL ?:0.0
                 saveOrder.acC_TYPE = ACC_TYPE ?:1

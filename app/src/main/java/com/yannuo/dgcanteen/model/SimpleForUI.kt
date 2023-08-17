@@ -8,7 +8,7 @@ import android.os.Parcelable
  * @property
  */
 class SimpleForUI() :Parcelable {
-    var custName  = ""  //姓名
+    var custName  :String ?= ""  //姓名
     var payment = 0.0F  //支付金额
     var accNo = ""      //支付账户
     var timestamp = ""  //支付时间

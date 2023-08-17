@@ -24,6 +24,7 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.*
 
 /**
  * Author: filowl
@@ -42,6 +43,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private lateinit var secondDisplays: Display
     private lateinit var simpleDisplay: SimpleDisplay
     private val handler = Handler()
+    private lateinit var maps :MutableMap<String, Int >
+    private var lastTime = 0L  //上次触发时间
 
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
@@ -59,6 +62,19 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
+
+        maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
+            "刷卡" to Constant.PAY_IC_TYPE ,
+            "扫码"  to Constant.PAY_CODE_TYPE,
+            "刷卡扫码" to Constant.PAY_CODE_IC_TYPE,
+        )
+        val type = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
+            Constant.PAY_FACE_TYPE -> "刷脸"
+            Constant.PAY_IC_TYPE -> "刷卡"
+            Constant.PAY_CODE_TYPE -> "扫码"
+            else -> "刷卡扫码"
+        }
+        maps.remove(type)
     }
 
     @SuppressLint("SetTextI18n")
@@ -68,14 +84,41 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
         }
-        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
+        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial().uppercase(Locale.getDefault())}\n" +
                 "v${packageManager.getPackageInfo(packageName, 0).versionName}"
+
     }
 
     override fun onResume() {
         initPresentation()
         super.onResume()
-//        mXService?.hideNavBar = true
+        mXService?.hideNavBar = true
+
+        maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
+            "刷卡" to Constant.PAY_IC_TYPE ,
+            "扫码"  to Constant.PAY_CODE_TYPE,
+            "刷卡扫码" to Constant.PAY_CODE_IC_TYPE,
+        )
+        val type = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
+            Constant.PAY_FACE_TYPE -> "刷脸"
+            Constant.PAY_IC_TYPE -> "刷卡"
+            Constant.PAY_CODE_TYPE -> "扫码"
+            else -> "刷卡扫码"
+        }
+        maps.remove(type)
+        maps.entries.forEachIndexed { index, it ->
+            when(index){
+                0->{
+                    binding.btnFirst.text = it.key
+                }
+                1->{
+                    binding.btnSecond.text = it.key
+                }
+                2->{
+                    binding.btnThird.text = it.key
+                }
+            }
+        }
     }
 
     private fun initPresentation() {
@@ -135,6 +178,28 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                         startActivity(Intent(this@CalculateActivity, SettingActivity::class.java))
                     }
                 })
+            }
+        }
+
+        binding.btnFirst.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            maps[binding.btnFirst.text.trim()].also {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
+            }
+        }
+        binding.btnSecond.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            maps[binding.btnSecond.text.trim()].also {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
+            }
+        }
+        binding.btnThird.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            maps[binding.btnThird.text.trim()].also {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
     }
