@@ -15,15 +15,17 @@ class SimpleForUI() :Parcelable {
     var tranId = ""     //流水号
     var orderId = ""    //订单号
     var errorMsg = ""   //错误信息
+    var acc_bal: String ?= ""  //虚拟账户余额
 
     constructor(parcel: Parcel) : this() {
-        custName = parcel.readString().toString()
+        custName = parcel.readString()
         payment = parcel.readFloat()
         accNo = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         tranId = parcel.readString().toString()
         orderId = parcel.readString().toString()
         errorMsg = parcel.readString().toString()
+        acc_bal = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -34,6 +36,7 @@ class SimpleForUI() :Parcelable {
         parcel.writeString(tranId)
         parcel.writeString(orderId)
         parcel.writeString(errorMsg)
+        parcel.writeString(acc_bal)
     }
 
     override fun describeContents(): Int {
@@ -49,4 +52,6 @@ class SimpleForUI() :Parcelable {
             return arrayOfNulls(size)
         }
     }
+
+
 }

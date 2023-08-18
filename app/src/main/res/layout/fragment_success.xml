@@ -164,6 +164,27 @@
                         android:textColor="#6C6C6C"
                         android:textSize="50sp" />
                 </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="账户余额"
+                        android:textColor="#6C6C6C"
+                        android:textSize="50sp" />
+
+                    <TextView
+                        android:id="@+id/order_balance"
+                        android:layout_width="0px"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textColor="#6C6C6C"
+                        android:textSize="50sp" />
+                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>

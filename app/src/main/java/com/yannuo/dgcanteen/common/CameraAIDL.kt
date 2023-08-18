@@ -56,10 +56,11 @@ object CameraAIDL {
     }
 
     fun unbind(){
-        mServiceConnection.also {
-            MyApplication.applicationContext.unbindService(it)
+         mFacePayService?.also {
+             mServiceConnection.also {
+                 MyApplication.applicationContext.unbindService(it)
+             }
         }
-
     }
 
 

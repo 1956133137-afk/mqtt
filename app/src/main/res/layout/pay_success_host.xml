@@ -125,6 +125,28 @@
                 android:textColor="#6C6C6C"/>
 
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="550dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="账户余额"
+                android:textSize="28sp"
+                android:textColor="#6C6C6C"/>
+            <TextView
+                android:id="@+id/tv_balance"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="right|center_vertical"
+                android:textSize="28sp"
+                android:textColor="#6C6C6C"/>
+
+        </LinearLayout>
 
 <!--        <Button-->
 <!--            android:id="@+id/bt_back"-->

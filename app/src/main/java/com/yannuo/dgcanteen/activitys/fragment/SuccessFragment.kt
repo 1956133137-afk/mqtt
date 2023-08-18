@@ -46,6 +46,7 @@ class SuccessFragment : Fragment() {
             binding.tradTime.text = timestamp
             binding.tradNumber.text = tranId
             binding.orderNumber.text = orderId
+            binding.orderBalance.text = (acc_bal ?: "")+" 元"
         }
         onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 2).toLong())
     }

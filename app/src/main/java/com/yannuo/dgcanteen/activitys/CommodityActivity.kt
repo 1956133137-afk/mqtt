@@ -376,7 +376,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         successBinding!!.tvName.text = data.cust_name ?: "***"
         successBinding!!.tvClass.text = cls
-
+        successBinding!!.tvBalance.text = (data.acc_bal ?: "") +"元"
         var time = data.timestamp ?: ""
         if (time.isEmpty().not()) {
             val buffer = StringBuffer()

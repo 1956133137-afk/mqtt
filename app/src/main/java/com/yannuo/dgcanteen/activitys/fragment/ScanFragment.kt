@@ -127,6 +127,7 @@ class ScanFragment : Fragment(), CallbackListener {
                         tranId = data.traceid ?: "---"
                         orderId = data.orderid.toString()
                         errorMsg = data.errormsg.toString()
+                        acc_bal = data.acc_bal
                     }
                     if (data.result == PayResultForUI.Result.SUCCESS) {
                         CommonAndDpToPxUtil.speakWork("支付成功")

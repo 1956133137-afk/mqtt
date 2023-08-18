@@ -370,6 +370,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         mScope.launch() {
             while (isActive) {
                 delay(Duration.minutes(80+ Random.nextInt(30)))
+//                delay(Duration.seconds(30))
                 LogUtil.i(TAG,"定时任务:开始同步菜品")
                 val rs = mRespository.getDayDishes()
                 if (rs.code == HttpURLConnection.HTTP_OK) {

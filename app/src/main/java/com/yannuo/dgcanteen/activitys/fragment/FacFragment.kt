@@ -68,6 +68,7 @@ class FacFragment : Fragment(), IProductsVM {
             tranId = data.traceid ?: "---"
             orderId = data.orderid.toString()
             errorMsg = data.errormsg.toString()
+            acc_bal = data.acc_bal
         }
         mScope.launch {
             repeat(20) {

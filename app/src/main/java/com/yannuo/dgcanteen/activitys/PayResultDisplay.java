@@ -151,7 +151,8 @@ public class PayResultDisplay extends Presentation {
         }
         mBinding.tvPayTime.setText(time);
         mBinding.tvTransNumber.setText(mPayResult.getOrderid());
-
+        String cont = (mPayResult.getAcc_bal().isEmpty() ? "" :mPayResult.getAcc_bal()) + "元";
+        mBinding.tvBalance.setText( cont);
     }
 
     private void initEvent() {
