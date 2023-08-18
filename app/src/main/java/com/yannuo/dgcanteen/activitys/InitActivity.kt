@@ -59,23 +59,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         loading = LoadingDialog(this)
         scope = CoroutineScope(Dispatchers.IO)
 //        initView()
-        scope.launch {
-            val result = withTimeoutOrNull(1000 * 60 * 5) {
-//            val result = withTimeoutOrNull(1000 * 10) {
-                repeat(10) {
-                    delay(1000 * 60)
-                    val md = kv.decodeString(Constant.APP_MODE)
-                    if (md.isNullOrEmpty().not()) {
-                        return@withTimeoutOrNull 1
-                    }
-                }
-            }
-            if (result==null){
-                kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-                LogUtil.d(TAG,"超时未选择模式...")
-                initMode()
-            }
-        }
+
         initEvent()
     }
 
@@ -201,7 +185,23 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         binding.initFrame.visibility = View.VISIBLE
                         binding.awaitFrame.visibility = View.INVISIBLE
                     }
+
+                    val result = withTimeoutOrNull(1000 * 60 * 5) {
+                        repeat(10) {
+                            delay(1000 * 60)
+                            val md = kv.decodeString(Constant.APP_MODE)
+                            if (md.isNullOrEmpty().not()) {
+                                return@withTimeoutOrNull 1
+                            }
+                        }
+                    }
+                    if (result==null){
+                        kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+                        LogUtil.d(TAG,"超时未选择模式...")
+                        initMode()
+                    }
                 }
+
             }
         }
     }
