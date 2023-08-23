@@ -160,7 +160,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
                     val intent = Intent(this@InitActivity, MyMqttService::class.java)
                     startService(intent)
-                    startActivity(Intent(this@InitActivity, CommodityActivity::class.java))
+                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(intent1)
                     delay(50)
                     finish()
                 }

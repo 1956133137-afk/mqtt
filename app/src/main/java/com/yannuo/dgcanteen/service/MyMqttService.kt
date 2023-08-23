@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.DishesTable
 import com.yannuo.dgcanteen.dao.MealTable
@@ -625,6 +626,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
+        MyApplication.setCreate(false)
         //关闭扫码头
 //        ScanDevice.closeScan()
         mScope.cancel()

@@ -91,7 +91,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            LogUtil.d(TAG, " onServiceConnected")
+            LogUtil.d(TAG, "onServiceConnected")
             mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
         }
 
@@ -195,6 +195,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 if (it != null && it.isShowing) {
                     return@also
                 }
+                mProductsDisplay?.cancel()
                 mProductsDisplay = DifferentDisplay(this, secondDisplays)
                 mProductsDisplay?.show()
             }
@@ -537,6 +538,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      * 打开选餐界面
      */
     private fun startDishDisplay() {
+        mProductsDisplay?.cancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
         mProductsDisplay?.show()
         handler.postDelayed({

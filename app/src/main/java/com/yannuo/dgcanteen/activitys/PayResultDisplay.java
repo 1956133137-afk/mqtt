@@ -37,6 +37,7 @@ public class PayResultDisplay extends Presentation {
     private PayResultForUI mPayResult;
     private CountDownTimer countDownTimer;
     private int time = 0;
+    private volatile boolean sendCancel = false;
 
     public PayResultDisplay(Context outerContext, PayResultForUI payResult , Display display) {
         super(outerContext, display);
@@ -164,6 +165,8 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void back(){
+        if (sendCancel)return;
+        sendCancel = true;
         EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD,null));
     }
 

@@ -17,6 +17,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.CameraAIDL
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.dao.*
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
@@ -537,6 +538,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
     private fun release() {
         mScope.cancel()
+        MyApplication.setCreate(false)
 //        FaceHandler.getInstance()?.release()
         //取消mqtt监听
         binder.unRegisterListener()

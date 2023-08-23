@@ -39,8 +39,8 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
 
     override fun onResume() {
         super.onResume()
-        supportFragmentManager.isStateSaved
-        super.onPostResume()
+//        supportFragmentManager.isStateSaved
+//        super.onPostResume()
         LogUtil.d(TAG,"ON RESUME")
     }
 

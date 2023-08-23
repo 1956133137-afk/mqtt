@@ -27,6 +27,7 @@ class FacFragment : Fragment(), IProductsVM {
     private val TAG = javaClass.simpleName
 
     private lateinit var mScope: CoroutineScope
+    private var resume = false
 
 
     override fun onCreateView(
@@ -41,7 +42,17 @@ class FacFragment : Fragment(), IProductsVM {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        resume = true
+        LogUtil.i(TAG,"resume...")
+    }
 
+    override fun onStop() {
+        super.onStop()
+        LogUtil.i(TAG,"onStop...")
+        resume = false
+    }
 
 
     private fun initObject() {
@@ -54,7 +65,7 @@ class FacFragment : Fragment(), IProductsVM {
 
     private fun initEvent() {
         binding.btnBack.setOnClickListener {
-            CommonAndDpToPxUtil.speakWork("取消支付")
+//            CommonAndDpToPxUtil.speakWork("取消支付")
             requireActivity().finish()
         }
     }
@@ -71,9 +82,9 @@ class FacFragment : Fragment(), IProductsVM {
             acc_bal = data.acc_bal
         }
         mScope.launch {
-            repeat(20) {
-                if (isStateSaved) {
-                    delay(50)
+            repeat(300) {
+                if (isStateSaved && !resume) {
+                    delay(20)
                     return@repeat
                 }
                 withContext(Dispatchers.Main){

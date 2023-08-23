@@ -59,7 +59,9 @@ public class MyApplication extends Application {
     public static boolean getCreate(){
        return create ;
     }
-
+    public static boolean setCreate(boolean value){
+        return value ;
+    }
     public void initMMKV(){
         kv = MMKV.defaultMMKV();
 

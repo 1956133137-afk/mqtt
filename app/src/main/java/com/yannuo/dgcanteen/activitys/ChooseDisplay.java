@@ -39,7 +39,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     private WaitForPayDialog waitForPayDialog;
     private LoadingDialog loadingDialog;
     private PayPresenter mPresenter;
-
+    private volatile boolean sendCancel = false;
 
 
     public ChooseDisplay(Context outerContext, ProductsDetail dishes , Display display) {
@@ -119,7 +119,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         if (mPresenter != null) {
             mPresenter.release();
         }
-        LogUtil.d(TAG,"stop...");
+        LogUtil.i(TAG,"stop...");
         super.onStop();
     }
 
@@ -157,6 +157,8 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                         .subscribe(integer -> {
                             if (loadingDialog != null) loadingDialog.cancel();
                         });
+                if (sendCancel)return;
+                sendCancel = true;
                 EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
                 break;
             case 5: //离线码过期或者二维码无效
