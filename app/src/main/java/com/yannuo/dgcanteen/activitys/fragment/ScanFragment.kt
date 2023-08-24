@@ -165,7 +165,7 @@ class ScanFragment : Fragment(), CallbackListener {
             }
 
             override fun onFinish() {
-                countDown?.cancel()
+//                countDown?.cancel()
                 CommonAndDpToPxUtil.speakWork("支付超时")
                 requireActivity().finish()
             }

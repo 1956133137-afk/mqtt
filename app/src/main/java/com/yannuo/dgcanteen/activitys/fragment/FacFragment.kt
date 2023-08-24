@@ -82,7 +82,7 @@ class FacFragment : Fragment(), IProductsVM {
             acc_bal = data.acc_bal
         }
         mScope.launch {
-            repeat(300) {
+            repeat(150) {
                 if (isStateSaved && !resume) {
                     delay(20)
                     return@repeat

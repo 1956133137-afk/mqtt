@@ -18,6 +18,7 @@ import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -35,7 +36,8 @@ class KeyBoardFragment : Fragment() {
     private lateinit var binding: FragmentInputKeyboardBinding
     private var tvText: StringBuilder = StringBuilder()
     private val kv = MMKV.defaultMMKV()
-    private val handler = Handler()
+    private var mLock = false
+//    private val handler = Handler()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -117,22 +119,33 @@ class KeyBoardFragment : Fragment() {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    override fun onResume() {
+        super.onResume()
+        mLock = true
+        LogUtil.i(TAG,"键盘解锁...")
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun eventKeyBoard(event: MessageEvent) {
         when (event.code) {
-            Constant.EVENT_QUOTA_CHANGE -> handler.post {
-                btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
-                tvText = StringBuilder()
-                if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
-                    tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
-                }
-                binding.inputAmount.text = tvText
+            Constant.EVENT_QUOTA_CHANGE ->
+            {
+//                handler.post {
+                    btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
+                    tvText = StringBuilder()
+                    if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
+                        tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+                    }
+                    binding.inputAmount.text = tvText
+//                }
             }
 
             Constant.EVENT_OTHER_PAY ->{
-                handler.post {
+//                handler.post {
+
                     collectMoney(event.any as Int)
-                }
+//                }
             }
         }
     }
@@ -260,7 +273,8 @@ class KeyBoardFragment : Fragment() {
             ToastShowUtil.show("设备没有网络或者开启离线模式")
             return
         }
-
+        if (mLock.not())return
+        mLock = false
         val payIntent = Intent(requireContext(), HostActivity::class.java)
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         payIntent.putExtra(Constant.PAY_DATE, bean)
@@ -268,9 +282,10 @@ class KeyBoardFragment : Fragment() {
     }
 
     private fun collectMoney(ways: Int? = null){
+        LogUtil.i(TAG,"${ways}")
         if (!judgePayCfg()) {
             ToastShowUtil.show("商户信息不完整，请检查商户信息")
-
+            return
         }
         val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
         val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
@@ -278,6 +293,8 @@ class KeyBoardFragment : Fragment() {
             val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
             if (amount.toFloat() > limitAmount) {
                 ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+                CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                return
             }
             payPageJump(amount.toFloat(),ways)
         } else {
@@ -285,7 +302,8 @@ class KeyBoardFragment : Fragment() {
             if (count != null) {
                 if (count > limitAmount) {
                     ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
-
+                    CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                    return
                 }
                 payPageJump(count,ways)
                 tvText = StringBuilder()

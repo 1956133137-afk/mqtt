@@ -59,7 +59,7 @@ class SuccessFragment : Fragment() {
             }
 
             override fun onFinish() {
-                countDown?.cancel()
+//                countDown?.cancel()
                 requireActivity().finish()
             }
         }

@@ -17,8 +17,8 @@ public class MyBroadcast extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = "android.intent.action.BOOT_COMPLETED";
         Log.i("MyBroadcast","create ："+MyApplication.getCreate());
-//        if (intent.getAction().equals(action) && (!MyApplication.getCreate())){
-        if (intent.getAction().equals(action)){
+        if (intent.getAction().equals(action) && (!MyApplication.getCreate())){
+//        if (intent.getAction().equals(action)){
             ToastShowUtil.show("boot");
             LogUtil.i("MyBroadcast", "reboot...");
             Intent intent1 = new Intent(context, InitActivity.class);

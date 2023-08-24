@@ -28,7 +28,7 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         val navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
         val bundle = Bundle()
         bundle.putParcelable(Constant.PAY_DATE, payInfo)
-
+        LogUtil.d(TAG,"onInit")
         if (payInfo.type != Constant.PAY_FACE_TYPE) {
             navHostFragment?.navController!!.setGraph(R.navigation.ic_graph, bundle)
 //            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
