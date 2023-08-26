@@ -102,20 +102,19 @@ class ScanFragment : Fragment(), CallbackListener {
     //刷卡返回数据
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
+            if (this::awaitPayDialog.isInitialized && awaitPayDialog.isShowing) awaitPayDialog.dismiss()
             when (event) {
                 1 -> { //开始支付
-                    if (!this::awaitPayDialog.isInitialized) awaitPayDialog =
-                        AwaitingDialog(requireActivity())
+                    if (!this::awaitPayDialog.isInitialized)
+                        awaitPayDialog = AwaitingDialog(requireActivity())
                     awaitPayDialog.show()
                     awaitPayDialog.updateText("支付中")
                 }
                 2 -> { //异常
-                    awaitPayDialog.dismiss()
                     ToastShowUtil.show("支付异常：$any")
                     LogUtil.d(TAG, "支付异常：$any")
                 }
                 3, 4 -> { //支付结果
-                    awaitPayDialog.dismiss()
                     countDown?.cancel()
                     val data = any as PayResultForUI
                     LogUtil.d(TAG, Gson().toJson(data))
@@ -140,14 +139,13 @@ class ScanFragment : Fragment(), CallbackListener {
                     }
                 }
                 5 -> { //无效码
-                    awaitPayDialog.dismiss()
                     when (any as Int) {
                         1 -> {
                             ToastShowUtil.show("请刷新付款码再支付")
                             CommonAndDpToPxUtil.speakWork("请刷新付款码再支付")
                         }
                         else -> {
-                            ToastShowUtil.show("请刷新付款码再支付")
+                            ToastShowUtil.show("请切换离线码再支付")
                             CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                         }
                     }

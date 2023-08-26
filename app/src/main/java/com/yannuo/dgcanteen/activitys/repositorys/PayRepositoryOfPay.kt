@@ -68,6 +68,12 @@ class PayRepositoryOfPay {
         return RetrofitClient.getApiCcb().ccbRequestNet(map)
     }
 
+    suspend fun getConsumeStatus(data: SpendLimitBean): CanteenResponse<LimitBean> {
+        return apiCall {
+            return@apiCall RetrofitClient.getApi().spendLimit(data)
+        }
+    }
+
     private suspend fun <T> apiCall(call :suspend CoroutineScope.() -> CanteenResponse<T>):CanteenResponse<T>{
         return withContext(Dispatchers.IO){
             val res:CanteenResponse<T>

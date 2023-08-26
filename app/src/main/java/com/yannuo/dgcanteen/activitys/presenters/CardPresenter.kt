@@ -7,13 +7,11 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.OwnOrder
+import com.yannuo.dgcanteen.dao.Persons
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
-import com.yannuo.dgcanteen.model.PayCfg
-import com.yannuo.dgcanteen.model.PayResultForUI
-import com.yannuo.dgcanteen.model.ScanQrResultBean
-import com.yannuo.dgcanteen.model.SynConsumeRecordBean
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +35,7 @@ class CardPresenter : OnReadDataListener {
     var listener: CallbackListener? = null
     private lateinit var mRespository: PayRepositoryOfPay
     private var cardStatus = CardStatus.INVALID
+    private var persons: Persons? = null
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception $throwable ${throwable.message}")
@@ -61,6 +60,7 @@ class CardPresenter : OnReadDataListener {
     fun openIcCard(payment: Float) {
         payAmount = payment
         cardStatus = CardStatus.PAY
+        persons = null
         mCardHandle.readDataListener = this
         mCardHandle.openSerialPort("/dev/ttyS4")
 //          mCardHandle.openSerialPort("/dev/ttyXRUSB0")
@@ -82,31 +82,76 @@ class CardPresenter : OnReadDataListener {
             if (cardStatus == CardStatus.INVALID) return@also
             cardStatus = CardStatus.INVALID
             LogUtil.d(TAG, "number :${it.uppercase()}")
-            payByCard(it.uppercase())
+            icCardMsgHandler(it.uppercase())
         }
     }
 
-    private fun payByCard(cardId: String) {
+    //卡号处理
+    private fun icCardMsgHandler(number: String) {
         listener?.onOtherListener(1)
-        val payBean = CardPay()
-        payBean.campus_id = mPayCfg.campusId
-        payBean.corp_id = mPayCfg.corp_id
-        payBean.txcode = "PAY005"
-        payBean.business_id = mPayCfg.businessId
-        payBean.vpos_id = mPayCfg.counterId
-        payBean.payment = payAmount.toString()
-        payBean.actual_payment = payAmount.toString()
-        payBean.offline = "0"
+        persons = DishesDBHelper.getInstance().queryPersonToCardId(number)
+        val payTime = DateFormat.format("yyyyMMddHHmmss", System.currentTimeMillis()).toString()
+        if (persons == null) {
+            val res = PayResultForUI().apply {
+                way = "刷卡支付"
+                cust_name = "***"
+                payment = payAmount.toString()
+                this.result = PayResultForUI.Result.FAIL
+                timestamp = payTime
+                errormsg = "error 用户不存在 "
+            }
+            listener?.onOtherListener(3, res)
+            return
+        }
+        runBlocking(Dispatchers.IO + mHandler) {
+            val bean = SpendLimitBean().apply {
+                campusId = mPayCfg.campusId
+                businessId = mPayCfg.businessId
+                vposId = mPayCfg.counterId
+                cidNumber = ""
+                custId = persons?.custId
+                payment = payAmount.toString()
+            }
+            val res = mRespository.getConsumeStatus(bean)
+            LogUtil.d(TAG, Gson().toJson(res))
+            if (res.data?.limit == true) { //是否受限
+                val payResult = PayResultForUI().apply {
+                    way = "刷卡支付"
+                    cust_name = persons?.personName
+                    payment = payAmount.toString()
+                    this.result = PayResultForUI.Result.FAIL
+                    timestamp = payTime
+                    errormsg = if (res.data?.type == 0) {
+                        "error 支付次数受限 "
+                    }else{
+                        "error 支付金额受限 "
+                    }
 
+                }
+                listener?.onOtherListener(3, payResult)
+                return@runBlocking
+            }
+            payByCard(number, payTime)
+        }
+    }
+
+    private fun payByCard(cardId: String, payTime: String) {
+        val payBean = CardPay().apply {
+            campus_id = mPayCfg.campusId
+            corp_id = mPayCfg.corp_id
+            txcode = "PAY005"
+            business_id = mPayCfg.businessId
+            vpos_id = mPayCfg.counterId
+            payment = payAmount.toString()
+            actual_payment = payAmount.toString()
+            sign_time = payTime
+            card_id = cardId
+            order_id = NumberGenerateUtil.getOrderNumber()
+            cust_id = persons?.custId
+            offline = "0"
+        }
         if (kv.decodeBool(Constant.SWITCH)) {
             payBean.offline = "1"
-        }
-        payBean.sign_time = DateFormat.format("yyyyMMddHHmmss", System.currentTimeMillis()).toString()
-        payBean.card_id = cardId
-        payBean.order_id = NumberGenerateUtil.getOrderNumber()
-        val persons = DishesDBHelper.getInstance().queryPersonToCardId(payBean.card_id)
-        if (persons != null) {
-            payBean.cust_id = persons.custId
         }
 
         var res: ScanQrResultBean? = null
@@ -120,28 +165,17 @@ class CardPresenter : OnReadDataListener {
                             ScanQrResultBean::class.java
                         )
                     }
-                    LogUtil.e("ning", Gson().toJson(res))
                     if (res?.RESULT.toString() == "Y") {
                         res?.let { consumeRecord(payBean, it) }
                     }
-                    if (persons != null) {
-                        listener?.onOtherListener(3, resForUI("刷卡支付", payBean, res))
-                    } else {
-                        res = ScanQrResultBean("", "用户不存在")
-                        listener?.onOtherListener(3, resForUI("刷卡支付", payBean, res))
-                    }
+                    listener?.onOtherListener(3, resForUI("刷卡支付", payBean, res))
                 }
             }
             "1" -> {
-                if (persons != null) {
-                    payBean.up = false
-                    DishesDBHelper.getInstance().insertCardOrder(payBean)
-                    LogUtil.d(TAG, "离线订单已保存")
-                    listener?.onOtherListener(4, resForUI("刷卡支付", payBean, res))
-                } else {
-                    res = ScanQrResultBean("", "用户不存在")
-                    listener?.onOtherListener(3, resForUI("刷卡支付", payBean, res))
-                }
+                payBean.up = false
+                DishesDBHelper.getInstance().insertCardOrder(payBean)
+                LogUtil.d(TAG, "离线订单已保存")
+                listener?.onOtherListener(4, resForUI("刷卡支付", payBean, res))
             }
         }
     }
@@ -153,8 +187,6 @@ class CardPresenter : OnReadDataListener {
         payState.orderid = data.order_id
         payState.custId = data.cust_id
         payState.timestamp = data.sign_time
-//        payState.dishes = null
-//        payState.piece = 0
         payState.cust_name = persons?.personName ?: "***"
         payState.payment = data.payment
         if (res == null || res.RESULT.toString() == "Y") {

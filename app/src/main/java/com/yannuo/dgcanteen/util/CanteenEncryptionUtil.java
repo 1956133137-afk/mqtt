@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -56,6 +57,13 @@ public class CanteenEncryptionUtil {
                             ccbBean.getTXCODE(),
                             ccbBean.getCORP_ID(),
                      "QR_CODE=" + ccbBean.getQR_CODE());
+    }
+
+    public static HashMap<String, String> getAnalysisQr(Map<String,String> map){
+        return getSamePart(map.get("CAMPUS_ID"),
+                           map.get("TXCODE"),
+                           map.get("CORP_ID"),
+                    "QR_CODE=" + map.get("QR_CODE"));
     }
 
     /**
