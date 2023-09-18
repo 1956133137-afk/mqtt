@@ -18,21 +18,24 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.adapters.FoodsAdapter
 import com.yannuo.dgcanteen.adapters.HostPayResultAdapter
-import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
+import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
+import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
@@ -47,7 +50,7 @@ import java.lang.ref.WeakReference
 
 
 class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
-    NetworkStateManager.NetWorkListener {
+    NetworkStateManager.NetWorkListener, FoodsCallback {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -87,7 +90,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private var successBinding: PaySuccessHostBinding? = null
     private var failBinding: PayFailureHostBinding? = null
     private var mScope: CoroutineScope? = null
-
+    private var adapterDishes: FoodsAdapter ? = null
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -103,6 +106,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
+
     }
 
 
@@ -126,10 +130,17 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private fun initPresentation() {
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+
         displayManager?.displays?.also {
             secondDisplays = it[1]
             mProductsDisplay = DifferentDisplay(this, secondDisplays)
+            mProductsDisplay?.setFoodsCallback(this)
+            clearFoods()
             mProductsDisplay?.show()
+            mPayResultDisplay?.cancel()
+            mChooseDisplay?.cancel()
+            mPayResultDisplay = null
+            mChooseDisplay = null
         }
     }
 
@@ -173,6 +184,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
         }
+        val gridLayoutManager = GridLayoutManager(this,2)
+        adapterDishes = FoodsAdapter(this)
+        binding.rvFoods.layoutManager = gridLayoutManager
+        binding.rvFoods.adapter = adapterDishes
+//        adapterDishes?.setImgSize(gridLayoutManager)
     }
 
     override fun onResume() {
@@ -197,7 +213,10 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 }
                 mProductsDisplay?.cancel()
                 mProductsDisplay = DifferentDisplay(this, secondDisplays)
+                mProductsDisplay?.setFoodsCallback(this)
+                clearFoods()
                 mProductsDisplay?.show()
+
             }
 
             if (mChooseDisplay != null) {
@@ -248,10 +267,12 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 event.any?.also {
                     val data = it as ProductsDetail
                     val copy = data.copy()
-                    handler.post {
-                        dealWith(copy)
-                        binding.btBackPay.text = "支付解锁\n(支付页面)"
-                    }
+                   runOnUiThread {
+                       dealWith(copy)
+                       binding.btBackPay.text = "支付解锁\n(支付页面)"
+                   }
+
+//                    }
 //                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
                 }
             }
@@ -268,6 +289,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                             LogUtil.e(TAG, "获取不到人脸句柄")
                             return
                         }
+                        mPayResultDisplay?.cancel()
+                        mPayResultDisplay = null
                         mChooseDisplay?.cancel()
                         mChooseDisplay = null
                         mProductsVM.startPayWithFace(mFacePayService, iit)
@@ -276,7 +299,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             }
             Constant.EVENT_THIRD -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收返回点餐页面事件~")
-                handler.post {
+                runOnUiThread {
                     binding.btBackPay.text = "支付解锁\n(选餐页面)"
                     startDishDisplay()
                 }
@@ -290,6 +313,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                         handler.postDelayed({
                             mChooseDisplay?.cancel()
                             mChooseDisplay = null
+                            mProductsDisplay?.cancel()
+                            mProductsDisplay = null
                             binding.btBackPay.text = "支付解锁\n(结果页面)"
                         }, 50)
                         updatePayResult(fit)
@@ -511,6 +536,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private fun dealWith(list: ProductsDetail) {
         mChooseDisplay = ChooseDisplay(this, list, secondDisplays)
         mChooseDisplay?.show()
+        mPayResultDisplay?.cancel()
+        mPayResultDisplay = null
         handler.postDelayed({
             mProductsDisplay?.cancel()
             mProductsDisplay = null
@@ -540,7 +567,12 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private fun startDishDisplay() {
         mProductsDisplay?.cancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
+        mProductsDisplay?.setFoodsCallback(this)
+        clearFoods()
         mProductsDisplay?.show()
+
+        mChooseDisplay?.cancel()
+        mChooseDisplay = null
         handler.postDelayed({
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
@@ -634,6 +666,27 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 }
             }
         }
+    }
+
+    override fun onFoodsUpdate(foods: Any?) {
+        val list = foods as? MutableList<DishesInfo>
+        val foodsList = mutableListOf<DishesInfo> ()
+        if(list.isNullOrEmpty()){
+            clearFoods()
+            return
+        }
+        val bg = binding.rvFoods.background
+        if (bg == null)binding.rvFoods.setBackgroundResource(R.drawable.shape_btn_bg_white)
+        list?.forEach {
+            foodsList?.add(it.copy())
+            adapterDishes?.data = foodsList
+        }
+
+    }
+
+    private fun clearFoods(){
+        adapterDishes?.clear()
+        binding.rvFoods.background = null
     }
 
 }

@@ -24,6 +24,7 @@ import com.yannuo.dgcanteen.dao.DishesTable;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
+import com.yannuo.dgcanteen.interfaces.FoodsCallback;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.model.PayCfg;
@@ -54,6 +55,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     private DishesInfo data;
     private boolean flag = false;
 
+    public void setFoodsCallback(FoodsCallback foodsCallback) {
+        this.foodsCallback = foodsCallback;
+    }
+
+    private FoodsCallback foodsCallback = null;
+
     public DifferentDisplay(Context outerContext, Display display) {
         super(outerContext, display);
 
@@ -75,7 +82,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         refreshMeal();
         adapterDishes = new ProductsAdapter(getContext());
         adapterDishes.setListener(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),3);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),4);
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         adapterDishes.setImgSize(gridLayoutManager);
@@ -149,7 +156,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             if (flag)return;
             flag = true;
 //            binding.btSureMeal.setEnabled(false);
-            ProductsDetail prods =new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
+            ProductsDetail prods = new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
 
         });
@@ -169,6 +176,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         adapterPayFor.clear();
         binding.tvTotalMoney.setText("");
         binding.tvTotalCount.setText("0");
+        if (foodsCallback != null)
+            foodsCallback.onFoodsUpdate(adapterPayFor.getData());
     }
 
     //更新购物车UI
@@ -197,6 +206,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         //选择的购买商品添加到购物车
         updateUiItems( data,false);
 
+        if (foodsCallback != null)
+        foodsCallback.onFoodsUpdate(adapterPayFor.getData());
     }
 
     @Override
@@ -206,6 +217,8 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         float[] res = presenter.calculate(adapterPayFor.getData());
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
+        if (foodsCallback != null)
+            foodsCallback.onFoodsUpdate(adapterPayFor.getData());
     }
 
 
@@ -235,6 +248,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         LogUtil.i(TAG,"stop...");
+        foodsCallback = null;
         super.onStop();
     }
 }

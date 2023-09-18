@@ -1,27 +1,30 @@
 package com.yannuo.dgcanteen.activitys.presenters
 
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.dao.CardPay
 import com.yannuo.dgcanteen.dao.OffLineTable
 import com.yannuo.dgcanteen.dao.OrderDishList
 import com.yannuo.dgcanteen.dao.OwnOrder
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
-import com.yannuo.dgcanteen.model.DishesInfo
-import com.yannuo.dgcanteen.model.PaymentDishesList
-import com.yannuo.dgcanteen.model.ScanQrResultBean
-import com.yannuo.dgcanteen.model.SynConsumeRecordBean
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import java.net.HttpURLConnection
-import java.text.SimpleDateFormat
-import java.util.*
 
 class DataPresenter() {
 
     private val TAG = javaClass.simpleName
-
+    private var mPayCfg: PayCfg ?= null
     private var mRespository : PayRepositoryOfPay = PayRepositoryOfPay()
+
+    init {
+
+        var kv = MMKV.defaultMMKV()
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+    }
 
     fun calculate(list : MutableList<DishesInfo>):FloatArray{
         val result = FloatArray(2)
@@ -68,7 +71,7 @@ class DataPresenter() {
             else -> ""
         }
         bean.PAYTIME = data.sigN_TIME
-        bean.BUSINESS_NAME = "彦诺智能测试园区"
+        bean.BUSINESS_NAME =mPayCfg?.businessName
         bean.paymentDishesList = mutableListOf()
         DishesData.forEach {
             bean.paymentDishesList.add(

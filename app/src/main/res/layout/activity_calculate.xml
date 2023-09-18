@@ -83,7 +83,7 @@
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:padding="10dp">
@@ -99,10 +99,23 @@
                     android:textSize="40sp" />
 
                 <Button
-                    android:id="@+id/btn_fix_pay"
+                    android:id="@+id/btn_confirm"
                     android:layout_width="300dp"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tv_clock"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/bt_marg"
+                    android:background="@drawable/click_button"
+                    android:padding="10dp"
+                    android:text="确定金额"
+                    android:textColor="#4F4F4F"
+                    android:textSize="45sp" />
+
+                <Button
+                    android:id="@+id/btn_fix_pay"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/btn_confirm"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button_blue"
@@ -161,9 +174,9 @@
                     android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button"
                     android:padding="10dp"
-                    android:textStyle="bold"
                     android:textColor="#45B2B7"
-                    android:textSize="45sp" />
+                    android:textSize="45sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/btn_third"
@@ -186,7 +199,7 @@
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
                     android:textColor="#4F4F4F"
-                    android:textSize="32sp" />
+                    android:textSize="25sp" />
 
             </RelativeLayout>
 

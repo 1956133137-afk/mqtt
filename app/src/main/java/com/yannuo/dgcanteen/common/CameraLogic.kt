@@ -142,7 +142,7 @@ class CameraLogic {
             bean.ACCALIAS =payResult.ACCALIAS
 
             bean.PAYTIME = payResult.PAYTIME
-            bean.BUSINESS_NAME = "智慧食堂园区"
+            bean.BUSINESS_NAME = mPayCfg?.businessName
 
             var needSave = true
             if(bean.OFFLINE == 0){

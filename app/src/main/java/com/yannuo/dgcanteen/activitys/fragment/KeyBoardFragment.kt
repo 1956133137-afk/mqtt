@@ -59,6 +59,10 @@ class KeyBoardFragment : Fragment() {
     private fun initView() {
         btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
         if (kv.decodeBool(Constant.QUOTA_SWITCH)) {
+//            kv.decodeString(Constant.QUOTA_AMOUNT)?.also {
+//                tvText.append(it)
+//                binding.inputAmount.text = tvText
+//            }
             tvText.append(kv.decodeString(Constant.QUOTA_AMOUNT))
             binding.inputAmount.text = tvText
         }
@@ -146,6 +150,10 @@ class KeyBoardFragment : Fragment() {
 
                     collectMoney(event.any as Int)
 //                }
+            }
+
+            Constant.EVENT_VERIFY ->{
+                checkVerify()
             }
         }
     }
@@ -281,10 +289,38 @@ class KeyBoardFragment : Fragment() {
         startActivity(payIntent)
     }
 
+    private fun checkVerify(){
+        if (!judgePayCfg()) {
+            ToastShowUtil.show("商户信息不完整，请检查商户信息")
+            return
+        }
+        if(tvText.isNullOrEmpty()){
+            ToastShowUtil.show("请输入金额")
+            CommonAndDpToPxUtil.speakWork("请输入金额")
+            return
+        }
+        val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
+        val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
+        val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
+        if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
+            if (amount.toFloat() > limitAmount) {
+                ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+                CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                return
+            }
+        }
+        EventBus.getDefault().post(MessageEvent(Constant.EVENT_OPEN_BTN, amount))
+    }
+
     private fun collectMoney(ways: Int? = null){
         LogUtil.i(TAG,"${ways}")
         if (!judgePayCfg()) {
             ToastShowUtil.show("商户信息不完整，请检查商户信息")
+            return
+        }
+        if(tvText.isNullOrEmpty()){
+            ToastShowUtil.show("请输入金额")
+            CommonAndDpToPxUtil.speakWork("请输入金额")
             return
         }
         val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()

@@ -232,7 +232,7 @@ class CardPresenter : OnReadDataListener {
             else -> ""
         }
         bean.PAYTIME = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-        bean.BUSINESS_NAME = "彦诺智能测试园区"
+        bean.BUSINESS_NAME =mPayCfg?.businessName
 //        bean.paymentDishesList = mutableListOf()
 
         val responseScanPay = mRespository.synCsRecord(bean)

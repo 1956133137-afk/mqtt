@@ -10,11 +10,15 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.StyleSpan
 import android.view.Display
+import android.view.View
 import android.view.WindowManager
+import androidx.core.view.isVisible
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.SimpleDisplayBinding
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import org.greenrobot.eventbus.EventBus
 
 /**
  * Author: filowl
@@ -26,6 +30,7 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
 
     private lateinit var binding: SimpleDisplayBinding
     private lateinit var kv: MMKV
+    private var lastTime = 0L  //上次触发时间
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
@@ -33,7 +38,10 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
         binding = SimpleDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initView()
+        initEvent()
     }
+
+
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
@@ -50,6 +58,28 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             binding.tvZ.text = str
+        }
+    }
+
+    fun enableBtn(money:String?){
+        binding?.also {
+            if (it.llPay.isVisible.not()){
+                it.llPay.visibility = View.VISIBLE
+            }
+            binding.tvAmount.text = "￥:$money 元"
+        }
+    }
+
+    private fun initEvent() {
+        binding.btnFacePay.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY,  Constant.PAY_FACE_TYPE))
+        }
+        binding.btnIsPay.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, Constant.PAY_CODE_IC_TYPE))
         }
     }
 

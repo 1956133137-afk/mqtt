@@ -131,6 +131,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     override fun onStop() {
+        binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
+        binding.btnConfirm.setTextColor(Color.BLACK)
+        binding.btnConfirm.text = "确认金额"
         simpleDisplay.cancel()
         super.onStop()
     }
@@ -180,6 +183,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 })
             }
         }
+        binding.btnConfirm.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 1000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY, null))
+        }
 
         binding.btnFirst.setOnClickListener {
             if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
@@ -221,6 +229,22 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     binding.server.setImageResource(R.drawable.ic_server)
                 } else {
                     binding.server.setImageResource(R.drawable.ic_server_no)
+                }
+            }
+            Constant.EVENT_OPEN_BTN -> handler.post {
+                if (simpleDisplay.isShowing) {
+                    val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
+                    val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
+                    val amount = event.any as String
+                    if (amount.toFloat() > limitAmount) {
+                        ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
+                        CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                        return@post
+                    }
+                    binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
+                    binding.btnConfirm.setTextColor(Color.WHITE)
+                    binding.btnConfirm.text="确定金额￥${event.any as String}"
+                    simpleDisplay.enableBtn(event.any as String)
                 }
             }
         }
