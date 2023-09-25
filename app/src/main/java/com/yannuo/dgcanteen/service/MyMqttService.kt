@@ -39,6 +39,8 @@ import java.net.HttpURLConnection
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.function.Function
+import java.util.stream.Collectors
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
@@ -315,10 +317,10 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         LogUtil.i(TAG,"启动软件版本更新任务")
 
         // JobScheduler 拉活
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            KeepAliveJobService.startJob(this)
-            LogUtil.i(TAG,"开启软件保活设置")
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            KeepAliveJobService.startJob(this)
+//            LogUtil.i(TAG,"开启软件保活设置")
+//        }
     }
 
 
@@ -371,6 +373,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         mScope.launch() {
             while (isActive) {
                 delay(Duration.minutes(80+ Random.nextInt(30)))
+//                delay(Duration.minutes(1))
 //                delay(Duration.seconds(30))
                 LogUtil.i(TAG,"定时任务:开始同步菜品")
                 val rs = mRespository.getDayDishes()
@@ -378,6 +381,15 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
                     val picList = mutableListOf<String>() //菜品图片
+
+                    //提取下架菜品
+                    val dishMap =  DishesDBHelper.getInstance().queryDishes().stream()
+                        .filter { it.status == 0 }.collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
+                    LogUtil.i(TAG,"未更新时已下架菜品总数: ${dishMap.size}")
+                    dishMap.forEach { t, u ->
+                        LogUtil.i(TAG,"下架的菜品 $t $u")
+                    }
+
                     for (da in rs.data!!) {
                         val meal = MealTable()
                         meal.mealId = da.mealId
@@ -410,6 +422,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                             dish.price = bean.price.toDouble()
                             dish.unit = bean.unit
                             dish.imgUrl = bean.imgUrl
+                            dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
                             dishList.add(dish)
                             picList.add(bean.imgUrl)
                         }
@@ -424,8 +437,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
                     //设置菜品数据已更新
                     val kv = MMKV.defaultMMKV()
-                    val now = DateFormat.format("yyyyMMdd HH:mm:ss", System.currentTimeMillis())
-                        .toString()
+                    val now = DateFormat.format("yyyyMMdd HH:mm:ss", System.currentTimeMillis()).toString()
                     kv.encode(Constant.UPDATE_TIME, now.substring(0, 8))
                     kv.encode(Constant.FINAL_TIME, now)
                     //发送菜品更新通知
@@ -445,6 +457,14 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             val gson = Gson()
             val type = object : TypeToken<MutableList<DayDishesBean>>(){}.type
             val dishes = gson.fromJson<MutableList<DayDishesBean>>(payload,type)
+
+            //提取下架菜品
+            val dishMap =  DishesDBHelper.getInstance().queryDishes().stream()
+            .filter { it.status == 0 }.collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
+            LogUtil.i(TAG,"未更新时已下架菜品总数: ${dishMap.size}")
+            dishMap.forEach { t, u ->
+                LogUtil.i(TAG,"下架的菜品 $t $u")
+            }
 
             val mealList = mutableListOf<MealTable>()  //餐别
             val dishList = mutableListOf<DishesTable>() //菜品
@@ -481,6 +501,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     dish.price = bean.price.toDouble()
                     dish.unit = bean.unit
                     dish.imgUrl = bean.imgUrl
+                    dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
                     dishList.add(dish)
                     picList.add(bean.imgUrl)
                 }

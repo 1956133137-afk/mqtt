@@ -59,21 +59,21 @@ class ModeSettingFragment : Fragment() {
     private lateinit var confirmDialog: ConfirmDialog
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
-    private var mService: CameraService? = null
+//    private var mService: CameraService? = null
 
-    private val connection = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-
-            val binder = service as CameraService.LocalBinder
-            mService = binder.getService()
-
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            mService = null
-        }
-    }
+//    private val connection = object : ServiceConnection {
+//
+//        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+//
+//            val binder = service as CameraService.LocalBinder
+//            mService = binder.getService()
+//
+//        }
+//
+//        override fun onServiceDisconnected(arg0: ComponentName) {
+//            mService = null
+//        }
+//    }
 
 
     override fun onCreateView(
@@ -96,8 +96,8 @@ class ModeSettingFragment : Fragment() {
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
 
         binding.tvPeopleCount.text = "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
-        val intent = Intent(requireContext(), CameraService::class.java)
-        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+//        val intent = Intent(requireContext(), CameraService::class.java)
+//        requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
 //        val count = FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME) ?: 0
 //        binding.tvFaceCount.text = "人脸同步数：$count"
@@ -147,14 +147,14 @@ class ModeSettingFragment : Fragment() {
         }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
-            if (!this::awaitingDialog.isInitialized)
-                awaitingDialog = AwaitingDialog(requireActivity())
-            awaitingDialog.show()
-            awaitingDialog.updateText("同步中")
-            if (mService == null) {
-                ToastShowUtil.show("同步失败，服务异常")
-                return@setOnClickListener
-            }
+//            if (!this::awaitingDialog.isInitialized)
+//                awaitingDialog = AwaitingDialog(requireActivity())
+//            awaitingDialog.show()
+//            awaitingDialog.updateText("同步中")
+//            if (mService == null) {
+//                ToastShowUtil.show("同步失败，服务异常")
+//                return@setOnClickListener
+//            }
 //            mService?.synchFace(object : CallbackListener {
 //                override fun onOtherListener(event: Int, any: Any?) {
 //                    when (event) {

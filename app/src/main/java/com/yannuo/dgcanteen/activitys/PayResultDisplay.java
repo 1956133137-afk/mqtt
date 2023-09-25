@@ -131,12 +131,13 @@ public class PayResultDisplay extends Presentation {
         mBinding.payTotalMoney.setText(String.format("￥ %s 元",mPayResult.getPayment()));
         CommonAndDpToPxUtil.speakWork("已支付"+mPayResult.getPayment()+"元");
         mBinding.tvClass.setText(cls);
+        cls = mPayResult.getCust_name();
         if (TextUtils.isEmpty(mPayResult.getCust_name())){
             cls ="***";
         }
         mBinding.tvName.setText(cls);
-        String time ="";
-        if (!mPayResult.getTimestamp().isEmpty()){
+        String time = mPayResult.getTimestamp();
+        if (!mPayResult.getTimestamp().isEmpty() && !mPayResult.getWay().equals("人脸支付")){
             StringBuffer buffer = new StringBuffer();
             time = buffer.append(mPayResult.getTimestamp().substring(0,4))
                     .append("-")

@@ -162,10 +162,10 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         LogUtil.i(TAG, "启动软件版本更新任务")
 
         // JobScheduler 拉活
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            KeepAliveJobService.startJob(this)
-            LogUtil.i(TAG, "开启软件保活设置")
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            KeepAliveJobService.startJob(this)
+//            LogUtil.i(TAG, "开启软件保活设置")
+//        }
     }
 
 

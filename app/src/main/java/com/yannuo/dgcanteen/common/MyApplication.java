@@ -4,11 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.os.Build;
 
 import com.safframework.log.LogLevel;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
+import com.yannuo.dgcanteen.service.KeepAliveJobService;
 import com.yannuo.dgcanteen.service.MyMqttService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
@@ -37,7 +39,7 @@ public class MyApplication extends Application {
         create = true;
         applicationContext = this;
         LogManager.initLog();
-        LogUtil.setLev(LogLevel.INFO);
+        LogUtil.setLev(LogLevel.DEBUG);
 
         CrashReport.initCrashReport(this, "fd7e9dd24e", false); //初始化Bugly
 
@@ -48,7 +50,11 @@ public class MyApplication extends Application {
         LogUtil.i(TAG,"mmkv root: " + rootDir);
 
         initMMKV();
-
+        // JobScheduler 拉活
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            KeepAliveJobService.startJob(this);
+            LogUtil.i(TAG,"开启软件保活设置");
+        }
 //        Intent intent = new Intent(this, MyMqttService.class);
 //        startService(intent);
 

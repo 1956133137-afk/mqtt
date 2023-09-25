@@ -1,8 +1,10 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import android.os.Build
 import android.os.RemoteException
 import android.text.TextUtils
 import android.text.format.DateFormat
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,6 +36,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.util.*
+import java.util.stream.Collectors
 
 class ProductsVM :ViewModel() {
     var showToastEvent : MutableLiveData<String>
@@ -74,6 +77,7 @@ class ProductsVM :ViewModel() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun upDataDishes(force :Boolean = false){
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val check = checkIsNeedUpdate()
@@ -84,6 +88,15 @@ class ProductsVM :ViewModel() {
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
                     val picList =  mutableListOf<String>() //菜品图片
+
+                    //提取下架菜品
+                    val dishMap =  DishesDBHelper.getInstance().queryDishes().stream()
+                        .filter { it.status == 0 }.collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
+                    LogUtil.i(TAG,"未更新时已下架菜品总数: ${dishMap.size}")
+                    dishMap.forEach { t, u ->
+                        LogUtil.i(TAG,"下架的菜品 $t $u")
+                    }
+
                     for (da in rs.data!!){
                         val meal = MealTable()
                         meal.mealId = da.mealId
@@ -116,6 +129,7 @@ class ProductsVM :ViewModel() {
                             dish.price = bean.price.toDouble()
                             dish.unit = bean.unit
                             dish.imgUrl = bean.imgUrl
+                            dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
                             dishList.add(dish)
                             picList.add(bean.imgUrl)
                         }

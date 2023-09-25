@@ -86,9 +86,13 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
     private void initEvent() {
         binding.btPayFace.setOnClickListener(view -> {
+            LogUtil.e(TAG,"btPayFace");
             mPresenter.release();//注意释放扫码和串口，防止干扰AIDL
             binding.btPayFace.setEnabled(false);
+            if (sendCancel)return;
+            sendCancel = true;
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
+//            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_SECOND,mDishes));
         });
 
         binding.btPayQrcode.setOnClickListener(view -> {
@@ -160,6 +164,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                 if (sendCancel)return;
                 sendCancel = true;
                 EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
+//                EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FOURTH,any));
                 break;
             case 5: //离线码过期或者二维码无效
                 Observable.just(1)

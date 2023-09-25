@@ -246,6 +246,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     @Override
     protected void onStop() {
+
         EventBus.getDefault().unregister(this);
         LogUtil.i(TAG,"stop...");
         foodsCallback = null;

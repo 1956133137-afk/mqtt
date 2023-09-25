@@ -69,7 +69,7 @@ public class KeepAliveJobService extends JobService {
         JobInfo.Builder jobInfoBuilder = new JobInfo.Builder(10,
                 new ComponentName(context.getPackageName(), KeepAliveJobService.class.getName()))
                 .setPersisted(true);
-        jobInfoBuilder.setMinimumLatency(40_000);
+        jobInfoBuilder.setMinimumLatency(30_000);
 //        }
         // 开启定时任务
         jobScheduler.schedule(jobInfoBuilder.build());

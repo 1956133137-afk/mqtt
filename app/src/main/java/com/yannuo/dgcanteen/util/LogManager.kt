@@ -11,7 +11,7 @@ import com.safframework.log.utils.CrashUtils
 object LogManager {
 
     const val PREFIX_APP = "recycle_machine-app"
-    const val SEVEN_DAYS:Long = 5*24*3600*1000
+    const val SEVEN_DAYS:Long = 15*24*3600*1000
     private val filePrinter: FilePrinter by lazy {
         var sdcardPath = "/sdcard/recycle_machine"
         val f = Environment.getExternalStorageDirectory()

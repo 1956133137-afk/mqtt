@@ -68,6 +68,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private var navigation = true
     private var secondDisplays: Display? = null
     private var mFacePayService: ZHSTFacePayService? = null
+    private var delayTime = 20L
 
     @Volatile
     private var mProductsDisplay: DifferentDisplay? = null  //点餐界面
@@ -130,9 +131,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private fun initPresentation() {
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
-
         displayManager?.displays?.also {
             secondDisplays = it[1]
+            mProductsDisplay?.cancel()
             mProductsDisplay = DifferentDisplay(this, secondDisplays)
             mProductsDisplay?.setFoodsCallback(this)
             clearFoods()
@@ -231,6 +232,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         //设置界面
         binding.btnSetting.setOnClickListener {
+            if (mChooseDisplay != null || mPayResultDisplay != null){
+                ToastShowUtil.show("请完成支付后再操作!")
+                CommonAndDpToPxUtil.speakWork("请完成支付后再操作!")
+                return@setOnClickListener
+            }
             passwordDialog.apply {
                 show()
                 binding.tvBack.text = "输入密码"
@@ -244,6 +250,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         //菜品管理界面
         binding.btnDishMenu.setOnClickListener {
+            if (mChooseDisplay != null || mPayResultDisplay != null){
+                ToastShowUtil.show("请完成支付后再操作!")
+                CommonAndDpToPxUtil.speakWork("请完成支付后再操作!")
+                return@setOnClickListener
+            }
             val intent = Intent(this, DishManageActivity::class.java)
             startActivity(intent)
             finish()
@@ -267,13 +278,10 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 event.any?.also {
                     val data = it as ProductsDetail
                     val copy = data.copy()
-                   runOnUiThread {
-                       dealWith(copy)
-                       binding.btBackPay.text = "支付解锁\n(支付页面)"
-                   }
-
-//                    }
-//                    handler.sendMessage(handler.obtainMessage(messageWhat, copy))
+                    runOnUiThread {
+                        dealWith(copy)
+                        binding.btBackPay.text = "支付解锁\n(支付页面)"
+                    }
                 }
             }
             Constant.EVENT_SECOND -> {
@@ -316,7 +324,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                             mProductsDisplay?.cancel()
                             mProductsDisplay = null
                             binding.btBackPay.text = "支付解锁\n(结果页面)"
-                        }, 50)
+                        }, delayTime)
                         updatePayResult(fit)
                     }
                 }
@@ -336,40 +344,66 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         }
     }
 
+//
+//    private fun updatePayState(data: PayResultForUI) {
+//        val count = binding.flPayResult.childCount
+//        when (data.result) {
+//            PayResultForUI.Result.SUCCESS -> {
+//                if (count == 1) {
+//                    if ((binding.flPayResult.getChildAt(0) is LinearLayout).not()) {
+//                        binding.flPayResult.removeAllViews()
+//                        initSuccessBinding()
+//                        binding.flPayResult.addView(successBinding?.root)
+//                    }
+//                } else {
+//                    initSuccessBinding()
+//                    binding.flPayResult.addView(successBinding?.root)
+//                }
+//                refreshSuccessState(data)
+//            }
+//            else -> {
+//                if (count == 1) {
+//                    if ((binding.flPayResult.getChildAt(0) is ConstraintLayout).not()) {
+//                        binding.flPayResult.removeAllViews()
+//                        initFailBinding()
+//                        binding.flPayResult.addView(failBinding?.root)
+//                    }
+//                } else {
+//                    initFailBinding()
+//                    binding.flPayResult.addView(failBinding?.root)
+//                }
+//                refreshFailState(data)
+//            }
+//        }
+//        handler.postDelayed({
+//            binding.mvControl.text = "支付数据更新啦"
+//        }, delayTime)
+//
+//    }
 
     private fun updatePayState(data: PayResultForUI) {
-        val count = binding.flPayResult.childCount
-        when (data.result) {
-            PayResultForUI.Result.SUCCESS -> {
-                if (count == 1) {
-                    if ((binding.flPayResult.getChildAt(0) is LinearLayout).not()) {
-                        binding.flPayResult.removeAllViews()
-                        initSuccessBinding()
-                        binding.flPayResult.addView(successBinding?.root)
-                    }
-                } else {
+        try {
+            binding.flPayResult.removeAllViews()
+            when (data.result) {
+                PayResultForUI.Result.SUCCESS -> {
                     initSuccessBinding()
                     binding.flPayResult.addView(successBinding?.root)
+                    refreshSuccessState(data)
                 }
-                refreshSuccessState(data)
-            }
-            else -> {
-                if (count == 1) {
-                    if ((binding.flPayResult.getChildAt(0) is ConstraintLayout).not()) {
-                        binding.flPayResult.removeAllViews()
-                        initFailBinding()
-                        binding.flPayResult.addView(failBinding?.root)
-                    }
-                } else {
+                else -> {
                     initFailBinding()
                     binding.flPayResult.addView(failBinding?.root)
+                    refreshFailState(data)
                 }
-                refreshFailState(data)
             }
+        }catch (e : Exception){
+            ToastShowUtil.show("${e.message}")
+            CommonAndDpToPxUtil.speakWork("页面更新异常!")
         }
+
         handler.postDelayed({
             binding.mvControl.text = "支付数据更新啦"
-        }, 20)
+        }, delayTime)
 
     }
 
@@ -404,7 +438,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         successBinding!!.tvClass.text = cls
         successBinding!!.tvBalance.text = (data.acc_bal ?: "") +"元"
         var time = data.timestamp ?: ""
-        if (time.isEmpty().not()) {
+        if (time.isEmpty().not() && data.way.equals("人脸支付").not()) {
             val buffer = StringBuffer()
             buffer.append(data.timestamp!!.substring(0, 4))
                 .append("-")
@@ -487,7 +521,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private fun updatePayResult(data: PayResultForUI) {
         runOnUiThread {
+            mPayResultDisplay?.cancel()
             mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
+//            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
             mPayResultDisplay?.show()
             updatePayState(data)
         }
@@ -534,6 +570,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      * @param list ProductsDetail
      */
     private fun dealWith(list: ProductsDetail) {
+        mChooseDisplay?.cancel()
         mChooseDisplay = ChooseDisplay(this, list, secondDisplays)
         mChooseDisplay?.show()
         mPayResultDisplay?.cancel()
@@ -541,7 +578,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         handler.postDelayed({
             mProductsDisplay?.cancel()
             mProductsDisplay = null
-        }, 50)
+        }, delayTime)
 
     }
 
@@ -576,12 +613,13 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         handler.postDelayed({
             mPayResultDisplay?.cancel()
             mPayResultDisplay = null
-        }, 50)
+        }, delayTime)
     }
 
     override fun onDestroy() {
         release()
         super.onDestroy()
+
     }
 
 
@@ -605,10 +643,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private fun release() {
         mScope?.cancel()
         mProductsDisplay?.cancel()
-        mPayResultDisplay = null
+        mProductsDisplay = null
         mChooseDisplay?.cancel()
         mChooseDisplay = null
         mPayResultDisplay?.cancel()
+        mPayResultDisplay = null
         passwordDialog.cancel()
 
         unbindService(mServiceConnection)
@@ -616,6 +655,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
         binding.mvControl.stopAnima()
+        LogUtil.i(TAG,"release...")
 //        timer?.cancel()
     }
 
