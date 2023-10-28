@@ -52,7 +52,8 @@ class KeyBoardFragment : Fragment() {
     private fun initObject() {
         EventBus.getDefault().register(this)
         val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
-        if (type == 0) CameraAIDL.connectAIDL()
+//        if (type == 0)
+            CameraAIDL.connectAIDL()
 
     }
 

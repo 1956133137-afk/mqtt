@@ -15,11 +15,10 @@
         </compilerSettings>
         <compilerArguments>
           <option name="destination" value="$MODULE_DIR$/../../../../converter/gson/build/tmp/kotlin-classes/debug" />
-          <option name="classpath" value="$MODULE_DIR$/../../../../converter/gson/build/intermediates/compile_r_class_jar/debug/R.jar;C:/Users/Administrator/.gradle/caches/transforms-3/7847f137186043bf4ebde59850bd5047/transformed/jetified-kotlin-stdlib-jdk7-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/9557de25ff0cc82ab41be34afbca6e2c/transformed/jetified-kotlin-stdlib-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/4ab42f2acb11ca8780acbb0006330e9c/transformed/jetified-kotlin-stdlib-common-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/2623cfc8b3efa7dbb38bbe47f3208780/transformed/jetified-annotations-13.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/41e43973dd3b067579f7dc8e8f1f9dde/transformed/jetified-gson-2.8.6.jar;G:/czx-workspace/company_yannuo/donggang_canteen/software/core/build/intermediates/compile_library_classes_jar/debug/classes.jar;D:/Program Files/Android/AppData/Local/Android/Sdk/platforms/android-31/android.jar;D:/Program Files/Android/AppData/Local/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar" />
+          <option name="classpath" value="$MODULE_DIR$/../../../../converter/gson/build/intermediates/compile_r_class_jar/debug/R.jar;C:/Users/Administrator/.gradle/caches/transforms-3/756183ea372d12067cebaa35cabf9b3e/transformed/jetified-kotlin-stdlib-jdk7-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/3ff10cbda5d2bcf7f630d3758a532697/transformed/jetified-kotlin-stdlib-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/147bcaffb9c1a7e4993795835d2188e3/transformed/jetified-kotlin-stdlib-common-1.4.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/dcebef438c420b6be076cc7f085637f0/transformed/jetified-annotations-13.0.jar;C:/Users/Administrator/.gradle/caches/transforms-3/a32e3c507e6114e0734bc16e2e809999/transformed/jetified-gson-2.8.6.jar;G:/czx-workspace/company_yannuo/donggang_canteen/software/core/build/intermediates/compile_library_classes_jar/debug/classes.jar;D:/Program Files/Android/AppData/Local/Android/Sdk/platforms/android-31/android.jar;D:/Program Files/Android/AppData/Local/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar" />
           <option name="noStdlib" value="true" />
-          <option name="noReflect" value="true" />
           <option name="moduleName" value="gson_debug" />
-          <option name="languageVersion" value="1.5" />
+          <option name="languageVersion" value="1.6" />
           <option name="apiVersion" value="1.4" />
           <option name="pluginOptions">
             <array />

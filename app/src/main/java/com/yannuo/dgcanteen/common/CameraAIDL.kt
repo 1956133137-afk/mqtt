@@ -33,13 +33,15 @@ object CameraAIDL {
 
     fun connectAIDL():Boolean{
         if (mFacePayService == null) {
-            val lIntent = Intent()
-            lIntent.action = "com.ccb.smartcanteen.FacePayService"
-            lIntent.setPackage("com.ccb.smartcanteen")
-            MyApplication.applicationContext.bindService(
-                lIntent,
-                mServiceConnection,
-                AppCompatActivity.BIND_AUTO_CREATE)
+//            synchronized(mServiceConnection){
+                val lIntent = Intent()
+                lIntent.action = "com.ccb.smartcanteen.FacePayService"
+                lIntent.setPackage("com.ccb.smartcanteen")
+                MyApplication.applicationContext.bindService(
+                    lIntent,
+                    mServiceConnection,
+                    AppCompatActivity.BIND_AUTO_CREATE)
+//            }
             return true
         }
         return false
@@ -56,10 +58,10 @@ object CameraAIDL {
     }
 
     fun unbind(){
-         mFacePayService?.also {
-             mServiceConnection.also {
-                 MyApplication.applicationContext.unbindService(it)
-             }
+        mFacePayService?.also {
+            mServiceConnection.also {
+                MyApplication.applicationContext.unbindService(it)
+            }
         }
     }
 

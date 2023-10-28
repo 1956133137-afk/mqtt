@@ -36,8 +36,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     private var mXService: MyService? = null
     private var navigation = true
-    private lateinit var passwordDialog: PasswordDialog
-    private lateinit var confirmDialog: ConfirmDialog
+    private var passwordDialog: PasswordDialog ?= null
+    private var confirmDialog: ConfirmDialog ?= null
     private lateinit var kv: MMKV
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
@@ -91,6 +91,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     override fun onResume() {
         initPresentation()
+        LogUtil.i(TAG,"onResume!")
         super.onResume()
         mXService?.hideNavBar = true
 
@@ -135,6 +136,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         binding.btnConfirm.setTextColor(Color.BLACK)
         binding.btnConfirm.text = "确认金额"
         simpleDisplay.cancel()
+        LogUtil.i(TAG,"onstop!")
         super.onStop()
     }
 
@@ -152,9 +154,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
 
         binding.btnOff.setOnClickListener { //开启离线模式
-            if (!this::confirmDialog.isInitialized) confirmDialog = ConfirmDialog(this)
+            if (confirmDialog == null) confirmDialog = ConfirmDialog(this)
             if (!kv.decodeBool(Constant.SWITCH, false)) {
-                confirmDialog.apply {
+                confirmDialog?.apply {
                     show()
                     binding.tvText.text = "您确定开启离线模式吗"
                     setListener(object : ConfirmDialog.OnConfirmCallback {
@@ -173,7 +175,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
 
         binding.btnSetting.setOnClickListener {//设置界面
-            passwordDialog.apply {
+            passwordDialog?.apply {
                 show()
                 binding.tvBack.text = "输入密码"
                 setListener(object : CloseEvent {
@@ -304,8 +306,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     private fun release() {
-        passwordDialog.cancel()
-        confirmDialog.cancel()
+        passwordDialog?.cancel()
+        confirmDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
     }
