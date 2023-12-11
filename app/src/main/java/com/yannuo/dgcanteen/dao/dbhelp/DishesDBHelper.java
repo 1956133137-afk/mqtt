@@ -492,6 +492,19 @@ public class DishesDBHelper {
 
 
     /**
+     * 保存人员
+     * @param cardId
+     */
+    public void deletePersons(String cardId){
+        if (cardId == null || cardId.isEmpty())return;
+        mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.CardId.eq(cardId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+//        LogUtil.d(TAG,"删除卡号人员"+cardId);
+    }
+
+    /**
      * 获取一条未更新的记录
      * @return
      */
@@ -518,6 +531,33 @@ public class DishesDBHelper {
     }
 
     /**
+     * 提取100条消费记录
+     * @return
+     */
+    public List<OffLineTable> extractQRCodeConsumerOrder(boolean up){
+        return  mOffLineTableDao.queryBuilder()
+                .where(OffLineTableDao.Properties.PostTag.eq(up))
+                .limit(100)
+                .build()
+                .list();
+
+    }
+
+    /**
+     * 提取100条消费记录
+     * @return
+     */
+    public List<CardPay> extractCardConsumerOrder(boolean up){
+        return  mCardPayDao.queryBuilder()
+                .where(CardPayDao.Properties.Up.eq(up))
+                .limit(100)
+                .build()
+                .list();
+
+    }
+
+
+    /**
      * 修改多条条消费记录
      * @return
      */
@@ -525,6 +565,25 @@ public class DishesDBHelper {
         if (ownOrders.size() <1)return;
           mOwnOrderDao.updateInTx(ownOrders);
     }
+
+    /**
+     * 修改多条条消费记录
+     * @return
+     */
+    public void updateQRCodeConsumerOrders(List<OffLineTable> ownOrders){
+        if (ownOrders.size() <1)return;
+        mOffLineTableDao.updateInTx(ownOrders);
+    }
+
+    /**
+     * 修改多条条消费记录
+     * @return
+     */
+    public void updateCardConsumerOrders(List<CardPay> ownOrders){
+        if (ownOrders.size() <1)return;
+        mCardPayDao.updateInTx(ownOrders);
+    }
+
     /**
      * 修改消费记录
      * @return

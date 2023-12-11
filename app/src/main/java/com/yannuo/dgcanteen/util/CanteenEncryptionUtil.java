@@ -132,7 +132,7 @@ public class CanteenEncryptionUtil {
      * @param param
      * @return
      */
-    private static String encryption(String param){
+    public static String encryption(String param){
 
         try{
             //创建加密对象，向构造函数传入密钥

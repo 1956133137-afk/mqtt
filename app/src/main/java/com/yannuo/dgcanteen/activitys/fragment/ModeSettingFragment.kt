@@ -59,6 +59,7 @@ class ModeSettingFragment : Fragment() {
     private lateinit var confirmDialog: ConfirmDialog
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
+    private var self_help = false
 //    private var mService: CameraService? = null
 
 //    private val connection = object : ServiceConnection {
@@ -137,6 +138,11 @@ class ModeSettingFragment : Fragment() {
             amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
+
+        binding.cbBalance.setOnClickListener {
+            kv.encode(Constant.BALANCE_SWITCH, binding.cbBalance.isChecked)
+        }
+
         binding.btnSynPerson.setOnClickListener { view: View? ->
             if (!this::awaitingDialog.isInitialized)
                 awaitingDialog = AwaitingDialog(requireActivity())
@@ -192,15 +198,30 @@ class ModeSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
         }
+        if (self_help.equals(kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()){
+            val restartIntent =
+                mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+            restartIntent?.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            )
+            startActivity(restartIntent)
+            exitProcess(0)
+        }
     }
 
     private fun reload() {
+        self_help =  kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
+        binding.cbBalance.isChecked = self_help
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
-        binding.appMode.text = kv.decodeString(Constant.APP_MODE)
+        if ( kv.decodeString(Constant.APP_MODE) == null)
+        kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+        binding.appMode.text =kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
     }
 
@@ -262,6 +283,7 @@ class ModeSettingFragment : Fragment() {
                                 Constant.APP_MODE,
                                 Constant.ORDERING_FOOD_MODE
                             )
+
                         }
                         val restartIntent =
                             mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
@@ -301,7 +323,7 @@ class ModeSettingFragment : Fragment() {
             DishesDBHelper.getInstance().deleteAllPersons()
             LogUtil.d(TAG, "准备全量更新人员")
             do {
-                val res = repository.downPerson(100, currentPage)
+                val res = repository.downPerson(200, currentPage)
                 try {
                     if (res.code == 200) {
                         val result = DES3CBCUtil.decryptRSA(res.data, prvKey)

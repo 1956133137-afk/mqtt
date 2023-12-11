@@ -59,6 +59,7 @@ object Constant {
     lateinit var ENCRYPTION_VECTOR :String  //离线码加密向量
 
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
+    const val BALANCE_SWITCH = "balance_Switch" //余额查询
     const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额
 
     const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款

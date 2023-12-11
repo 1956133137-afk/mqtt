@@ -15,16 +15,25 @@
         android:gravity="center"
         android:orientation="horizontal">
 
+
+
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:gravity="center"
+            android:paddingLeft="20dp"
             android:text="@string/dg_canteen"
             android:textColor="#4095E5"
             android:textSize="48sp"
             android:textStyle="bold" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:src="@mipmap/ccb_logo"/>
 
         <TextView
             android:id="@+id/select_stopper"
@@ -64,7 +73,7 @@
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="35dp"
+            android:layout_margin="30dp"
             android:layout_marginStart="35dp"
             android:layout_marginTop="35dp"
             android:orientation="horizontal"
@@ -187,9 +196,24 @@
                     android:layout_marginTop="@dimen/bt_marg"
                     android:background="@drawable/click_button"
                     android:padding="10dp"
-                    android:textStyle="bold"
                     android:textColor="#21D86E"
-                    android:textSize="45sp" />
+                    android:textSize="45sp"
+                    android:textStyle="bold" />
+
+<!--                <Button-->
+<!--                    android:id="@+id/btn_balance"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="80dp"-->
+<!--                    android:layout_below="@+id/btn_third"-->
+<!--                    android:layout_centerHorizontal="true"-->
+<!--                    android:layout_marginTop="@dimen/bt_marg"-->
+<!--                    android:background="@drawable/click_button"-->
+<!--                    android:padding="10dp"-->
+<!--                    android:text="余额查询"-->
+<!--                    android:textColor="@color/purple_200"-->
+<!--                    android:textSize="45sp"-->
+<!--                    android:textStyle="bold"-->
+<!--                    android:visibility="visible" />-->
 
                 <TextView
                     android:id="@+id/serial_number"
@@ -198,6 +222,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
+                    android:text="201235\r\ndassasdfasdfadf"
                     android:textColor="#4F4F4F"
                     android:textSize="25sp" />
 

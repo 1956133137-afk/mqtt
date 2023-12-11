@@ -102,55 +102,60 @@ class ScanFragment : Fragment(), CallbackListener {
     //刷卡返回数据
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
-            if (this::awaitPayDialog.isInitialized && awaitPayDialog.isShowing) awaitPayDialog.dismiss()
-            when (event) {
-                1 -> { //开始支付
-                    if (!this::awaitPayDialog.isInitialized)
-                        awaitPayDialog = AwaitingDialog(requireActivity())
-                    awaitPayDialog.show()
-                    awaitPayDialog.updateText("支付中")
-                }
-                2 -> { //异常
-                    ToastShowUtil.show("支付异常：$any")
-                    LogUtil.d(TAG, "支付异常：$any")
-                }
-                3, 4 -> { //支付结果
-                    countDown?.cancel()
-                    val data = any as PayResultForUI
-                    LogUtil.d(TAG, Gson().toJson(data))
-                    val bean = SimpleForUI().apply {
-                        custName = data.cust_name.toString()
-                        payment = data.payment?.toFloat()!!
-                        accNo = data.acc_no.toString()
-                        timestamp = data.timestamp.toString()
-                        tranId = data.traceid ?: "---"
-                        orderId = data.orderid.toString()
-                        errorMsg = data.errormsg.toString()
-                        acc_bal = data.acc_bal
+            try {
+
+                if (this::awaitPayDialog.isInitialized && awaitPayDialog.isShowing) awaitPayDialog.dismiss()
+                when (event) {
+                    1 -> { //开始支付
+                        if (!this::awaitPayDialog.isInitialized)
+                            awaitPayDialog = AwaitingDialog(requireActivity())
+                        awaitPayDialog.show()
+                        awaitPayDialog.updateText("支付中")
                     }
-                    if (data.result == PayResultForUI.Result.SUCCESS) {
-                        CommonAndDpToPxUtil.speakWork("支付成功")
-                        val action = ScanFragmentDirections.actionScanToSuccess(bean)
-                        findNavController().navigate(action)
-                    } else {
-                        val action = ScanFragmentDirections.actionScanToFail(bean)
-                        findNavController().navigate(action)
-                        CommonAndDpToPxUtil.speakWork("支付失败")
+                    2 -> { //异常
+                        ToastShowUtil.show("支付异常：$any")
+                        LogUtil.d(TAG, "支付异常：$any")
                     }
-                }
-                5 -> { //无效码
-                    when (any as Int) {
-                        1 -> {
-                            ToastShowUtil.show("请刷新付款码再支付")
-                            CommonAndDpToPxUtil.speakWork("请刷新付款码再支付")
+                    3, 4 -> { //支付结果
+                        countDown?.cancel()
+                        val data = any as PayResultForUI
+                        LogUtil.d(TAG, Gson().toJson(data))
+                        val bean = SimpleForUI().apply {
+                            custName = data.cust_name.toString()
+                            payment = data.payment?.toFloat()!!
+                            accNo = data.acc_no.toString()
+                            timestamp = data.timestamp.toString()
+                            tranId = data.traceid ?: "---"
+                            orderId = data.orderid.toString()
+                            errorMsg = data.errormsg.toString()
+                            acc_bal = data.acc_bal
                         }
-                        else -> {
-                            ToastShowUtil.show("请切换离线码再支付")
-                            CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
+                        if (data.result == PayResultForUI.Result.SUCCESS) {
+                            CommonAndDpToPxUtil.speakWork("支付成功")
+                            val action = ScanFragmentDirections.actionScanToSuccess(bean)
+                            findNavController().navigate(action)
+                        } else {
+                            val action = ScanFragmentDirections.actionScanToFail(bean)
+                            findNavController().navigate(action)
+                            CommonAndDpToPxUtil.speakWork("支付失败")
                         }
                     }
-                    codePresenter.setPayStatus()
+                    5 -> { //无效码
+                        when (any as Int) {
+                            1 -> {
+                                ToastShowUtil.show("请刷新付款码再支付")
+                                CommonAndDpToPxUtil.speakWork("请刷新付款码再支付")
+                            }
+                            else -> {
+                                ToastShowUtil.show("请切换离线码再支付")
+                                CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
+                            }
+                        }
+                        codePresenter.setPayStatus()
+                    }
                 }
+            }catch (e :Exception){
+                LogUtil.e(TAG,"${e.cause} ${e.message}")
             }
         }
     }
@@ -172,10 +177,16 @@ class ScanFragment : Fragment(), CallbackListener {
     }
 
     override fun onDestroy() {
+        release()
+        super.onDestroy()
+    }
+
+    private fun release(){
+        LogUtil.d(TAG,"release")
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
         cardPresenter.closeIcCard()
         codePresenter.closeQrCode()
         countDown?.cancel()
-        super.onDestroy()
+        countDown = null
     }
 }

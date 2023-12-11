@@ -5,7 +5,6 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -487,7 +486,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             while (isActive) {
 
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME, 0)
-                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.HOURS.toMillis(3))
+                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.MINUTES.toMillis(30+Random.nextLong(5)))
+//                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.MINUTES.toMillis(1))
 //                timeout = true
                 var finish = false
                 var currentPage = 1
@@ -495,11 +495,15 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 if (timeout) {
                     LogUtil.d(TAG, "准备全量更新人员")
                     do {
-                        val res = mRespository.downPerson(100, currentPage)
+                        val res = mRespository.downPerson(200, currentPage)
                         try {
                             if (res.code == 200) {
                                 val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
+//                                LogUtil.d(TAG,"更新人员 : $result")
                                 val bean = Gson().fromJson(result, PersonList::class.java)
+                                bean.list?.forEach {
+                                    DishesDBHelper.getInstance().deletePersons(it.cardId)
+                                }
                                 DishesDBHelper.getInstance().insertPersons(bean.list)
                                 if (currentPage >= bean.totalPage) {
                                     finish = true
@@ -519,7 +523,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                     } while (runTask && !finish && (failTime < 10))
                     LogUtil.d(TAG, "全量更新人员完成")
                 }
-                delay(Duration.minutes(30))
+                delay(Duration.minutes(2))
             }
         }
     }
@@ -551,14 +555,14 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
     override fun netWorkStatus(statue: String?) {
         runTask = if (statue.equals("0")) {
-            binder.changeNetwork(true)
-            binder.connect()
+//            binder.changeNetwork(true)
+//            binder.connect()
             true
         }  //断线重连
         else {
             //修改更新标志
-            binder.changeNetwork(false)
-            binder.disconnect()
+//            binder.changeNetwork(false)
+//            binder.disconnect()
             false
         }
     }
@@ -620,12 +624,18 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun offLineFillMoney() {
         mScope.launch {
             while (isActive) {
-                delay(Duration.hours(1))
+                delay(Duration.minutes(40))
 //                delay(Duration.seconds(30))
-                if (runTask && !MMKV.defaultMMKV()
-                        .decodeBool(Constant.SWITCH)
-                ) { //有网并且不为离线状态 //进行离线补扣
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态 //进行离线补扣
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
+                    // 1、先复位上传标志
+                    do {
+                        val dishList = DishesDBHelper.getInstance().extractQRCodeConsumerOrder(true)
+                        dishList.forEach {
+                            it.postTag = false
+                        }
+                        DishesDBHelper.getInstance().updateQRCodeConsumerOrders(dishList)
+                    } while (dishList.size == 100 && runTask)
                     do {
                         val order = DishesDBHelper.getInstance().queryOffLineOrder()
                         order?.also { it ->
@@ -638,35 +648,54 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                     ScanQrResultBean::class.java
                                 )
                             }
-                            if (res?.RESULT.toString() == "Y") {
-                                val dishes: MutableList<DishesInfo> = mutableListOf()
-                                it.offLineDishesList.forEach {
-                                    dishes.add(
-                                        DishesInfo(
-                                            it.dishesId,
-                                            it.dishesName,
-                                            0,
-                                            null,
-                                            it.dishesPrice,
-                                            "",
-                                            "",
-                                            0,
-                                            it.dishesNumber
-                                        )
-                                    )
-                                }
-
-                                //上传消费记录
-                                res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
-                                //删除对应的离线订单记录
-                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
-                                LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
-                            } else {
-                                LogUtil.e(TAG, "离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
+                            if (res == null){
+                              LogUtil.e(TAG, "扫码离线补扣${bean.ordeR_ID} 订单失败==网络错误")
                                 //修改请求标志
                                 it.postTag = true
                                 DishesDBHelper.getInstance().updateOffLineOrder(it)
+                                return@also
                             }
+                            val dishes: MutableList<DishesInfo> = mutableListOf()
+                            it.offLineDishesList.forEach {
+                                dishes.add(
+                                    DishesInfo(
+                                        it.dishesId,
+                                        it.dishesName,
+                                        0,
+                                        null,
+                                        it.dishesPrice,
+                                        "",
+                                        "",
+                                        0,
+                                        it.dishesNumber
+                                    )
+                                )
+                            }
+
+//                            if (res?.RESULT.toString() == "Y") {
+//
+//                                //上传消费记录
+//                                res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
+//                                //删除对应的离线订单记录
+//                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
+//                                LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
+//                            } else {
+//                                LogUtil.e(TAG, "离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
+//                                //修改请求标志
+//                                it.postTag = true
+//                                DishesDBHelper.getInstance().updateOffLineOrder(it)
+//                            }
+
+                            if (res?.RESULT.toString() == "Y") {
+                                LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
+                            } else {
+                                LogUtil.e(TAG, "离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
+                            }
+
+                            //上传消费记录
+                            res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
+                            //删除对应的离线订单记录
+                            DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
                         }
                     } while (order != null && runTask && !MMKV.defaultMMKV()
                             .decodeBool(Constant.SWITCH)
@@ -684,10 +713,19 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun cardFillMoney() {
         mScope.launch {
             while (isActive) {
-                delay(Duration.hours(1))
+                delay(Duration.minutes(35))
 //                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     LogUtil.i(TAG, "离线刷卡订单请求开始...")
+                    // 1、先复位上传标志
+                    do {
+                        val dishList = DishesDBHelper.getInstance().extractCardConsumerOrder(true)
+                        dishList.forEach {
+                            it.up = false
+                        }
+                        DishesDBHelper.getInstance().updateCardConsumerOrders(dishList)
+                    } while (dishList.size == 100 && runTask)
+
                     do {
                         val order = DishesDBHelper.getInstance().queryCardOrder()
                         order?.also { it ->
@@ -699,36 +737,50 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                     ScanQrResultBean::class.java
                                 )
                             }
-                            if (res?.RESULT.toString() == "Y") {
-                                val dishes: MutableList<DishesInfo> = mutableListOf()
-                                it.cardDishesList.forEach {
-                                    dishes.add(
-                                        DishesInfo(
-                                            it.dishesId,
-                                            it.dishesName,
-                                            0,
-                                            null,
-                                            it.dishesPrice,
-                                            "",
-                                            "",
-                                            0,
-                                            it.dishesNumber
-                                        )
+                             if (res == null){
+                                 //修改请求标志
+                                 it.up = true
+                                 DishesDBHelper.getInstance().updateCardOrder(it)
+                                 return@also
+                             }
+                            val dishes: MutableList<DishesInfo> = mutableListOf()
+                            it.cardDishesList.forEach {
+                                dishes.add(
+                                    DishesInfo(
+                                        it.dishesId,
+                                        it.dishesName,
+                                        0,
+                                        null,
+                                        it.dishesPrice,
+                                        "",
+                                        "",
+                                        0,
+                                        it.dishesNumber
                                     )
-                                }
-
-                                //上传消费记录
-                                res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
-
-                                //删除对应的离线订单记录
-                                DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
+                                )
+                            }
+//                            if (res?.RESULT.toString() == "Y") {
+//                                //上传消费记录
+//                                res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
+//
+//                                //删除对应的离线订单记录
+//                                DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
+//                                LogUtil.i(TAG, "离线订单${bean.order_id} 上传成功!")
+//                            } else {
+//                                LogUtil.e(TAG, "离线补扣${bean.order_id} 订单失败==\n${res?.ERRMSG}")
+//                                //修改请求标志
+//                                it.up = true
+//                                DishesDBHelper.getInstance().updateCardOrder(it)
+//                            }
+                            if (res?.RESULT.toString() == "Y") {
                                 LogUtil.i(TAG, "离线订单${bean.order_id} 上传成功!")
                             } else {
                                 LogUtil.e(TAG, "离线补扣${bean.order_id} 订单失败==\n${res?.ERRMSG}")
-                                //修改请求标志
-                                it.up = true
-                                DishesDBHelper.getInstance().updateCardOrder(it)
                             }
+                            //上传消费记录
+                            res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
+                            //删除对应的离线订单记录
+                            DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
                         }
                     } while (order != null && runTask && !MMKV.defaultMMKV()
                             .decodeBool(Constant.SWITCH)

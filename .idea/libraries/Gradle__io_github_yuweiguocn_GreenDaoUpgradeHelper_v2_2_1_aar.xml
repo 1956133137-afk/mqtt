@@ -20,6 +20,12 @@
       <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/3be1a2f354a907a2bfc743287a53eafc/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/3be1a2f354a907a2bfc743287a53eafc/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/3be1a2f354a907a2bfc743287a53eafc/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9add16e6219dace4858a2f0e28f912e3/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9add16e6219dace4858a2f0e28f912e3/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/9add16e6219dace4858a2f0e28f912e3/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/aa567108a9336de924cc775752043025/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/aa567108a9336de924cc775752043025/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/aa567108a9336de924cc775752043025/transformed/jetified-GreenDaoUpgradeHelper-v2.2.1/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.yuweiguocn/GreenDaoUpgradeHelper/v2.2.1/20b983051ea1f726f6662f1379c624ee6df6d693/GreenDaoUpgradeHelper-v2.2.1-javadoc.jar!/" />

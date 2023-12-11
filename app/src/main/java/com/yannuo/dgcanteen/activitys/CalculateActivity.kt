@@ -84,7 +84,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
         }
-        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial().uppercase(Locale.getDefault())}\n" +
+        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
                 "v${packageManager.getPackageInfo(packageName, 0).versionName}"
 
     }
@@ -128,6 +128,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             displayManager.displays.also { secondDisplays = it[1] }
         }
         simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.setActivity(this)
         simpleDisplay.show()
     }
 
@@ -212,6 +213,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
+
+//        binding.btnBalance.setOnClickListener {
+//            val intent = Intent(this@CalculateActivity, BalanceActivity::class.java)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//            startActivity(intent)
+//            finish()
+//        }
     }
 
     //EvenBus事件监听处理

@@ -119,6 +119,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             displayManager.displays.also { secondDisplays = it[1] }
         }
         simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.setActivity(this)
         simpleDisplay.show()
     }
 
@@ -160,9 +161,21 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
                     val intent = Intent(this@InitActivity, MyMqttService::class.java)
                     startService(intent)
-                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    startActivity(intent1)
+                    when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                        true ->{
+                            val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            startActivity(intent)
+                        }
+                        else ->{
+                            val intent = Intent(this@InitActivity, CommodityActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            startActivity(intent)
+                        }
+                    }
+//                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//                    startActivity(intent1)
                     delay(50)
                     finish()
                 }
@@ -177,7 +190,18 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         val intent = Intent(this@InitActivity, CameraService::class.java)
                         startService(intent)
 
-                        startActivity(Intent(this@InitActivity, CalculateActivity::class.java))
+                        when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                            true ->{
+                                val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                startActivity(intent)
+                            }
+                            else ->{
+                                val intent = Intent(this@InitActivity, CalculateActivity::class.java)
+                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                startActivity(intent)
+                            }
+                        }
                         delay(50)
                         finish()
                     }
@@ -207,6 +231,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             }
         }
     }
+
 
     override fun onDestroy() {
         loading?.cancel()

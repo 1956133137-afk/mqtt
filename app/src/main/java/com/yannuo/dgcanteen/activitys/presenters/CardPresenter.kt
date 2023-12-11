@@ -70,6 +70,8 @@ class CardPresenter : OnReadDataListener {
      * 关闭IC卡串口
      */
     fun closeIcCard() {
+        listener = null
+        cardStatus = CardStatus.INVALID
         if (this::mCardHandle.isInitialized) {
             mCardHandle.readDataListener = null
             mCardHandle.closeSerialPort()
@@ -104,33 +106,34 @@ class CardPresenter : OnReadDataListener {
             return
         }
         runBlocking(Dispatchers.IO + mHandler) {
-            val bean = SpendLimitBean().apply {
-                campusId = mPayCfg.campusId
-                businessId = mPayCfg.businessId
-                vposId = mPayCfg.counterId
-                cidNumber = ""
-                custId = persons?.custId
-                payment = payAmount.toString()
-            }
-            val res = mRespository.getConsumeStatus(bean)
-            LogUtil.d(TAG, Gson().toJson(res))
-            if (res.data?.limit == true) { //是否受限
-                val payResult = PayResultForUI().apply {
-                    way = "刷卡支付"
-                    cust_name = persons?.personName
-                    payment = payAmount.toString()
-                    this.result = PayResultForUI.Result.FAIL
-                    timestamp = payTime
-                    errormsg = if (res.data?.type == 0) {
-                        "error 支付次数受限 "
-                    }else{
-                        "error 支付金额受限 "
-                    }
-
-                }
-                listener?.onOtherListener(3, payResult)
-                return@runBlocking
-            }
+            //todo 消费限制规则
+//            val bean = SpendLimitBean().apply {
+//                campusId = mPayCfg.campusId
+//                businessId = mPayCfg.businessId
+//                vposId = mPayCfg.counterId
+//                cidNumber = ""
+//                custId = persons?.custId
+//                payment = payAmount.toString()
+//            }
+//            val res = mRespository.getConsumeStatus(bean)
+//            LogUtil.d(TAG, Gson().toJson(res))
+//            if (res.data?.limit == true) { //是否受限
+//                val payResult = PayResultForUI().apply {
+//                    way = "刷卡支付"
+//                    cust_name = persons?.personName
+//                    payment = payAmount.toString()
+//                    this.result = PayResultForUI.Result.FAIL
+//                    timestamp = payTime
+//                    errormsg = if (res.data?.type == 0) {
+//                        "error 支付次数受限 "
+//                    }else{
+//                        "error 支付金额受限 "
+//                    }
+//
+//                }
+//                listener?.onOtherListener(3, payResult)
+//                return@runBlocking
+//            }
             payByCard(number, payTime)
         }
     }

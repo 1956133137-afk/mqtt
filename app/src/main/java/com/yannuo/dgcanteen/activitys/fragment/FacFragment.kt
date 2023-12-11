@@ -82,6 +82,7 @@ class FacFragment : Fragment(), IProductsVM {
             acc_bal = data.acc_bal
         }
         mScope.launch {
+            try {
             repeat(150) {
                 if (isStateSaved && !resume) {
                     delay(20)
@@ -101,6 +102,9 @@ class FacFragment : Fragment(), IProductsVM {
                     LogUtil.d(TAG,"wait isStateSaved")
                     cancel()
                 }
+            }
+            }catch (e :Exception){
+                LogUtil.e(TAG,"${e.cause} ${e.message}")
             }
         }
 

@@ -2,31 +2,73 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/simple_bg">
+        android:background="@drawable/simple_bg"
+    >
+
+    <ViewFlipper
+        android:id="@+id/vf_slidesshow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:flipInterval="5000"
+        android:visibility="gone"
+        android:inAnimation="@anim/slide_in1"
+        android:outAnimation="@anim/slide_out1" />
+
 
     <TextClock
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="100px"
-        android:layout_marginBottom="50px"
+        android:layout_marginBottom="10px"
+        android:layout_marginStart="10px"
+        android:background="@drawable/fp_bg_white"
+        android:drawableBottom="@mipmap/ccb_logo"
         android:format24Hour="MM-dd HH:mm:ss"
         android:gravity="center"
-        android:textColor="#FFFFFF"
-        android:textSize="40px" />
+        android:padding="15px"
+        android:textColor="@color/gray"
+        android:textSize="35px" />
+
+
 
     <TextView
         android:id="@+id/tv_z"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         android:layout_centerInParent="true"
         android:gravity="center"
         android:letterSpacing="0.2"
         android:text="智慧食堂"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         android:textSize="150px"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/tv_fp_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#B3FFFFFF"
+        android:textStyle="bold"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/sky_color"
+        android:textSize="40sp"
+
+        android:drawableRight="@mipmap/ct"
+        android:gravity="center"
+        android:drawablePadding="15dp"
+        android:fontFamily="@font/kai"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/v_setting"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_alignParentRight="true" />
 
     <LinearLayout
         android:id="@+id/ll_pay"
@@ -38,7 +80,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
-      >
+        >
 
         <TextView
             android:id="@+id/tv_amount"

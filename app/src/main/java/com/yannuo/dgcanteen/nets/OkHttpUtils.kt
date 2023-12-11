@@ -19,7 +19,7 @@ class OkHttpUtils private constructor(){
 
         val instance: OkHttpClient by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
             val logInterceptor = HttpLoggingInterceptor()
-            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)
+            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
             val builder = OkHttpClient.Builder()
             builder.connectTimeout(HTTP_CONNECT_TIMEOUT,TimeUnit.SECONDS)

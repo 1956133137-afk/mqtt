@@ -67,40 +67,45 @@ class CameraLogic {
 
             service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
                 override fun onResult(result: String) {
-                        LogUtil.d(TAG, result)
-                        val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
-                        val payState = PayResultForUI()
-                        payState.way = "人脸支付"
-                        payState.orderid = payResult.ORDER_ID
-                        payState.timestamp = payResult.PAYTIME
-                        when (payResult.RESULT) {
-                            "Y" -> { //订单状态,成功
-                                payState.cust_name = payResult.CUST_NAME
-                                payState.custId = payResult.CUST_ID
-                                payState.payment = payResult.PAYMENT
-                                if (offline == 0) payState.payment =
-                                    payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                                payState.acc_no = payResult.ACC_NO
-                                payState.acc_bal = payResult.ACC_BAL
-                                //检查支付结果，
-                                when (payResult.TRAN_RESULT) {
-                                    "3" -> {  //3支付成功
-                                        payState.result = PayResultForUI.Result.SUCCESS
-                                        payState.traceid = payResult.TRACEID
-                                        saveOrSynConsumeRecord(payResult, payState, listener)
-                                    }
-                                    else -> { //1 -待支付、2-支付失败
-                                        payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                                        listener?.onFacePayResult(payState)
-                                    }
+                    LogUtil.d(TAG, result)
+                    val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                    val payState = PayResultForUI()
+                    payState.way = "人脸支付"
+                    payState.orderid = payResult.ORDER_ID
+                    payState.timestamp = DateFormat.format("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis()).toString()
+                    when (payResult.RESULT) {
+                        "Y" -> { //订单状态,成功
+                            payState.cust_name = payResult.CUST_NAME
+                            payState.custId = payResult.CUST_ID
+                            payState.payment = payResult.PAYMENT
+                            if (offline == 0) payState.payment =
+                                payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                            payState.acc_no = payResult.ACC_NO
+                            payState.acc_bal = payResult.ACC_BAL
+                            payState.traceid = payResult.TRACEID
+                            payState.timestamp = payResult.PAYTIME
+                            //检查支付结果，
+                            when (payResult.TRAN_RESULT) {
+                                "3" -> {  //3支付成功
+                                    payState.result = PayResultForUI.Result.SUCCESS
+
+                                    saveOrSynConsumeRecord(payResult, payState, listener)
+                                }
+                                else -> { //1 -待支付、2-支付失败
+                                    payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                                    listener?.onFacePayResult(payState)
                                 }
                             }
-                            else -> { //订单状态,失败
-                                payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                                payState.timestamp = DateFormat.format("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis()).toString()
-                                listener?.onFacePayResult(payState)
-                            }
+//                            saveOrSynConsumeRecord(payResult, payState, listener)
                         }
+                        else -> { //订单状态,失败
+//                            payResult.PAYMENT = bean.PAYMENT
+//                            payState.payment = bean.PAYMENT
+                            payState.errormsg = "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
+                            listener?.onFacePayResult(payState)
+                        }
+                    }
+//                    saveOrSynConsumeRecord(payResult, payState, listener)
                 }
             })
         }
@@ -115,13 +120,14 @@ class CameraLogic {
         payState: PayResultForUI,
         listener: IProductsVM?
     ) {
-         mScope.launch( Dispatchers.IO) {
+        mScope.launch( Dispatchers.IO) {
             val bean = SynConsumeRecordBean()
             bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
             bean.businessId = mPayCfg?.businessId
             bean.counterId = mPayCfg?.counterId
             bean.consumptionType = 1
             bean.RESULT  = "Y"
+
             bean.CUST_ID = payResult.CUST_ID
             bean.PAYMENT = payResult.PAYMENT!!.toDouble()
 
@@ -133,6 +139,11 @@ class CameraLogic {
             else 0.0
             bean.ACC_TYPE =   if (payResult.ACC_TYPE.isNullOrEmpty().not()) payResult.ACC_TYPE!!.toInt()
             else 1
+
+//            if (payState.result == PayResultForUI.Result.FAIL){
+//                bean.RESULT  = "N"
+//                bean.ACC_BAL = payResult.PAYMENT?.toDoubleOrNull()
+//            }
             bean.TRACEID = payResult.TRACEID
             bean.ORDER_ID = payResult.ORDER_ID
             bean.TRAN_RESULT =  3

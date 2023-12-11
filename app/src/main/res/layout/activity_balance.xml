@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    tools:context=".activitys.BalanceActivity">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/sky_color"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageButton
+            android:id="@+id/ibt_back"
+            android:layout_width="115dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="自助余额查询"
+            android:textColor="@color/white"
+            android:textSize="50sp" />
+
+        <TextView
+            android:id="@+id/tv_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="设置"
+            android:textColor="@color/white"
+            android:textSize="50sp" />
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/iv_dh"
+        android:layout_width="650dp"
+        android:layout_height="650dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/shape_btn_bg_white"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+
+    <TextView
+        android:id="@+id/serial_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/tv_clock" />
+
+    <TextClock
+        android:id="@+id/tv_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:format24Hour="MM-dd HH:mm:ss"
+        android:gravity="center"
+        android:textSize="50sp"
+        android:textColor="@color/gray"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/iv_dh" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="30dp"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ccb_logo"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tv_person_info"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/shape_btn_bg_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="30dp"
+
+            android:drawableLeft="@mipmap/name"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_student_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="100dp"
+
+            android:drawableLeft="@mipmap/student_number"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_glass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:drawableLeft="@mipmap/glass"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_card_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/card_nb"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_glass"
+            app:layout_constraintStart_toStartOf="@+id/tv_student_number" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_money"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/tv_person_info"
+        app:layout_constraintStart_toStartOf="@+id/tv_person_info"
+        app:layout_constraintTop_toBottomOf="@+id/tv_person_info"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="30dp"
+        android:paddingBottom="20dp"
+        android:paddingTop="20dp"
+        android:background="@drawable/shape_btn_bg_white">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="账户可用余额："
+            android:drawableLeft="@mipmap/balance"
+            android:drawablePadding="15dp"
+            android:layout_marginLeft="100dp"
+            android:gravity="center_vertical"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv_money_total"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="￥20.56"
+            android:textColor="@color/sky_color"
+            android:gravity="center_vertical"
+            android:textSize="70sp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清空查询结果"
+            android:gravity="center"
+            android:textSize="37sp"
+            android:textColor="@color/white"
+            android:background="@drawable/click_button_blue"
+            android:layout_gravity="center"
+            android:layout_marginRight="20dp"
+            android:padding="5dp"/>
+
+
+
+    </LinearLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/shape_btn_bg_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_person_info"
+        app:layout_constraintStart_toStartOf="@+id/tv_person_info"
+        app:layout_constraintTop_toBottomOf="@+id/ll_money"
+
+        >
+
+        <TextView
+            android:id="@+id/tv_acc_no"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:lineSpacingMultiplier="1.2"
+            android:drawableLeft="@mipmap/tip"
+            android:drawablePadding="20dp"
+            android:minLines="3"
+            android:padding="20dp"
+            android:textSize="32sp"
+            />
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

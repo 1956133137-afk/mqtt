@@ -37,6 +37,25 @@ class PayRepositoryOfPay {
         }
     }
 
+
+    //3、根据卡号搜索用户信息
+    suspend fun queryPerson(bn : CardUserRequest):CanteenResponse<UserInfoBean>{
+        return apiCall {
+            RetrofitClient.getApi().queryPerson(bn)
+        }
+    }
+
+    //查询用户全部账户余额
+    suspend fun ccbPersonBanlance(path :Map<String,String>):CanteenResponse<BalanceResponse>{
+        return apiCall {
+            val ccbPersonBanlance = RetrofitClient.getApiCcb().ccbPersonBanlance(path)
+            CanteenResponse<BalanceResponse>(200).apply {
+                data = ccbPersonBanlance
+            }
+        }
+    }
+
+
     /**
      *
      * @param pageSize Int 每页大小

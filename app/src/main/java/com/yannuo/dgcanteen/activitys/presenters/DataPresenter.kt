@@ -59,7 +59,10 @@ class DataPresenter() {
         bean.ORDER_ID = data.ordeR_ID
         bean.TRAN_RESULT =  when(res.RESULT.toString()){
             "Y" -> 3
-            "N" -> 2
+            "N" -> {
+                bean.PAYMENT =  bean.PAYMENT ?: data.payment?.toDouble()
+                2
+            }
             else -> null
         }
         bean.OFFLINE = data.offline.toInt()
@@ -105,7 +108,10 @@ class DataPresenter() {
         bean.ordeR_ID = data.order_id
         bean.offline = data.offline
         bean.sigN_TIME = data.sign_time
-
+        if (res.RESULT.toString().equals("N")){
+            res.PAYMENT = data.payment
+//            res.ACC_TYPE = "1"
+        }
         consumeRecord( bean, res, DishesData)
     }
 

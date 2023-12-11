@@ -68,6 +68,8 @@ class CodePresenter : ScanDevice.DataCallBack {
 
     //关闭扫码
     fun closeQrCode() {
+        codeStatus = CodeStatus.INVALID
+        listener = null
         if (this::mCodeDevice.isInitialized) {
             mCodeDevice.setCallbackListener(null)
             mCodeDevice.closeScan()
