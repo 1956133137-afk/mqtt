@@ -171,7 +171,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(integer -> {
                             if ((Integer) any == 1){
-                                CommonAndDpToPxUtil.speakWork("请刷新付款码再支付");
+                                CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付");
                             }else {
                                 CommonAndDpToPxUtil.speakWork("请切换离线码再支付");
                             }

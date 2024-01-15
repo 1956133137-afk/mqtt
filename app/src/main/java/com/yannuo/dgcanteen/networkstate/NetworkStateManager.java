@@ -12,7 +12,11 @@ import android.util.Log;
 
 
 import com.yannuo.dgcanteen.common.MyApplication;
+import com.yannuo.dgcanteen.util.LogUtil;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -304,6 +308,29 @@ public class NetworkStateManager {
         }
         return "0.0.0.0";
 
+    }
+
+    public boolean Ping(String str){
+        boolean pass = true;
+        try{
+            Process p =  Runtime.getRuntime().exec("ping -c 2 -w 100 " + str);
+            int status = p.waitFor();
+            InputStream input = p.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(input));
+            StringBuilder builder = new StringBuilder();
+            String line = "";
+            while ((line = in.readLine())!= null){
+                builder.append(line);
+            }
+            if (status == 0){
+                pass = true;
+            }else if (status != 0 ) {
+                pass = false;
+            }
+        }catch (Exception e){
+            LogUtil.e(TAG,""+e);
+        }
+        return pass;
     }
 
     /**

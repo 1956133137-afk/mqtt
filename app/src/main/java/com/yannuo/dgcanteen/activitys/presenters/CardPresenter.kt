@@ -192,12 +192,17 @@ class CardPresenter : OnReadDataListener {
         payState.timestamp = data.sign_time
         payState.cust_name = persons?.personName ?: "***"
         payState.payment = data.payment
-        if (res == null || res.RESULT.toString() == "Y") {
+        if ( res?.RESULT.toString() == "Y" || (res == null && data.offline.equals("1"))) {
             payState.result = PayResultForUI.Result.SUCCESS
             payState.payment = res?.ACTUAL_PAYMENT ?: data.payment
             payState.acc_no = res?.ACC_NO ?: ""
             payState.acc_bal = res?.ACC_BAL ?: ""
-        } else {
+        }else if (res == null){
+            payState.result = PayResultForUI.Result.FAIL
+            payState.traceid = data.order_id
+            payState.errormsg = "error 服务器返回数据异常，code != 200"
+        }
+        else {
             payState.result = PayResultForUI.Result.FAIL
             payState.traceid = res.TRACEID
             payState.errormsg = "error ${res.ERRCODE} ${res.ERRMSG} "

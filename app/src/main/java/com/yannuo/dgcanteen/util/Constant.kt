@@ -78,6 +78,7 @@ object Constant {
     const val EVENT_OTHER_PAY = 23 //其它支付方式收款
     const val EVENT_VERIFY = 24 //校验金额
     const val EVENT_OPEN_BTN = 25 //打开支付按钮
+    const val EVENT_OFLINE_CHANGE = 26 //
 
 
 

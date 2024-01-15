@@ -136,7 +136,7 @@ class KeyBoardFragment : Fragment() {
         when (event.code) {
             Constant.EVENT_QUOTA_CHANGE ->
             {
-//                handler.post {
+//                handler.post {R
                     btnClickable(!kv.decodeBool(Constant.QUOTA_SWITCH))
                     tvText = StringBuilder()
                     if (kv.decodeBool(Constant.QUOTA_SWITCH)) {

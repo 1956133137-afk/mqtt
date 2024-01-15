@@ -130,7 +130,17 @@ class CodePresenter : ScanDevice.DataCallBack {
                 val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
                 val hour = TimeUtil.timestamp(pastDueTime)
                 if (hour < 1) validCode = 0
+                var codeCampusId = plainText.substring(plainText.indexOf("@")+1,plainText.lastIndexOf("@"))
+//                codeCampusId = "123456"
 
+                if (ccbBean.cusT_ID.isNullOrEmpty()) {
+                    val persons = DishesDBHelper.getInstance().queryPersonToCidNo(plainText.substring(0,plainText.indexOf("@")))
+                    ccbBean.cusT_ID = persons?.custId
+                }
+                if (ccbBean.campuS_ID.equals(codeCampusId).not()|| ccbBean.cusT_ID.isNullOrEmpty()){
+                    LogUtil.w(TAG,"非本园区人员！或人员cust_Id")
+                    validCode = 0
+                }
                 if (validCode == 3) {
                     runBlocking(Dispatchers.IO + mHandler) {
                         var map = CanteenEncryptionUtil.getScanToPay(ccbBean)
@@ -210,6 +220,7 @@ class CodePresenter : ScanDevice.DataCallBack {
 
                 ccbBean.decryptionCode = plainText
                 ccbBean.postTag = false
+
                 DishesDBHelper.getInstance().insertOffLineOrder(ccbBean)
 
                 LogUtil.d(TAG, "离线订单已保存")
@@ -232,12 +243,18 @@ class CodePresenter : ScanDevice.DataCallBack {
 //        payState.piece = 0
         payState.cust_name = persons?.personName ?: "***"
         payState.payment = data.payment
-        if (res == null || res.RESULT.toString() == "Y") {
+        if (res?.RESULT.toString() == "Y" || (res == null && data.offline.equals("1"))) {
             payState.result = PayResultForUI.Result.SUCCESS
             payState.payment = res?.ACTUAL_PAYMENT ?: data.payment
             payState.acc_no = res?.ACC_NO ?: ""
             payState.acc_bal = res?.ACC_BAL ?: ""
-        } else {
+        }
+        else if (res == null){
+            payState.result = PayResultForUI.Result.FAIL
+            payState.traceid = data.ordeR_ID
+            payState.errormsg = "error 服务器返回数据异常，code != 200"
+        }
+        else {
             payState.result = PayResultForUI.Result.FAIL
             payState.traceid = res.TRACEID
             payState.errormsg = "error ${res.ERRCODE} ${res.ERRMSG} "

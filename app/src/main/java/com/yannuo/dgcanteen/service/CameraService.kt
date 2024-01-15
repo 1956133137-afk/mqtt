@@ -130,6 +130,22 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         synConsumerDish()   //同步消费记录
         offLineFillMoney() //离线补扣
         cardFillMoney() //离线刷卡补扣
+        checkNetPass()
+    }
+
+    @OptIn(ExperimentalTime::class)
+    private fun checkNetPass() {
+        mScope.launch {
+            while (isActive){
+                delay(Duration.minutes(5))
+                if (NetworkStateManager.getInstance().isOnline(this@CameraService)) {
+                    if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+                        MMKV.defaultMMKV().encode(Constant.SWITCH, false)
+                        EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFLINE_CHANGE))
+                    }
+                }
+            }
+        }
     }
 
     private suspend fun getPayCfg() {
@@ -576,8 +592,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
             while (isActive) {
                 LogUtil.i(TAG, "离线消费上传任务开始...")
-                delay(Duration.minutes(30))
-//                delay(Duration.seconds(30))
+//                delay(Duration.minutes(30))
+                delay(Duration.seconds(30))
                 val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline) continue
                 //在线模式下
@@ -624,8 +640,9 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun offLineFillMoney() {
         mScope.launch {
             while (isActive) {
-                delay(Duration.minutes(40))
-//                delay(Duration.seconds(30))
+//                delay(Duration.minutes(40))
+                delay(Duration.seconds(30))
+
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态 //进行离线补扣
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
                     // 1、先复位上传标志
@@ -649,7 +666,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                 )
                             }
                             if (res == null){
-                              LogUtil.e(TAG, "扫码离线补扣${bean.ordeR_ID} 订单失败==网络错误")
+                                LogUtil.e(TAG, "扫码离线补扣${bean.ordeR_ID} 订单失败==网络错误")
                                 //修改请求标志
                                 it.postTag = true
                                 DishesDBHelper.getInstance().updateOffLineOrder(it)
@@ -713,8 +730,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun cardFillMoney() {
         mScope.launch {
             while (isActive) {
-                delay(Duration.minutes(35))
-//                delay(Duration.seconds(30))
+//                delay(Duration.minutes(35))
+                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     LogUtil.i(TAG, "离线刷卡订单请求开始...")
                     // 1、先复位上传标志
@@ -737,12 +754,12 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                                     ScanQrResultBean::class.java
                                 )
                             }
-                             if (res == null){
-                                 //修改请求标志
-                                 it.up = true
-                                 DishesDBHelper.getInstance().updateCardOrder(it)
-                                 return@also
-                             }
+                            if (res == null){
+                                //修改请求标志
+                                it.up = true
+                                DishesDBHelper.getInstance().updateCardOrder(it)
+                                return@also
+                            }
                             val dishes: MutableList<DishesInfo> = mutableListOf()
                             it.cardDishesList.forEach {
                                 dishes.add(

@@ -83,6 +83,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
+        }else{
+            netWorkStatus("0")
         }
         binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
                 "v${packageManager.getPackageInfo(packageName, 0).versionName}"
@@ -120,6 +122,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 }
             }
         }
+
     }
 
     private fun initPresentation() {
@@ -257,6 +260,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     simpleDisplay.enableBtn(event.any as String)
                 }
             }
+
+            Constant.EVENT_OFLINE_CHANGE -> handler.post {
+                btnViewChange(binding.btnOff, Constant.SWITCH)
+            }
         }
     }
 
@@ -297,7 +304,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 "0" -> {
                     binding.network.setImageResource(R.drawable.ic_wifi)
                     if (kv.decodeBool(Constant.SWITCH, false)) {
-                        kv.encode(Constant.SWITCH, !kv.decodeBool(Constant.SWITCH))
+                        kv.encode(Constant.SWITCH, false)
                         EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
                     }
                 }

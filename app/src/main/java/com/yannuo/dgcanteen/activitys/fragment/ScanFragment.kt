@@ -144,7 +144,7 @@ class ScanFragment : Fragment(), CallbackListener {
                         when (any as Int) {
                             1 -> {
                                 ToastShowUtil.show("请刷新付款码再支付")
-                                CommonAndDpToPxUtil.speakWork("请刷新付款码再支付")
+                                CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
                             }
                             else -> {
                                 ToastShowUtil.show("请切换离线码再支付")

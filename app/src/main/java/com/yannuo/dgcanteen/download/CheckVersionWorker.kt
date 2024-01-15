@@ -9,6 +9,7 @@ import com.yannuo.dgcanteen.BuildConfig
 
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.service.UpdateServer
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 
 
@@ -23,7 +24,8 @@ class CheckVersionWorker(cnt : Context, params :WorkerParameters) :Worker(cnt,pa
         val info = AppInfoB("XH2JVY4K5T4XU4IV",
             BuildConfig.CHANNEL.toString(),
             BuildConfig.VERSION_NAME,
-            BuildConfig.VERSION_CODE.toString())
+            BuildConfig.VERSION_CODE.toString(),
+            CommonAndDpToPxUtil.getDeviceSerial())
         LogUtil.i(TAG,"请求信息: $info")
         RetrofitClient.getApi().checkAppUpdate(CHECK_APP_URL,info)
             .subscribe( {

@@ -36,6 +36,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.URL
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -97,7 +98,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         downPerson()     //下载人员
         upDataDishes()   //定时同步餐别和菜品图片、菜品价格
         LogUtil.d(TAG,"服务启动")
-
+        checkNetPass()
     }
 
 
@@ -113,6 +114,20 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     }
 
 
+    @OptIn(ExperimentalTime::class)
+    private fun checkNetPass() {
+        mScope.launch {
+            while (isActive){
+                delay(Duration.minutes(5))
+                if (NetworkStateManager.getInstance().isOnline(this@MyMqttService)) {
+                    if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+                        MMKV.defaultMMKV().encode(Constant.SWITCH, false)
+                        EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFLINE_CHANGE))
+                    }
+                }
+            }
+        }
+    }
 
 
     /**
@@ -124,7 +139,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
-                delay(Duration.minutes(30))
+//                delay(Duration.minutes(30))
+                delay(Duration.seconds(30))
                 val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline)continue
                 //在线模式下
@@ -183,8 +199,9 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun offLineFillMoney(){
         mScope.launch {
             while (isActive){
-                delay(Duration.hours(1))
-//                delay(Duration.seconds(30))
+//                delay(Duration.hours(1))
+//                delay(Duration.minutes(40))
+                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态 //进行离线补扣
                     LogUtil.i(TAG,"离线订单补扣开始请求...")
                     do {
@@ -259,8 +276,13 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     private fun cardFillMoney(){
         mScope.launch {
             while (isActive){
-                delay(Duration.hours(1))
-//                delay(Duration.seconds(30))
+//                delay(Duration.hours(1))
+//                delay(Duration.minutes(35))
+                delay(Duration.seconds(30))
+//                if (NetworkStateManager.getInstance().isOnline(this@MyMqttService)) {
+//                    MMKV.defaultMMKV().encode(Constant.SWITCH, false)
+//                }
+//
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     LogUtil.i(TAG,"离线刷卡订单请求开始...")
                     // 1、先复位上传标志

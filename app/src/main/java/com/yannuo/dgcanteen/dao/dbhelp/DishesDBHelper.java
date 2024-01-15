@@ -352,6 +352,18 @@ public class DishesDBHelper {
     }
 
     /**
+     * @param cidNo 学号
+     * @return
+     */
+    public Persons queryPersonToCidNo(String cidNo){
+        if (cidNo == null)return null;
+        return  mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.PersonNumber.eq(cidNo))
+                .build()
+                .unique();
+    }
+
+    /**
      * cidNo
      * @param personNumber
      * @return
