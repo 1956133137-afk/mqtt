@@ -592,8 +592,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
             while (isActive) {
                 LogUtil.i(TAG, "离线消费上传任务开始...")
-//                delay(Duration.minutes(30))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(30))
+//                delay(Duration.seconds(30))
                 val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline) continue
                 //在线模式下
@@ -640,8 +640,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun offLineFillMoney() {
         mScope.launch {
             while (isActive) {
-//                delay(Duration.minutes(40))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(40))
+//                delay(Duration.seconds(30))
 
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态 //进行离线补扣
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
@@ -730,8 +730,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private fun cardFillMoney() {
         mScope.launch {
             while (isActive) {
-//                delay(Duration.minutes(35))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(35))
+//                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     LogUtil.i(TAG, "离线刷卡订单请求开始...")
                     // 1、先复位上传标志

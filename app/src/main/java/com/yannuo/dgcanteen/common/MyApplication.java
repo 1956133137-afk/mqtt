@@ -73,6 +73,7 @@ public class MyApplication extends Application {
 
         //调试模式
         if ((getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0){
+//        if (true){
             if (kv.decodeString(Constant.ADDRESS) == null){
                 kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
             }

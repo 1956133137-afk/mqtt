@@ -139,8 +139,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
 
             while(isActive){
                 LogUtil.i(TAG,"离线消费上传任务开始...")
-//                delay(Duration.minutes(30))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(30))
+//                delay(Duration.seconds(30))
                 val offline =  MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline)continue
                 //在线模式下
@@ -200,8 +200,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         mScope.launch {
             while (isActive){
 //                delay(Duration.hours(1))
-//                delay(Duration.minutes(40))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(40))
+//                delay(Duration.seconds(30))
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)){ //有网并且不为离线状态 //进行离线补扣
                     LogUtil.i(TAG,"离线订单补扣开始请求...")
                     do {
@@ -277,8 +277,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
         mScope.launch {
             while (isActive){
 //                delay(Duration.hours(1))
-//                delay(Duration.minutes(35))
-                delay(Duration.seconds(30))
+                delay(Duration.minutes(35))
+//                delay(Duration.seconds(30))
 //                if (NetworkStateManager.getInstance().isOnline(this@MyMqttService)) {
 //                    MMKV.defaultMMKV().encode(Constant.SWITCH, false)
 //                }
