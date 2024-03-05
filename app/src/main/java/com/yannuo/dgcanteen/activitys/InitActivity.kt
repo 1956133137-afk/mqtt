@@ -137,6 +137,11 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
             initMode()
         }
+
+        binding.collectionTwo.setOnClickListener {
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
+            initMode()
+        }
     }
 
 
@@ -152,6 +157,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             serial.close()
             mode = kv.decodeString(Constant.APP_MODE)
 //            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
+//            mode = Constant.ORDERING_TWO_MODE
             when (mode) {
                 Constant.ORDERING_FOOD_MODE -> {
                     //TODO 初始化相关服务
@@ -206,6 +212,32 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         finish()
                     }
                 }
+                Constant.ORDERING_TWO_MODE ->{
+                    //TODO 初始化相关服务
+                    withContext(Dispatchers.Main) {
+                        loading?.show("启动相关服务")
+                    }
+
+                    val intent = Intent(this@InitActivity, MyMqttService::class.java)
+                    startService(intent)
+                    when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                        true ->{
+                            val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            startActivity(intent)
+                        }
+                        else ->{
+                            val intent = Intent(this@InitActivity, OrderMenuActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            startActivity(intent)
+                        }
+                    }
+//                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//                    startActivity(intent1)
+                    delay(50)
+                    finish()
+                }
                 else -> {
                     withContext(Dispatchers.Main) {
                         binding.initFrame.visibility = View.VISIBLE
@@ -223,7 +255,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                     }
                     if (result==null){
                         kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-                        LogUtil.d(TAG,"超时未选择模式...")
+                        LogUtil.i(TAG,"超时未选择模式...")
                         initMode()
                     }
                 }

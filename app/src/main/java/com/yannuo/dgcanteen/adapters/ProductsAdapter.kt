@@ -27,6 +27,7 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
     private var wh: GridLayoutManager? = null
     private var sizeWH = 200
     private var firstCaclulate = true
+    private var holdWidth = 0
 
 
 
@@ -45,6 +46,7 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
 
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup): ProductShowBinding {
+        holdWidth = parent.width
         return ProductShowBinding.inflate(inflater, parent, false)
     }
 
@@ -62,7 +64,7 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
 
         if (firstCaclulate) {
             wh?.let {
-               val long = it.width - it.paddingLeft - it.paddingRight -  (holder.itemView.marginLeft + holder.itemView.marginRight +
+               val long = holdWidth - it.paddingLeft - it.paddingRight -  (holder.itemView.marginLeft + holder.itemView.marginRight +
                        holder.itemView.paddingLeft +  holder.itemView.paddingRight
                        ) * it.spanCount
 
@@ -70,10 +72,8 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
                 firstCaclulate = false
             }
         }
-
         layoutParams.height = sizeWH
         layoutParams.width = sizeWH
-
         holder.binding.ivPic.layoutParams = layoutParams
         cnt?.let { Glide.with(it).load(PictureUtil.getPictureName(data.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
             .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }

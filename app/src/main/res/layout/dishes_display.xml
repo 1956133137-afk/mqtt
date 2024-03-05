@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/simple_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/tv_fp_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#B3FFFFFF"
+        android:drawablePadding="15px"
+        android:drawableRight="@mipmap/ct"
+        android:fontFamily="@font/kai"
+        android:gravity="center"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        android:paddingTop="10px"
+        android:textColor="@color/sky_color"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextClock
+        android:id="@+id/tc_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10px"
+        android:layout_marginStart="10px"
+        android:background="@drawable/fp_bg_white"
+        android:drawableBottom="@mipmap/ccb_logo"
+        android:format24Hour="MM-dd HH:mm:ss"
+        android:gravity="center"
+        android:padding="15px"
+        android:textColor="@color/gray"
+        android:textSize="35px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10px"
+        android:layout_marginEnd="50px"
+        android:background="@drawable/fp_bg_white"
+        android:minWidth="250px"
+        android:orientation="vertical"
+        android:paddingBottom="5px"
+        android:paddingTop="5px"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout4">
+
+        <TextView
+            android:id="@+id/tv_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/red"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_hit_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="支付金额"
+            android:textColor="@color/table_unselet"
+            android:textSize="25sp" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10px"
+        android:layout_marginEnd="20px"
+        android:background="@drawable/fp_bg_white"
+        android:minWidth="250px"
+        android:paddingLeft="20px"
+        android:paddingRight="20px"
+        android:orientation="vertical"
+        android:paddingBottom="5px"
+        android:paddingTop="5px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <TextView
+            android:id="@+id/tv_dishes_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/red"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_hit_dishes_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="选餐总数"
+            android:textColor="@color/table_unselet"
+            android:textSize="25sp" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_hit_to_sure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_marginTop="20px"
+        android:background="@drawable/shape_btn_bg_white"
+        android:paddingTop="10px"
+        android:paddingBottom="10px"
+        android:paddingLeft="30px"
+        android:text="请检查菜品和扣款明细是否一致"
+        android:textColor="@color/table_unselet"
+        android:textSize="32sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_fp_title" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_foods"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_margin="15px"
+        android:layout_marginBottom="20px"
+        android:layout_marginTop="35px"
+
+        android:background="@drawable/shape_btn_bg_half_white"
+        android:padding="15px"
+        app:layout_constraintBottom_toTopOf="@+id/tc_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_hit_to_sure"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/tv_pay_wait"
+        android:layout_width="700px"
+        android:layout_height="400px"
+        android:layout_centerInParent="true"
+        android:background="@drawable/wait_hit_bg"
+        android:gravity="center"
+        android:text="请扫码或刷卡支付本笔交易"
+        android:textColor="@color/black"
+        android:textSize="35sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_fp_title" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,7 @@ import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.PictureUtil
 
 
-class FoodsAdapter(context :Context?) : BaseAdapter<DishesInfo,FoodsShowBinding> (){
+class DishListAdapter(context :Context?) : BaseAdapter<DishesInfo,FoodsShowBinding> (){
     private var listener: WorkListener ?= null
     private var cnt = context
     private var wh: GridLayoutManager? = null
@@ -60,24 +60,22 @@ class FoodsAdapter(context :Context?) : BaseAdapter<DishesInfo,FoodsShowBinding>
             holder.binding.tvNumber.text = spanStr
         }
         holder.binding.cvCountAdd.text = "${data.count}份"
-//        val layoutParams = holder.binding.ivPic.layoutParams
 
-//        if (firstCaclulate) {
-//            wh?.let {
-//               val long = it.width - it.paddingLeft - it.paddingRight -  (holder.itemView.marginLeft + holder.itemView.marginRight +
-//                       holder.itemView.paddingLeft +  holder.itemView.paddingRight
-//                       ) * it.spanCount
-//
-//                sizeWH = (long / it.spanCount)
-//                firstCaclulate = false
-//            }
-//        }
+        val layoutParams = holder.binding.ivPic.layoutParams
+        if (firstCaclulate) {
 
-//        layoutParams.height = sizeWH
-//        layoutParams.width = sizeWH
-//
-//
-//        holder.binding.ivPic.layoutParams = layoutParams
+            wh?.let {
+               val long = it.width - it.paddingLeft - it.paddingRight -  (holder.itemView.marginLeft + holder.itemView.marginRight +
+                       holder.itemView.paddingLeft +  holder.itemView.paddingRight
+                       ) * it.spanCount
+
+                sizeWH = (long / it.spanCount)
+                firstCaclulate = false
+            }
+        }
+        layoutParams.height = sizeWH
+        layoutParams.width = sizeWH
+        holder.binding.ivPic.layoutParams = layoutParams
         cnt?.let { Glide.with(it).load(PictureUtil.getPictureName(data.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
             .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }
 

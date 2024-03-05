@@ -10,11 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.DishesManageAdapter;
 import com.yannuo.dgcanteen.adapters.DropDownAdapter;
 import com.yannuo.dgcanteen.dao.DishesTable;
@@ -29,6 +25,11 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class DishManageActivity extends AppCompatActivity implements DishesManageAdapter.WorkListener,AdapterView.OnItemClickListener {
 
@@ -85,7 +86,10 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
         });
 
         binding.ibtBack.setOnClickListener(view -> {
-            Intent intent =new Intent(this,CommodityActivity.class);
+            Intent intent ;
+            if(MMKV.defaultMMKV().decodeString(Constant.APP_MODE).equals(Constant.ORDERING_FOOD_MODE))
+                intent = new Intent(this,CommodityActivity.class);
+            else intent = new Intent(this,OrderMenuActivity.class);
             startActivity(intent);
             finish();
         });

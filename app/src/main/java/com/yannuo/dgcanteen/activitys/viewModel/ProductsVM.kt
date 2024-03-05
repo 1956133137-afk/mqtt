@@ -14,6 +14,7 @@ import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.DishesDisplay
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.dao.DishesTable
@@ -41,11 +42,15 @@ import java.util.stream.Collectors
 class ProductsVM :ViewModel() {
     var showToastEvent : MutableLiveData<String>
     var loadingEvent : MutableLiveData<Boolean>
+    var menuChange : MutableLiveData<Int>
+    var tab : MutableLiveData<Int>
+    var uiData : MutableLiveData<PayResultForUI>
     private val TAG = javaClass.simpleName
     private lateinit var mRespository :PayRepositoryOfPay
     private var exceptionHandler :CoroutineExceptionHandler
     private lateinit var kv : MMKV
     private var mPayCfg : PayCfg ?= null
+    private var mDishesDisplay : DishesDisplay ?= null
 
     var listener : IProductsVM?= null
 
@@ -55,6 +60,9 @@ class ProductsVM :ViewModel() {
         mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
         showToastEvent = MutableLiveData()
         loadingEvent = MutableLiveData()
+        menuChange = MutableLiveData()
+        tab = MutableLiveData()
+        uiData = MutableLiveData()
         mRespository =  PayRepositoryOfPay()
 
         exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -76,6 +84,13 @@ class ProductsVM :ViewModel() {
         return  (old!!.toInt() >= now.toInt())
     }
 
+    fun setDisplay(display : DishesDisplay?){
+        mDishesDisplay = display
+    }
+
+    fun getDisplay(): DishesDisplay? {
+       return mDishesDisplay
+    }
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun upDataDishes(force :Boolean = false){

@@ -72,9 +72,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_name"
                 corner:mainBg="@drawable/ic_sadd"
-                corner:mainSize="40px"
+                corner:mainSize="40dp"
                 corner:secondaryBg="@drawable/corner_bg"
-                corner:secondarySize="10px" />
+                corner:secondarySize="15dp" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

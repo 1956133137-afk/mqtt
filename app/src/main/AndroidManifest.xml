@@ -29,6 +29,9 @@
             android:name=".activitys.CalculateActivity"
             android:exported="false" />
         <activity
+            android:name=".activitys.OrderMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.InitActivity"
             android:exported="true">
             <intent-filter>

@@ -79,6 +79,25 @@
                     android:padding="10dp">
 
                     <Button
+                        android:id="@+id/collection_two"
+                        android:layout_width="400dp"
+                        android:layout_height="200dp"
+                        android:background="@drawable/shape_btn_two"
+                        android:text="点餐模式2"
+                        android:textColor="#FFFFFF"
+                        android:textSize="70sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:padding="10dp">
+
+                    <Button
                         android:id="@+id/collection"
                         android:layout_width="400dp"
                         android:layout_height="200dp"
@@ -89,6 +108,8 @@
                         android:textStyle="bold" />
 
                 </LinearLayout>
+
+
             </LinearLayout>
         </RelativeLayout>
     </FrameLayout>

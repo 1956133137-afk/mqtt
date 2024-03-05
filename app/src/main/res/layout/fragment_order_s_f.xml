@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/fragment_sub_s_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/sub_s"
+        android:visibility="gone"
+        />
+
+    <include layout="@layout/fragment_sub_fail_layout"
+        android:id="@+id/sub_f"
+        android:visibility="gone"
+        />
+</FrameLayout>

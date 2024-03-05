@@ -341,6 +341,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                mReadCardListener?.cardCallback(true)
                return
           }
+          listener?.onOtherListener(100)
           if (kv.decodeBool(Constant.SWITCH)){
                payBean.offline = "1"
           }

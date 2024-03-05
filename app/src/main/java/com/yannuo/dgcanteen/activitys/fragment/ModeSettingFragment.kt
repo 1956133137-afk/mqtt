@@ -1,24 +1,24 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
-import android.content.ComponentName
-import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
-import android.content.ServiceConnection
 import android.graphics.Typeface
 import android.os.Bundle
-import android.os.IBinder
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupWindow
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
@@ -28,7 +28,6 @@ import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
-import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
@@ -112,9 +111,10 @@ class ModeSettingFragment : Fragment() {
 
     private fun initEvent() {
         binding.appMode.setOnClickListener { //切换模式
-            if (!this::confirmDialog.isInitialized)
-                confirmDialog = ConfirmDialog(requireActivity())
-            changeMode()
+//            if (!this::confirmDialog.isInitialized)
+//                confirmDialog = ConfirmDialog(requireActivity())
+//            changeMode()
+            changeConsumeMode()
         }
         binding.payMode.setOnClickListener { //切换支付
             popup.width = binding.payMode.width
@@ -185,6 +185,54 @@ class ModeSettingFragment : Fragment() {
         }
     }
 
+    private fun changeConsumeMode() {
+        val array = arrayOf(
+            Constant.ORDERING_FOOD_MODE,
+            Constant.PROCEEDS_MODE,
+            Constant.ORDERING_TWO_MODE
+        )
+        val position = byteArrayOf(0)
+        val oldPosition = when(kv.decodeString(Constant.APP_MODE)){
+            array[0]-> 0
+            array[1]-> 1
+            else -> 2
+        }
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setCancelable(false)
+            .setIcon(R.mipmap.ic_app)
+            .setTitle("消费模式切换")
+            .setSingleChoiceItems(array, oldPosition) { dialog, which ->
+                position[0] = which.toByte()
+                LogUtil.i(TAG, "which $which")
+            }
+            .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
+            .setPositiveButton("确定"
+            ) { dialog, which ->
+                ToastShowUtil.show(array[position[0].toInt()])
+                kv.encode(Constant.APP_MODE, array[position[0].toInt()])
+
+
+                val restartIntent =
+                    mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                restartIntent?.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+                )
+                startActivity(restartIntent)
+                exitProcess(0)
+            }
+        builder.create()
+            .apply {
+                show()
+                getButton(DialogInterface.BUTTON_NEGATIVE)
+                    .setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+            }
+
+    }
+
     private fun initData() {
         reload()
     }
@@ -220,7 +268,7 @@ class ModeSettingFragment : Fragment() {
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
         if ( kv.decodeString(Constant.APP_MODE) == null)
-        kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
         binding.appMode.text =kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
     }
@@ -259,7 +307,8 @@ class ModeSettingFragment : Fragment() {
             show()
             val strText = when (kv.decodeString(Constant.APP_MODE)) {
                 Constant.ORDERING_FOOD_MODE -> "是否切换为 ${Constant.PROCEEDS_MODE} 并且重启应用？"
-                Constant.PROCEEDS_MODE -> "是否切换为 ${Constant.ORDERING_FOOD_MODE} 并且重启应用？"
+                Constant.PROCEEDS_MODE -> "是否切换为 ${Constant.ORDERING_TWO_MODE} 并且重启应用？"
+                Constant.ORDERING_TWO_MODE -> "是否切换为 ${Constant.ORDERING_FOOD_MODE} 并且重启应用？"
                 else -> "是否切换为  并且重启应用？"
             }
             val str = SpannableString(strText)
