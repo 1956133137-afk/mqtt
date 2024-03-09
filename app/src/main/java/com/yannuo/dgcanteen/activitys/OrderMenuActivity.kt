@@ -11,29 +11,22 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
-import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.*
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
-import com.yannuo.dgcanteen.adapters.FoodsAdapter
-import com.yannuo.dgcanteen.adapters.HostPayResultAdapter
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
-import com.yannuo.dgcanteen.databinding.*
+import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
-import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
@@ -72,7 +65,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private var loadingDialog: LoadingDialog? = null //后台加载框
     private lateinit var passwordDialog: PasswordDialog
     private lateinit var mDishDisplay :DishesDisplay
-
+    private lateinit var kv: MMKV
 
     private var mMealId = 0
     private var mealId = 0
@@ -121,7 +114,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         mProductsVM = ViewModelProvider(this).get(ProductsVM::class.java)
         mProductsVM.listener = this
         EventBus.getDefault().register(this)
-
+        kv = MMKV.defaultMMKV()
         initPresentation()
 
 //        val lIntent = Intent()
@@ -146,13 +139,12 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         }
         //加载对话框显示
         mProductsVM.loadingEvent.observe(this) {
-            loadingDialog?.cancel()
-            loadingDialog = LoadingDialog(this)
-            if (it) loadingDialog?.show()
-            else {
-                loadingDialog?.cancel()
-                loadingDialog = null
+            if (it){
+                if (loadingDialog==null) loadingDialog = LoadingDialog(this)
+                loadingDialog?.show()
             }
+            else loadingDialog?.dismiss()
+//            LogUtil.d(TAG,"SHOW $it")
         }
 
         mProductsVM.tab.observe(this){
@@ -278,24 +270,24 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun checkTime() {
         mScope?.launch {
             while (isActive) {
-                    mMealId = TimeUtil.CurrentTimeSection()
-                    if (mMealId != mealId) {
-                        mealId = mMealId
-                        val str = StringBuilder()
-                        when (mealId) {
-                            0 -> str.append(resources.getString(R.string.unOpen_meal))
-                            else -> {
-                                val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
-                                str.append(meal.mealName + " ")
-                                str.append(DateFormat.format("HH:mm", meal.startTime).toString() + "~")
-                                str.append(DateFormat.format("HH:mm", meal.endTime).toString())
-                            }
+                mMealId = TimeUtil.CurrentTimeSection()
+                if (mMealId != mealId) {
+                    mealId = mMealId
+                    val str = StringBuilder()
+                    when (mealId) {
+                        0 -> str.append(resources.getString(R.string.unOpen_meal))
+                        else -> {
+                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                            str.append(meal.mealName + " ")
+                            str.append(DateFormat.format("HH:mm", meal.startTime).toString() + "~")
+                            str.append(DateFormat.format("HH:mm", meal.endTime).toString())
                         }
-                        withContext(Dispatchers.Main) {
-                            binding.mealTime.text = str
-                        }
-                        mProductsVM.menuChange.postValue(mealId)
                     }
+                    withContext(Dispatchers.Main) {
+                        binding.mealTime.text = str
+                    }
+                    mProductsVM.menuChange.postValue(mealId)
+                }
 
                 delay(5000)
             }
@@ -342,6 +334,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         mScope?.cancel()
         passwordDialog.cancel()
         mDishDisplay.cancel()
+        loadingDialog?.cancel()
 //        unbindService(mServiceConnection)
         EventBus.getDefault().unregister(this)
         //取消网络状态监听
@@ -391,9 +384,13 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         runOnUiThread {
             when (statue) {
                 "0" -> {
+                    if (kv.decodeBool(Constant.SWITCH, false))
+                        kv.encode(Constant.SWITCH, false)
                     binding.network.setImageResource(R.drawable.ic_wifi)
                 }
                 else -> {
+                    if (kv.decodeBool(Constant.SWITCH, false).not())
+                        kv.encode(Constant.SWITCH, true)
                     binding.network.setImageResource(R.drawable.ic_wifi_no)
                 }
             }

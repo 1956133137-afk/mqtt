@@ -64,6 +64,10 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           scanState = state
      }
 
+     fun setCardState(state : ScanState){
+          cardState = state
+     }
+
      /**
       * 打开IC卡串口
       */
@@ -341,7 +345,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
                mReadCardListener?.cardCallback(true)
                return
           }
-          listener?.onOtherListener(100)
+          listener?.onOtherListener(1)
           if (kv.decodeBool(Constant.SWITCH)){
                payBean.offline = "1"
           }
@@ -358,7 +362,7 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
           ccbBean.sigN_TIME = payBean.sign_time
           ccbBean.cusT_ID = payBean.cust_id
           ccbBean.payment = payBean.payment
-
+          ccbBean.offline = payBean.offline
           when(payBean.offline){
                "0" -> {
                     runBlocking {

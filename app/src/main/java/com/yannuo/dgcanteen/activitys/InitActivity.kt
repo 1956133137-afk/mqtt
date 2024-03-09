@@ -50,6 +50,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     private var loading: LoadingDialog? = null
     private lateinit var scope: CoroutineScope
 
+
     override fun bindLayout() {
         binding = ActivityIntiBinding.inflate(layoutInflater)
     }
@@ -130,15 +131,18 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
     private fun initEvent() {
         binding.order.setOnClickListener {
+            binding.order.isEnabled =false
             kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
             initMode()
         }
         binding.collection.setOnClickListener {
+            binding.collection.isEnabled =false
             kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
             initMode()
         }
 
         binding.collectionTwo.setOnClickListener {
+            binding.collectionTwo.isEnabled =false
             kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
             initMode()
         }
@@ -156,8 +160,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             serial.outputStream?.close()
             serial.close()
             mode = kv.decodeString(Constant.APP_MODE)
-//            mode = kv.decodeString(Constant.APP_MODE,Constant.PROCEEDS_MODE).toString()
-//            mode = Constant.ORDERING_TWO_MODE
             when (mode) {
                 Constant.ORDERING_FOOD_MODE -> {
                     //TODO 初始化相关服务
@@ -179,9 +181,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                             startActivity(intent)
                         }
                     }
-//                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-//                    startActivity(intent1)
                     delay(50)
                     finish()
                 }
@@ -192,10 +191,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         withContext(Dispatchers.Main) {
                             loading?.show("启动相关服务")
                         }
-                        //TODO 初始化相关服务
                         val intent = Intent(this@InitActivity, CameraService::class.java)
                         startService(intent)
-
                         when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
                             true ->{
                                 val intent = Intent(this@InitActivity, BalanceActivity::class.java)
@@ -213,11 +210,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                     }
                 }
                 Constant.ORDERING_TWO_MODE ->{
-                    //TODO 初始化相关服务
                     withContext(Dispatchers.Main) {
                         loading?.show("启动相关服务")
                     }
-
                     val intent = Intent(this@InitActivity, MyMqttService::class.java)
                     startService(intent)
                     when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
@@ -232,9 +227,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                             startActivity(intent)
                         }
                     }
-//                    val intent1 = Intent(this@InitActivity, CommodityActivity::class.java)
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-//                    startActivity(intent1)
                     delay(50)
                     finish()
                 }
@@ -259,7 +251,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         initMode()
                     }
                 }
-
             }
         }
     }

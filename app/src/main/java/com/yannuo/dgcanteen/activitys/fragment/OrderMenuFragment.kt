@@ -112,6 +112,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
     private fun openIcQr(){
         mPayPresenter.setScanState(PayPresenter.ScanState.PAY)
+        mPayPresenter.setCardState(PayPresenter.ScanState.PAY)
         if (state_opened) {
             return
         }
@@ -214,8 +215,11 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
     private fun setFoodsPayList(){
         //            binding.btSureMeal.setEnabled(false);
+        val dat = MutableList(mAdapterPayFor.data.size){
+            mAdapterPayFor.data[it].copy()
+        }
         val productsDetail = ProductsDetail(
-            mAdapterPayFor.data,
+            dat,
             binding.tvTotalMoney.text.toString(),
             binding.tvTotalCount.text.toString()
         )
@@ -284,7 +288,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                     }
                     mHintDialog?.dismiss()
                     model.getDisplay()?.showWaitHit(false)
-                    model.loadingEvent.postValue(true)
+                    model.loadingEvent.value= true
                     secondLoadingDialog?.show()
                 }
             2 -> Observable.just(1)
@@ -292,7 +296,6 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 .subscribe { integer: Int? ->
                     model.loadingEvent.value = false
                     if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
-                    model.loadingEvent.postValue(false)
                     Toast.makeText(context, any as String?, Toast.LENGTH_SHORT).show()
                 }
             3, 4 -> {
@@ -301,7 +304,8 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                     .subscribe { integer: Int? ->
                         model.loadingEvent.value = false
                         if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
-                        model.loadingEvent.postValue(false)
+                        mHintDialog?.dismiss()
+                        model.getDisplay()?.showWaitHit(false)
                         clearShoppingCart()
                         model.getDisplay()?.dismiss()
                         model.tab.postValue(1)
