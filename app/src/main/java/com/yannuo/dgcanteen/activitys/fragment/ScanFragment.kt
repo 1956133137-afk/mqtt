@@ -97,6 +97,8 @@ class ScanFragment : Fragment(), CallbackListener {
         codePresenter.initCode()
         codePresenter.listener = this
         codePresenter.openQrCode(payment)
+
+        binding.animationView.playAnimation()
     }
 
     //刷卡返回数据
@@ -146,12 +148,38 @@ class ScanFragment : Fragment(), CallbackListener {
                                 ToastShowUtil.show("请刷新付款码再支付")
                                 CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
                             }
+                            2 -> {
+                                ToastShowUtil.show("请检查网络,不支持离线聚合支付!")
+                                CommonAndDpToPxUtil.speakWork("不支持离线聚合支付")
+                            }
                             else -> {
                                 ToastShowUtil.show("请切换离线码再支付")
                                 CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                             }
                         }
                         codePresenter.setPayStatus()
+                    }
+                    6 -> { //异常
+                        ToastShowUtil.show("支付异常：${any as? String}")
+                        LogUtil.d(TAG, "支付异常：$any")
+                        codePresenter.setPayStatus()
+                    }
+                    7 -> {
+                        countDown?.cancel()
+                        val bean = any as SimpleForUI
+                        val str =  when(bean.way!!.toInt()){
+                            20->"微信"
+                            else-> "支付宝"
+                        }
+                        if (bean.state == 0) {
+                            CommonAndDpToPxUtil.speakWork("${str}收款${bean.payment}元")
+                            val action = ScanFragmentDirections.actionScanToSuccess(bean)
+                            findNavController().navigate(action)
+                        } else {
+                            val action = ScanFragmentDirections.actionScanToFail(bean)
+                            findNavController().navigate(action)
+                            CommonAndDpToPxUtil.speakWork("${str}支付失败了")
+                        }
                     }
                 }
             }catch (e :Exception){
@@ -182,6 +210,8 @@ class ScanFragment : Fragment(), CallbackListener {
     }
 
     private fun release(){
+        binding.animationView.pauseAnimation();
+        binding.animationView.cancelAnimation()
         LogUtil.d(TAG,"release")
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
         cardPresenter.closeIcCard()

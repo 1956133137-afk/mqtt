@@ -317,7 +317,11 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 .subscribe { integer: Int? ->
                     if (any as Int == 1) {
                         CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
-                    } else {
+                    }
+                    else if (any == 2) {
+                        CommonAndDpToPxUtil.speakWork("请检查网络,不支持离线聚合支付!")
+                    }
+                    else {
                         CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                     }
                     model.loadingEvent.value = false

@@ -74,4 +74,8 @@ interface ApiService {
  @POST("android/isConsumeLimit")
  suspend fun spendLimit(@Body data: SpendLimitBean): CanteenResponse<LimitBean>
 
+
+ @Headers("content-type: application/json")
+ @POST("ccbPay/pay")
+ suspend fun ccbPayBeSwept(@Body data: CCBRequest): CanteenResponse<String>
 }

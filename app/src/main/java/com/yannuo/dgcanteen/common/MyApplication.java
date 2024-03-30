@@ -72,7 +72,7 @@ public class MyApplication extends Application {
         kv = MMKV.defaultMMKV();
         boolean res = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         //todo 测试
-//        res = true;
+//        res = false;
         //调试模式
         if (res){
 //        if (true){

@@ -18,6 +18,7 @@ import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.regex.Pattern
 
 /**
  * Author: filowl
@@ -105,6 +106,90 @@ class CodePresenter : ScanDevice.DataCallBack {
         return offBean
     }
 
+    /**
+     *
+     * @param qr String?
+     * @return Int -1 非聚合 1 微信付款码 、2 支付宝付款码
+     */
+    private fun matcherCode(qr:String?):Int{
+        var type = -1
+        if (qr.isNullOrEmpty().not()) {
+            val weixin = "^1[0-5]\\d{16}$"
+            val alipay =  "^(?:2[5-9]|30)\\d{14,22}$"
+
+            if (Pattern.matches(weixin,qr))
+                type = 20
+            else if (Pattern.matches(alipay,qr))
+                type = 21
+        }
+        when(type){
+            20->   LogUtil.i(TAG,"微信付款码")
+            21->      LogUtil.i(TAG,"支付宝付款码")
+            else->   LogUtil.i(TAG,"非聚合付款码")
+        }
+        return type
+    }
+
+    private fun ccbAggregation(netOk: Boolean, type: Int, request: OffLineTable){
+        try {
+
+
+            if (netOk.not()){
+                listener?.onOtherListener(5,2)
+                return
+            }
+            val param = CCBParam().apply {
+                deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
+                counterId  =request.corP_ID
+                custId  = request.vpoS_ID
+                businessName  = mPayCfg.businessName ?:""
+                businessId  = mPayCfg.businessId ?: ""
+                qrCode  =request.qR_CODE
+                payment  = request.payment.toDouble()
+            }
+            val gson = Gson()
+            var content = gson.toJson(param)
+            LogUtil.d(TAG,"ccb content:$content")
+            var aesstr = ""
+            content = AESUtils.encrypt("PrjcbogoboLThZEC",content)
+            aesstr = content
+            content = AESUtils.decryptMD5(content)
+            content = AESUtils.encryptDataRSA(content.toByteArray() ,"MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALnQzB5AniHsMR/px8L5lo0V1CCrex5o" +
+                    "Sbt2GYsVYEGKN5oiSCDdlFd+s5JlBtPWXOiSmdMfbdtOJtoULQdjsQMCAwEAAQ==")
+            val rqs = CCBRequest().apply {
+                sign = content
+                this.param = aesstr
+            }
+            runBlocking {
+                val res = mRespository.CCBPayBeSwept(rqs)
+                val pres = SimpleForUI().apply {
+                    timestamp = DateFormat.format("yyyy-MM-dd HH:mm",System.currentTimeMillis()).toString()
+                    way= type.toString()
+                }
+                when(res.code){
+                    200->{
+                        pres.apply {
+                            state = 0
+                            tranId = res.data!!
+                            payment = request.payment.toFloat()
+                        }
+                    }
+                    else->{
+                        pres.apply {
+                            errorMsg = "${res.code}${res.msg}"
+                        }
+                    }
+                }
+                listener?.onOtherListener(7,pres)
+            }
+        }catch (e:Exception){
+           LogUtil.e(TAG,"Exception ${e.cause} ")
+            listener?.onOtherListener(6,"${e.cause} ")
+        }
+
+    }
+
+
     private fun startPayWithScan(qrcode: String) {
         listener?.onOtherListener(1)
         var validCode = 3   //支付状况
@@ -113,13 +198,23 @@ class CodePresenter : ScanDevice.DataCallBack {
         var res: ScanAnalysisBean? = null
         var plainText = ""
         val ccbBean = initData()
-
+        var netOk = true
         if (kv.decodeBool(Constant.SWITCH)) { //离线模式
+            netOk = false
             if (qrcode.contains("CCB")) validCode = 1
             else {
                 validCode = 0
                 offLineCode = 0
             }
+        }
+
+        var match = matcherCode(qrcode)
+        //todo test
+//        match = 1
+        if (match != -1){
+            ccbBean.qR_CODE = qrcode
+            ccbAggregation(netOk,match,ccbBean)
+            return
         }
 
         when (qrcode.contains("CCB")) { //离线码

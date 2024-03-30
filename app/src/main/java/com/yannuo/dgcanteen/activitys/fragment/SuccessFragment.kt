@@ -40,13 +40,23 @@ class SuccessFragment : Fragment() {
     private fun initData() {
         val data: SuccessFragmentArgs by navArgs()
         data.simpleForUI.apply {
-            binding.tvName.text = custName
-            binding.payTotalMoney.text = "￥$payment"
-            binding.tvAccount.text = accNo
-            binding.tradTime.text = timestamp
-            binding.tradNumber.text = tranId
-            binding.orderNumber.text = orderId
-            binding.orderBalance.text = (acc_bal ?: "")+" 元"
+            when(way!!.toInt()){
+                20,21->{
+                    binding.payTotalMoney.text = "￥$payment"
+                    binding.tradTime.text = timestamp
+                    binding.tradNumber.text = tranId
+                }
+                else->{
+                    binding.tvName.text = custName
+                    binding.payTotalMoney.text = "￥$payment"
+                    binding.tvAccount.text = accNo
+                    binding.tradTime.text = timestamp
+                    binding.tradNumber.text = tranId
+                    binding.orderNumber.text = orderId
+                    binding.orderBalance.text = (acc_bal ?: "")+" 元"
+                }
+            }
+
         }
         onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 2).toLong())
     }

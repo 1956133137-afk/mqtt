@@ -14,9 +14,7 @@ import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -424,19 +422,30 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
     private fun refreshSuccessState(data: PayResultForUI) {
-        val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.custId)
-        var cls = "***"
-        if (persons != null) {
-            cls = persons.grade + persons.userClass
+
+        if (data.way == "20" || data.way == "21") {
+            var str = "支付宝收款"
+            if (data.way == "20") str = "微信收款"
+            CommonAndDpToPxUtil.speakWork(str + data.payment + "元")
+            successBinding!!.tvTransNumber.text = data.traceid
+        }else{
+            val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.custId)
+            var cls = "***"
+            if (persons != null) {
+                cls = persons.grade + persons.userClass
+            }
+            successBinding!!.tvName.text = data.cust_name ?: "***"
+            successBinding!!.tvClass.text = cls
+            successBinding!!.tvBalance.text = (data.acc_bal ?: "") +"元"
+            successBinding!!.tvTransNumber.text = data.orderid
         }
+
         //更新数据
         (successBinding!!.rvDishList.adapter as HostPayResultAdapter).data = data.dishes
         successBinding!!.tvSum.text = " ${data.piece} 件"
         successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
 
-        successBinding!!.tvName.text = data.cust_name ?: "***"
-        successBinding!!.tvClass.text = cls
-        successBinding!!.tvBalance.text = (data.acc_bal ?: "") +"元"
+
         var time = data.timestamp ?: ""
         if (time.isEmpty().not() && data.way.equals("人脸支付").not()) {
             val buffer = StringBuffer()
@@ -452,9 +461,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 .append(data.timestamp!!.substring(12)).toString()
             time = buffer.toString()
         }
-
         successBinding!!.tvPayTime.text = time
-        successBinding!!.tvTransNumber.text = data.orderid
     }
 
     private fun refreshFailState(data: PayResultForUI) {

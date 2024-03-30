@@ -16,27 +16,33 @@ class SimpleForUI() :Parcelable {
     var orderId = ""    //订单号
     var errorMsg = ""   //错误信息
     var acc_bal: String ?= ""  //虚拟账户余额
+    var way:String ?= "-1"
+    var state = 1
 
     constructor(parcel: Parcel) : this() {
         custName = parcel.readString()
         payment = parcel.readFloat()
+        state = parcel.readInt()
         accNo = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         tranId = parcel.readString().toString()
         orderId = parcel.readString().toString()
         errorMsg = parcel.readString().toString()
         acc_bal = parcel.readString()
+        way = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(custName)
         parcel.writeFloat(payment)
+        parcel.writeInt(state)
         parcel.writeString(accNo)
         parcel.writeString(timestamp)
         parcel.writeString(tranId)
         parcel.writeString(orderId)
         parcel.writeString(errorMsg)
         parcel.writeString(acc_bal)
+        parcel.writeString(way)
     }
 
     override fun describeContents(): Int {

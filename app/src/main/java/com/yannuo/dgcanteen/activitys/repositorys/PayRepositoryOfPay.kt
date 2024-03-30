@@ -37,6 +37,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun CCBPayBeSwept(bean:CCBRequest): CanteenResponse<String> {
+        return apiCall {
+            val ben = RetrofitClient.getApi().ccbPayBeSwept(bean)
+            return@apiCall ben
+        }
+    }
 
     //3、根据卡号搜索用户信息
     suspend fun queryPerson(bn : CardUserRequest):CanteenResponse<UserInfoBean>{

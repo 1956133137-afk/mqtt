@@ -120,22 +120,33 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initView() {
-        Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.getCustId());
-        String cls = "***";
-        if (persons != null){
-            cls = persons.getGrade() + "("+persons.getUserClass()+")";
-        }
         mPayResultAdapter.setData(mPayResult.getDishes());
         mBinding.tvSum.setText(""+mPayResult.getPiece()+"件");
-
         mBinding.payTotalMoney.setText(String.format("￥ %s 元",mPayResult.getPayment()));
-        CommonAndDpToPxUtil.speakWork("已支付"+mPayResult.getPayment()+"元");
-        mBinding.tvClass.setText(cls);
-        cls = mPayResult.getCust_name();
-        if (TextUtils.isEmpty(mPayResult.getCust_name())){
-            cls ="***";
+
+        if (mPayResult.getWay().equals("20")||mPayResult.getWay().equals("21")){
+            String str ="支付宝收款";
+            if (mPayResult.getWay().equals("20"))str ="微信收款";
+            CommonAndDpToPxUtil.speakWork(str + mPayResult.getPayment()+"元");
+            mBinding.tvTransNumber.setText(mPayResult.getTraceid());
+        }else {
+            Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.getCustId());
+            String cls = "***";
+            if (persons != null){
+                cls = persons.getGrade() + "("+persons.getUserClass()+")";
+            }
+            mBinding.tvClass.setText(cls);
+            cls = mPayResult.getCust_name();
+            if (TextUtils.isEmpty(mPayResult.getCust_name())){
+                cls ="***";
+            }
+            mBinding.tvName.setText(cls);
+            CommonAndDpToPxUtil.speakWork("已支付"+mPayResult.getPayment()+"元");
+            mBinding.tvTransNumber.setText(mPayResult.getOrderid());
+            String cont = (mPayResult.getAcc_bal().isEmpty() ? "" :mPayResult.getAcc_bal()) + "元";
+            mBinding.tvBalance.setText( cont);
         }
-        mBinding.tvName.setText(cls);
+
         String time = mPayResult.getTimestamp();
         if (!mPayResult.getTimestamp().isEmpty() && !mPayResult.getWay().equals("人脸支付")){
             StringBuffer buffer = new StringBuffer();
@@ -152,9 +163,7 @@ public class PayResultDisplay extends Presentation {
                     .append(mPayResult.getTimestamp().substring(12)).toString();
         }
         mBinding.tvPayTime.setText(time);
-        mBinding.tvTransNumber.setText(mPayResult.getOrderid());
-        String cont = (mPayResult.getAcc_bal().isEmpty() ? "" :mPayResult.getAcc_bal()) + "元";
-        mBinding.tvBalance.setText( cont);
+
     }
 
     private void initEvent() {

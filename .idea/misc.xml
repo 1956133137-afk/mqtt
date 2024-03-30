@@ -50,7 +50,7 @@
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/activity_main.xml" value="0.3828125" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/activity_order_menue.xml" value="0.2109375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/activity_setting.xml" value="0.42857142857142855" />
-        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/choose_second_display.xml" value="0.3828125" />
+        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/choose_second_display.xml" value="0.42857142857142855" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_await.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_confirm.xml" value="0.3875" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_laoding.xml" value="0.3875" />
@@ -58,8 +58,8 @@
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_login_password.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_password.xml" value="0.3875" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dialog_waitfor_pay.xml" value="0.384375" />
-        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/differrent_dialog.xml" value="0.5142857142857143" />
-        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dishes_display.xml" value="0.2927710843373494" />
+        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/differrent_dialog.xml" value="0.2857142857142857" />
+        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/dishes_display.xml" value="0.2857142857142857" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/foods_show.xml" value="0.5714285714285714" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_basic_setting.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_device_info.xml" value="0.384375" />
@@ -69,12 +69,12 @@
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_input_keyboard.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_mode_setting.xml" value="0.44359255202628695" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_order_fail.xml" value="0.384375" />
-        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_order_menu.xml" value="0.1" />
+        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_order_menu.xml" value="0.3828571428571429" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_order_s_f.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_order_success.xml" value="0.3828571428571429" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_scan.xml" value="0.384375" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_sub_fail_layout.xml" value="0.2857142857142857" />
-        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_sub_s_layout.xml" value="0.10546875" />
+        <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_sub_s_layout.xml" value="0.3828571428571429" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/fragment_success.xml" value="0.2857142857142857" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/item_grid_layout.xml" value="0.5578125" />
         <entry key="..\:/czx-workspace/company_yannuo/donggang_canteen/software/app/src/main/res/layout/item_pay_list_variant.xml" value="0.5578125" />

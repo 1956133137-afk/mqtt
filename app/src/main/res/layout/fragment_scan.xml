@@ -27,11 +27,20 @@
         android:orientation="vertical"
         android:padding="30dp">
 
-        <ImageView
+<!--        <ImageView-->
+<!--            android:layout_width="600dp"-->
+<!--            android:layout_height="600dp"-->
+<!--            android:scaleType="centerCrop"-->
+<!--            android:src="@drawable/ic_await_pay" />-->
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animation_view"
             android:layout_width="600dp"
             android:layout_height="600dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_await_pay" />
+            app:lottie_fileName="pay.json"
+            app:lottie_loop="true"
+            android:layout_margin="20dp"
+            />
 
         <TextView
             android:id="@+id/pay_total_money"
@@ -55,4 +64,6 @@
             android:textSize="60sp"
             android:textStyle="bold" />
     </LinearLayout>
+
+
 </RelativeLayout>

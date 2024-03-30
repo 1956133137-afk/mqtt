@@ -61,11 +61,11 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 //        val gridLayoutManager = GridLayoutManager(context,6,)
 //        binding.rvManInfo.layoutManager = gridLayoutManager
 //        binding.rvManInfo.adapter = adapter
-      model.uiData.observe(this){
-          if (it.result == PayResultForUI.Result.FAIL) {
-              updateFChange(it)
-          }else updateSChange(it)
-      }
+        model.uiData.observe(this){
+            if (it.result == PayResultForUI.Result.FAIL) {
+                updateFChange(it)
+            }else updateSChange(it)
+        }
     }
 
     private fun release(){
@@ -129,43 +129,70 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             binding.subS.root.visibility = View.VISIBLE
         }
 
-        val persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.custId)
-        var cls = "***"
-        if (persons != null) {
-            cls = persons.grade + "(" + persons.userClass + ")"
-        }
-        mPayResultAdapter!!.data = mPayResult.dishes
-        binding.subS.tvSum.text = "${mPayResult.piece} 件"
+        if (mPayResult.way.equals("20") || mPayResult.way.equals("21")){
+            mPayResultAdapter!!.data = mPayResult.dishes
+            binding.subS.tvSum.text = "${mPayResult.piece} 件"
+            binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
+            var str ="支付宝"
+            if (mPayResult.way.equals("20"))str ="微信"
+            CommonAndDpToPxUtil.speakWork("${str}收款${mPayResult.payment } 元")
+            var time = mPayResult.timestamp
+            if (time.isNullOrEmpty().not()  && mPayResult.way != "人脸支付") {
+                val buffer = StringBuffer()
+                time = buffer.append(mPayResult.timestamp?.substring(0, 4))
+                    .append("-")
+                    .append(mPayResult.timestamp?.substring(4, 6))
+                    .append("-")
+                    .append(mPayResult.timestamp?.substring(6, 8))
+                    .append(" ")
+                    .append(mPayResult.timestamp?.substring(8, 10))
+                    .append(":")
+                    .append(mPayResult.timestamp?.substring(10, 12))
+                    .append(":")
+                    .append(mPayResult.timestamp?.substring(12)).toString()
+            }
+            binding.subS.tvPayTime.text = time
+            binding.subS.tvTransNumber.text = mPayResult.traceid
 
-        binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
-        CommonAndDpToPxUtil.speakWork("已支付${mPayResult.payment } 元")
-        binding.subS.tvClass.text = cls
-        cls = mPayResult.cust_name.toString()
-        if (TextUtils.isEmpty(mPayResult.cust_name)) {
-            cls = "***"
-        }
-        binding.subS.tvName.text = cls
-        var time = mPayResult.timestamp
-        if (time.isNullOrEmpty().not()  && mPayResult.way != "人脸支付") {
-            val buffer = StringBuffer()
-            time = buffer.append(mPayResult.timestamp?.substring(0, 4))
-                .append("-")
-                .append(mPayResult.timestamp?.substring(4, 6))
-                .append("-")
-                .append(mPayResult.timestamp?.substring(6, 8))
-                .append(" ")
-                .append(mPayResult.timestamp?.substring(8, 10))
-                .append(":")
-                .append(mPayResult.timestamp?.substring(10, 12))
-                .append(":")
-                .append(mPayResult.timestamp?.substring(12)).toString()
-        }
-        binding.subS.tvPayTime.text = time
-        binding.subS.tvTransNumber.text = mPayResult.orderid
-        val cont = (if (mPayResult.acc_bal.isNullOrEmpty()) "" else mPayResult.acc_bal) + "元"
-        binding.subS.tvBalance.text = cont
+        }else {
 
-        CommonAndDpToPxUtil.speakWork("欢迎用餐")
+            val persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.custId)
+            var cls = "***"
+            if (persons != null) {
+                cls = persons.grade + "(" + persons.userClass + ")"
+            }
+            mPayResultAdapter!!.data = mPayResult.dishes
+            binding.subS.tvSum.text = "${mPayResult.piece} 件"
+
+            binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
+            CommonAndDpToPxUtil.speakWork("收款${mPayResult.payment} 元")
+            binding.subS.tvClass.text = cls
+            cls = mPayResult.cust_name.toString()
+            if (TextUtils.isEmpty(mPayResult.cust_name)) {
+                cls = "***"
+            }
+            binding.subS.tvName.text = cls
+            var time = mPayResult.timestamp
+            if (time.isNullOrEmpty().not() && mPayResult.way != "人脸支付") {
+                val buffer = StringBuffer()
+                time = buffer.append(mPayResult.timestamp?.substring(0, 4))
+                    .append("-")
+                    .append(mPayResult.timestamp?.substring(4, 6))
+                    .append("-")
+                    .append(mPayResult.timestamp?.substring(6, 8))
+                    .append(" ")
+                    .append(mPayResult.timestamp?.substring(8, 10))
+                    .append(":")
+                    .append(mPayResult.timestamp?.substring(10, 12))
+                    .append(":")
+                    .append(mPayResult.timestamp?.substring(12)).toString()
+            }
+            binding.subS.tvPayTime.text = time
+            binding.subS.tvTransNumber.text = mPayResult.orderid
+            val cont = (if (mPayResult.acc_bal.isNullOrEmpty()) "" else mPayResult.acc_bal) + "元"
+            binding.subS.tvBalance.text = cont
+        }
+//        CommonAndDpToPxUtil.speakWork("欢迎用餐")
         startTime(mPayResult)
     }
 
