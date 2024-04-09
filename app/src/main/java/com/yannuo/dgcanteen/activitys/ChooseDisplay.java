@@ -140,6 +140,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
                                 loadingDialog = new LoadingDialog(getContext());
                                 loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
                             }
+                            if (waitForPayDialog != null)
                             waitForPayDialog.cancel();
                             loadingDialog.show();
                         });

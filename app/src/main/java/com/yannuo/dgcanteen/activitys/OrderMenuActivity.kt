@@ -130,7 +130,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun initView() {
         binding.vpMenuCt.adapter = mAdapter
         binding.vpMenuCt.offscreenPageLimit = 1
-        mAdapter.addData(mutableListOf(0,1,2))
+        mAdapter.addData(mutableListOf(0,1))
         binding.vpMenuCt.currentItem = 0
         binding.vpMenuCt.isUserInputEnabled = false
         //吐司信息显示

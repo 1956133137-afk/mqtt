@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.adapters.DishListAdapter
@@ -13,6 +14,7 @@ import com.yannuo.dgcanteen.adapters.FoodsAdapter
 import com.yannuo.dgcanteen.databinding.DishesDisplayBinding
 import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.views.LoadingDialog
 
 /**
  * Author: filowl
@@ -24,7 +26,7 @@ class DishesDisplay(context: Context, display: Display) : Presentation(context, 
     private lateinit var binding: DishesDisplayBinding
     private lateinit var kv: MMKV
     private lateinit var mAdapter :DishListAdapter
-
+    private var secondLoadingDialog :LoadingDialog ?= null
 
 
 
@@ -58,6 +60,23 @@ class DishesDisplay(context: Context, display: Display) : Presentation(context, 
 
     }
 
+    fun showLoading(){
+        if (secondLoadingDialog == null) {
+            secondLoadingDialog = LoadingDialog(this.context)
+            secondLoadingDialog!!.window
+                ?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+        }
+        secondLoadingDialog?.show()
+    }
+
+    fun closeLoading(){
+        secondLoadingDialog?.dismiss()
+    }
+
+    override fun dismiss() {
+        closeLoading()
+        super.dismiss()
+    }
 
     fun showWaitHit(show: Boolean){
         when(show){

@@ -701,7 +701,7 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
                     }while (runTask && !finish &&  (failTime <10) )
                     LogUtil.d(TAG,"全量更新人员完成")
                 }
-                delay(Duration.minutes(2))
+                delay(Duration.minutes(5))
             }
         }
     }

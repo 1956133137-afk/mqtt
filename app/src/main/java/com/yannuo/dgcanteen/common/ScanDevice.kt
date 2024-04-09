@@ -20,7 +20,7 @@ class ScanDevice {
      */
     fun openScan(){
         if(scanopenState)return
-        startTime = System.currentTimeMillis()
+
 //        val path = "/dev/ttyS4"
         val path = "/dev/ttyXRUSB0"
         ScanThread.ScanThreadEnum.INSTNACE.instance.open(path, callback)
@@ -53,6 +53,7 @@ class ScanDevice {
         override fun onOpen(code: Int) {
             super.onOpen(code)
             scanopenState = true
+            startTime = System.currentTimeMillis()
             LogUtil.i(TAG, "扫码头已打开")
         }
 

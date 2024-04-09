@@ -98,11 +98,11 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initFailEvent() {
-        if (time < 0) {
+//        if (time < 0) {
             mFailBinding.btBack.setOnClickListener(v -> {
                 back();
             });
-        }
+//        }
     }
 
 
@@ -167,11 +167,11 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initEvent() {
-        if (time < 0) {
+//        if (time < 0) {
             mBinding.btBack.setOnClickListener(v -> {
                 back();
             });
-        }
+//        }
     }
 
     private void back(){
@@ -190,6 +190,16 @@ public class PayResultDisplay extends Presentation {
                     mFailBinding.btBack.setText("返回"+(mil)/1000+"秒");
                 else
                     mBinding.btBack.setText("返回"+(mil)/1000+"秒");
+
+                if ((mil /1000) == (tm - 3)) {
+                    if (mPayResult.getWay().equals("人脸支付")) {
+                        if (mPayResult.getResult() == PayResultForUI.Result.FAIL) {
+                            mFailBinding.btBack.setEnabled(true);
+                        } else {
+                            mBinding.btBack.setEnabled(true);
+                        }
+                    }
+                }
             }
 
             @Override

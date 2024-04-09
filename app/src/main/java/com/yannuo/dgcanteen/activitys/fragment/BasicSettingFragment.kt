@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentBasicSettingBinding
 import com.yannuo.dgcanteen.download.CheckVersionWorker
@@ -19,6 +22,7 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.serialtool.YNSerialPortFinder
 import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
 
@@ -31,6 +35,8 @@ class BasicSettingFragment : Fragment() {
     private lateinit var binding: FragmentBasicSettingBinding
     private lateinit var kv: MMKV
     private val mContext = MyApplication.applicationContext
+    private lateinit var portAdapter : ArrayAdapter<String>
+    private lateinit var baudrateAdapter : ArrayAdapter<String>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +69,12 @@ class BasicSettingFragment : Fragment() {
             kv.encode(Constant.SWITCH, binding.switchLine.isChecked)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
         }
+
+        binding.cbPrinterEnable.setOnClickListener {
+            kv.encode(Constant.EN_PRINTER, binding.cbPrinterEnable.isChecked)
+        }
+
+
         binding.btnVersion.setOnClickListener { view: View? ->  //版本更新
             val work = PeriodicWorkRequest.Builder(
                 CheckVersionWorker::class.java,
@@ -83,11 +95,70 @@ class BasicSettingFragment : Fragment() {
             jobScheduler?.cancelAll()
             ToastShowUtil.show("已取消保活")
         }
+
+
+        binding.snPrinterPort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long) {
+                (parent?.getItemAtPosition(position) as? String)?.also {
+                    kv.encode(Constant.PRINTER_PATH_SET, it)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        binding.snPrinterBaudrate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                (parent?.getItemAtPosition(position) as? String)?.also {
+                    kv.encode(Constant.PRINTER_BAUD_SET,it);
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+
     }
 
     private fun reload() {
+        val bauds = resources.getStringArray(R.array.baud) //波特率
+
+        val portFinder = YNSerialPortFinder()
+        val options = portFinder.allDevicesPath
+        portAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,options)
+        baudrateAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,bauds)
+
+        binding.snPrinterPort.adapter = portAdapter
+        binding.snPrinterBaudrate.adapter = baudrateAdapter
+
+        var cnt = kv.decodeString(Constant.PRINTER_PATH_SET)
+        for (da in options.indices){
+            if (options[da].equals(cnt)) {
+                binding.snPrinterPort.setSelection(da)
+                break
+            }
+        }
+
+        cnt = kv.decodeString(Constant.PRINTER_BAUD_SET)
+        for (da in bauds.indices){
+            if (bauds[da].equals(cnt)) {
+                binding.snPrinterBaudrate.setSelection(da)
+                break
+            }
+        }
+
         binding.etAddress.setText(kv.decodeString(Constant.ADDRESS))
         binding.switchLine.isChecked = kv.decodeBool(Constant.SWITCH, false)
+        binding.cbPrinterEnable.isChecked = kv.decodeBool(Constant.EN_PRINTER, false)
         binding.etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS))
         binding.etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT))
         binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD))

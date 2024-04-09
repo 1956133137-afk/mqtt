@@ -38,6 +38,8 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.printer.PrinterOperator
+import com.yannuo.dgcanteen.printer.TextPrint
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
@@ -123,6 +125,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             initEvent()
             mScope = CoroutineScope(Dispatchers.IO)
             checkTime()
+
+
+
         }
     }
 
@@ -462,7 +467,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             time = buffer.toString()
         }
         successBinding!!.tvPayTime.text = time
+        PrinterOperator.printerFoodsList(data)
+
     }
+
+
 
     private fun refreshFailState(data: PayResultForUI) {
         //更新数据

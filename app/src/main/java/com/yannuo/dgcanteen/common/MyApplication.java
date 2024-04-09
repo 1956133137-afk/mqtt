@@ -71,11 +71,9 @@ public class MyApplication extends Application {
     public void initMMKV(){
         kv = MMKV.defaultMMKV();
         boolean res = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-        //todo 测试
-//        res = false;
         //调试模式
-        if (res){
-//        if (true){
+//        if (res){
+        if (true){
             if (kv.decodeString(Constant.ADDRESS) == null){
                 kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
             }
@@ -122,6 +120,13 @@ public class MyApplication extends Application {
         if (kv.decodeInt(Constant.SHOW_TIME,-2) == -2){
             kv.encode(Constant.SHOW_TIME,2);
         }
+        if (kv.decodeString(Constant.PRINTER_PATH_SET) == null){
+            kv.encode(Constant.PRINTER_PATH_SET,"/dev/ttyXRUSB1");
+        }
+        if (kv.decodeString(Constant.PRINTER_BAUD_SET) == null){
+            kv.encode(Constant.PRINTER_BAUD_SET,"9600");
+        }
+
     }
 
 

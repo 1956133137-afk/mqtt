@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 class SerialPortHelper() {
     private val tag = javaClass.simpleName
     var readDataListener : OnReadDataListener?= null
-    private var byteBufferLength = 128
+    private var byteBufferLength = 512
     private var readTime = 10L
     private var baudrate = 9600
     private var mInputStream: InputStream? = null

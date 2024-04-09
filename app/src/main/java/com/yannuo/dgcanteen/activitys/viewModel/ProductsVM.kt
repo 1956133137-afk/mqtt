@@ -66,7 +66,7 @@ class ProductsVM :ViewModel() {
         mRespository =  PayRepositoryOfPay()
 
         exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
-            LogUtil.e(TAG,"协程异常： $throwable ${throwable.printStackTrace()}")
+            LogUtil.e(TAG,"协程异常： $throwable ${throwable.stackTraceToString()}")
             showToastEvent.postValue("错误： ${throwable.message}")
             loadingEvent.postValue(false)
         }
@@ -91,6 +91,9 @@ class ProductsVM :ViewModel() {
     fun getDisplay(): DishesDisplay? {
        return mDishesDisplay
     }
+
+
+
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun upDataDishes(force :Boolean = false){

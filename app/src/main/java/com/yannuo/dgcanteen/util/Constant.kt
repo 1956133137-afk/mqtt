@@ -24,6 +24,8 @@ object Constant {
     const val ADDRESS = "Address"
     //是否离线
     const val SWITCH = "Switch"
+    //启用打印机
+    const val EN_PRINTER = "en_printer"
     //mqtt服务地址
     const val MQTT_ADDRESS = "MqttAddress"
     //mqtt账号
@@ -82,7 +84,8 @@ object Constant {
     const val EVENT_OFLINE_CHANGE = 26 //
 
 
-
+    const val PRINTER_PATH_SET = "printer_path"  //打印机路径
+    const val PRINTER_BAUD_SET = "printer_baud"  //打印机波特率
 
 
     //手输入金额使用的配置

@@ -47,7 +47,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     private lateinit var mAdapterPayFor: PayForAdapter
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
-    private var secondLoadingDialog :LoadingDialog ?= null
+//    private var secondLoadingDialog :LoadingDialog ?= null
     @Volatile
     private var state_opened = false
     private var mHintDialog :HintDialog ?= null
@@ -103,7 +103,6 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         mAdapter.setImgSize(gridLayoutManager)
 
         initIcAndQr()
-
     }
 
     private fun initIcAndQr() {
@@ -280,22 +279,16 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
             1 -> Observable.just(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { integer: Int? ->
-                    if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
-                    if (secondLoadingDialog == null) {
-                        secondLoadingDialog = LoadingDialog(requireContext())
-                        secondLoadingDialog!!.window
-                            ?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-                    }
+                    model.getDisplay()?.showLoading()
                     mHintDialog?.dismiss()
                     model.getDisplay()?.showWaitHit(false)
                     model.loadingEvent.value= true
-                    secondLoadingDialog?.show()
                 }
             2 -> Observable.just(1)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { integer: Int? ->
                     model.loadingEvent.value = false
-                    if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
+                    model.getDisplay()?.closeLoading()
                     Toast.makeText(context, any as String?, Toast.LENGTH_SHORT).show()
                 }
             3, 4 -> {
@@ -303,7 +296,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { integer: Int? ->
                         model.loadingEvent.value = false
-                        if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
+                        model.getDisplay()?.closeLoading()
                         mHintDialog?.dismiss()
                         model.getDisplay()?.showWaitHit(false)
                         clearShoppingCart()
@@ -325,7 +318,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                         CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                     }
                     model.loadingEvent.value = false
-                    if (secondLoadingDialog != null) secondLoadingDialog!!.cancel()
+                    model.getDisplay()?.closeLoading()
                 }
         }
     }

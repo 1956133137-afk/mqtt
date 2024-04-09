@@ -13,8 +13,10 @@ import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentOrderSFBinding
 import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.printer.PrinterOperator
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 
 
 open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
@@ -39,6 +41,8 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
 
 
+
+
     private fun loadData(){
 
     }
@@ -57,7 +61,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
 
     private fun initView() {
-
+        LogUtil.i(TAG,"initView")
 //        val gridLayoutManager = GridLayoutManager(context,6,)
 //        binding.rvManInfo.layoutManager = gridLayoutManager
 //        binding.rvManInfo.adapter = adapter
@@ -65,6 +69,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             if (it.result == PayResultForUI.Result.FAIL) {
                 updateFChange(it)
             }else updateSChange(it)
+//            LogUtil.i(TAG,"initView")
         }
     }
 
@@ -76,11 +81,14 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
 
     private fun initEvent() {
-        if (time < 0) {
-            binding.subS.btBack.setOnClickListener { v ->
-                back()
-            }
+//        if (time < 0) {
+        binding.subS.btBack.setOnClickListener { v ->
+            back()
         }
+        binding.subF.btBack.setOnClickListener { v ->
+            back()
+        }
+//        }
     }
 
     private fun back() {
@@ -193,6 +201,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             binding.subS.tvBalance.text = cont
         }
 //        CommonAndDpToPxUtil.speakWork("欢迎用餐")
+        PrinterOperator.printerFoodsList(mPayResult)
         startTime(mPayResult)
     }
 
@@ -216,6 +225,16 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
                 if (mPayResult.result === PayResultForUI.Result.FAIL)
                     binding.subF.btBack.text = "返回${ mil / 1000}秒"
                 else binding.subS.btBack.text = "返回${ mil / 1000}秒"
+
+                if (mil / 1000 == (tm - 3).toLong()) {
+                    if (mPayResult.way == "人脸支付") {
+                        if (mPayResult.result === PayResultForUI.Result.FAIL) {
+                            binding.subF.btBack.isEnabled = true
+                        } else {
+                            binding.subS.btBack.isEnabled = true
+                        }
+                    }
+                }
             }
 
             override fun onFinish() {
@@ -234,10 +253,6 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         }
         countDownTimer?.start()
     }
-
-
-
-
 
 
 
