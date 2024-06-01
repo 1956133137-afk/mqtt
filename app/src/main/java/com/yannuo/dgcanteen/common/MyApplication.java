@@ -72,8 +72,8 @@ public class MyApplication extends Application {
         kv = MMKV.defaultMMKV();
         boolean res = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         //调试模式
-//        if (res){
-        if (true){
+        if (res){
+//        if (true){
             if (kv.decodeString(Constant.ADDRESS) == null){
                 kv.encode(Constant.ADDRESS,"https://test.yannuozhineng.com/ccb/canteen/api/");
             }
