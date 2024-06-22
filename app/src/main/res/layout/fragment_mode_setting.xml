@@ -304,6 +304,39 @@
         </LinearLayout>
 
 
+        <LinearLayout
+            android:id="@+id/ll_log_up"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/shape_btn_bg_white"
+            >
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="上传软件日志"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+<!--            <TextView-->
+<!--                android:id="@+id/tv_face_count"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_marginRight="40dp"-->
+<!--                android:textColor="#4F4F4F"-->
+<!--                android:text="开始上传"-->
+<!--                android:gravity="right|center_vertical"-->
+<!--                android:textSize="28sp" />-->
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
 

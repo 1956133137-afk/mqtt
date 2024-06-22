@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Environment
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -14,10 +15,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.work.email.mail.EmailSender
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
@@ -28,10 +31,7 @@ import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.DES3CBCUtil
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import java.util.*
@@ -150,6 +150,36 @@ class ModeSettingFragment : Fragment() {
             awaitingDialog.updateText("同步中")
             downPerson()
 //            ToastShowUtil.show("人员信息已同步~")
+        }
+
+        binding.llLogUp.setOnClickListener {
+            if (!this::awaitingDialog.isInitialized)
+                awaitingDialog = AwaitingDialog(requireActivity())
+            awaitingDialog.show()
+            awaitingDialog.updateText("上传中")
+            val serial = CommonAndDpToPxUtil.getDeviceSerial()
+            var sdcardPath = "/sdcard/recycle_machine"
+            val f = Environment.getExternalStorageDirectory()
+            if (f != null) {
+                sdcardPath = f.absolutePath + "/device-record/pay/log"
+            }
+            EmailSender.Companion.sendEmail(
+                "1783693172@qq.com",
+                "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
+                "序列号：${serial}", object : EmailSender.CallbackListener {
+                    override fun onStare(code: Int, msg: String?) {
+                        requireActivity().runOnUiThread(Runnable {
+                            when (code) {
+                                0 -> {
+                                    awaitingDialog.cancel()
+                                    ToastShowUtil.show("上送成功")
+                                }
+                                10 -> awaitingDialog.show()
+                                else -> awaitingDialog.cancel()
+                            }
+                        })
+                    }
+                })
         }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
