@@ -1,20 +1,28 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Color
 import android.hardware.display.DisplayManager
 import android.os.Handler
+import android.os.IBinder
 import android.view.Display
 import android.widget.Button
+import com.ccb.smartcanteen.PayResultListener
+import com.ccb.smartcanteen.ZHSTFacePayService
+import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
+import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -38,14 +46,27 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private var navigation = true
     private var passwordDialog: PasswordDialog ?= null
     private var confirmDialog: ConfirmDialog ?= null
+    private var showDishDialog: ShowDishDialog ?= null
     private lateinit var kv: MMKV
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
+    @Volatile
     private lateinit var simpleDisplay: SimpleDisplay
     private val handler = Handler()
     private lateinit var maps :MutableMap<String, Int >
     private var lastTime = 0L  //上次触发时间
-
+    @Volatile
+    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
+    private var mFacePayService: ZHSTFacePayService? = null
+    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            LogUtil.d(TAG, "onServiceConnected")
+            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+        }
+        override fun onServiceDisconnected(name: ComponentName) {
+            LogUtil.d(TAG, " onServiceDisconnected")
+        }
+    }
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
     }
@@ -62,7 +83,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-
+        showDishDialog = ShowDishDialog(this)
+        val lIntent = Intent()
+        lIntent.action = "com.ccb.smartcanteen.FacePayService"
+        lIntent.setPackage("com.ccb.smartcanteen")
+        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
         maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
             "刷卡" to Constant.PAY_IC_TYPE ,
             "扫码"  to Constant.PAY_CODE_TYPE,
@@ -79,6 +104,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
+        simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.setActivity(this)
+        simpleDisplay.show()
         btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
@@ -130,9 +162,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             displayManager.displays.also { secondDisplays = it[1] }
         }
-        simpleDisplay = SimpleDisplay(this, secondDisplays)
-        simpleDisplay.setActivity(this)
-        simpleDisplay.show()
+        if (!this::simpleDisplay.isInitialized && simpleDisplay.isShowing) {
+            simpleDisplay = SimpleDisplay(this, secondDisplays)
+            simpleDisplay.setActivity(this)
+            simpleDisplay.show()
+        }
     }
 
     override fun onStop() {
@@ -264,6 +298,29 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             Constant.EVENT_OFLINE_CHANGE -> handler.post {
                 btnViewChange(binding.btnOff, Constant.SWITCH)
             }
+            Constant.EVENT_CODE -> handler.post {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
+                runOnUiThread {
+                    cardCodeVerification()
+                }
+            }
+            Constant.EVENT_FACE -> handler.post {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                runOnUiThread {
+                    faceVerification()
+                }
+            }
+            Constant.EVENT_THIRTY -> handler.post {
+                runOnUiThread {
+                    if (event.any != null) {
+                        LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
+                        showDishDialog?.showDishes(Gson().toJson(event.any))
+                        showDishDialog?.show()
+                    }
+                    simpleDisplay = SimpleDisplay(this, secondDisplays)
+                    simpleDisplay.show()
+                }
+            }
         }
     }
 
@@ -298,6 +355,41 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
     }
 
+    //扫码核销
+    private fun cardCodeVerification() {
+        mCardVerificationDisplay = CardVerificationDisplay(this, secondDisplays)
+        mCardVerificationDisplay?.show()
+        simpleDisplay.cancel()
+    }
+
+    //刷脸核销
+    private fun faceVerification() {
+        queryFaceInfo()
+        simpleDisplay.cancel()
+    }
+
+    /**
+     * 通过人脸查询人员信息
+     */
+    private fun queryFaceInfo() {
+        LogUtil.d(TAG,"查询人脸信息~")
+        var offline = 0  //在线
+        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        mFacePayService?.startFacePay(
+            null,
+            offline.toString(),
+            object : PayResultListener.Stub() {
+                override fun onResult(result: String?) {
+                    LogUtil.i(TAG, result)
+//                    val results = Gson().fromJson(result, FaceResult::class.java)
+//                    if (results.RESULT == "Y") {
+//
+//                    }
+                }
+            }
+        )
+    }
+
     override fun netWorkStatus(statue: String) {
         handler.post {
             when (statue) {
@@ -323,6 +415,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private fun release() {
         passwordDialog?.cancel()
         confirmDialog?.cancel()
+        showDishDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
     }

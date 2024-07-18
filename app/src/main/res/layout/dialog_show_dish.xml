@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_bg_white_20"
+    android:orientation="vertical"
+    android:padding="40dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:minWidth="500dp"
+        android:text="订餐核销菜品"
+        android:textAlignment="center"
+        android:textColor="#333333"
+        android:textSize="42sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:minHeight="80dp">
+
+        <TextView
+            android:id="@+id/tv_dishes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="菜品："
+            android:textColor="#333333"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_btn_two"
+        android:text="关闭"
+        android:textColor="@color/white"
+        android:textSize="32sp" />
+</LinearLayout>

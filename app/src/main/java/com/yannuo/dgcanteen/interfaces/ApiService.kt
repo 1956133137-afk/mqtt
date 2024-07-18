@@ -78,4 +78,11 @@ interface ApiService {
  @Headers("content-type: application/json")
  @POST("ccbPay/pay")
  suspend fun ccbPayBeSwept(@Body data: CCBRequest): CanteenResponse<String>
+
+ /**
+  * 订餐核销
+  */
+ @Headers("content-type: application/json")
+ @POST("dcCcb/dcOrderRecord/verification")
+ suspend fun ccbCodeVerification(@Body data: VerificationRequest): CanteenResponse<VerificationResponse>
 }

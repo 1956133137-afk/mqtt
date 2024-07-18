@@ -6,15 +6,15 @@ import android.os.Bundle
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.adapters.DishListAdapter
-import com.yannuo.dgcanteen.adapters.FoodsAdapter
 import com.yannuo.dgcanteen.databinding.DishesDisplayBinding
 import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.views.LoadingDialog
+import org.greenrobot.eventbus.EventBus
 
 /**
  * Author: filowl
@@ -53,11 +53,19 @@ class DishesDisplay(context: Context, display: Display) : Presentation(context, 
         mAdapter = DishListAdapter(context)
         binding.rvFoods.layoutManager = gridLayoutManager
         binding.rvFoods.adapter = mAdapter
+        //        binding.btPayFace.requestFocus();
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+            binding.tvVerification.visibility = View.VISIBLE
+        } else {
+            binding.tvVerification.visibility = View.GONE
+        }
     }
 
 
     private fun initEvent() {
-
+        binding.tvVerification.setOnClickListener {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+        }
     }
 
     fun showLoading(){

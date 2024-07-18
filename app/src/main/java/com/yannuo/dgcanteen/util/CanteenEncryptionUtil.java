@@ -1,8 +1,13 @@
 package com.yannuo.dgcanteen.util;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.yannuo.dgcanteen.dao.CardPay;
 import com.yannuo.dgcanteen.dao.OffLineTable;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -16,6 +21,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 
+import COM.CCB.EnDecryptAlgorithm.MCipherDecryptor;
 import COM.CCB.EnDecryptAlgorithm.MCipherEncryptor;
 
 public class CanteenEncryptionUtil {
@@ -64,6 +70,31 @@ public class CanteenEncryptionUtil {
                            map.get("TXCODE"),
                            map.get("CORP_ID"),
                     "QR_CODE=" + map.get("QR_CODE"));
+    }
+
+    /**
+     * 解析核销码
+     * @param code
+     * @return
+     */
+    public static HashMap<String, String> getAnalysisCode(String code){
+        HashMap<String, String> ccbParam = new HashMap<>();
+        try {
+            MCipherDecryptor ccbDecryptor = new MCipherDecryptor(STR_KEY);
+            StringBuilder ccbSafeParam = new StringBuilder(ccbDecryptor.doDecrypt(code));
+            String sn = Utils.getSN();
+            String cardId = "";
+            ccbSafeParam.append("&DEVICE_ID="+sn)
+                            .append("&CARD_ID=" + cardId);
+            Log.d("TAG", "getAnalysisCode:"+ccbSafeParam);
+            ccbParam = storeInfo(String.valueOf(ccbSafeParam));
+        }catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
+                ShortBufferException | IllegalBlockSizeException | BadPaddingException |
+                NoSuchProviderException | InvalidAlgorithmParameterException |
+                IOException e) {
+            e.printStackTrace();
+        }
+        return ccbParam;
     }
 
     /**
@@ -135,6 +166,7 @@ public class CanteenEncryptionUtil {
     public static String encryption(String param){
 
         try{
+            Log.d("TAG", "encryption: "+param);
             //创建加密对象，向构造函数传入密钥
             MCipherEncryptor ccbEncryptor = new MCipherEncryptor(STR_KEY);
 
@@ -150,5 +182,18 @@ public class CanteenEncryptionUtil {
         }
 
         return "";
+    }
+
+    //将字符串拆分为键值对，同时存储到HashMap中
+    private static HashMap<String, String> storeInfo(String ccbSafeParam) {
+        String[] pairs = ccbSafeParam.split("&");
+        HashMap<String, String> map = new HashMap<>();
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2) {
+                map.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return map;
     }
 }

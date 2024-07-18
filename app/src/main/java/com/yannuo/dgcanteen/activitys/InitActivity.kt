@@ -152,12 +152,12 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     private fun initMode() {
         scope.launch {
             val serial = SerialPort(File("/dev/ttyS4"),  9600, 0)
-            serial.outputStream?.also {
+            serial.getOutputStream()?.also {
                 it.write(BytesUtils.hex2Bytes("AABB0600000001060304"))
                 it.flush()
             }
             delay(500)
-            serial.outputStream?.close()
+            serial.getOutputStream()?.close()
             serial.close()
             mode = kv.decodeString(Constant.APP_MODE)
             when (mode) {

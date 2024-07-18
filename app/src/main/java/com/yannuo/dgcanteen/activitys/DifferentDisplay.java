@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys;
 
 import android.app.Presentation;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,6 +10,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
@@ -104,6 +106,11 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         if (payCfg != null){
             binding.selectStopper.setText(payCfg.getWindowName());
         }
+        if (mv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+            binding.btVerification.setVisibility(View.VISIBLE);
+        }else {
+            binding.btVerification.setVisibility(View.GONE);
+        }
     }
 
     private void initData() {
@@ -161,6 +168,18 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
         });
 
+        binding.btVerification.setOnClickListener(v -> {
+            MMKV mv = MMKV.defaultMMKV();
+            PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
+            if (payCfg == null || TextUtils.isEmpty(payCfg.getCampusId()) ||
+                    TextUtils.isEmpty(payCfg.getBusinessId()) || TextUtils.isEmpty(payCfg.getCounterId())
+            ){
+                CommonAndDpToPxUtil.speakWork("请配置支付环境");
+                LogUtil.e(TAG,"请配置支付环境");
+                return;
+            }
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_VERIFICATION, null));
+        });
 
 
     }

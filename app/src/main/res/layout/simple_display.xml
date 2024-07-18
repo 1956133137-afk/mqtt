@@ -10,12 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:flipInterval="5000"
-        android:visibility="gone"
         android:inAnimation="@anim/slide_in1"
-        android:outAnimation="@anim/slide_out1" />
+        android:outAnimation="@anim/slide_out1"
+        android:visibility="gone" />
 
 
     <TextClock
+        android:id="@+id/clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -29,7 +30,37 @@
         android:textColor="@color/gray"
         android:textSize="35px" />
 
+    <TextView
+        android:id="@+id/tv_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10px"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10px"
+        android:background="@drawable/fp_bg_white"
+        android:text="  扫码取餐  "
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="15px"
+        android:textSize="30sp" />
 
+    <TextView
+        android:id="@+id/tv_face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10px"
+        android:layout_toStartOf="@+id/tv_code"
+        android:background="@drawable/fp_bg_white"
+        android:gravity="center"
+        android:padding="15px"
+        android:text="  刷脸取餐  "
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_z"
@@ -51,17 +82,17 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:background="#B3FFFFFF"
-        android:textStyle="bold"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:textColor="@color/sky_color"
-        android:textSize="40sp"
-
         android:drawableRight="@mipmap/ct"
-        android:gravity="center"
         android:drawablePadding="15dp"
         android:fontFamily="@font/kai"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+
+        android:paddingRight="20dp"
+        android:textColor="@color/sky_color"
+        android:textSize="40sp"
+        android:textStyle="bold"
         android:visibility="gone" />
 
     <View
@@ -74,38 +105,36 @@
         android:id="@+id/ll_pay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginRight="50px"
-        android:layout_marginBottom="20px"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:visibility="gone"
-        >
+        android:layout_marginRight="50px"
+        android:layout_marginBottom="20px"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_amount"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="50px"
-            android:textSize="35sp"
-            android:text="￥：15.66"
-            android:padding="5px"
-            android:gravity="center"
-            android:textColor="@color/table_unselet"
             android:background="@color/white"
-            android:textStyle="bold"
-            />
+            android:gravity="center"
+            android:padding="5px"
+            android:text="￥：15.66"
+            android:textColor="@color/table_unselet"
+            android:textSize="35sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_is_pay"
             android:layout_width="200px"
             android:layout_height="wrap_content"
+            android:background="@drawable/click_button"
             android:padding="10dp"
             android:text="码卡"
-            android:background="@drawable/click_button"
-            android:textStyle="bold"
             android:textColor="@color/table_unselet"
-            android:textSize="35sp" />
+            android:textSize="35sp"
+            android:textStyle="bold" />
 
 
         <Button
@@ -114,11 +143,11 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="50px"
             android:background="@drawable/click_button"
-            android:textStyle="bold"
-            android:textColor="@color/table_unselet"
             android:padding="10dp"
             android:text="刷脸"
-            android:textSize="35sp" />
+            android:textColor="@color/table_unselet"
+            android:textSize="35sp"
+            android:textStyle="bold" />
 
 
     </LinearLayout>

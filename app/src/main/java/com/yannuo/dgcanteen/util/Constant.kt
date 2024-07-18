@@ -49,6 +49,7 @@ object Constant {
     const val GROUP_NAME = "yannuoface" //人脸特征库
     const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
 //    const val CURRENT_PAGE = "page" //当前人员下载页
+    const val SERIALPORT = "sn"
 
     const val AWAIT_PAY_TIME = "awaitPayTime" //等待支付时间
 
@@ -69,6 +70,7 @@ object Constant {
 
     const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款
     const val TITLE_CONTENT = "titleContent"//副屏标题设置
+    const val CODE_VERIFICATION_SET = "code_vts" //核销模式
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
@@ -84,6 +86,11 @@ object Constant {
     const val EVENT_VERIFY = 24 //校验金额
     const val EVENT_OPEN_BTN = 25 //打开支付按钮
     const val EVENT_OFLINE_CHANGE = 26 //
+    const val EVENT_VERIFICATION = 27
+    const val EVENT_FACE = 28 //刷脸核销
+    const val EVENT_CODE = 29 //二维码核销
+    const val EVENT_THIRTY = 30
+    const val EVENT_THIRTY_ONE = 31
 
 
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径

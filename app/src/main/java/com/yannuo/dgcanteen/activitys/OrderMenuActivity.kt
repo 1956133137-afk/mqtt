@@ -15,7 +15,9 @@ import android.text.format.DateFormat
 import android.view.Display
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
+import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
@@ -24,9 +26,11 @@ import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
+import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
@@ -72,7 +76,10 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     private var mScope: CoroutineScope? = null
     private lateinit var mAdapter:ScreenSlidePagerAdapter
-
+    @Volatile
+    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
+    private lateinit var displayManager: DisplayManager
+    private var showDishDialog: ShowDishDialog? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             LogUtil.d(TAG, "onServiceConnected")
@@ -93,7 +100,11 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     override fun onInit() {
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-
+        showDishDialog = ShowDishDialog(this)
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
         if (havePermission()) {
             requestPermission()
         } else {
@@ -117,10 +128,10 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         kv = MMKV.defaultMMKV()
         initPresentation()
 
-//        val lIntent = Intent()
-//        lIntent.action = "com.ccb.smartcanteen.FacePayService"
-//        lIntent.setPackage("com.ccb.smartcanteen")
-//        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
+        val lIntent = Intent()
+        lIntent.action = "com.ccb.smartcanteen.FacePayService"
+        lIntent.setPackage("com.ccb.smartcanteen")
+        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
 
         //注册网络状态监听
         NetworkStateManager.getInstance().registerObserver(this)
@@ -255,15 +266,72 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                     }
                 }
             }
+
+            Constant.EVENT_CODE -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
+                runOnUiThread {
+                    cardCodeVerification()
+                }
+            }
+
+            Constant.EVENT_FACE -> handler.post {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                runOnUiThread {
+                    faceVerification()
+                }
+            }
+
+            Constant.EVENT_THIRTY_ONE -> {
+                runOnUiThread {
+                    if (event.any != null) {
+                        LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
+                        showDishDialog?.showDishes(Gson().toJson(event.any))
+                        showDishDialog?.show()
+                    }
+                    mDishDisplay = DishesDisplay(this, secondDisplays!!)
+                    mDishDisplay.show()
+                }
+            }
         }
     }
 
 
 
 
+    //扫码核销
+    private fun cardCodeVerification() {
+        mCardVerificationDisplay = secondDisplays?.let { CardVerificationDisplay(this, it) }
+        mCardVerificationDisplay?.show()
+        mDishDisplay.cancel()
+    }
 
+    //刷脸核销
+    private fun faceVerification() {
+        queryFaceInfo()
+        mDishDisplay.cancel()
+    }
 
+    /**
+     * 通过人脸查询人员信息
+     */
+    private fun queryFaceInfo() {
+        LogUtil.d(TAG,"查询人脸信息~")
+        var offline = 0  //在线
+        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        mFacePayService?.startFacePay(
+            null,
+            offline.toString(),
+            object : PayResultListener.Stub() {
+                override fun onResult(result: String?) {
+                    LogUtil.i(TAG, result)
+                    val results = Gson().fromJson(result, FaceResult::class.java)
+                    if (results.RESULT == "Y") {
 
+                    }
+                }
+            }
+        )
+    }
 
 
 

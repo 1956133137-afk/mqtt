@@ -1,20 +1,35 @@
 package com.yannuo.dgcanteen.activitys;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.app.Presentation;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+import com.ccb.smartcanteen.PayResultListener;
+import com.ccb.smartcanteen.ZHSTFacePayService;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.activitys.presenters.PayPresenter;
+import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
+import com.yannuo.dgcanteen.common.MyApplication;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.interfaces.CloseEvent;
@@ -25,6 +40,7 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogUtil;
+import com.yannuo.dgcanteen.util.ToastShowUtil;
 import com.yannuo.dgcanteen.views.LoadingDialog;
 import com.yannuo.dgcanteen.views.WaitForPayDialog;
 
@@ -40,12 +56,17 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
     private LoadingDialog loadingDialog;
     private PayPresenter mPresenter;
     private volatile boolean sendCancel = false;
-
+    private MMKV kv;
 
     public ChooseDisplay(Context outerContext, ProductsDetail dishes , Display display) {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         mDishes = dishes;
+    }
+
+    public ChooseDisplay(Context context, Display display) {
+        super(context, display);
+        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
     }
 
     @Override
@@ -76,12 +97,24 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         mPresenter.openIcCard();
         //监听IC卡
         mPresenter.setMReadCardListener(new CardCallBack());
+        kv = MMKV.defaultMMKV();
     }
 
     private void initView() {
-        binding.tvPayMoney.setText("￥"+mDishes.getTotalMoney());
-        mShopsAdapter.setData(mDishes.getProducts());
+        if (mDishes == null) {
+            binding.tvPayMoney.setText("￥0.0");
+        }else {
+            binding.tvPayMoney.setText("￥"+mDishes.getTotalMoney());
+        }
+        if (mDishes != null)mShopsAdapter.setData(mDishes.getProducts());
 //        binding.btPayFace.requestFocus();
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+            binding.btFacePick.setVisibility(View.VISIBLE);
+            binding.btCodePick.setVisibility(View.VISIBLE);
+        }else {
+            binding.btFacePick.setVisibility(View.GONE);
+            binding.btCodePick.setVisibility(View.GONE);
+        }
     }
 
     private void initEvent() {
@@ -112,6 +145,12 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
 
             //使能扫码支付
             mPresenter.setScanState(PayPresenter.ScanState.PAY);
+        });
+        binding.btFacePick.setOnClickListener(view -> {
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FACE, null));
+        });
+        binding.btCodePick.setOnClickListener(view -> {
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
         });
     }
 

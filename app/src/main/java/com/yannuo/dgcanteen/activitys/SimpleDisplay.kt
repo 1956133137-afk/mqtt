@@ -21,7 +21,6 @@ import androidx.core.view.size
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.SimpleDisplayBinding
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
@@ -110,6 +109,14 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         }
                     }
                 }
+            //        binding.btPayFace.requestFocus();
+            if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+                binding.tvFace.visibility = View.VISIBLE
+                binding.tvCode.visibility = View.VISIBLE
+            } else {
+                binding.tvFace.visibility = View.GONE
+                binding.tvCode.visibility = View.GONE
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -146,6 +153,12 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
 //                cancel()
             }
             true
+        }
+        binding.tvCode.setOnClickListener {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+        }
+        binding.tvFace.setOnClickListener {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
         }
     }
 

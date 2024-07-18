@@ -131,6 +131,10 @@ class ModeSettingFragment : Fragment() {
                 "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
             }
         }
+        binding.codeVerification.setOnClickListener { //核销模式
+            kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFICATION, null))
+        }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
             amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
@@ -293,6 +297,7 @@ class ModeSettingFragment : Fragment() {
         self_help =  kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help
+        binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))

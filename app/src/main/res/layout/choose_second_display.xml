@@ -132,6 +132,45 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <Button
+                android:id="@+id/bt_face_pick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/common_bt_bg"
+                android:drawablePadding="8px"
+                android:gravity="center"
+                android:padding="8px"
+                android:paddingStart="10px"
+                android:paddingEnd="10px"
+                android:text="刷脸取餐"
+                android:textColor="@color/white"
+                android:textSize="39px"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bt_code_pick"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.503" />
+
+            <Button
+                android:id="@+id/bt_code_pick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/common_bt_bg"
+                android:drawablePadding="8px"
+                android:gravity="center"
+                android:padding="8px"
+                android:paddingStart="10px"
+                android:paddingEnd="10px"
+                android:text="扫码取餐"
+                android:textColor="@color/white"
+                android:textSize="39px"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bt_pay_face"
+                app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

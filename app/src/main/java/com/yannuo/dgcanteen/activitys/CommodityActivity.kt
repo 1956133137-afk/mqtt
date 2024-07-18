@@ -13,12 +13,15 @@ import android.os.IBinder
 import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.Display
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
+import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
@@ -30,16 +33,17 @@ import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.printer.PrinterOperator
-import com.yannuo.dgcanteen.printer.TextPrint
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
@@ -78,7 +82,12 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     @Volatile
     private var mPayResultDisplay: PayResultDisplay? = null  //支付结果界面
-
+    @Volatile
+    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
+    private val kv by lazy {
+        MMKV.defaultMMKV()
+    }
+    private var showDishDialog: ShowDishDialog? = null //核销菜品弹窗
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private val messageWhatThird = 3
@@ -114,7 +123,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     override fun onInit() {
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-
+        showDishDialog = ShowDishDialog(this)
+        val lIntent = Intent()
+        lIntent.action = "com.ccb.smartcanteen.FacePayService"
+        lIntent.setPackage("com.ccb.smartcanteen")
+        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
         if (havePermission()) {
             requestPermission()
         } else {
@@ -155,10 +168,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mProductsVM.listener = this
         EventBus.getDefault().register(this)
 
-        val lIntent = Intent()
-        lIntent.action = "com.ccb.smartcanteen.FacePayService"
-        lIntent.setPackage("com.ccb.smartcanteen")
-        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
         //注册网络状态监听
         NetworkStateManager.getInstance().registerObserver(this)
 
@@ -342,6 +351,32 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                     } else {
                         binding.server.setImageResource(R.drawable.ic_server_no)
                     }
+                }
+            }
+            Constant.EVENT_VERIFICATION -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收核销事件~")
+                LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
+                runOnUiThread {
+                    if (event.any != null) {
+                        showDishDialog?.showDishes(Gson().toJson(event.any))
+                        showDishDialog?.show()
+                    }
+                    dealWith()
+                    binding.btBackPay.text = "支付解锁\n(支付页面)"
+                }
+            }
+
+            Constant.EVENT_FACE -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                runOnUiThread {
+                    faceVerification()
+                }
+            }
+
+            Constant.EVENT_CODE -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
+                runOnUiThread {
+                    cardCodeVerification()
                 }
             }
         }
@@ -598,6 +633,58 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     }
 
+    //核销处理
+    private fun dealWith() {
+        mChooseDisplay = null
+        mChooseDisplay = ChooseDisplay(this, secondDisplays)
+        mChooseDisplay?.show()
+        mPayResultDisplay?.cancel()
+        mPayResultDisplay = null
+        handler.postDelayed({
+            mProductsDisplay?.cancel()
+            mProductsDisplay = null
+        }, delayTime)
+
+    }
+
+    //刷脸核销
+    private fun faceVerification() {
+        mChooseDisplay?.cancel()
+        mChooseDisplay = null
+        queryFaceInfo()
+    }
+
+    //扫码核销
+    private fun cardCodeVerification() {
+        mChooseDisplay?.cancel()
+        mChooseDisplay = null
+        mCardVerificationDisplay = secondDisplays?.let { CardVerificationDisplay(this, it) }
+        mCardVerificationDisplay?.show()
+    }
+
+    /**
+     * 通过人脸查询人员信息
+     */
+    private fun queryFaceInfo() {
+        LogUtil.d(TAG,"查询人脸信息~")
+        var offline = 0  //在线
+        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        mFacePayService?.startFacePay(
+            null,
+            offline.toString(),
+            object : PayResultListener.Stub() {
+                override fun onResult(result: String?) {
+                    LogUtil.i(TAG, result)
+                    val results = Gson().fromJson(result, FaceResult::class.java)
+                    if (results.RESULT == "Y") {
+
+                    }
+                }
+            }
+        )
+    }
+
+
     /**
      * 打开选餐界面
      */
@@ -665,7 +752,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mPayResultDisplay?.cancel()
         mPayResultDisplay = null
         passwordDialog.cancel()
-
+        showDishDialog?.cancel()
         unbindService(mServiceConnection)
         EventBus.getDefault().unregister(this)
         //取消网络状态监听

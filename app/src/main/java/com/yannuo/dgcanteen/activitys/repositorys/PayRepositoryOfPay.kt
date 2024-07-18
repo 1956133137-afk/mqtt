@@ -99,6 +99,13 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getCcbCodeVerification(data: VerificationRequest): CanteenResponse<VerificationResponse> {
+        return apiCall {
+            val ben = RetrofitClient.getApi().ccbCodeVerification(data)
+            return@apiCall ben
+        }
+    }
+
     private suspend fun <T> apiCall(call :suspend CoroutineScope.() -> CanteenResponse<T>):CanteenResponse<T>{
         return withContext(Dispatchers.IO){
             val res:CanteenResponse<T>

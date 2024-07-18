@@ -54,8 +54,8 @@ class SerialPortHelper() {
     private fun initSerialPort() {
         try {
             mSerialPort = SerialPort(File(mPort),  baudrate, 0)
-            mOutputStream = mSerialPort!!.outputStream
-            mInputStream = mSerialPort!!.inputStream
+            mOutputStream = mSerialPort!!.getOutputStream()
+            mInputStream = mSerialPort!!.getInputStream()
             mBufferedInputStream = BufferedInputStream(mInputStream)
             startReadThread()
         } catch (e: IOException) {
