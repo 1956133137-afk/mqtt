@@ -7,11 +7,12 @@ import android.util.Log
 import android_serialport_api.SerialPort
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.util.BytesUtils
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
-
+import com.tencent.mmkv.MMKV
 /**
  * @ClassName: SerialPortHelper
  * @Description:
@@ -94,7 +95,15 @@ class SerialPortHelper() {
         val d2 = n % 16
         return HexCode.get(d1) + HexCode.get(d2)
     }
-
+    /*
+        W26(直转10进制):将8位数16进制去掉前两位,将剩余6位转为10进制
+        */
+    fun asciiTo10(hex: String): String{
+        val h = hex.substring(2, hex.length)
+        LogUtil.d(tag,"W26：${h }")
+        val decimal = h.toInt(16)
+        return decimal.toString()
+    }
 
 
     fun closeSerialPort() {
@@ -138,8 +147,20 @@ class SerialPortHelper() {
                         delay(readTime)
                         if (mBufferedInputStream?.available() == 0) {
                             content = content.replace("\r\n","")
+                            val mmkv=MMKV.defaultMMKV()
+                            val selectedOption = mmkv.decodeInt(Constant.CARD_FORMAT)
                             if (content.length >= 5){
-                                readDataListener?.numberOfIcCard(content)
+                                when(selectedOption){
+                                    1->{
+                                        val asciiContent = asciiTo10(content) //16进制转10进制
+                                        readDataListener?.numberOfIcCard(asciiContent)
+                                        LogUtil.d(tag,"10进制：${asciiContent}")
+                                    }
+                                    0->{
+                                        readDataListener?.numberOfIcCard(content)//16进制
+                                        LogUtil.d(tag,"16进制：${content}")
+                                    }
+                                }
                             }
                             content =""
                         }

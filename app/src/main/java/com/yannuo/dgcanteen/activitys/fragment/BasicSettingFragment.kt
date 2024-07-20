@@ -37,7 +37,7 @@ class BasicSettingFragment : Fragment() {
     private val mContext = MyApplication.applicationContext
     private lateinit var portAdapter : ArrayAdapter<String>
     private lateinit var baudrateAdapter : ArrayAdapter<String>
-
+    private lateinit var spinnerAdapter : ArrayAdapter<String>
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +47,7 @@ class BasicSettingFragment : Fragment() {
         initObject()
         initData()
         initEvent()
+        cardFormat()
         return binding.root
     }
 
@@ -134,9 +135,12 @@ class BasicSettingFragment : Fragment() {
 
         val portFinder = YNSerialPortFinder()
         val options = portFinder.allDevicesPath
+        val card = resources.getStringArray(R.array.spiCard)
         portAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,options)
         baudrateAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,bauds)
+        spinnerAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,card)
 
+        binding.snCardformat.adapter = spinnerAdapter
         binding.snPrinterPort.adapter = portAdapter
         binding.snPrinterBaudrate.adapter = baudrateAdapter
 
@@ -156,6 +160,13 @@ class BasicSettingFragment : Fragment() {
             }
         }
 
+        cnt = kv.decodeInt(Constant.CARD_FORMAT).toString()
+        for(da in card.indices){
+            if (card[da].equals(cnt)){
+                binding.snCardformat.setSelection(da)
+            }
+        }
+
         binding.etAddress.setText(kv.decodeString(Constant.ADDRESS))
         binding.switchLine.isChecked = kv.decodeBool(Constant.SWITCH, false)
         binding.cbPrinterEnable.isChecked = kv.decodeBool(Constant.EN_PRINTER, false)
@@ -164,6 +175,7 @@ class BasicSettingFragment : Fragment() {
         binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD))
         binding.etShowTime.setText("${kv.decodeInt(Constant.SHOW_TIME)}")
         binding.awaitPayTime.setText("${kv.decodeInt(Constant.AWAIT_PAY_TIME, 30)}")
+        binding.snCardformat.setSelection(kv.decodeInt(Constant.CARD_FORMAT))
     }
 
     fun save() {
@@ -203,7 +215,17 @@ class BasicSettingFragment : Fragment() {
         kv.encode(Constant.AWAIT_PAY_TIME, binding.awaitPayTime.text.toString().toInt())
         if (flag) ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
     }
-
+    //卡号格式选择
+    private fun cardFormat(){
+        binding.snCardformat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                kv.encode(Constant.CARD_FORMAT, position)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        }
+    }
     private fun isValidUrl(url: String): Boolean {
         val regex = Regex(
             """^(https|tcp|http)://(\w{2,6}\.\w{1,61}\.[a-zA-Z]{2,6}|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d+)?/?(?:\w+/)*$""",

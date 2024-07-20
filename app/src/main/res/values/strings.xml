@@ -60,4 +60,9 @@
         <item>115200</item>
         <item>230400</item>
     </string-array>
+
+    <string-array name="spiCard">
+        <item>16进制</item>
+        <item>W26(直转)</item>
+    </string-array>
 </resources>

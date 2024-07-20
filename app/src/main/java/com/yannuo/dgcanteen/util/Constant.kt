@@ -32,6 +32,8 @@ object Constant {
     const val MQTT_ACCOUNT = "MqttAccount"
     //mqtt密码
     const val MQTT_PASSWORD = "MqttPassword"
+    //卡号格式
+    const val CARD_FORMAT = "cardFormat"
     //菜品数据最后同步时间
     const val FINAL_TIME = "FinalTime"
     //支付配置信息
