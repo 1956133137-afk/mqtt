@@ -178,7 +178,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
                 LogUtil.e(TAG,"请配置支付环境");
                 return;
             }
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_VERIFICATION, null));
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
         });
 
 

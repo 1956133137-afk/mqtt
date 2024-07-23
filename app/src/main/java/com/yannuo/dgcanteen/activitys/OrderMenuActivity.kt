@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.PayResultListener
@@ -188,6 +189,9 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
+        mDishDisplay.cancel()
+        mDishDisplay = DishesDisplay(this, secondDisplays!!)
+        mDishDisplay.show()
     }
 
     private fun initEvent() {
@@ -269,6 +273,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
             Constant.EVENT_CODE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
+                CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 runOnUiThread {
                     cardCodeVerification()
                 }
@@ -276,6 +281,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 runOnUiThread {
                     faceVerification()
                 }

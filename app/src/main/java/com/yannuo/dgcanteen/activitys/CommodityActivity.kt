@@ -207,6 +207,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
+        mProductsDisplay?.cancel()
+        mProductsDisplay = DifferentDisplay(this, secondDisplays)
+        mProductsDisplay?.show()
     }
 
     private fun initEvent() {
@@ -361,8 +364,15 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                         showDishDialog?.showDishes(Gson().toJson(event.any))
                         showDishDialog?.show()
                     }
-                    dealWith()
-                    binding.btBackPay.text = "支付解锁\n(支付页面)"
+                    mProductsDisplay?.cancel()
+                    mProductsDisplay = DifferentDisplay(this, secondDisplays)
+                    mProductsDisplay?.setFoodsCallback(this)
+                    clearFoods()
+                    mProductsDisplay?.show()
+                    mPayResultDisplay?.cancel()
+                    mChooseDisplay?.cancel()
+                    mPayResultDisplay = null
+                    mChooseDisplay = null
                 }
             }
 
@@ -633,20 +643,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     }
 
-    //核销处理
-    private fun dealWith() {
-        mChooseDisplay = null
-        mChooseDisplay = ChooseDisplay(this, secondDisplays)
-        mChooseDisplay?.show()
-        mPayResultDisplay?.cancel()
-        mPayResultDisplay = null
-        handler.postDelayed({
-            mProductsDisplay?.cancel()
-            mProductsDisplay = null
-        }, delayTime)
-
-    }
-
     //刷脸核销
     private fun faceVerification() {
         mChooseDisplay?.cancel()
@@ -656,8 +652,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     //扫码核销
     private fun cardCodeVerification() {
-        mChooseDisplay?.cancel()
-        mChooseDisplay = null
+        mProductsDisplay?.cancel()
+        mProductsDisplay = null
         mCardVerificationDisplay = secondDisplays?.let { CardVerificationDisplay(this, it) }
         mCardVerificationDisplay?.show()
     }

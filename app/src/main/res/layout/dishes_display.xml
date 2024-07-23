@@ -55,7 +55,7 @@
         android:background="@drawable/fp_bg_white"
         android:gravity="center"
         android:padding="15px"
-        android:text="  扫码取餐  "
+        android:text="  订餐核销  "
         android:textSize="35sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

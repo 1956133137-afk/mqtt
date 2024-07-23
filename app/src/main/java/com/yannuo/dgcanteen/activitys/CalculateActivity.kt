@@ -128,7 +128,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         LogUtil.i(TAG,"onResume!")
         super.onResume()
         mXService?.hideNavBar = true
-
+        simpleDisplay.cancel()
+        simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.show()
         maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
             "刷卡" to Constant.PAY_IC_TYPE ,
             "扫码"  to Constant.PAY_CODE_TYPE,
@@ -300,12 +302,14 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             }
             Constant.EVENT_CODE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
+                CommonAndDpToPxUtil.speakWork("请出示核销码或刷卡")
                 runOnUiThread {
                     cardCodeVerification()
                 }
             }
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 runOnUiThread {
                     faceVerification()
                 }

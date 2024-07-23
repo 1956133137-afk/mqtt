@@ -108,13 +108,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         }
         if (mDishes != null)mShopsAdapter.setData(mDishes.getProducts());
 //        binding.btPayFace.requestFocus();
-        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-            binding.btFacePick.setVisibility(View.VISIBLE);
-            binding.btCodePick.setVisibility(View.VISIBLE);
-        }else {
-            binding.btFacePick.setVisibility(View.GONE);
-            binding.btCodePick.setVisibility(View.GONE);
-        }
+
     }
 
     private void initEvent() {
@@ -146,12 +140,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
             //使能扫码支付
             mPresenter.setScanState(PayPresenter.ScanState.PAY);
         });
-        binding.btFacePick.setOnClickListener(view -> {
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FACE, null));
-        });
-        binding.btCodePick.setOnClickListener(view -> {
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
-        });
+
     }
 
     @Override

@@ -150,7 +150,7 @@
                 android:layout_width="217dp"
                 android:layout_height="40dp"
                 android:layout_marginStart="40dp"
-                android:text="打印机端口"
+                android:text="卡号格式"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 

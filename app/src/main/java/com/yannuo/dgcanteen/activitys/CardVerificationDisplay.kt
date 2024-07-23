@@ -18,10 +18,6 @@ class CardVerificationDisplay(context: Context, display: Display) : Presentation
     private val TAG = javaClass.simpleName
     private var binding: DisplayCardVerificationBinding? = null
     private lateinit var verificationVM: VerificationVM
-    @Volatile
-    private var simpleDisplay: SimpleDisplay? = null
-    private lateinit var displayManager: DisplayManager
-    private lateinit var secondDisplays: Display
     private val handler = Handler()
     private val kv by lazy {
         MMKV.defaultMMKV()

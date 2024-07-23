@@ -19,9 +19,9 @@ class OrderMenuPresenter(context: Context) {
                     u.dishesName,
                     u.mealId,
                     null,
-                    u.price,
-                    u.unit,
-                    u.imgUrl,
+                    u.price?:0.00,
+                    u.unit?:"",
+                    u.imgUrl?:"",
                     u.status,
                     0
                 )
