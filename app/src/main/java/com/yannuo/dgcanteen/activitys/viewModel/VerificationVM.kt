@@ -119,10 +119,14 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         }
     }
 
+    fun getPayCfg(): PayCfg? {
+        return mPayCfg
+    }
+
     /**
-     * 扫码订餐核销
+     * 订餐核销
      */
-    private fun verification(
+    fun verification(
         campusId: String?,
         businessId: String?,
         custId: String?,

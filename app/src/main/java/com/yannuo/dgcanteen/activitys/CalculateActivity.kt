@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
@@ -29,6 +30,7 @@ import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.Utils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -57,6 +59,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private var lastTime = 0L  //上次触发时间
     @Volatile
     private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
+    private val viewModel by lazy {
+        VerificationVM()
+    }
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -379,16 +384,20 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         LogUtil.d(TAG,"查询人脸信息~")
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        val mPayCfg = viewModel.getPayCfg()
+        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
+        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
+        val sn = Utils.getSN()
         mFacePayService?.startFacePay(
             null,
             offline.toString(),
             object : PayResultListener.Stub() {
                 override fun onResult(result: String?) {
                     LogUtil.i(TAG, result)
-//                    val results = Gson().fromJson(result, FaceResult::class.java)
-//                    if (results.RESULT == "Y") {
-//
-//                    }
+                    val res = Gson().fromJson(result, FaceResult::class.java)
+                    if (res.RESULT == "Y") {
+                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                    }
                 }
             }
         )

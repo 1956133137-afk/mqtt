@@ -23,6 +23,7 @@ import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
@@ -81,6 +82,9 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
     private lateinit var displayManager: DisplayManager
     private var showDishDialog: ShowDishDialog? = null
+    private val viewModel by lazy {
+        VerificationVM()
+    }
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             LogUtil.d(TAG, "onServiceConnected")
@@ -324,15 +328,19 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         LogUtil.d(TAG,"查询人脸信息~")
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        val mPayCfg = viewModel.getPayCfg()
+        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
+        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
+        val sn = Utils.getSN()
         mFacePayService?.startFacePay(
             null,
             offline.toString(),
             object : PayResultListener.Stub() {
                 override fun onResult(result: String?) {
                     LogUtil.i(TAG, result)
-                    val results = Gson().fromJson(result, FaceResult::class.java)
-                    if (results.RESULT == "Y") {
-
+                    val res = Gson().fromJson(result, FaceResult::class.java)
+                    if (res.RESULT == "Y") {
+                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
                     }
                 }
             }
