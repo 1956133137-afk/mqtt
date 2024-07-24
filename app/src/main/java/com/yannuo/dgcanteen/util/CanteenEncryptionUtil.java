@@ -20,7 +20,7 @@ import COM.CCB.EnDecryptAlgorithm.MCipherEncryptor;
 
 public class CanteenEncryptionUtil {
 
-    private final static String CANTEEN_TEST_URL = "http://121.40.54.232:8090/CCBIS/B2CMainPlat_00_ZHST";
+    private final static String CANTEEN_TEST_URL = "http://124.127.94.58:28880/CCBIS/B2CMainPlat_00_ZHST";
     private final static String CCB_IBSVersion = "V6";
     private final static String PT_STYLE = "8";
     private final static String PT_LANGUAGE = "CN";

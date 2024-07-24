@@ -87,7 +87,7 @@ public class MyApplication extends Application {
                 kv.encode(Constant.MQTT_PASSWORD,"ACMS2022~!@");
             }
             Constant.CORP_ID = "1041";
-            Constant.CCB_API_PATH = "http://121.40.54.232:8090/CCBIS/"; //测试
+            Constant.CCB_API_PATH = "http://124.127.94.58:28880/CCBIS/"; //测试
             Constant.STR_KEY  = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试
             Constant.CIPHER  = "JfP81cjP2QYHjKsrmRKG49v0"; //测试
             Constant.ENCRYPTION_VECTOR  = "6Zt1MTo6"; //测试

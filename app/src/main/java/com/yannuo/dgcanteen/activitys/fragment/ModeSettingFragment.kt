@@ -15,12 +15,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import com.work.email.mail.EmailSender
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
@@ -163,23 +161,25 @@ class ModeSettingFragment : Fragment() {
             if (f != null) {
                 sdcardPath = f.absolutePath + "/device-record/pay/log"
             }
-            EmailSender.Companion.sendEmail(
-                "1783693172@qq.com",
-                "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
-                "序列号：${serial}", object : EmailSender.CallbackListener {
-                    override fun onStare(code: Int, msg: String?) {
-                        requireActivity().runOnUiThread(Runnable {
-                            when (code) {
-                                0 -> {
-                                    awaitingDialog.cancel()
-                                    ToastShowUtil.show("上送成功")
+            CoroutineScope(Dispatchers.IO).launch {
+                EmailSender.sendEmail(
+                    "zhangzhanmian@yannuozhineng.com",
+                    "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
+                    "序列号：${serial}", object : EmailSender.CallbackListener {
+                        override fun onStare(code: Int, msg: String?) {
+                            requireActivity().runOnUiThread(Runnable {
+                                when (code) {
+                                    0 -> {
+                                        awaitingDialog.cancel()
+                                        ToastShowUtil.show("上送成功")
+                                    }
+                                    10 -> awaitingDialog.show()
+                                    else -> awaitingDialog.cancel()
                                 }
-                                10 -> awaitingDialog.show()
-                                else -> awaitingDialog.cancel()
-                            }
-                        })
-                    }
-                })
+                            })
+                        }
+                    })
+            }
         }
 
         binding.btnSynFace.setOnClickListener { view: View? ->

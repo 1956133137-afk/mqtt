@@ -4,15 +4,13 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id("androidx.navigation.safeargs")
 }
-//apply plugin: 'kotlin-android'
 
-def releaseTime() {
+static def releaseTime() {
     return new Date().format("yMMddHH", TimeZone.getDefault())
 }
 
 android {
     compileSdk 31
-//    buildToolsVersion '30.0.0'
     defaultConfig {
         applicationId "com.yannuo.dgcanteen"
         minSdk 21
@@ -27,12 +25,17 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     kotlinOptions { jvmTarget = 1.8}
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE.md'
+        exclude 'META-INF/LICENSE.md'
+    }
 
     signingConfigs {
         release {
             storeFile file('G:\\czx-workspace\\company_yannuo\\donggang_canteen\\private_key\\payment.jks')
-//            storeFile file('D:\\yannuo_min\\APK_key\\private_key\\payment.jks')
             storePassword KEY_PASS
             keyAlias 'payment'
             keyPassword KEY_PASS
@@ -74,8 +77,8 @@ android {
 
         //手动输入金额版本
         input {
-            versionCode 26
-            versionName "1.2.6"
+            versionCode 27
+            versionName "1.2.7"
             buildConfigField "int", "CHANNEL", "1"
         }
 
@@ -84,7 +87,7 @@ android {
     // 打包后的文件名
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "ct-${variant.flavorName}${versionName}-${releaseTime()}.apk"
+            outputFileName = "ccb_canteen-${variant.flavorName}-V${versionName}-${releaseTime()}.apk"
         }
     }
 
@@ -92,8 +95,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-//    implementation files('libs/myservice.jar')
-//    implementation files('libs/libscan-release.aar')
 
     //建行食堂开发平台
     implementation files('libs/bcprov-jdk14-128.jar')
@@ -155,11 +156,14 @@ dependencies {
     //EventBus
     implementation("org.greenrobot:eventbus:3.3.1")
 
+    // 发送邮件（日志上送）
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
+
     implementation "androidx.core:core-ktx:1.5.0"
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-
 
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 

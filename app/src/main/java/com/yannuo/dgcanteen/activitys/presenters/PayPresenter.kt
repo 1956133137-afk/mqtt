@@ -29,15 +29,14 @@ class PayPresenter() : ScanDevice.DataCallBack, OnReadDataListener {
      private var mRespository :PayRepositoryOfPay
      private var mDataPresenter :DataPresenter
      var listener : CallbackListener?= null
-     private lateinit var mCardHandle :SerialPortHelper
-     private lateinit var kv : MMKV
-     private lateinit var mPayCfg : PayCfg
+     private var mCardHandle :SerialPortHelper
+     private var kv : MMKV = MMKV.defaultMMKV()
+     private var mPayCfg : PayCfg
      private var mScanDevice : ScanDevice?= null
      var mReadCardListener : ReadCardListener ?= null
      private var realse = false
 
      init {
-          kv = MMKV.defaultMMKV()
           mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)!!
           mRespository = PayRepositoryOfPay()
           mDataPresenter = DataPresenter()
