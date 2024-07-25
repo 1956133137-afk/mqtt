@@ -1,11 +1,15 @@
 package com.yannuo.dgcanteen.dialogView
 
 import android.content.Context
+import android.os.CountDownTimer
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.databinding.DialogShowDishBinding
+import com.yannuo.dgcanteen.util.LogUtil
 
 class ShowDishDialog(context: Context): BaseDialog<DialogShowDishBinding>(context) {
+    private val TAG = this.javaClass.simpleName
     private var dishes: String? = null
+    private var mDownTimer: CountDownTimer? = null
     override fun initDialogView() {
         binding = DialogShowDishBinding.inflate(layoutInflater)
     }
@@ -16,10 +20,25 @@ class ShowDishDialog(context: Context): BaseDialog<DialogShowDishBinding>(contex
         for (s in dishesVerification) {
             stringBuilder.append("$s\n")
         }
+        LogUtil.i(TAG,"dishes:$stringBuilder")
         binding.tvDishes.text = stringBuilder
         binding.btnClose.setOnClickListener {
             dismiss()
         }
+        mDownTimer = object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.btnClose.text = String.format("关闭(%ds)", millisUntilFinished / 1000)
+            }
+
+            override fun onFinish() {
+                dishes = null
+                dismiss()
+            }
+        }.start()
+    }
+    override fun dismiss() {
+        super.dismiss()
+        mDownTimer?.cancel()
     }
 
     fun showDishes(dish: String) {

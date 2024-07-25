@@ -81,7 +81,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     @Volatile
     private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
     private lateinit var displayManager: DisplayManager
-    private var showDishDialog: ShowDishDialog? = null
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -105,7 +104,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     override fun onInit() {
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-        showDishDialog = ShowDishDialog(this)
         if (!this::displayManager.isInitialized) {
             displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             displayManager.displays.also { secondDisplays = it[1] }
@@ -295,8 +293,9 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 runOnUiThread {
                     if (event.any != null) {
                         LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
-                        showDishDialog?.showDishes(Gson().toJson(event.any))
-                        showDishDialog?.show()
+                        val showDishDialog = ShowDishDialog(this)
+                        showDishDialog.showDishes(Gson().toJson(event.any))
+                        showDishDialog.show()
                     }
                     mDishDisplay = DishesDisplay(this, secondDisplays!!)
                     mDishDisplay.show()

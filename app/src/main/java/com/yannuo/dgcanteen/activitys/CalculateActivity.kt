@@ -48,7 +48,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private var navigation = true
     private var passwordDialog: PasswordDialog ?= null
     private var confirmDialog: ConfirmDialog ?= null
-    private var showDishDialog: ShowDishDialog ?= null
     private lateinit var kv: MMKV
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
@@ -88,7 +87,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-        showDishDialog = ShowDishDialog(this)
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
@@ -323,8 +321,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 runOnUiThread {
                     if (event.any != null) {
                         LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
-                        showDishDialog?.showDishes(Gson().toJson(event.any))
-                        showDishDialog?.show()
+                        val showDishDialog = ShowDishDialog(this)
+                        showDishDialog.showDishes(Gson().toJson(event.any))
+                        showDishDialog.show()
                     }
                     simpleDisplay = SimpleDisplay(this, secondDisplays)
                     simpleDisplay.show()
@@ -428,7 +427,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private fun release() {
         passwordDialog?.cancel()
         confirmDialog?.cancel()
-        showDishDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
     }

@@ -88,7 +88,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private val kv by lazy {
         MMKV.defaultMMKV()
     }
-    private var showDishDialog: ShowDishDialog? = null //核销菜品弹窗
     private val messageWhat = 1
     private val messageWhatSecond = 2
     private val messageWhatThird = 3
@@ -126,7 +125,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     override fun onInit() {
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-        showDishDialog = ShowDishDialog(this)
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
@@ -364,8 +362,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
                 runOnUiThread {
                     if (event.any != null) {
-                        showDishDialog?.showDishes(Gson().toJson(event.any))
-                        showDishDialog?.show()
+                        val showDishDialog = ShowDishDialog(this)
+                        showDishDialog.showDishes(Gson().toJson(event.any))
+                        showDishDialog.show()
                     }
                     mProductsDisplay?.cancel()
                     mProductsDisplay = DifferentDisplay(this, secondDisplays)
@@ -755,7 +754,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mPayResultDisplay?.cancel()
         mPayResultDisplay = null
         passwordDialog.cancel()
-        showDishDialog?.cancel()
         unbindService(mServiceConnection)
         EventBus.getDefault().unregister(this)
         //取消网络状态监听

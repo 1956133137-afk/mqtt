@@ -36,7 +36,7 @@
 
     <Button
         android:id="@+id/btn_close"
-        android:layout_width="100dp"
+        android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
         android:background="@drawable/shape_btn_two"
