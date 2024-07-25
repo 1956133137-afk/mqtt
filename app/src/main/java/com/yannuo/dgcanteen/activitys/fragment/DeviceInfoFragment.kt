@@ -36,7 +36,7 @@ class DeviceInfoFragment : Fragment() {
 
     private fun initObject() {
         kv = MMKV.defaultMMKV()
-        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
     }
 
     private fun initData() {
