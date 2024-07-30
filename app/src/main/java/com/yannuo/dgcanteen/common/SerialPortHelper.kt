@@ -2,17 +2,16 @@ package com.yannuo.dgcanteen.common
 
 
 
-import android.os.SystemClock
 import android.util.Log
 import android_serialport_api.SerialPort
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
-import com.yannuo.dgcanteen.util.BytesUtils
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.*
 import java.io.*
 import java.nio.ByteBuffer
-import com.tencent.mmkv.MMKV
+
 /**
  * @ClassName: SerialPortHelper
  * @Description:
@@ -83,9 +82,11 @@ class SerialPortHelper() {
         val length = chars.size
         val result = CharArray(length)
 
-        chars.forEachIndexed { index, c ->
+        var index = 0
+        while (index < length) {
             result[index] = chars[length - index - 2]
             result[index + 1] = chars[length - index - 1]
+            index += 2
         }
         return String(result)
     }
