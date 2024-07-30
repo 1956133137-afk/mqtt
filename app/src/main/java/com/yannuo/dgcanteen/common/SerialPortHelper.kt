@@ -78,6 +78,18 @@ class SerialPortHelper() {
         return sb.toString()
     }
 
+    fun reverseHex(hex: String): String {
+        val chars = hex.toCharArray()
+        val length = chars.size
+        val result = CharArray(length)
+
+        chars.forEachIndexed { index, c ->
+            result[index] = chars[length - index - 2]
+            result[index + 1] = chars[length - index - 1]
+        }
+        return String(result)
+    }
+
     fun byteArrayToHexString(b: ByteArray): String? {
         val result = java.lang.StringBuilder()
         for (value in b) {
@@ -102,6 +114,17 @@ class SerialPortHelper() {
         val h = hex.substring(2, hex.length)
         LogUtil.d(tag,"W26：${h }")
         val decimal = h.toInt(16)
+        return decimal.toString()
+    }
+
+    /*
+     * W26(反序)：299f37d3 > 299f37（去掉后两位）> 379f29（反转） >（转10进制）
+     */
+    fun asciiReverseToDec(hex: String): String{
+        val h = hex.substring(0, hex.length - 2)
+        val reversedHex = reverseHex(h)
+        LogUtil.d(tag,"W26 Reverse：${reversedHex}")
+        val decimal = reversedHex.toInt(16)
         return decimal.toString()
     }
 
@@ -151,6 +174,11 @@ class SerialPortHelper() {
                             val selectedOption = mmkv.decodeInt(Constant.CARD_FORMAT)
                             if (content.length >= 5){
                                 when(selectedOption){
+                                    2-> {
+                                        val asciiContent = asciiReverseToDec(content)
+                                        readDataListener?.numberOfIcCard(asciiContent)
+                                        LogUtil.d(tag,"10进制：${asciiContent}")
+                                    }
                                     1->{
                                         val asciiContent = asciiTo10(content) //16进制转10进制
                                         readDataListener?.numberOfIcCard(asciiContent)
