@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_graph"
+    app:startDestination="@id/cardVerificationFragment">
+
+    <fragment
+        android:id="@+id/cardVerificationFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragment"
+        android:label="CardVerificationFragment"
+        tools:layout="@layout/display_card_verification">
+        <action
+            android:id="@+id/action_cardVerificationFragment_to_showDishFragment"
+            app:destination="@id/showDishFragment" />
+        <action
+            android:id="@+id/action_cardVerificationFragment_to_failedFragment"
+            app:destination="@id/failedFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/showDishFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment"
+        android:label="ShowDishFragment"
+        tools:layout="@layout/dialog_show_dish">
+        <argument
+            android:name="verification"
+            app:argType="com.yannuo.dgcanteen.model.VerificationUI" />
+    </fragment>
+    <fragment
+        android:id="@+id/failedFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.FailedFragment"
+        android:label="FailedFragment"
+        tools:layout="@layout/fragment_failed">
+        <argument
+            android:name="verification"
+            app:argType="com.yannuo.dgcanteen.model.VerificationUI" />
+    </fragment>
+</navigation>

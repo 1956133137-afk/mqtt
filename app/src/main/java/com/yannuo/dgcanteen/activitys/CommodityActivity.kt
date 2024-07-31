@@ -13,7 +13,6 @@ import android.os.IBinder
 import android.os.Message
 import android.text.TextUtils
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.Display
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
@@ -34,7 +33,6 @@ import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
-import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
@@ -83,8 +81,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     @Volatile
     private var mPayResultDisplay: PayResultDisplay? = null  //支付结果界面
-    @Volatile
-    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
     private val kv by lazy {
         MMKV.defaultMMKV()
     }
@@ -357,39 +353,20 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                     }
                 }
             }
-            Constant.EVENT_VERIFICATION -> {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收核销事件~")
-                LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
-                runOnUiThread {
-                    if (event.any != null) {
-                        val showDishDialog = ShowDishDialog(this)
-                        showDishDialog.showDishes(Gson().toJson(event.any))
-                        showDishDialog.show()
-                    }
-                    mProductsDisplay?.cancel()
-                    mProductsDisplay = DifferentDisplay(this, secondDisplays)
-                    mProductsDisplay?.setFoodsCallback(this)
-                    clearFoods()
-                    mProductsDisplay?.show()
-                    mPayResultDisplay?.cancel()
-                    mChooseDisplay?.cancel()
-                    mPayResultDisplay = null
-                    mChooseDisplay = null
-                }
-            }
 
-            Constant.EVENT_FACE -> {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
-                runOnUiThread {
-                    faceVerification()
-                }
-            }
+//            Constant.EVENT_FACE -> {
+//                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+//                runOnUiThread {
+//                    faceVerification()
+//                }
+//            }
 
             Constant.EVENT_CODE -> {
+                mProductsDisplay?.cancel()
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
-                runOnUiThread {
-                    cardCodeVerification()
-                }
+                CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
+                val i = Intent(this, CardVerificationActivity::class.java)
+                startActivity(i)
             }
         }
     }
@@ -646,45 +623,37 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
     //刷脸核销
-    private fun faceVerification() {
-        mChooseDisplay?.cancel()
-        mChooseDisplay = null
-        queryFaceInfo()
-    }
-
-    //扫码核销
-    private fun cardCodeVerification() {
-        mProductsDisplay?.cancel()
-        mProductsDisplay = null
-        mCardVerificationDisplay = secondDisplays?.let { CardVerificationDisplay(this, it) }
-        mCardVerificationDisplay?.show()
-    }
+//    private fun faceVerification() {
+//        mChooseDisplay?.cancel()
+//        mChooseDisplay = null
+//        queryFaceInfo()
+//    }
 
     /**
      * 通过人脸查询人员信息
      */
-    private fun queryFaceInfo() {
-        LogUtil.d(TAG,"查询人脸信息~")
-        var offline = 0  //在线
-        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
-        val mPayCfg = viewModel.getPayCfg()
-        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
-        val sn = Utils.getSN()
-        mFacePayService?.startFacePay(
-            null,
-            offline.toString(),
-            object : PayResultListener.Stub() {
-                override fun onResult(result: String?) {
-                    LogUtil.i(TAG, result)
-                    val res = Gson().fromJson(result, FaceResult::class.java)
-                    if (res.RESULT == "Y") {
-                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
-                    }
-                }
-            }
-        )
-    }
+//    private fun queryFaceInfo() {
+//        LogUtil.d(TAG,"查询人脸信息~")
+//        var offline = 0  //在线
+//        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+//        val mPayCfg = viewModel.getPayCfg()
+//        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
+//        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
+//        val sn = Utils.getSN()
+//        mFacePayService?.startFacePay(
+//            null,
+//            offline.toString(),
+//            object : PayResultListener.Stub() {
+//                override fun onResult(result: String?) {
+//                    LogUtil.i(TAG, result)
+//                    val res = Gson().fromJson(result, FaceResult::class.java)
+//                    if (res.RESULT == "Y") {
+//                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+//                    }
+//                }
+//            }
+//        )
+//    }
 
 
     /**

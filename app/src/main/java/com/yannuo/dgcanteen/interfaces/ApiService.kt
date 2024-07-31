@@ -85,4 +85,11 @@ interface ApiService {
  @Headers("content-type: application/json")
  @POST("dcCcb/dcOrderRecord/verification")
  suspend fun ccbCodeVerification(@Body data: VerificationRequest): CanteenResponse<VerificationResponse>
+
+ /**
+  * 订餐统计
+  */
+ @Headers("content-type: application/json")
+ @POST("dcCcb/dcOrderRecord/countDCofDay")
+ suspend fun verificationCount(@Body data: VerificationCountRequest): CanteenResponse<VerificationCountResponse>
 }

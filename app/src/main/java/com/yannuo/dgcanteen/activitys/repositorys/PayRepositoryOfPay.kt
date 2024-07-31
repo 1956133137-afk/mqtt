@@ -106,6 +106,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getCcbCountDCofDay(data: VerificationCountRequest): CanteenResponse<VerificationCountResponse> {
+        return apiCall {
+            return@apiCall RetrofitClient.getApi().verificationCount(data)
+        }
+    }
+
     private suspend fun <T> apiCall(call :suspend CoroutineScope.() -> CanteenResponse<T>):CanteenResponse<T>{
         return withContext(Dispatchers.IO){
             val res:CanteenResponse<T>

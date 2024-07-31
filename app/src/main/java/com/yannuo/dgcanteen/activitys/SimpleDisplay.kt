@@ -111,10 +111,10 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 }
             //        binding.btPayFace.requestFocus();
             if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-                binding.tvFace.visibility = View.VISIBLE
+//                binding.tvFace.visibility = View.VISIBLE
                 binding.tvCode.visibility = View.VISIBLE
             } else {
-                binding.tvFace.visibility = View.GONE
+//                binding.tvFace.visibility = View.GONE
                 binding.tvCode.visibility = View.GONE
             }
         } catch (e: Exception) {
@@ -157,9 +157,9 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
         binding.tvCode.setOnClickListener {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
         }
-        binding.tvFace.setOnClickListener {
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
-        }
+//        binding.tvFace.setOnClickListener {
+//            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+//        }
     }
 
 

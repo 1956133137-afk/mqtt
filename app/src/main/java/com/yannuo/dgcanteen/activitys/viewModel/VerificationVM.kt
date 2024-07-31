@@ -29,11 +29,13 @@ import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.VerificationRequest
 import com.yannuo.dgcanteen.model.VerificationResponse
+import com.yannuo.dgcanteen.model.VerificationUI
 import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
 import com.yannuo.dgcanteen.util.CanteenEncryptionUtil.getAnalysisCode
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.util.Utils
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -66,7 +68,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         INVALID, PAY
     }
 
-    private val callBackListener: CallbackListener? = null
+    private var callBackListener: CallbackListener? = null
 
     init {
         mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
@@ -126,14 +128,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     /**
      * 订餐核销
      */
-    fun verification(
-        campusId: String?,
-        businessId: String?,
-        custId: String?,
-        orderId: String?,
-        deviceId: String?,
-        cardId: String?,
-    ) {
+    fun verification(campusId: String?, businessId: String?, custId: String?, orderId: String?, deviceId: String?, cardId: String?) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val data =
                 CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
@@ -155,36 +150,40 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 }
                 LogUtil.i(TAG, "核销的菜品: $sb")
                 if (json.unVerifyWindowName.isNotEmpty()) {
-                    sb.append("未核销的菜品请前往")
-                    for (window in json.unVerifyWindowName) {
-                        sb.append(window)
+                    sb.append("未核销的菜品有:")
+                    for (unDish in json.unVerifyDishes) {
+                        sb.append("$unDish,")
                     }
+                    sb.append("请前往")
+                    for (unWindow in json.unVerifyWindowName) {
+                        sb.append("$unWindow,")
+                    }
+                    sb.append("进行核销")
                 }
                 CommonAndDpToPxUtil.speakWork(sb.toString())
-                backToHome(verifyDishes)
+                val verificationUI = VerificationUI().apply {
+                    errorMsg = ccbCodeVerification.msg.toString()
+                    dish = json.verifyDishes
+                    window = json.unVerifyWindowName
+                    unDish = json.unVerifyDishes
+                    time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                }
+                callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
                 CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg)
-                backToHome(null)
+                val verificationUI = VerificationUI().apply {
+                    errorMsg = ccbCodeVerification.msg.toString()
+                    time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                }
+                callBackListener?.onOtherListener(10, verificationUI)
             }
         }
     }
 
-    //返回相应的初始界面
-    private fun backToHome(dishes: Array<String>?) {
-        when (kv.decodeString(Constant.APP_MODE)) {
-            Constant.ORDERING_FOOD_MODE -> {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFICATION, dishes))
-            }
-
-            Constant.PROCEEDS_MODE -> {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_THIRTY, dishes))
-            }
-
-            Constant.ORDERING_TWO_MODE -> {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_THIRTY_ONE, dishes))
-            }
-        }
+    //设置回调监听
+    fun setListener(listener: CallbackListener) {
+        this.callBackListener = listener
     }
 
     override fun onData(data: String) {
@@ -217,10 +216,4 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         val sn = Utils.getSN()
         verification(campusId, businessId, null, null, sn, cardData)
     }
-
-    private fun error(msg: String?) {
-        callBackListener?.onOtherListener(20, msg)
-        LogUtil.e(TAG, msg)
-    }
-
 }

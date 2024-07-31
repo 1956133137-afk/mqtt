@@ -8,8 +8,8 @@
 
     <Button
         android:id="@+id/btn_back"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
         android:layout_alignParentRight="true"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="40dp"
@@ -17,7 +17,7 @@
         android:gravity="center"
         android:text="@string/btn_back"
         android:textColor="#FFFFFF"
-        android:textSize="32sp" />
+        android:textSize="54sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,17 +26,10 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="30dp">
-
-        <!--        <ImageView-->
-        <!--            android:layout_width="600dp"-->
-        <!--            android:layout_height="600dp"-->
-        <!--            android:scaleType="centerCrop"-->
-        <!--            android:src="@drawable/ic_await_pay" />-->
-
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/animation_view"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="600dp"
+            android:layout_height="600dp"
             app:lottie_fileName="pay.json"
             app:lottie_loop="true"
             android:layout_margin="20dp"
@@ -50,19 +43,19 @@
             android:gravity="center"
             android:text="请出示核销码或者刷卡"
             android:textColor="#4F4F4F"
-            android:textSize="40sp"
+            android:textSize="62sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/to_face"
-            android:layout_width="150dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="20dp"
             android:background="@drawable/click_button_blue"
             android:gravity="center"
             android:text="刷脸核销"
             android:textColor="#FFFFFF"
-            android:textSize="32sp" />
+            android:textSize="54sp" />
     </LinearLayout>
 
 </RelativeLayout>

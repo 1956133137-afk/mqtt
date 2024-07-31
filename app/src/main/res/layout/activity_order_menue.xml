@@ -152,12 +152,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_dish_menu" />
 
-        <!--<TextView
+        <TextView
             android:id="@+id/tv_order_number"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
-            android:text="订餐人数:"
+            android:text="今日订餐人数:"
             android:textColor="#4F4F4F"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -168,11 +168,34 @@
             android:id="@+id/tv_verification_number"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:text="已核销人数:"
+            android:text="今日已核销人数:"
             android:textColor="#4F4F4F"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_order_number" />-->
+            app:layout_constraintTop_toBottomOf="@+id/tv_order_number" />
+
+        <TextView
+            android:id="@+id/tv_meal_person"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="订餐人数:"
+            android:textColor="#4F4F4F"
+            android:textSize="32sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_verification_number" />
+
+        <TextView
+            android:id="@+id/tv_meal_verify"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="核销人数:"
+            android:textColor="#4F4F4F"
+            android:textSize="32sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_meal_person" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

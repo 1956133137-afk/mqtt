@@ -71,6 +71,7 @@ object Constant {
     const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款
     const val TITLE_CONTENT = "titleContent"//副屏标题设置
     const val CODE_VERIFICATION_SET = "code_vts" //核销模式
+    const val MEAL_TIME = "meal_time" //显示核销菜品倒计时
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
@@ -86,11 +87,8 @@ object Constant {
     const val EVENT_VERIFY = 24 //校验金额
     const val EVENT_OPEN_BTN = 25 //打开支付按钮
     const val EVENT_OFLINE_CHANGE = 26 //
-    const val EVENT_VERIFICATION = 27
     const val EVENT_FACE = 28 //刷脸核销
     const val EVENT_CODE = 29 //二维码核销
-    const val EVENT_THIRTY = 30
-    const val EVENT_THIRTY_ONE = 31
 
 
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径

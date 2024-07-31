@@ -141,6 +141,9 @@ class ModeSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
 
+        binding.mealTime.setOnClickListener {
+            kv.encode(Constant.MEAL_TIME, 10)
+        }
         binding.cbBalance.setOnClickListener {
             kv.encode(Constant.BALANCE_SWITCH, binding.cbBalance.isChecked)
         }
@@ -276,6 +279,7 @@ class ModeSettingFragment : Fragment() {
         if (!(flag && amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT))) flag = false
         if (!(flag && amountJudgment(binding.limitAmount, Constant.LIMIT_AMOUNT))) flag = false
         kv.encode(Constant.TITLE_CONTENT, binding.titleContent.text.toString())
+        kv.encode(Constant.MEAL_TIME, binding.mealTime.text.toString())
         if (flag) {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")

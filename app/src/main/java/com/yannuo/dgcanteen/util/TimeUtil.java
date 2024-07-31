@@ -5,7 +5,9 @@ import android.text.format.Time;
 import com.yannuo.dgcanteen.dao.MealTable;
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class TimeUtil {
 
@@ -70,4 +72,9 @@ public class TimeUtil {
         return days * 24 + hours;
     }
 
+    //时间格式化
+    public static String timeFormat(String format, long currentTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.SIMPLIFIED_CHINESE);
+        return sdf.format(currentTime);
+    }
 }

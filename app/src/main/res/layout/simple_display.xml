@@ -46,21 +46,21 @@
         android:padding="15px"
         android:textSize="30sp" />
 
-    <TextView
-        android:id="@+id/tv_face"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10px"
-        android:layout_toStartOf="@+id/tv_code"
-        android:background="@drawable/fp_bg_white"
-        android:gravity="center"
-        android:padding="15px"
-        android:text="  刷脸核销  "
-        android:textSize="30sp"
-        android:textStyle="bold" />
+<!--    <TextView-->
+<!--        android:id="@+id/tv_face"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_centerVertical="true"-->
+<!--        android:layout_marginEnd="20dp"-->
+<!--        android:layout_marginBottom="10px"-->
+<!--        android:layout_toStartOf="@+id/tv_code"-->
+<!--        android:background="@drawable/fp_bg_white"-->
+<!--        android:gravity="center"-->
+<!--        android:padding="15px"-->
+<!--        android:text="  刷脸核销  "-->
+<!--        android:textSize="30sp"-->
+<!--        android:textStyle="bold" />-->
 
     <TextView
         android:id="@+id/tv_z"

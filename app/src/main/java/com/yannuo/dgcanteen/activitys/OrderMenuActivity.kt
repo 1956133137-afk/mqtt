@@ -13,7 +13,6 @@ import android.os.IBinder
 import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
-import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.PayResultListener
@@ -28,7 +27,6 @@ import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
-import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
@@ -37,9 +35,20 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.*
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.Utils
 import com.yannuo.dgcanteen.views.LoadingDialog
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -78,8 +87,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     private var mScope: CoroutineScope? = null
     private lateinit var mAdapter:ScreenSlidePagerAdapter
-    @Volatile
-    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
     private lateinit var displayManager: DisplayManager
     private val viewModel by lazy {
         VerificationVM()
@@ -274,11 +281,11 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
 
             Constant.EVENT_CODE -> {
+                mDishDisplay.cancel()
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
-                runOnUiThread {
-                    cardCodeVerification()
-                }
+                val i = Intent(this, CardVerificationActivity::class.java)
+                startActivity(i)
             }
 
             Constant.EVENT_FACE -> handler.post {
@@ -288,42 +295,11 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                     faceVerification()
                 }
             }
-
-            Constant.EVENT_THIRTY_ONE -> {
-                runOnUiThread {
-                    if (event.any != null) {
-                        LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
-                        val showDishDialog = ShowDishDialog(this)
-                        showDishDialog.showDishes(Gson().toJson(event.any))
-                        showDishDialog.show()
-                    }
-                    mDishDisplay = DishesDisplay(this, secondDisplays!!)
-                    mDishDisplay.show()
-                }
-            }
         }
-    }
-
-
-
-
-    //扫码核销
-    private fun cardCodeVerification() {
-        mCardVerificationDisplay = secondDisplays?.let { CardVerificationDisplay(this, it) }
-        mCardVerificationDisplay?.show()
-        mDishDisplay.cancel()
     }
 
     //刷脸核销
     private fun faceVerification() {
-        queryFaceInfo()
-        mDishDisplay.cancel()
-    }
-
-    /**
-     * 通过人脸查询人员信息
-     */
-    private fun queryFaceInfo() {
         LogUtil.d(TAG,"查询人脸信息~")
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
@@ -345,7 +321,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
         )
     }
-
 
 
     private fun checkTime() {

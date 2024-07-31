@@ -21,7 +21,6 @@ import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
-import com.yannuo.dgcanteen.dialogView.ShowDishDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
@@ -56,8 +55,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private val handler = Handler()
     private lateinit var maps :MutableMap<String, Int >
     private var lastTime = 0L  //上次触发时间
-    @Volatile
-    private var mCardVerificationDisplay: CardVerificationDisplay? = null //刷卡/扫码核销界面
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -255,13 +252,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
-
-//        binding.btnBalance.setOnClickListener {
-//            val intent = Intent(this@CalculateActivity, BalanceActivity::class.java)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-//            startActivity(intent)
-//            finish()
-//        }
     }
 
     //EvenBus事件监听处理
@@ -304,31 +294,17 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 btnViewChange(binding.btnOff, Constant.SWITCH)
             }
             Constant.EVENT_CODE -> handler.post {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
-                CommonAndDpToPxUtil.speakWork("请出示核销码或刷卡")
-                runOnUiThread {
-                    cardCodeVerification()
-                }
+                simpleDisplay.cancel()
+                val i = Intent(this, CardVerificationActivity::class.java)
+                startActivity(i)
             }
-            Constant.EVENT_FACE -> handler.post {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
-                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-                runOnUiThread {
-                    faceVerification()
-                }
-            }
-            Constant.EVENT_THIRTY -> handler.post {
-                runOnUiThread {
-                    if (event.any != null) {
-                        LogUtil.i(TAG, "核销的菜品：${Gson().toJson(event.any)}")
-                        val showDishDialog = ShowDishDialog(this)
-                        showDishDialog.showDishes(Gson().toJson(event.any))
-                        showDishDialog.show()
-                    }
-                    simpleDisplay = SimpleDisplay(this, secondDisplays)
-                    simpleDisplay.show()
-                }
-            }
+//            Constant.EVENT_FACE -> handler.post {
+//                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+//                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
+//                runOnUiThread {
+//                    faceVerification()
+//                }
+//            }
         }
     }
 
@@ -363,23 +339,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
     }
 
-    //扫码核销
-    private fun cardCodeVerification() {
-        mCardVerificationDisplay = CardVerificationDisplay(this, secondDisplays)
-        mCardVerificationDisplay?.show()
-        simpleDisplay.cancel()
-    }
-
     //刷脸核销
     private fun faceVerification() {
-        queryFaceInfo()
-        simpleDisplay.cancel()
-    }
-
-    /**
-     * 通过人脸查询人员信息
-     */
-    private fun queryFaceInfo() {
         LogUtil.d(TAG,"查询人脸信息~")
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
