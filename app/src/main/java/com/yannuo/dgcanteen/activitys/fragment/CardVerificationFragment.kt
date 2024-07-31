@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -19,10 +18,12 @@ import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.DisplayCardVerificationBinding
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.FaceResult
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.VerificationUI
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.Utils
+import org.greenrobot.eventbus.EventBus
 
 class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(), CallbackListener {
     private lateinit var verificationVM: VerificationVM
@@ -108,10 +109,8 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     LogUtil.d(TAG, "核销成功")
 
                     val verificationUI = any as VerificationUI
-                    val toSuccess =
-                        CardVerificationFragmentDirections.actionCardVerificationFragmentToShowDishFragment(
-                            verificationUI
-                        )
+                    val toSuccess = CardVerificationFragmentDirections.actionCardVerificationFragmentToShowDishFragment(verificationUI)
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
                     findNavController().navigate(toSuccess)
 
                 }
@@ -119,12 +118,9 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                 10 -> {
                     LogUtil.d(TAG, "核销失败")
                     val verificationUI = any as VerificationUI
-                    val toFail =
-                        CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(
-                            verificationUI
-                        )
+                    val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
                     findNavController().navigate(toFail)
-
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
                 }
             }
         }

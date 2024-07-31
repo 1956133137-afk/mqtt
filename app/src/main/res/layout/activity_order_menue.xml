@@ -106,12 +106,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/vl_common_set"
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="0dp"
         android:background="@color/creamy_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout" >
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
         <Button
             android:id="@+id/btn_setting"
@@ -152,50 +152,106 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_dish_menu" />
 
-        <TextView
-            android:id="@+id/tv_order_number"
-            android:layout_width="250dp"
+        <LinearLayout
+            android:id="@+id/verify_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:text="今日订餐人数:"
-            android:textColor="#4F4F4F"
-            android:textSize="32sp"
+            android:orientation="vertical"
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_syn_dishes" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_syn_dishes">
 
-        <TextView
-            android:id="@+id/tv_verification_number"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="今日已核销人数:"
-            android:textColor="#4F4F4F"
-            android:textSize="32sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_order_number" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_meal_person"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="订餐人数:"
-            android:textColor="#4F4F4F"
-            android:textSize="32sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_verification_number" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="总订餐人数:"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
 
-        <TextView
-            android:id="@+id/tv_meal_verify"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="核销人数:"
-            android:textColor="#4F4F4F"
-            android:textSize="32sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_meal_person" />
+                <TextView
+                    android:id="@+id/tv_total_order"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+            </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="总核销人数:"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+
+                <TextView
+                    android:id="@+id/tv_total_verify"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_order_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="餐别订餐数:"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+
+                <TextView
+                    android:id="@+id/tv_meal_order"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_verify_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="餐别核销数:"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+
+                <TextView
+                    android:id="@+id/tv_meal_verify"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="32sp" />
+            </LinearLayout>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

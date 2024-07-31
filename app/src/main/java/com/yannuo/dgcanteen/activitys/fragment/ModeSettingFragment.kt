@@ -133,7 +133,7 @@ class ModeSettingFragment : Fragment() {
         }
         binding.codeVerification.setOnClickListener { //核销模式
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
-//            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFICATION, null))
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, null))
         }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
@@ -229,9 +229,9 @@ class ModeSettingFragment : Fragment() {
             Constant.ORDERING_TWO_MODE
         )
         val position = byteArrayOf(0)
-        val oldPosition = when(kv.decodeString(Constant.APP_MODE)){
-            array[0]-> 0
-            array[1]-> 1
+        val oldPosition = when (kv.decodeString(Constant.APP_MODE)) {
+            array[0] -> 0
+            array[1] -> 1
             else -> 2
         }
         val builder = AlertDialog.Builder(requireContext())
@@ -243,7 +243,8 @@ class ModeSettingFragment : Fragment() {
                 LogUtil.i(TAG, "which $which")
             }
             .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
-            .setPositiveButton("确定"
+            .setPositiveButton(
+                "确定"
             ) { dialog, which ->
                 ToastShowUtil.show(array[position[0].toInt()])
                 kv.encode(Constant.APP_MODE, array[position[0].toInt()])
@@ -284,7 +285,7 @@ class ModeSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
         }
-        if (self_help.equals(kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()){
+        if (self_help.equals(kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()) {
             val restartIntent =
                 mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
             restartIntent?.addFlags(
@@ -298,7 +299,7 @@ class ModeSettingFragment : Fragment() {
     }
 
     private fun reload() {
-        self_help =  kv.decodeBool(Constant.BALANCE_SWITCH, false)
+        self_help = kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help
         binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
@@ -306,9 +307,9 @@ class ModeSettingFragment : Fragment() {
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
-        if ( kv.decodeString(Constant.APP_MODE) == null)
+        if (kv.decodeString(Constant.APP_MODE) == null)
             kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-        binding.appMode.text =kv.decodeString(Constant.APP_MODE)
+        binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
     }
 

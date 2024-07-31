@@ -1,6 +1,6 @@
 package com.yannuo.dgcanteen.model
 
-class VerificationCountRequest {
-    var campusId: String = ""
+data class VerificationCountRequest(
+    var campusId: String = "",
     var businessId: String = ""
-}
+)

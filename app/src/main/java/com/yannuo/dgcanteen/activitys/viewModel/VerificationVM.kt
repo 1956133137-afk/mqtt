@@ -1,50 +1,24 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
-import android.content.SharedPreferences
-import android.hardware.Camera.FaceDetectionListener
-import android.os.IBinder
 import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ccb.smartcanteen.PayResultListener
-import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
-import com.proembed.service.LogUtils
-import com.safframework.log.converter.gson.GsonUtils
-import com.safframework.log.converter.gson.GsonUtils.fromJson
-import com.safframework.log.converter.gson.GsonUtils.toJson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
-import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
-import com.yannuo.dgcanteen.model.CardUserRequest
-import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.MqttAddFaceCallback
-import com.yannuo.dgcanteen.model.PayCfg
-import com.yannuo.dgcanteen.model.PayResultForUI
-import com.yannuo.dgcanteen.model.VerificationCountRequest
-import com.yannuo.dgcanteen.model.VerificationCountResponse
-import com.yannuo.dgcanteen.model.VerificationRequest
-import com.yannuo.dgcanteen.model.VerificationResponse
-import com.yannuo.dgcanteen.model.VerificationUI
-import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
+import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.util.CanteenEncryptionUtil.getAnalysisCode
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.TimeUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
-import com.yannuo.dgcanteen.util.Utils
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.greenrobot.eventbus.EventBus
-import kotlin.text.StringBuilder
+import kotlinx.coroutines.runBlocking
 
 class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     var showToastEvent: MutableLiveData<String>
@@ -62,6 +36,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private lateinit var mCardDevice: SerialPortHelper
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
+
     enum class CodeStatus {
         INVALID, PAY
     }
@@ -188,18 +163,15 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         this.callBackListener = listener
     }
 
-    fun getVerifyCount() {
-        val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
-        val request = VerificationCountRequest().apply {
-            this.businessId = campusId.toString()
-            this.campusId = businessId.toString()
-        }
+    fun getVerifyCount(response: (VerificationCountResponse) -> Unit) {
         viewModelScope.launch {
+            val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
+            val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+            val request = VerificationCountRequest(campusId.toString(), businessId.toString())
             val res = mRespository.getCcbCountDCofDay(request)
             if (res.code == 200) {
                 val json = Gson().fromJson(Gson().toJson(res.data), VerificationCountResponse::class.java)
-                
+                response(json)
             }
         }
     }

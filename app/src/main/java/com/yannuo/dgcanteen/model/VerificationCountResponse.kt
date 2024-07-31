@@ -11,6 +11,7 @@ class TotalCount {
 }
 
 class Meal {
+    var mealId = ""
     var mealName = ""
     var orderMealPerson = ""
     var verifyMealPerson = ""

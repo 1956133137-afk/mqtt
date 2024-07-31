@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.ccb.smartcanteen.PayResultListener
@@ -24,6 +25,7 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
+import com.yannuo.dgcanteen.dao.dbhelp.DbHelper
 import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
@@ -75,9 +77,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private var mScope: CoroutineScope? = null
     private lateinit var mAdapter: ScreenSlidePagerAdapter
     private lateinit var displayManager: DisplayManager
-    private val viewModel by lazy {
-        VerificationVM()
-    }
+    private val viewModel by lazy { VerificationVM() }
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             LogUtil.d(TAG, "onServiceConnected")
@@ -111,9 +111,9 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             initEvent()
             mScope = CoroutineScope(Dispatchers.IO)
             checkTime()
+            initVerify()
         }
     }
-
 
     private fun initObj() {
         handler = MyHandler(this)
@@ -168,7 +168,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
         mDishDisplay.show()
     }
-
 
     private fun initPresentation() {
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
@@ -227,12 +226,29 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     }
 
+    private fun initVerify() {
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
+            binding.verifyView.visibility = View.VISIBLE
+            viewModel.getVerifyCount { res ->
+                LogUtil.d(TAG, Gson().toJson(res))
+                binding.tvTotalOrder.text = res.total.dcPerson
+                binding.tvTotalVerify.text = res.total.verifyPerson
+                res.mealList.forEach { meal ->
+                    if (mealId == meal.mealId.toInt()) {
+                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
+                        binding.tvMealOrder.text = meal.orderMealPerson
+                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
+                        binding.tvMealVerify.text = meal.verifyMealPerson
+                    }
+                }
+            }
+        } else binding.verifyView.visibility = View.INVISIBLE
+    }
 
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun eventArrive(event: MessageEvent) {
         when (event.code) {
-
             Constant.EVENT_SECOND -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启人脸支付事件~")
                 event.any?.also {
@@ -250,7 +266,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                     }
                 }
             }
-
 
             Constant.EVENT_TENTH -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收mqtt状态变更事件~")
@@ -275,9 +290,12 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-                runOnUiThread {
-                    faceVerification()
-                }
+                runOnUiThread { faceVerification() }
+            }
+
+            Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
+                runOnUiThread { initVerify() }
             }
         }
     }
@@ -306,7 +324,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         )
     }
 
-
     private fun checkTime() {
         mScope?.launch {
             while (isActive) {
@@ -324,6 +341,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                         }
                     }
                     withContext(Dispatchers.Main) {
+                        initVerify()
                         binding.mealTime.text = str
                     }
                     mProductsVM.menuChange.postValue(mealId)
@@ -343,13 +361,11 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     }
 
-
     override fun onDestroy() {
         release()
         super.onDestroy()
 
     }
-
 
     inner class MyHandler(context: OrderMenuActivity) : Handler() {
         private var reference: WeakReference<OrderMenuActivity> = WeakReference(context)
@@ -361,7 +377,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
         }
     }
-
 
     private fun release() {
         mScope?.cancel()
@@ -394,7 +409,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
         }
     }
-
 
     private fun havePermission(): Boolean {
         var result = true
@@ -433,6 +447,4 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     override fun onFoodsUpdate(foods: Any?) {
 
     }
-
-
 }

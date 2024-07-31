@@ -101,6 +101,8 @@ object Constant {
     const val EVENT_OFLINE_CHANGE = 26 //
     const val EVENT_FACE = 28 //刷脸核销
     const val EVENT_CODE = 29 //二维码核销
+    const val EVENT_ORDER_VERIFY = 30 //订单核销成功
+    const val EVENT_VERIFY_CHANGE = 31 //核销功能改变
 
 
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径
