@@ -27,6 +27,8 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.MqttAddFaceCallback
 import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.VerificationCountRequest
+import com.yannuo.dgcanteen.model.VerificationCountResponse
 import com.yannuo.dgcanteen.model.VerificationRequest
 import com.yannuo.dgcanteen.model.VerificationResponse
 import com.yannuo.dgcanteen.model.VerificationUI
@@ -184,6 +186,22 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     //设置回调监听
     fun setListener(listener: CallbackListener) {
         this.callBackListener = listener
+    }
+
+    fun getVerifyCount() {
+        val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
+        val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+        val request = VerificationCountRequest().apply {
+            this.businessId = campusId.toString()
+            this.campusId = businessId.toString()
+        }
+        viewModelScope.launch {
+            val res = mRespository.getCcbCountDCofDay(request)
+            if (res.code == 200) {
+                val json = Gson().fromJson(Gson().toJson(res.data), VerificationCountResponse::class.java)
+                
+            }
+        }
     }
 
     override fun onData(data: String) {
