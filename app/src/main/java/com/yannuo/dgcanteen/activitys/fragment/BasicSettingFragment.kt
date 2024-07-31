@@ -35,14 +35,10 @@ class BasicSettingFragment : Fragment() {
     private lateinit var binding: FragmentBasicSettingBinding
     private lateinit var kv: MMKV
     private val mContext = MyApplication.applicationContext
-    private lateinit var portAdapter : ArrayAdapter<String>
-    private lateinit var baudrateAdapter : ArrayAdapter<String>
-    private lateinit var spinnerAdapter : ArrayAdapter<String>
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    private lateinit var portAdapter: ArrayAdapter<String>
+    private lateinit var baudrateAdapter: ArrayAdapter<String>
+    private lateinit var spinnerAdapter: ArrayAdapter<String>
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBasicSettingBinding.inflate(inflater, container, false)
         initObject()
         initData()
@@ -103,7 +99,8 @@ class BasicSettingFragment : Fragment() {
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
-                id: Long) {
+                id: Long
+            ) {
                 (parent?.getItemAtPosition(position) as? String)?.also {
                     kv.encode(Constant.PRINTER_PATH_SET, it)
                 }
@@ -120,7 +117,7 @@ class BasicSettingFragment : Fragment() {
                 id: Long
             ) {
                 (parent?.getItemAtPosition(position) as? String)?.also {
-                    kv.encode(Constant.PRINTER_BAUD_SET,it);
+                    kv.encode(Constant.PRINTER_BAUD_SET, it);
                 }
             }
 
@@ -136,16 +133,16 @@ class BasicSettingFragment : Fragment() {
         val portFinder = YNSerialPortFinder()
         val options = portFinder.allDevicesPath
         val card = resources.getStringArray(R.array.spiCard)
-        portAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,options)
-        baudrateAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,bauds)
-        spinnerAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text,card)
+        portAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, options)
+        baudrateAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, bauds)
+        spinnerAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, card)
 
         binding.snCardformat.adapter = spinnerAdapter
         binding.snPrinterPort.adapter = portAdapter
         binding.snPrinterBaudrate.adapter = baudrateAdapter
 
         var cnt = kv.decodeString(Constant.PRINTER_PATH_SET)
-        for (da in options.indices){
+        for (da in options.indices) {
             if (options[da].equals(cnt)) {
                 binding.snPrinterPort.setSelection(da)
                 break
@@ -153,7 +150,7 @@ class BasicSettingFragment : Fragment() {
         }
 
         cnt = kv.decodeString(Constant.PRINTER_BAUD_SET)
-        for (da in bauds.indices){
+        for (da in bauds.indices) {
             if (bauds[da].equals(cnt)) {
                 binding.snPrinterBaudrate.setSelection(da)
                 break
@@ -161,8 +158,8 @@ class BasicSettingFragment : Fragment() {
         }
 
         cnt = kv.decodeInt(Constant.CARD_FORMAT).toString()
-        for(da in card.indices){
-            if (card[da].equals(cnt)){
+        for (da in card.indices) {
+            if (card[da].equals(cnt)) {
                 binding.snCardformat.setSelection(da)
             }
         }
@@ -176,6 +173,8 @@ class BasicSettingFragment : Fragment() {
         binding.etShowTime.setText("${kv.decodeInt(Constant.SHOW_TIME)}")
         binding.awaitPayTime.setText("${kv.decodeInt(Constant.AWAIT_PAY_TIME, 30)}")
         binding.snCardformat.setSelection(kv.decodeInt(Constant.CARD_FORMAT))
+        binding.printTicketName.setText(kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联"))
+        binding.printCashierName.setText(kv.decodeString(Constant.PRINTER_CASHIER_NAME, "10000001"))
     }
 
     fun save() {
@@ -213,19 +212,24 @@ class BasicSettingFragment : Fragment() {
         }
         kv.encode(Constant.SHOW_TIME, binding.etShowTime.text.toString().toInt())
         kv.encode(Constant.AWAIT_PAY_TIME, binding.awaitPayTime.text.toString().toInt())
+        kv.encode(Constant.PRINTER_TICKET_NAME, binding.printTicketName.text.toString())
+        kv.encode(Constant.PRINTER_CASHIER_NAME, binding.printCashierName.text.toString())
         if (flag) ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
     }
+
     //卡号格式选择
-    private fun cardFormat(){
+    private fun cardFormat() {
         binding.snCardformat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 kv.encode(Constant.CARD_FORMAT, position)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 TODO("Not yet implemented")
             }
         }
     }
+
     private fun isValidUrl(url: String): Boolean {
         val regex = Regex(
             """^(https|tcp|http)://(\w{2,6}\.\w{1,61}\.[a-zA-Z]{2,6}|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d+)?/?(?:\w+/)*$""",

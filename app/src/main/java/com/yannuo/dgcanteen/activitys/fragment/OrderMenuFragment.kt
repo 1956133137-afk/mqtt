@@ -7,7 +7,6 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -31,26 +30,25 @@ import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.HintDialog
-import com.yannuo.dgcanteen.views.LoadingDialog
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
-
 open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
     PayForAdapter.WorkListener, CallbackListener, IProductsVM {
-    private lateinit var mAdapter :ProductsAdapter
-    private lateinit var model : ProductsVM
-    private lateinit var mPresenter :OrderMenuPresenter
-    private lateinit var mPayPresenter :PayPresenter
+    private lateinit var mAdapter: ProductsAdapter
+    private lateinit var model: ProductsVM
+    private lateinit var mPresenter: OrderMenuPresenter
+    private lateinit var mPayPresenter: PayPresenter
     private lateinit var mAdapterPayFor: PayForAdapter
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
-//    private var secondLoadingDialog :LoadingDialog ?= null
+
+    //    private var secondLoadingDialog :LoadingDialog ?= null
     @Volatile
     private var state_opened = false
-    private var mHintDialog :HintDialog ?= null
+    private var mHintDialog: HintDialog? = null
     private var mFacePayService: ZHSTFacePayService? = null
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -78,8 +76,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     }
 
 
-
-    private fun loadData(){
+    private fun loadData() {
         val lIntent = Intent()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
@@ -109,7 +106,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         mPayPresenter = PayPresenter()
     }
 
-    private fun openIcQr(){
+    private fun openIcQr() {
         mPayPresenter.setScanState(PayPresenter.ScanState.PAY)
         mPayPresenter.setCardState(PayPresenter.ScanState.PAY)
         if (state_opened) {
@@ -122,7 +119,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         mPayPresenter.openScan()
     }
 
-    private fun closeIcQr(){
+    private fun closeIcQr() {
         state_opened = false
         mPayPresenter.setScanState(PayPresenter.ScanState.INVALID)
         mPayPresenter.release()
@@ -130,7 +127,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
 
     //更新购物车UI
-    private  fun updateUiItems(it: DishesInfo, accumulation: Boolean) {
+    private fun updateUiItems(it: DishesInfo, accumulation: Boolean) {
         mAdapterPayFor.insertedData(it, accumulation)
         binding.rvSelectItem.scrollToPosition(mAdapterPayFor.data.size - 1) //插入数据后滑动到底部
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
@@ -155,14 +152,14 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     }
 
 
-    private fun release(){
+    private fun release() {
 //        adapter.setListener(null)
 //        model.loadDialog.value = false
     }
 
     private fun initEvent() {
-        model.menuChange.observe(this){
-            mPresenter.dishesData(mAdapter,it)
+        model.menuChange.observe(this) {
+            mPresenter.dishesData(mAdapter, it)
         }
 
         binding.ibDelAll.setOnClickListener {
@@ -179,7 +176,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 LogUtil.e(TAG, "获取不到人脸句柄")
                 return@setOnClickListener
             }
-            val dat = MutableList(mAdapterPayFor.data.size){
+            val dat = MutableList(mAdapterPayFor.data.size) {
                 mAdapterPayFor.data[it].copy()
             }
 
@@ -212,9 +209,9 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     }
 
 
-    private fun setFoodsPayList(){
+    private fun setFoodsPayList() {
         //            binding.btSureMeal.setEnabled(false);
-        val dat = MutableList(mAdapterPayFor.data.size){
+        val dat = MutableList(mAdapterPayFor.data.size) {
             mAdapterPayFor.data[it].copy()
         }
         val productsDetail = ProductsDetail(
@@ -236,15 +233,17 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         mAdapterPayFor.clear()
         binding.tvTotalMoney.text = ""
         binding.tvTotalCount.text = "0"
-        changeDishPlay(mAdapterPayFor.data,String.format(MONEY_FMT,"0.00"),String.format(COUNT_FMT,"0"))
+        changeDishPlay(mAdapterPayFor.data, String.format(MONEY_FMT, "0.00"), String.format(COUNT_FMT, "0"))
     }
 
     override fun onEventClick(position: Int) {
         val data = mAdapter.getData(position)
         //选择的购买商品添加到购物车
         updateUiItems(data, false)
-        changeDishPlay(mAdapterPayFor.data,String.format(MONEY_FMT,binding.tvTotalMoney.text),
-            String.format(COUNT_FMT,binding.tvTotalCount.text))
+        changeDishPlay(
+            mAdapterPayFor.data, String.format(MONEY_FMT, binding.tvTotalMoney.text),
+            String.format(COUNT_FMT, binding.tvTotalCount.text)
+        )
     }
 
     override fun onEventClick(data: DishesInfo) {
@@ -252,14 +251,16 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
         binding.tvTotalMoney.text = res[0].toString()
         binding.tvTotalCount.text = res[1].toString().replace(".0", "")
-        changeDishPlay(mAdapterPayFor.data,String.format(MONEY_FMT,binding.tvTotalMoney.text),
-            String.format(COUNT_FMT,binding.tvTotalCount.text))
+        changeDishPlay(
+            mAdapterPayFor.data, String.format(MONEY_FMT, binding.tvTotalMoney.text),
+            String.format(COUNT_FMT, binding.tvTotalCount.text)
+        )
     }
 
 
     private fun changeDishPlay(data: MutableList<DishesInfo>, money: String, count: String) {
         model.getDisplay()?.also {
-            it.upDataWithUi(data,money,count)
+            it.upDataWithUi(data, money, count)
         }
     }
 
@@ -282,7 +283,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                     model.getDisplay()?.showLoading()
                     mHintDialog?.dismiss()
                     model.getDisplay()?.showWaitHit(false)
-                    model.loadingEvent.value= true
+                    model.loadingEvent.value = true
                 }
             2 -> Observable.just(1)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -310,11 +311,9 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 .subscribe { integer: Int? ->
                     if (any as Int == 1) {
                         CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
-                    }
-                    else if (any == 2) {
+                    } else if (any == 2) {
                         CommonAndDpToPxUtil.speakWork("请检查网络,不支持离线聚合支付!")
-                    }
-                    else {
+                    } else {
                         CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                     }
                     model.loadingEvent.value = false
@@ -325,7 +324,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
     override fun onFacePayResult(data: PayResultForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
-        runBlocking(Dispatchers.Main){
+        runBlocking(Dispatchers.Main) {
             clearShoppingCart()
         }
 

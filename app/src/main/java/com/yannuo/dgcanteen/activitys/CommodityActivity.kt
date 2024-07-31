@@ -43,6 +43,7 @@ import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.printer.PrinterOperator
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
@@ -96,7 +97,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private var successBinding: PaySuccessHostBinding? = null
     private var failBinding: PayFailureHostBinding? = null
     private var mScope: CoroutineScope? = null
-    private var adapterDishes: FoodsAdapter ? = null
+    private var adapterDishes: FoodsAdapter? = null
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -135,7 +136,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             initEvent()
             mScope = CoroutineScope(Dispatchers.IO)
             checkTime()
-
 
 
         }
@@ -194,7 +194,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
         }
-        val gridLayoutManager = GridLayoutManager(this,2)
+        val gridLayoutManager = GridLayoutManager(this, 2)
         adapterDishes = FoodsAdapter(this)
         binding.rvFoods.layoutManager = gridLayoutManager
         binding.rvFoods.adapter = adapterDishes
@@ -244,7 +244,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         //设置界面
         binding.btnSetting.setOnClickListener {
-            if (mChooseDisplay != null || mPayResultDisplay != null){
+            if (mChooseDisplay != null || mPayResultDisplay != null) {
                 ToastShowUtil.show("请完成支付后再操作!")
                 CommonAndDpToPxUtil.speakWork("请完成支付后再操作!")
                 return@setOnClickListener
@@ -262,7 +262,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         //菜品管理界面
         binding.btnDishMenu.setOnClickListener {
-            if (mChooseDisplay != null || mPayResultDisplay != null){
+            if (mChooseDisplay != null || mPayResultDisplay != null) {
                 ToastShowUtil.show("请完成支付后再操作!")
                 CommonAndDpToPxUtil.speakWork("请完成支付后再操作!")
                 return@setOnClickListener
@@ -423,7 +423,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                     refreshFailState(data)
                 }
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             ToastShowUtil.show("${e.message}")
             CommonAndDpToPxUtil.speakWork("页面更新异常!")
         }
@@ -457,7 +457,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             if (data.way == "20") str = "微信收款"
             CommonAndDpToPxUtil.speakWork(str + data.payment + "元")
             successBinding!!.tvTransNumber.text = data.traceid
-        }else{
+        } else {
             val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.custId)
             var cls = "***"
             if (persons != null) {
@@ -465,7 +465,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             }
             successBinding!!.tvName.text = data.cust_name ?: "***"
             successBinding!!.tvClass.text = cls
-            successBinding!!.tvBalance.text = (data.acc_bal ?: "") +"元"
+            successBinding!!.tvBalance.text = (data.acc_bal ?: "") + "元"
             successBinding!!.tvTransNumber.text = data.orderid
         }
 
@@ -492,9 +492,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         }
         successBinding!!.tvPayTime.text = time
         PrinterOperator.printerFoodsList(data)
-
+        if (data.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(data)
     }
-
 
 
     private fun refreshFailState(data: PayResultForUI) {
@@ -728,7 +727,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
         binding.mvControl.stopAnima()
-        LogUtil.i(TAG,"release...")
+        LogUtil.i(TAG, "release...")
 //        timer?.cancel()
     }
 
@@ -783,13 +782,13 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     override fun onFoodsUpdate(foods: Any?) {
         val list = foods as? MutableList<DishesInfo>
-        val foodsList = mutableListOf<DishesInfo> ()
-        if(list.isNullOrEmpty()){
+        val foodsList = mutableListOf<DishesInfo>()
+        if (list.isNullOrEmpty()) {
             clearFoods()
             return
         }
         val bg = binding.rvFoods.background
-        if (bg == null)binding.rvFoods.setBackgroundResource(R.drawable.shape_btn_bg_white)
+        if (bg == null) binding.rvFoods.setBackgroundResource(R.drawable.shape_btn_bg_white)
         list?.forEach {
             foodsList?.add(it.copy())
             adapterDishes?.data = foodsList
@@ -797,7 +796,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     }
 
-    private fun clearFoods(){
+    private fun clearFoods() {
         adapterDishes?.clear()
         binding.rvFoods.background = null
     }

@@ -3,7 +3,6 @@ package com.yannuo.dgcanteen.util
 object Constant {
 
 
-
     //配置文件名
 //    const val fileName = "mmkv"
 //    const val strDefault  =""
@@ -19,36 +18,49 @@ object Constant {
 //    const val mqttPassworkValue = "ACMS2022~!@"
     //周期任务-检查软件版本
     const val PERIODIC_WORK_KEY = "app-update-task"
-//    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
+
+    //    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
     //服务器地址
     const val ADDRESS = "Address"
+
     //是否离线
     const val SWITCH = "Switch"
+
     //启用打印机
     const val EN_PRINTER = "en_printer"
+
     //mqtt服务地址
     const val MQTT_ADDRESS = "MqttAddress"
+
     //mqtt账号
     const val MQTT_ACCOUNT = "MqttAccount"
+
     //mqtt密码
     const val MQTT_PASSWORD = "MqttPassword"
+
     //卡号格式
     const val CARD_FORMAT = "cardFormat"
+
     //菜品数据最后同步时间
     const val FINAL_TIME = "FinalTime"
+
     //支付配置信息
     const val PAY_CONFIG = "PCfg"
+
     //当前版本
     const val VERSION = "Version"
+
     //支付结果显示时间
     const val SHOW_TIME = "show_time"
+
     //菜品更新更新标志
     const val UPDATE_TIME = "update_time"
     const val update_time = "19700000"  //默认1970年
     const val PIC_DIR = "pic" //菜品图片保存目录
     const val GROUP_NAME = "yannuoface" //人脸特征库
-    const val PERSONINFO_TIME ="p_i_time "  //人员数据更新时间，定时更新人员信息
-//    const val CURRENT_PAGE = "page" //当前人员下载页
+    const val PERSONINFO_TIME = "p_i_time "  //人员数据更新时间，定时更新人员信息
+
+    //    const val CURRENT_PAGE = "page" //当前人员下载页
     const val SERIALPORT = "sn"
 
     const val AWAIT_PAY_TIME = "awaitPayTime" //等待支付时间
@@ -58,11 +70,11 @@ object Constant {
     const val PROCEEDS_MODE = "收款模式"
     const val ORDERING_TWO_MODE = "点餐模式2"
 
-    lateinit var CORP_ID :String  //合作方ID
-    lateinit var CCB_API_PATH :String  //ccb开放平台接口地址
-    lateinit var STR_KEY :String  //扫码解码密码
-    lateinit var CIPHER :String  //离线码解码密码
-    lateinit var ENCRYPTION_VECTOR :String  //离线码加密向量
+    lateinit var CORP_ID: String  //合作方ID
+    lateinit var CCB_API_PATH: String  //ccb开放平台接口地址
+    lateinit var STR_KEY: String  //扫码解码密码
+    lateinit var CIPHER: String  //离线码解码密码
+    lateinit var ENCRYPTION_VECTOR: String  //离线码加密向量
 
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
     const val BALANCE_SWITCH = "balance_Switch" //余额查询
@@ -93,7 +105,10 @@ object Constant {
 
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径
     const val PRINTER_BAUD_SET = "printer_baud"  //打印机波特率
-
+    const val PRINTER_UPDATE_TIME = "printerUpdateTime" //打印更新时间
+    const val PRINTER_AMOUNT = "printerAmount"          //打印数量
+    const val PRINTER_TICKET_NAME = "printerTicketName" //票名
+    const val PRINTER_CASHIER_NAME = "printerCashierName"   //收银名
 
     //手输入金额使用的配置
     //1)状态码

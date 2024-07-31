@@ -16,6 +16,10 @@
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- USB访问权限 -->
+    <uses-feature android:name="android.hardware.usb.UsbDevice" />
+    <uses-feature android:name="android.hardware.usb.UsbManager" />
+
     <application
         android:name=".common.MyApplication"
         android:allowBackup="true"
@@ -75,6 +79,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />
             </intent-filter>
         </receiver>
 

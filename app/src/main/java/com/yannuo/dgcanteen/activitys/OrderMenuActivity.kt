@@ -35,28 +35,15 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.TimeUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
-import com.yannuo.dgcanteen.util.Utils
+import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 
-
-class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM,
-    NetworkStateManager.NetWorkListener, FoodsCallback {
+class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -79,14 +66,14 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     private var loadingDialog: LoadingDialog? = null //后台加载框
     private lateinit var passwordDialog: PasswordDialog
-    private lateinit var mDishDisplay :DishesDisplay
+    private lateinit var mDishDisplay: DishesDisplay
     private lateinit var kv: MMKV
 
     private var mMealId = 0
     private var mealId = 0
 
     private var mScope: CoroutineScope? = null
-    private lateinit var mAdapter:ScreenSlidePagerAdapter
+    private lateinit var mAdapter: ScreenSlidePagerAdapter
     private lateinit var displayManager: DisplayManager
     private val viewModel by lazy {
         VerificationVM()
@@ -128,8 +115,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     }
 
 
-
-
     private fun initObj() {
         handler = MyHandler(this)
         mProductsVM = ViewModelProvider(this).get(ProductsVM::class.java)
@@ -151,7 +136,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun initView() {
         binding.vpMenuCt.adapter = mAdapter
         binding.vpMenuCt.offscreenPageLimit = 1
-        mAdapter.addData(mutableListOf(0,1))
+        mAdapter.addData(mutableListOf(0, 1))
         binding.vpMenuCt.currentItem = 0
         binding.vpMenuCt.isUserInputEnabled = false
         //吐司信息显示
@@ -160,16 +145,15 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         }
         //加载对话框显示
         mProductsVM.loadingEvent.observe(this) {
-            if (it){
-                if (loadingDialog==null) loadingDialog = LoadingDialog(this)
+            if (it) {
+                if (loadingDialog == null) loadingDialog = LoadingDialog(this)
                 loadingDialog?.show()
-            }
-            else loadingDialog?.dismiss()
+            } else loadingDialog?.dismiss()
 //            LogUtil.d(TAG,"SHOW $it")
         }
 
-        mProductsVM.tab.observe(this){
-            binding.vpMenuCt.setCurrentItem(it,false)
+        mProductsVM.tab.observe(this) {
+            binding.vpMenuCt.setCurrentItem(it, false)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mProductsVM.upDataDishes()
@@ -300,7 +284,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     //刷脸核销
     private fun faceVerification() {
-        LogUtil.d(TAG,"查询人脸信息~")
+        LogUtil.d(TAG, "查询人脸信息~")
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
         val mPayCfg = viewModel.getPayCfg()
@@ -360,13 +344,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     }
 
 
-
-
-
-
-
-
-
     override fun onDestroy() {
         release()
         super.onDestroy()
@@ -396,7 +373,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         //取消网络状态监听
         NetworkStateManager.getInstance().unRegisterObserver(this)
 
-        LogUtil.i(TAG,"release...")
+        LogUtil.i(TAG, "release...")
 //        timer?.cancel()
     }
 

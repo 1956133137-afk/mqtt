@@ -135,6 +135,7 @@
                 android:textSize="28sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -160,9 +161,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="45dp"
                 android:entries="@array/spiCard"
-                android:gravity="right"
-                />
+                android:gravity="right" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -262,6 +263,7 @@
                 android:textSize="28sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -274,10 +276,10 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:layout_weight="1"
-                android:layout_height="40dp"
                 android:layout_width="0dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="40dp"
+                android:layout_weight="1"
                 android:text="启用打印机"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
@@ -291,9 +293,8 @@
                 android:button="@null"
                 android:checked="false"
                 android:padding="5dp" />
-
-
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -317,11 +318,11 @@
                 android:id="@+id/sn_printer_port"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="45dp"
-                />
+                android:layout_marginRight="45dp" />
 
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -345,10 +346,73 @@
                 android:id="@+id/sn_printer_baudrate"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="45dp"
-                />
+                android:layout_marginRight="45dp" />
 
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="217dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="打印票头名称"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/print_ticket_name"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="217dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="收银员名称"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/print_cashier_name"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginEnd="45dp"
+                android:background="@null"
+                android:gravity="right"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
         </LinearLayout>
 
         <Button

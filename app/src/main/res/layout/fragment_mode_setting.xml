@@ -70,6 +70,7 @@
                 android:textStyle="bold" />
 
         </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -84,8 +85,8 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="40dp"
-                android:layout_weight="1"
                 android:layout_marginStart="45dp"
+                android:layout_weight="1"
                 android:text="核销模式"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
@@ -95,10 +96,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="45dp"
-                android:gravity="right"
                 android:background="@drawable/select_switch"
                 android:button="@null"
-                android:checked="false" />
+                android:checked="false"
+                android:gravity="right" />
         </LinearLayout>
 
         <LinearLayout
@@ -171,8 +172,8 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:gravity="right"
-                android:text="10"
                 android:inputType="number"
+                android:text="10"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -185,15 +186,15 @@
             android:layout_marginStart="35dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="35dp"
-            android:orientation="horizontal"
             android:background="@drawable/shape_btn_bg_white"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:layout_weight="1"
                 android:layout_marginStart="45dp"
+                android:layout_weight="1"
                 android:text="自助余额查询"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
@@ -306,6 +307,7 @@
                 android:textSize="28sp" />
 
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/btn_syn_person"
             android:layout_width="match_parent"
@@ -313,10 +315,9 @@
             android:layout_marginStart="35dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="35dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:background="@drawable/shape_btn_bg_white"
-            >
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="300dp"
@@ -331,8 +332,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="40dp"
-                android:textColor="#4F4F4F"
                 android:gravity="right|center_vertical"
+                android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
         </LinearLayout>
@@ -344,10 +345,9 @@
             android:layout_marginStart="35dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="35dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:background="@drawable/shape_btn_bg_white"
-            >
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="300dp"
@@ -362,8 +362,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginRight="40dp"
-                android:textColor="#4F4F4F"
                 android:gravity="right|center_vertical"
+                android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
         </LinearLayout>
@@ -376,10 +376,9 @@
             android:layout_marginStart="35dp"
             android:layout_marginTop="25dp"
             android:layout_marginEnd="35dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
             android:background="@drawable/shape_btn_bg_white"
-            >
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="300dp"
@@ -389,20 +388,17 @@
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
-<!--            <TextView-->
-<!--                android:id="@+id/tv_face_count"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:layout_marginRight="40dp"-->
-<!--                android:textColor="#4F4F4F"-->
-<!--                android:text="开始上传"-->
-<!--                android:gravity="right|center_vertical"-->
-<!--                android:textSize="28sp" />-->
+            <!--            <TextView-->
+            <!--                android:id="@+id/tv_face_count"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:layout_marginRight="40dp"-->
+            <!--                android:textColor="#4F4F4F"-->
+            <!--                android:text="开始上传"-->
+            <!--                android:gravity="right|center_vertical"-->
+            <!--                android:textSize="28sp" />-->
 
         </LinearLayout>
 
-
-
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

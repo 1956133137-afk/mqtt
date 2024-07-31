@@ -27,6 +27,7 @@ import com.yannuo.dgcanteen.interfaces.IMqttConnectState
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.mqtt.InteractionBinder
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import org.eclipse.paho.client.mqttv3.MqttMessage
@@ -82,6 +83,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
             binder.connect()    //开启mqtt连接
 
 
+            //连接打印机
+            USBPrinterHelper.instance.queryPrinter()
             //打开扫码器
 //            ScanDevice.openScan()
             //新版本检查任务
@@ -711,6 +714,8 @@ class MyMqttService: Service(), NetworkStateManager.NetWorkListener{
     override fun onDestroy() {
 
         LogUtil.d(TAG,"服务关闭")
+        //关闭打印机
+        USBPrinterHelper.instance.closePrinter()
         //取消mqtt监听
         binder.unRegisterListener()
         //断开mqtt

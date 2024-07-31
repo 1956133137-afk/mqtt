@@ -14,6 +14,7 @@ import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentOrderSFBinding
 import com.yannuo.dgcanteen.model.PayResultForUI
 import com.yannuo.dgcanteen.printer.PrinterOperator
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
@@ -202,6 +203,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         }
 //        CommonAndDpToPxUtil.speakWork("欢迎用餐")
         PrinterOperator.printerFoodsList(mPayResult)
+        if (mPayResult.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(mPayResult)
         startTime(mPayResult)
     }
 
