@@ -128,30 +128,32 @@ class USBPrinterHelper {
         val state = queryPrintState()
         if (state != 0) LogUtil.e(TAG, codeToResult(state))
         else {
-            val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
-            if (kv.decodeString(Constant.PRINTER_UPDATE_TIME) != dateFormat) {
-                kv.encode(Constant.PRINTER_UPDATE_TIME, dateFormat)
-                kv.encode(Constant.PRINTER_AMOUNT, 1)
-            }
-            // 入队
-            printQueue.offer(data)
-            // 打印
-            while (printQueue.size > 0) {
-                if (queryPrintState() == 0) {
-                    mScope.launch { printQueue.peek()?.let { printContent(it) } }
-                    var times = 4
-                    while (times > 0) {
-                        times--
-                        try {
-                            Thread.sleep(1000)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                        // 出队
-                        if (times == 0 && queryPrintState() == 0) {
-                            printQueue.poll()
-                            // 打印完成 +1
-                            kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
+            mScope.launch {
+                val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+                if (kv.decodeString(Constant.PRINTER_UPDATE_TIME) != dateFormat) {
+                    kv.encode(Constant.PRINTER_UPDATE_TIME, dateFormat)
+                    kv.encode(Constant.PRINTER_AMOUNT, 1)
+                }
+                // 入队
+                printQueue.offer(data)
+                // 打印
+                while (printQueue.size > 0) {
+                    if (queryPrintState() == 0) {
+                        printQueue.peek()?.let { printContent(it) }
+                        var times = 4
+                        while (times > 0) {
+                            times--
+                            try {
+                                Thread.sleep(1000)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                            // 出队
+                            if (times == 0 && queryPrintState() == 0) {
+                                printQueue.poll()
+                                // 打印完成 +1
+                                kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
+                            }
                         }
                     }
                 }
