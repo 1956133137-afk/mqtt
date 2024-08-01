@@ -6,13 +6,13 @@ class VerificationCountResponse {
 }
 
 class TotalCount {
-    var dcPerson: String = ""
-    var verifyPerson: String = ""
+    var totalOrderNum: String = ""
+    var verifyTotalOrderNum: String = ""
 }
 
 class Meal {
     var mealId = ""
     var mealName = ""
-    var orderMealPerson = ""
-    var verifyMealPerson = ""
+    var mealOrderNum = ""
+    var verifyMealOrderNum = ""
 }

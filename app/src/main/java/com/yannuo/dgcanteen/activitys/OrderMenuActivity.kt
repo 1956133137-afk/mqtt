@@ -231,14 +231,14 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             binding.verifyView.visibility = View.VISIBLE
             viewModel.getVerifyCount { res ->
                 LogUtil.d(TAG, Gson().toJson(res))
-                binding.tvTotalOrder.text = res.total.dcPerson
-                binding.tvTotalVerify.text = res.total.verifyPerson
+                binding.tvTotalOrder.text = res.total.totalOrderNum
+                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     if (mealId == meal.mealId.toInt()) {
                         binding.tvOrderName.text = "${meal.mealName}订餐数:"
-                        binding.tvMealOrder.text = meal.orderMealPerson
+                        binding.tvMealOrder.text = meal.mealOrderNum
                         binding.tvVerifyName.text = "${meal.mealName}核销数:"
-                        binding.tvMealVerify.text = meal.verifyMealPerson
+                        binding.tvMealVerify.text = meal.verifyMealOrderNum
                     }
                 }
             }
