@@ -197,7 +197,7 @@ class USBPrinterHelper {
             mPos?.POS_TextOut("${printFormat("用户姓名", data.cust_name!!)}\r\n", 0, 0, 0, 0, 0, 0)
         }
         if (data.acc_bal != null && data.acc_bal!!.isNotEmpty()) {
-            mPos?.POS_TextOut("${printFormat("用户余额", String.format("%.02f元", data.acc_bal!!.toFloat()))}\r\n", 0, 0, 0, 0, 0, 0)
+            mPos?.POS_TextOut("${printFormat("用户余额", "${data.acc_bal}元")}\r\n", 0, 0, 0, 0, 0, 0)
         }
         if (data.orderid != null && data.orderid!!.isNotEmpty()) {
             mPos?.POS_TextOut("${printFormat("订单号", data.orderid!!)}\r\n", 0, 0, 0, 0, 0, 0)
@@ -207,7 +207,7 @@ class USBPrinterHelper {
         }
         if (data.timestamp != null && data.timestamp!!.length == 14) {
             val time = data.timestamp!!
-            val dateTime = "${time.substring(0, 4)}-${time.substring(4, 6)}-$${time.substring(6, 8)} " +
+            val dateTime = "${time.substring(0, 4)}-${time.substring(4, 6)}-${time.substring(6, 8)} " +
                     "${time.substring(8, 10)}:${time.substring(10, 12)}:${time.substring(12, 14)}"
             mPos?.POS_TextOut("${printFormat("订单时间", dateTime)}\r\n", 0, 0, 0, 0, 0, 0)
         }
