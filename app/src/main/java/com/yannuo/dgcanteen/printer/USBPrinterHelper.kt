@@ -10,7 +10,6 @@ import android.os.Handler
 import com.csnprintersdk.csnio.CSNPOS
 import com.csnprintersdk.csnio.CSNUSBPrinting
 import com.csnprintersdk.csnio.csnbase.CSNIOCallBack
-import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.model.PayResultForUI
@@ -34,6 +33,7 @@ class USBPrinterHelper {
     private var mUsb: CSNUSBPrinting? = null
     private var mPos: CSNPOS? = null
     private val kv = MMKV.defaultMMKV()
+    private val printerThread: PrinterThread = PrinterThread()
     private val printQueue: ArrayBlockingQueue<PayResultForUI> = ArrayBlockingQueue(5)
     private var connectStatus = false
     private var connectTimes = 0
@@ -114,6 +114,7 @@ class USBPrinterHelper {
 
         override fun OnClose() {
             connectStatus = false
+            stopPrint()
             showText("打印机连接丢失")
             if (this@USBPrinterHelper::mScope.isInitialized) mScope.cancel()
         }
@@ -128,36 +129,58 @@ class USBPrinterHelper {
         val state = queryPrintState()
         if (state != 0) LogUtil.e(TAG, codeToResult(state))
         else {
-            mScope.launch {
-                val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
-                if (kv.decodeString(Constant.PRINTER_UPDATE_TIME) != dateFormat) {
-                    kv.encode(Constant.PRINTER_UPDATE_TIME, dateFormat)
-                    kv.encode(Constant.PRINTER_AMOUNT, 1)
-                }
-                // 入队
-                printQueue.offer(data)
-                // 打印
+            val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+            if (kv.decodeString(Constant.PRINTER_UPDATE_TIME) != dateFormat) {
+                kv.encode(Constant.PRINTER_UPDATE_TIME, dateFormat)
+                kv.encode(Constant.PRINTER_AMOUNT, 1)
+            }
+            // 入队
+            printQueue.offer(data)
+            startPrint()
+        }
+    }
+
+    private fun startPrint() {
+        if (printerThread.isInterrupt) {
+            printerThread.isInterrupt = false
+            printerThread.start()
+        }
+    }
+
+    private fun stopPrint() {
+        if (!printerThread.isInterrupt) printerThread.interrupt()
+    }
+
+    private inner class PrinterThread : Thread() {
+        var isInterrupt = true
+
+        override fun run() {
+            super.run()
+            while (!isInterrupt) {
                 while (printQueue.size > 0) {
                     if (queryPrintState() == 0) {
                         printQueue.peek()?.let { printContent(it) }
-                        var times = 4
+                        var times = 3
                         while (times > 0) {
                             times--
                             try {
-                                Thread.sleep(1000)
+                                sleep(1000)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
-                            // 出队
                             if (times == 0 && queryPrintState() == 0) {
                                 printQueue.poll()
-                                // 打印完成 +1
                                 kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
                             }
                         }
                     }
                 }
             }
+        }
+
+        override fun interrupt() {
+            isInterrupt = true
+            super.interrupt()
         }
     }
 
