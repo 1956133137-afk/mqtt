@@ -163,9 +163,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
-                CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg)
+                CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg + "请前往点餐窗口进行订餐")
                 val verificationUI = VerificationUI().apply {
-                    errorMsg = ccbCodeVerification.msg.toString()
+                    errorMsg = ccbCodeVerification.msg.toString() + "请前往点餐窗口进行订餐"
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
                 callBackListener?.onOtherListener(10, verificationUI)

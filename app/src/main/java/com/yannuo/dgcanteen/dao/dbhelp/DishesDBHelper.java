@@ -28,6 +28,8 @@ import com.yannuo.dgcanteen.dao.OwnOrder;
 import com.yannuo.dgcanteen.dao.OwnOrderDao;
 import com.yannuo.dgcanteen.dao.Persons;
 import com.yannuo.dgcanteen.dao.PersonsDao;
+import com.yannuo.dgcanteen.dao.VerifyDishes;
+import com.yannuo.dgcanteen.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.util.LogUtil;
 
 import java.util.List;
@@ -71,6 +73,7 @@ public class DishesDBHelper {
     private PersonsDao mPersonsDao;
     private FaceTokensDao mFaceTokensDao;
     private FaceRecordDao mFaceRecordDao;
+    private VerifyDishesDao mVerifyDishesDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context){
@@ -116,6 +119,7 @@ public class DishesDBHelper {
         mPersonsDao = mDaoSession.getPersonsDao();
         mFaceTokensDao = mDaoSession.getFaceTokensDao();
         mFaceRecordDao = mDaoSession.getFaceRecordDao();
+        mVerifyDishesDao = mDaoSession.getVerifyDishesDao();
     }
 
     /**
@@ -696,4 +700,39 @@ public class DishesDBHelper {
         mFaceTokensDao.deleteAll();
     }
 
+    /**
+     * 插入核销菜品信息
+     * @param dishes
+     */
+    public void insertVerifyDishes(VerifyDishes dishes) {
+        mVerifyDishesDao.insert(dishes);
+    }
+
+    /**
+     * 删除指定Id核销菜品信息
+     * @param dishId
+     */
+    public void deleteVerifyDishes(String dishId){
+        mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Id.eq(dishId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 清空所有核销菜品信息
+     */
+    public void delAllVerifyDishes(){
+        mVerifyDishesDao.deleteAll();
+    }
+
+    /**
+     * 查询100条核销菜品信息
+     */
+    public List<VerifyDishes> selectVerifyDishes(){
+        return mVerifyDishesDao.queryBuilder()
+                .limit(100)
+                .build()
+                .list();
+    }
 }

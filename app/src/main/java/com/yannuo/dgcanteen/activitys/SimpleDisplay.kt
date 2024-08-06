@@ -120,11 +120,11 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 }
             //        binding.btPayFace.requestFocus();
             if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-//                binding.tvFace.visibility = View.VISIBLE
+                binding.tvFace.visibility = View.VISIBLE
                 binding.tvCode.visibility = View.VISIBLE
                 binding.rvDishes.visibility = View.VISIBLE
             } else {
-//                binding.tvFace.visibility = View.GONE
+                binding.tvFace.visibility = View.GONE
                 binding.tvCode.visibility = View.GONE
                 binding.rvDishes.visibility = View.GONE
             }

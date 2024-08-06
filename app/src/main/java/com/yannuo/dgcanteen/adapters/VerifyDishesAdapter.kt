@@ -9,9 +9,9 @@ class VerifyDishesAdapter: BaseAdapter<VerifyDishes, ItemVerifyDishesBinding>() 
     override fun bindHolder(holder: Holder?, position: Int) {
         val data = mData[position]
         holder?.binding?.verifyTime?.text = data.time
-        holder?.binding?.verifyDishes?.text = data.dish.replace("|", "\n")
-        holder?.binding?.verifyUnDish?.text = data.unDish.replace("|", "\n")
-        holder?.binding?.verifyWindow?.text = data.window.replace("|", "\n")
+        holder?.binding?.verifyDishes?.text = formatString(data.dish)
+        holder?.binding?.verifyUnDish?.text = formatString(data.unDish)
+        holder?.binding?.verifyWindow?.text = formatString(data.window)
     }
 
     override fun bindHolder(holder: Holder?, position: Int, payloads: MutableList<Any>?) {
@@ -20,6 +20,14 @@ class VerifyDishesAdapter: BaseAdapter<VerifyDishes, ItemVerifyDishesBinding>() 
 
     override fun getB(inflater: LayoutInflater?, parent: ViewGroup?): ItemVerifyDishesBinding {
         return ItemVerifyDishesBinding.inflate(inflater!!, parent, false)
+    }
+
+    // 分割并重新组合字符串，确保最后一项不换行
+    private fun formatString(str: String): String {
+        return str.split("|").joinToString(prefix = "", postfix = "", separator = "\n") { item ->
+            // 不需要额外添加换行符，因为 joinToString 已经处理了
+            item
+        }.trimEnd('\n')
     }
     
 }
