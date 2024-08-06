@@ -298,13 +298,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
             }
-//            Constant.EVENT_FACE -> handler.post {
-//                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
-//                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-//                runOnUiThread {
-//                    faceVerification()
-//                }
-//            }
+            Constant.EVENT_FACE -> handler.post {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
+                runOnUiThread {
+                    faceVerification()
+                }
+            }
         }
     }
 

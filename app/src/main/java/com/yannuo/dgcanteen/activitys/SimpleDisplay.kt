@@ -18,13 +18,19 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.view.size
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
+import com.yannuo.dgcanteen.adapters.VerifyDishesAdapter
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.SimpleDisplayBinding
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import org.greenrobot.eventbus.EventBus
 import java.io.File
 
@@ -40,6 +46,9 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
     private var lastTime = 0L  //上次触发时间
     private var havePic = false
     private var atv : AppCompatActivity ?= null
+    private var verifyAdapter : VerifyDishesAdapter? = null
+    private val viewModel by lazy { VerificationVM() }
+    private var mealId = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,14 +122,49 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
             if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
 //                binding.tvFace.visibility = View.VISIBLE
                 binding.tvCode.visibility = View.VISIBLE
+                binding.rvDishes.visibility = View.VISIBLE
             } else {
 //                binding.tvFace.visibility = View.GONE
                 binding.tvCode.visibility = View.GONE
+                binding.rvDishes.visibility = View.GONE
             }
+            mealId = TimeUtil.CurrentTimeSection()
+            verifyAdapter = VerifyDishesAdapter()
+            val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
+            selectVerifyDishes.forEach {
+                LogUtil.d(TAG, "${Gson().toJson(it)}")
+            }
+            if (selectVerifyDishes.size > 0) {
+                verifyAdapter!!.data = selectVerifyDishes
+            }
+            val linearLayoutManager = LinearLayoutManager(context)
+            binding.rvDishes.layoutManager = linearLayoutManager
+            binding.rvDishes.adapter = verifyAdapter
+            binding.rvDishes.scrollToPosition(verifyAdapter!!.data.size - 1) //插入数据后滑动到底部
+            initVerify()
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+    }
+
+    private fun initVerify() {
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
+            binding.verifyView.visibility = View.VISIBLE
+            viewModel.getVerifyCount { res ->
+                LogUtil.d(TAG, Gson().toJson(res))
+                binding.tvTotalOrder.text = res.total.totalOrderNum
+                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
+                res.mealList.forEach { meal ->
+                    if (mealId == meal.mealId.toInt()) {
+                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
+                        binding.tvMealOrder.text = meal.mealOrderNum
+                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
+                        binding.tvMealVerify.text = meal.verifyMealOrderNum
+                    }
+                }
+            }
+        } else binding.verifyView.visibility = View.INVISIBLE
     }
 
     fun enableBtn(money:String?){
@@ -157,9 +201,9 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
         binding.tvCode.setOnClickListener {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
         }
-//        binding.tvFace.setOnClickListener {
-//            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
-//        }
+        binding.tvFace.setOnClickListener {
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+        }
     }
 
 

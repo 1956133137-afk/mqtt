@@ -10,6 +10,8 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
+import com.yannuo.dgcanteen.dao.VerifyDishes
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
@@ -122,18 +124,24 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 val json = Gson().fromJson(toJson, VerificationResponse::class.java)
                 val verifyDishes = json.verifyDishes
                 val sb = StringBuilder()
+                val dishes = StringBuilder()
+                val undish = StringBuilder()
+                val windows = StringBuilder()
                 for (dish in verifyDishes) {
                     sb.append("$dish,")
+                    dishes.append("$dish|")
                 }
                 LogUtil.i(TAG, "核销的菜品: $sb")
                 if (json.unVerifyWindowName.isNotEmpty()) {
                     sb.append("未核销的菜品有:")
                     for (unDish in json.unVerifyDishes) {
                         sb.append("$unDish,")
+                        undish.append("$unDish|")
                     }
                     sb.append("请前往")
                     for (unWindow in json.unVerifyWindowName) {
                         sb.append("$unWindow,")
+                        windows.append("$unWindow|")
                     }
                     sb.append("进行核销")
                 }
@@ -145,6 +153,13 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                     unDish = json.unVerifyDishes
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
+                var verifyDishesBean = VerifyDishes().apply {
+                    this.dish = dishes.toString()
+                    this.unDish = undish.toString()
+                    this.window = windows.toString()
+                    this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                }
+                DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
