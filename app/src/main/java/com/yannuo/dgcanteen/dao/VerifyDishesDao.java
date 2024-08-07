@@ -23,10 +23,11 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Dish = new Property(1, String.class, "dish", false, "DISH");
-        public final static Property Window = new Property(2, String.class, "window", false, "WINDOW");
-        public final static Property UnDish = new Property(3, String.class, "unDish", false, "UN_DISH");
-        public final static Property Time = new Property(4, String.class, "time", false, "TIME");
+        public final static Property PersonName = new Property(1, String.class, "personName", false, "PERSON_NAME");
+        public final static Property Dish = new Property(2, String.class, "dish", false, "DISH");
+        public final static Property Window = new Property(3, String.class, "window", false, "WINDOW");
+        public final static Property UnDish = new Property(4, String.class, "unDish", false, "UN_DISH");
+        public final static Property Time = new Property(5, String.class, "time", false, "TIME");
     }
 
 
@@ -43,10 +44,11 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"VERIFY_DISHES\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"DISH\" TEXT," + // 1: dish
-                "\"WINDOW\" TEXT," + // 2: window
-                "\"UN_DISH\" TEXT," + // 3: unDish
-                "\"TIME\" TEXT);"); // 4: time
+                "\"PERSON_NAME\" TEXT," + // 1: personName
+                "\"DISH\" TEXT," + // 2: dish
+                "\"WINDOW\" TEXT," + // 3: window
+                "\"UN_DISH\" TEXT," + // 4: unDish
+                "\"TIME\" TEXT);"); // 5: time
     }
 
     /** Drops the underlying database table. */
@@ -64,24 +66,29 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
             stmt.bindLong(1, id);
         }
  
+        String personName = entity.getPersonName();
+        if (personName != null) {
+            stmt.bindString(2, personName);
+        }
+ 
         String dish = entity.getDish();
         if (dish != null) {
-            stmt.bindString(2, dish);
+            stmt.bindString(3, dish);
         }
  
         String window = entity.getWindow();
         if (window != null) {
-            stmt.bindString(3, window);
+            stmt.bindString(4, window);
         }
  
         String unDish = entity.getUnDish();
         if (unDish != null) {
-            stmt.bindString(4, unDish);
+            stmt.bindString(5, unDish);
         }
  
         String time = entity.getTime();
         if (time != null) {
-            stmt.bindString(5, time);
+            stmt.bindString(6, time);
         }
     }
 
@@ -94,24 +101,29 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
             stmt.bindLong(1, id);
         }
  
+        String personName = entity.getPersonName();
+        if (personName != null) {
+            stmt.bindString(2, personName);
+        }
+ 
         String dish = entity.getDish();
         if (dish != null) {
-            stmt.bindString(2, dish);
+            stmt.bindString(3, dish);
         }
  
         String window = entity.getWindow();
         if (window != null) {
-            stmt.bindString(3, window);
+            stmt.bindString(4, window);
         }
  
         String unDish = entity.getUnDish();
         if (unDish != null) {
-            stmt.bindString(4, unDish);
+            stmt.bindString(5, unDish);
         }
  
         String time = entity.getTime();
         if (time != null) {
-            stmt.bindString(5, time);
+            stmt.bindString(6, time);
         }
     }
 
@@ -124,10 +136,11 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
     public VerifyDishes readEntity(Cursor cursor, int offset) {
         VerifyDishes entity = new VerifyDishes( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // dish
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // window
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // unDish
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // time
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // personName
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // dish
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // window
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // unDish
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // time
         );
         return entity;
     }
@@ -135,10 +148,11 @@ public class VerifyDishesDao extends AbstractDao<VerifyDishes, Long> {
     @Override
     public void readEntity(Cursor cursor, VerifyDishes entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setDish(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setWindow(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setUnDish(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setTime(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setPersonName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setDish(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setWindow(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setUnDish(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setTime(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
      }
     
     @Override

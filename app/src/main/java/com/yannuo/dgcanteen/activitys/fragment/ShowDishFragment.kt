@@ -37,6 +37,7 @@ class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
         }
         binding.tvNotDish.text = unVerfyDish
         binding.tvTime.text = success.verification.time
+        binding.personName.text = success.verification.personName
         binding.btnBack.setOnClickListener {
             requireActivity().finish()
         }

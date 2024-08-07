@@ -6,6 +6,7 @@ import android.os.Parcelable
 //核销界面UI
 class VerificationUI() : Parcelable{
     var errorMsg : String = ""
+    var personName : String = ""
     var dish : Array<String>? = null
     var window :  Array<String>? = null
     var time : String = ""
@@ -13,6 +14,7 @@ class VerificationUI() : Parcelable{
 
     constructor(parcel: Parcel) : this() {
         errorMsg = parcel.readString().toString()
+        personName = parcel.readString().toString()
         dish = parcel.createStringArray()
         window = parcel.createStringArray()
         time = parcel.readString().toString()
@@ -21,6 +23,7 @@ class VerificationUI() : Parcelable{
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(errorMsg)
+        parcel.writeString(personName)
         parcel.writeStringArray(dish)
         parcel.writeStringArray(window)
         parcel.writeString(time)

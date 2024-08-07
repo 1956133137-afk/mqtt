@@ -8,6 +8,7 @@ import com.yannuo.dgcanteen.databinding.ItemVerifyDishesBinding
 class VerifyDishesAdapter: BaseAdapter<VerifyDishes, ItemVerifyDishesBinding>() {
     override fun bindHolder(holder: Holder?, position: Int) {
         val data = mData[position]
+        holder?.binding?.verifyName?.text = data.personName
         holder?.binding?.verifyTime?.text = data.time
         holder?.binding?.verifyDishes?.text = formatString(data.dish)
         holder?.binding?.verifyUnDish?.text = formatString(data.unDish)

@@ -148,12 +148,14 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 CommonAndDpToPxUtil.speakWork(sb.toString())
                 val verificationUI = VerificationUI().apply {
                     errorMsg = ccbCodeVerification.msg.toString()
+                    personName = json.personName
                     dish = json.verifyDishes
                     window = json.unVerifyWindowName
                     unDish = json.unVerifyDishes
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
                 var verifyDishesBean = VerifyDishes().apply {
+                    this.personName = json.personName
                     this.dish = dishes.toString()
                     this.unDish = undish.toString()
                     this.window = windows.toString()

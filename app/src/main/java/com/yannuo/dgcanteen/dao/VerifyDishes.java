@@ -8,14 +8,16 @@ import org.greenrobot.greendao.annotation.Generated;
 public class VerifyDishes {
     @Id(autoincrement = true)
     private Long id;
+    private String personName;
     private String dish;
     private String window;
     private String unDish;
     private String time;
-    @Generated(hash = 388861607)
-    public VerifyDishes(Long id, String dish, String window, String unDish,
-            String time) {
+    @Generated(hash = 1351256132)
+    public VerifyDishes(Long id, String personName, String dish, String window,
+            String unDish, String time) {
         this.id = id;
+        this.personName = personName;
         this.dish = dish;
         this.window = window;
         this.unDish = unDish;
@@ -29,6 +31,12 @@ public class VerifyDishes {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+    public String getPersonName() {
+        return this.personName;
+    }
+    public void setPersonName(String personName) {
+        this.personName = personName;
     }
     public String getDish() {
         return this.dish;
@@ -54,4 +62,5 @@ public class VerifyDishes {
     public void setTime(String time) {
         this.time = time;
     }
+
 }
