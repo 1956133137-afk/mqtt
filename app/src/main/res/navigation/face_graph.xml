@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/face_graph"
+    app:startDestination="@id/faceVerificationFragment">
+
+    <fragment
+        android:id="@+id/showDishFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment"
+        android:label="ShowDishFragment"
+        tools:layout="@layout/dialog_show_dish">
+        <argument
+            android:name="verification"
+            app:argType="com.yannuo.dgcanteen.model.VerificationUI" />
+    </fragment>
+    <fragment
+        android:id="@+id/failedFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.FailedFragment"
+        android:label="FailedFragment"
+        tools:layout="@layout/fragment_failed">
+        <argument
+            android:name="verification"
+            app:argType="com.yannuo.dgcanteen.model.VerificationUI" />
+    </fragment>
+    <fragment
+        android:id="@+id/faceVerificationFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.FaceVerificationFragment"
+        android:label="FaceVerificationFragment"
+        tools:layout="@layout/fragment_face_verification">
+        <action
+            android:id="@+id/action_faceVerificationFragment_to_showDishFragment"
+            app:destination="@id/showDishFragment" />
+        <action
+            android:id="@+id/action_faceVerificationFragment_to_failedFragment"
+            app:destination="@id/failedFragment" />
+    </fragment>
+</navigation>

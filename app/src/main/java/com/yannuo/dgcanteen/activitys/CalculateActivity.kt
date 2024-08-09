@@ -11,19 +11,25 @@ import android.os.Handler
 import android.os.IBinder
 import android.view.Display
 import android.widget.Button
+import androidx.navigation.fragment.findNavController
 import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragment
+import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragmentDirections
+import com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.VerificationUI
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
@@ -301,9 +307,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-                runOnUiThread {
-                    faceVerification()
-                }
+                val i = Intent(this, FaceVerificationActivity::class.java)
+                startActivity(i)
             }
         }
     }
@@ -337,30 +342,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 }
             }
         }
-    }
-
-    //刷脸核销
-    private fun faceVerification() {
-        LogUtil.d(TAG,"查询人脸信息~")
-        var offline = 0  //在线
-        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
-        val mPayCfg = viewModel.getPayCfg()
-        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
-        val sn = Utils.getSN()
-        mFacePayService?.startFacePay(
-            null,
-            offline.toString(),
-            object : PayResultListener.Stub() {
-                override fun onResult(result: String?) {
-                    LogUtil.i(TAG, result)
-                    val res = Gson().fromJson(result, FaceResult::class.java)
-                    if (res.RESULT == "Y") {
-                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
-                    }
-                }
-            }
-        )
     }
 
     override fun netWorkStatus(statue: String) {

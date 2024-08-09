@@ -165,9 +165,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
-                CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg + "请前往点餐窗口进行订餐")
+                CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg)
                 val verificationUI = VerificationUI().apply {
-                    errorMsg = ccbCodeVerification.msg.toString() + "请前往点餐窗口进行订餐"
+                    errorMsg = ccbCodeVerification.msg.toString()
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
                 callBackListener?.onOtherListener(10, verificationUI)
@@ -197,10 +197,6 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         if (codeStatus == CodeStatus.INVALID) return
         codeStatus = CodeStatus.INVALID
         val qrData = data.trim().replace("\r\n", "")
-        if (qrData.contains("CT005")) {
-            CommonAndDpToPxUtil.speakWork("请点击刷脸，展示核销码")
-            return
-        }
         val info = getAnalysisCode(qrData)
         Log.d(TAG, "onData: $info")
         verification(

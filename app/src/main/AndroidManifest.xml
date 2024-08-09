@@ -52,6 +52,9 @@
             android:name=".activitys.CardVerificationActivity"
             android:exported="false" />
         <activity
+            android:name=".activitys.FaceVerificationActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.InitActivity"
             android:exported="true">
             <intent-filter>
