@@ -193,6 +193,19 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         }
     }
 
+    fun getDishesCount(response: (DishesCountResponse) -> Unit) {
+        viewModelScope.launch {
+            val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
+            val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+            val request = VerificationCountRequest(campusId.toString(), businessId.toString())
+            val res = mRespository.getDishesCount(request)
+            if (res.code == 200) {
+                val json = Gson().fromJson(Gson().toJson(res.data), DishesCountResponse::class.java)
+                response(json)
+            }
+        }
+    }
+
     override fun onData(data: String) {
         if (codeStatus == CodeStatus.INVALID) return
         codeStatus = CodeStatus.INVALID

@@ -90,4 +90,12 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("dcCcb/dcOrderRecord/countDCofDay")
     suspend fun verificationCount(@Body data: VerificationCountRequest): CanteenResponse<VerificationCountResponse>
+
+    /**
+     * 菜品统计
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/countDCofDishes")
+    suspend fun dishesCount(@Body data: VerificationCountRequest): CanteenResponse<DishesCountResponse>
+
 }
