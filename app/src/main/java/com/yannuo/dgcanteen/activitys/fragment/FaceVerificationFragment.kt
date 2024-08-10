@@ -53,8 +53,9 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
         lIntent.action = "com.ccb.smartcanteen.FacePayService"
         lIntent.setPackage("com.ccb.smartcanteen")
         requireActivity().bindService(lIntent, mServiceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-        handler.post {
-            faceVerification()
+        handler.postDelayed({faceVerification()},500)
+        binding.btnBack.setOnClickListener {
+            requireActivity().finish()
         }
     }
 
@@ -83,7 +84,7 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
     }
 
     override fun onOtherListener(event: Int, any: Any?) {
-        handler.post {
+        handler.postDelayed({
             when (event) {
                 0 -> {
                     LogUtil.d(TAG, "核销成功")
@@ -101,6 +102,6 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
                     findNavController().navigate(toFail)
                 }
             }
-        }
+        }, 500)
     }
 }
