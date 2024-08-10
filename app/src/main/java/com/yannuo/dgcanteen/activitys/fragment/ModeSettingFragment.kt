@@ -77,7 +77,7 @@ class ModeSettingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentModeSettingBinding.inflate(inflater, container, false)
         initObject()
@@ -141,9 +141,9 @@ class ModeSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
 
-        binding.mealTime.setOnClickListener {
-            kv.encode(Constant.MEAL_TIME, 10)
-        }
+//        binding.mealTime.setOnClickListener {
+//            kv.encode(Constant.MEAL_TIME, 10)
+//        }
         binding.cbBalance.setOnClickListener {
             kv.encode(Constant.BALANCE_SWITCH, binding.cbBalance.isChecked)
         }
@@ -280,7 +280,7 @@ class ModeSettingFragment : Fragment() {
         if (!(flag && amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT))) flag = false
         if (!(flag && amountJudgment(binding.limitAmount, Constant.LIMIT_AMOUNT))) flag = false
         kv.encode(Constant.TITLE_CONTENT, binding.titleContent.text.toString())
-        kv.encode(Constant.MEAL_TIME, binding.mealTime.text.toString())
+        kv.encode(Constant.MEAL_TIME, binding.mealTime.text.toString().toInt())
         if (flag) {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
@@ -304,6 +304,7 @@ class ModeSettingFragment : Fragment() {
         binding.cbBalance.isChecked = self_help
         binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
+        binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
@@ -368,6 +369,7 @@ class ModeSettingFragment : Fragment() {
                                 Constant.APP_MODE,
                                 Constant.PROCEEDS_MODE
                             )
+
                             Constant.PROCEEDS_MODE -> kv.encode(
                                 Constant.APP_MODE,
                                 Constant.ORDERING_FOOD_MODE
