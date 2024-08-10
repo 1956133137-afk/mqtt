@@ -12,6 +12,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.PopupWindow
@@ -83,6 +85,7 @@ class ModeSettingFragment : Fragment() {
         initObject()
         initEvent()
         initData()
+        verifyType()
         return binding.root
     }
 
@@ -222,6 +225,16 @@ class ModeSettingFragment : Fragment() {
         }
     }
 
+    private fun verifyType() {
+        binding.spVerify.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                kv.encode(Constant.VERIFY_MODE, p2)
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+    }
+
     private fun changeConsumeMode() {
         val array = arrayOf(
             Constant.ORDERING_FOOD_MODE,
@@ -312,6 +325,18 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
+
+        val verifyType = resources.getStringArray(R.array.spVerify)
+        val spVerifyAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, verifyType)
+        binding.spVerify.adapter = spVerifyAdapter
+        val verifyMode = kv.decodeInt(Constant.VERIFY_MODE).toString()
+        for (vm in verifyType.indices) {
+            if (verifyType[vm].equals(verifyMode)) {
+                binding.spVerify.setSelection(vm)
+            }
+        }
+        binding.spVerify.setSelection(kv.decodeInt(Constant.VERIFY_MODE))
+
     }
 
     private fun amountJudgment(view: EditText, name: String): Boolean {

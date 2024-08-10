@@ -105,6 +105,7 @@ object Constant {
     const val EVENT_VERIFY_CHANGE = 31 //核销功能改变
 
 
+    const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径
     const val PRINTER_BAUD_SET = "printer_baud"  //打印机波特率
     const val PRINTER_UPDATE_TIME = "printerUpdateTime" //打印更新时间

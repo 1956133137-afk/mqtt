@@ -119,8 +119,8 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     LogUtil.d(TAG, "核销失败")
                     val verificationUI = any as VerificationUI
                     val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                    findNavController().navigate(toFail)
                     EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
+                    findNavController().navigate(toFail)
                 }
             }
         }

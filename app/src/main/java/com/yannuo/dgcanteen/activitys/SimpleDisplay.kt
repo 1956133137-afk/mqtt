@@ -128,6 +128,16 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 binding.tvCode.visibility = View.GONE
                 binding.rvDishes.visibility = View.GONE
             }
+            when (kv.decodeInt(Constant.VERIFY_MODE)) {
+                0 -> {
+                    binding.tvCode.visibility = View.GONE
+                    binding.tvFace.visibility = View.VISIBLE
+                }
+                1 -> {
+                    binding.tvFace.visibility = View.GONE
+                    binding.tvCode.visibility = View.VISIBLE
+                }
+            }
             mealId = TimeUtil.CurrentTimeSection()
             verifyAdapter = VerifyDishesAdapter()
             val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
@@ -162,9 +172,15 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         binding.tvVerifyName.text = "${meal.mealName}核销数:"
                         binding.tvMealVerify.text = meal.verifyMealOrderNum
                     }
+                    if (mealId == 0) {
+                        binding.tvOrderName.visibility = View.GONE
+                        binding.tvMealOrder.visibility = View.GONE
+                        binding.tvVerifyName.visibility = View.GONE
+                        binding.tvMealVerify.visibility = View.GONE
+                    }
                 }
             }
-        } else binding.verifyView.visibility = View.INVISIBLE
+        } else binding.verifyView.visibility = View.GONE
     }
 
     fun enableBtn(money:String?){

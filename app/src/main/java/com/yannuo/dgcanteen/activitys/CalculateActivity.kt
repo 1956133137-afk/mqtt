@@ -9,9 +9,12 @@ import android.graphics.Color
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.IBinder
+import android.text.format.DateFormat
 import android.view.Display
+import android.view.View
 import android.widget.Button
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
@@ -22,6 +25,9 @@ import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragment
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragmentDirections
 import com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
+import com.yannuo.dgcanteen.adapters.VerifyDishCountAdapter
+import com.yannuo.dgcanteen.adapters.VerifyDishesAdapter
+import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
@@ -34,8 +40,15 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.util.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -61,6 +74,14 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private val handler = Handler()
     private lateinit var maps :MutableMap<String, Int >
     private var lastTime = 0L  //上次触发时间
+    private var mealId = 0
+    private var mMealId = 0
+    private val dishCountAdapter by lazy {
+        VerifyDishCountAdapter()
+    }
+    private val mScope: CoroutineScope by lazy {
+        CoroutineScope(Dispatchers.IO)
+    }
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -87,6 +108,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private fun initObject() {
         EventBus.getDefault().register(this)
         NetworkStateManager.getInstance().registerObserver(this)
+        mealId = TimeUtil.CurrentTimeSection()
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
@@ -106,6 +128,33 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             else -> "刷卡扫码"
         }
         maps.remove(type)
+        checkTime()
+        initVerify()
+    }
+
+    private fun checkTime() {
+        mScope.launch {
+            while (isActive) {
+                mMealId = TimeUtil.CurrentTimeSection()
+                if (mMealId != mealId) {
+                    mealId = mMealId
+                    val str = StringBuilder()
+                    when (mealId) {
+                        0 -> str.append(resources.getString(R.string.unOpen_meal))
+                        else -> {
+                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                            str.append(meal.mealName + " ")
+                            str.append(DateFormat.format("HH:mm", meal.startTime).toString() + "~")
+                            str.append(DateFormat.format("HH:mm", meal.endTime).toString())
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        initVerify()
+                    }
+                }
+                delay(5000)
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -175,6 +224,51 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             simpleDisplay.setActivity(this)
             simpleDisplay.show()
         }
+    }
+
+    private fun initVerify() {
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
+            binding.verifyShow.visibility = View.VISIBLE
+            viewModel.getVerifyCount { res ->
+                LogUtil.d(TAG, Gson().toJson(res))
+                binding.tvTotalOrder.text = res.total.totalOrderNum
+                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
+                res.mealList.forEach { meal ->
+                    when (mealId) {
+                        0 -> {
+                            binding.tvOrderName.visibility = View.GONE
+                            binding.tvMealOrder.visibility = View.GONE
+                            binding.tvVerifyName.visibility = View.GONE
+                            binding.tvMealVerify.visibility = View.GONE
+                        }
+                        meal.mealId.toInt() -> {
+                            binding.tvOrderName.text = "${meal.mealName}订餐数:"
+                            binding.tvMealOrder.text = meal.mealOrderNum
+                            binding.tvVerifyName.text = "${meal.mealName}核销数:"
+                            binding.tvMealVerify.text = meal.verifyMealOrderNum
+                        }
+                    }
+                }
+            }
+            viewModel.getDishesCount { res ->
+                LogUtil.d(TAG, Gson().toJson(res))
+                res.countDishes.forEach {
+                    when (mealId) {
+                        it.mealId -> {
+                            if (it.dishes.isNotEmpty()) {
+                                dishCountAdapter.data = it.dishes
+                                val linearLayoutManager = LinearLayoutManager(this)
+                                binding.rvDishVerify.layoutManager = linearLayoutManager
+                                binding.rvDishVerify.adapter = dishCountAdapter
+                            }
+                        }
+                        0 -> {
+                            binding.rvDishVerify.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        } else binding.verifyShow.visibility = View.GONE
     }
 
     override fun onStop() {
@@ -309,6 +403,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 val i = Intent(this, FaceVerificationActivity::class.java)
                 startActivity(i)
+            }
+            Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
+                runOnUiThread { initVerify() }
             }
         }
     }

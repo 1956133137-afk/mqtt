@@ -234,11 +234,19 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
                 res.mealList.forEach { meal ->
-                    if (mealId == meal.mealId.toInt()) {
-                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
-                        binding.tvMealOrder.text = meal.mealOrderNum
-                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
-                        binding.tvMealVerify.text = meal.verifyMealOrderNum
+                    when (mealId) {
+                        0 -> {
+                            binding.tvOrderName.visibility = View.INVISIBLE
+                            binding.tvMealOrder.visibility = View.INVISIBLE
+                            binding.tvVerifyName.visibility = View.INVISIBLE
+                            binding.tvMealVerify.visibility = View.INVISIBLE
+                        }
+                        meal.mealId.toInt() -> {
+                            binding.tvOrderName.text = "${meal.mealName}订餐数:"
+                            binding.tvMealOrder.text = meal.mealOrderNum
+                            binding.tvVerifyName.text = "${meal.mealName}核销数:"
+                            binding.tvMealVerify.text = meal.verifyMealOrderNum
+                        }
                     }
                 }
             }

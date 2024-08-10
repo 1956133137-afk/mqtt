@@ -4,7 +4,7 @@ class DishesCountResponse {
     var countDishes: List<DishesCount> = ArrayList()
 }
 class DishesCount {
-    var mealId = ""
+    var mealId = 0
     var mealName = ""
     var dishes: List<Dishes> = ArrayList()
 }
