@@ -19,11 +19,13 @@ import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.proembed.service.MyService
+import com.safframework.log.printer.utils.now
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragment
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragmentDirections
 import com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment
+import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.VerifyDishCountAdapter
 import com.yannuo.dgcanteen.adapters.VerifyDishesAdapter
@@ -84,6 +86,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
     private val viewModel by lazy {
         VerificationVM()
+    }
+    private val productsVM by lazy {
+        ProductsVM()
     }
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -182,6 +187,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         initPresentation()
         LogUtil.i(TAG,"onResume!")
         super.onResume()
+        productsVM.upDataDishes(true)
+        var allMeals = DishesDBHelper.getInstance().queryAllMeals()
+        allMeals.forEach {
+            if (it.startTime == Date()) {
+                mealId = it.mealId
+            }
+        }
         mXService?.hideNavBar = true
         simpleDisplay.cancel()
         simpleDisplay = SimpleDisplay(this, secondDisplays)
