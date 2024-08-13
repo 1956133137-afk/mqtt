@@ -77,7 +77,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private lateinit var maps :MutableMap<String, Int >
     private var lastTime = 0L  //上次触发时间
     private var mealId = 0
-    private var mMealId = 0
     private val dishCountAdapter by lazy {
         VerifyDishCountAdapter()
     }
@@ -111,9 +110,16 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     private fun initObject() {
+        productsVM.upDataDishes(true)
+        var allMeals = DishesDBHelper.getInstance().queryAllMeals()
+        allMeals.forEach {
+            if (Date() >= it.startTime && Date() <= it.endTime) {
+                mealId = it.mealId
+            }
+        }
+        LogUtil.d(TAG, "mealId:$mealId")
         EventBus.getDefault().register(this)
         NetworkStateManager.getInstance().registerObserver(this)
-        mealId = TimeUtil.CurrentTimeSection()
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
@@ -133,33 +139,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             else -> "刷卡扫码"
         }
         maps.remove(type)
-        checkTime()
         initVerify()
-    }
-
-    private fun checkTime() {
-        mScope.launch {
-            while (isActive) {
-                mMealId = TimeUtil.CurrentTimeSection()
-                if (mMealId != mealId) {
-                    mealId = mMealId
-                    val str = StringBuilder()
-                    when (mealId) {
-                        0 -> str.append(resources.getString(R.string.unOpen_meal))
-                        else -> {
-                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
-                            str.append(meal.mealName + " ")
-                            str.append(DateFormat.format("HH:mm", meal.startTime).toString() + "~")
-                            str.append(DateFormat.format("HH:mm", meal.endTime).toString())
-                        }
-                    }
-                    withContext(Dispatchers.Main) {
-                        initVerify()
-                    }
-                }
-                delay(5000)
-            }
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -190,10 +170,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         productsVM.upDataDishes(true)
         var allMeals = DishesDBHelper.getInstance().queryAllMeals()
         allMeals.forEach {
-            if (it.startTime == Date()) {
+            if (Date() >= it.startTime && Date() <= it.endTime) {
                 mealId = it.mealId
             }
         }
+        initVerify()
         mXService?.hideNavBar = true
         simpleDisplay.cancel()
         simpleDisplay = SimpleDisplay(this, secondDisplays)
