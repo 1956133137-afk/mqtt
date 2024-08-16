@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -63,10 +64,11 @@ public abstract class BaseAdapter<T,B extends ViewBinding> extends RecyclerView.
         notifyItemRangeInserted((mData.size() - data.size()), data.size());
     }
 
-    public void insertedData(T data){
-//        if (data == null)return;
-//        mData.add(data);
-//        notifyItemInserted(getItemCount()-1);
+    public void insertedData(List<T> data){
+        if (data == null)return;
+        mData.addAll(0, data);
+        Collections.reverse(mData);
+        notifyDataSetChanged();
 
     }
 

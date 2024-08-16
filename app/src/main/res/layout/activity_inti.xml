@@ -4,14 +4,12 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/await_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/simple_bg">
+            android:layout_height="match_parent">
 
             <TextClock
                 android:layout_width="wrap_content"
@@ -27,90 +25,113 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:text="智 慧 食 堂"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="158dp"
+                android:layout_marginEnd="668dp"
+                android:background="@drawable/init_img" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="334dp"
+                android:layout_marginEnd="812dp"
+                android:text="智慧食堂"
                 android:textColor="#FFFFFF"
-                android:textSize="180sp"
+                android:textSize="72sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="660dp"
+                android:gravity="center"
+                android:text="请选择模式初始化"
+                android:textColor="#454545"
+                android:textSize="50sp" />
+
         </RelativeLayout>
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/init_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/init_bg"
-        android:visibility="invisible">
-
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:id="@+id/init_frame"
+            android:layout_width="1200dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="350dp"
+            android:layout_gravity="center"
+            android:visibility="visible">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="10dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/order"
-                        android:layout_width="400dp"
-                        android:layout_height="200dp"
-                        android:background="@drawable/shape_btn_two"
-                        android:text="点餐模式"
-                        android:textColor="#FFFFFF"
-                        android:textSize="70sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp">
+
+                        <Button
+                            android:id="@+id/order"
+                            android:layout_width="300dp"
+                            android:layout_height="120dp"
+                            android:background="@drawable/shape_btn_two"
+                            android:text="点餐模式"
+                            android:textColor="#3894FF"
+                            android:textSize="36sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp">
+
+                        <Button
+                            android:id="@+id/collection_two"
+                            android:layout_width="300dp"
+                            android:layout_height="120dp"
+                            android:background="@drawable/shape_btn_two"
+                            android:text="点餐模式2"
+                            android:textColor="#3894FF"
+                            android:textSize="36sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp">
+
+                        <Button
+                            android:id="@+id/collection"
+                            android:layout_width="300dp"
+                            android:layout_height="120dp"
+                            android:background="@drawable/shape_btn_two"
+                            android:text="收款模式"
+                            android:textColor="#3894FF"
+                            android:textSize="36sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="10dp">
-
-                    <Button
-                        android:id="@+id/collection_two"
-                        android:layout_width="400dp"
-                        android:layout_height="200dp"
-                        android:background="@drawable/shape_btn_two"
-                        android:text="点餐模式2"
-                        android:textColor="#FFFFFF"
-                        android:textSize="70sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="10dp">
-
-                    <Button
-                        android:id="@+id/collection"
-                        android:layout_width="400dp"
-                        android:layout_height="200dp"
-                        android:background="@drawable/shape_btn_two"
-                        android:text="收款模式"
-                        android:textColor="#FFFFFF"
-                        android:textSize="70sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-
-            </LinearLayout>
+            </RelativeLayout>
         </RelativeLayout>
     </FrameLayout>
 </RelativeLayout>

@@ -231,11 +231,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                     finish()
                 }
                 else -> {
-                    withContext(Dispatchers.Main) {
-                        binding.initFrame.visibility = View.VISIBLE
-                        binding.awaitFrame.visibility = View.INVISIBLE
-                    }
-
                     val result = withTimeoutOrNull(1000 * 60 * 5) {
                         repeat(10) {
                             delay(1000 * 60)

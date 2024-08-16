@@ -226,6 +226,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
+                binding.tvUnVerify.text = res.total.unverifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     when (mealId) {
                         0 -> {

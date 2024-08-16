@@ -2,105 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/click_button_white"
     android:orientation="vertical"
     android:padding="5dp"
     android:layout_marginBottom="5dp">
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="核销人"
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginBottom="5dp" />
-        <TextView
-            android:id="@+id/verify_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="58dp"
-            android:text=""
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginBottom="5dp" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="核销时间"
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginBottom="5dp" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
         <TextView
             android:id="@+id/verify_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:text=""
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginBottom="5dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+            android:text="2024-08-16 17:26:22"
+            android:textSize="20sp"
+            android:textColor="#4F4F4F" />
         <TextView
+            android:id="@+id/verify_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="已核销菜品"
-            android:textColor="#4F4F4F"
-            android:textSize="18sp" />
-        <TextView
-            android:id="@+id/verify_dishes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginStart="20dp" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="未核销菜品"
-            android:textColor="#4F4F4F"
-            android:textSize="18sp" />
-        <TextView
-            android:id="@+id/verify_un_dish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginStart="20dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="未核销窗口"
-            android:textColor="#4F4F4F"
-            android:textSize="18sp" />
-        <TextView
-            android:id="@+id/verify_window"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="18sp"
-            android:textColor="#4F4F4F"
-            android:layout_marginStart="20dp" />
+            android:layout_marginStart="10dp"
+            android:text="张三已取餐"
+            android:textSize="20sp"
+            android:textColor="#4F4F4F"/>
     </LinearLayout>
 
 </LinearLayout>

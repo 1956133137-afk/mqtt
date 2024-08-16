@@ -4,13 +4,15 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id("androidx.navigation.safeargs")
 }
+//apply plugin: 'kotlin-android'
 
-static def releaseTime() {
+def releaseTime() {
     return new Date().format("yMMddHH", TimeZone.getDefault())
 }
 
 android {
     compileSdk 31
+//    buildToolsVersion '30.0.0'
     defaultConfig {
         applicationId "com.yannuo.dgcanteen"
         minSdk 21
@@ -25,8 +27,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
-    kotlinOptions { jvmTarget = 1.8}
+    kotlinOptions { jvmTarget = 1.8 }
 
     packagingOptions {
         exclude 'META-INF/NOTICE.md'
@@ -36,6 +37,7 @@ android {
     signingConfigs {
         release {
             storeFile file('G:\\czx-workspace\\company_yannuo\\donggang_canteen\\private_key\\payment.jks')
+//            storeFile file('D:\\yannuo_min\\APK_key\\private_key\\payment.jks')
             storePassword KEY_PASS
             keyAlias 'payment'
             keyPassword KEY_PASS

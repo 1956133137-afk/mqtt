@@ -94,11 +94,11 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         true ->{
                             binding.tvFpTitle.visibility = View.VISIBLE
                             binding.vfSlidesshow.visibility = View.VISIBLE
-                            binding.tvZ.visibility = View.GONE
+//                            binding.tvZ.visibility = View.GONE
                             binding.tvFpTitle.text = "智慧食堂"
                         }
                         false ->{
-                            binding.tvZ.text = "智慧食堂"
+//                            binding.tvZ.text = "智慧食堂"
                         }
                     }
                 } else {
@@ -107,37 +107,17 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         true ->{
                             binding.tvFpTitle.visibility = View.VISIBLE
                             binding.vfSlidesshow.visibility = View.VISIBLE
-                            binding.tvZ.visibility = View.GONE
+//                            binding.tvZ.visibility = View.GONE
                             binding.tvFpTitle.text = "$strText•智慧食堂"
                         }
                         false ->{
                             strText = "${strText}\n智慧食堂"
                             val str = SpannableString(strText)
                             str.setSpan(AbsoluteSizeSpan(180), 0, strText.length - 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                            binding.tvZ.text = str
+//                            binding.tvZ.text = str
                         }
                     }
                 }
-            //        binding.btPayFace.requestFocus();
-            if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-                binding.tvFace.visibility = View.VISIBLE
-                binding.tvCode.visibility = View.VISIBLE
-                binding.rvDishes.visibility = View.VISIBLE
-            } else {
-                binding.tvFace.visibility = View.GONE
-                binding.tvCode.visibility = View.GONE
-                binding.rvDishes.visibility = View.GONE
-            }
-            when (kv.decodeInt(Constant.VERIFY_MODE)) {
-                0 -> {
-                    binding.tvCode.visibility = View.GONE
-                    binding.tvFace.visibility = View.VISIBLE
-                }
-                1 -> {
-                    binding.tvFace.visibility = View.GONE
-                    binding.tvCode.visibility = View.VISIBLE
-                }
-            }
             mealId = TimeUtil.CurrentTimeSection()
             verifyAdapter = VerifyDishesAdapter()
             val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
@@ -145,12 +125,11 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 LogUtil.d(TAG, "${Gson().toJson(it)}")
             }
             if (selectVerifyDishes.size > 0) {
-                verifyAdapter!!.data = selectVerifyDishes
+                verifyAdapter!!.insertedData(selectVerifyDishes)
             }
             val linearLayoutManager = LinearLayoutManager(context)
             binding.rvDishes.layoutManager = linearLayoutManager
             binding.rvDishes.adapter = verifyAdapter
-            binding.rvDishes.scrollToPosition(verifyAdapter!!.data.size - 1) //插入数据后滑动到底部
             initVerify()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -165,6 +144,7 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
+                binding.tvUnVerify.text = res.total.unverifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     if (mealId == meal.mealId.toInt()) {
                         binding.tvOrderName.text = "${meal.mealName}订餐数:"
@@ -172,12 +152,12 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         binding.tvVerifyName.text = "${meal.mealName}核销数:"
                         binding.tvMealVerify.text = meal.verifyMealOrderNum
                     }
-                    if (mealId == 0) {
-                        binding.tvOrderName.visibility = View.GONE
-                        binding.tvMealOrder.visibility = View.GONE
-                        binding.tvVerifyName.visibility = View.GONE
-                        binding.tvMealVerify.visibility = View.GONE
-                    }
+//                    if (mealId == 0) {
+//                        binding.tvOrderName.visibility = View.GONE
+//                        binding.tvMealOrder.visibility = View.GONE
+//                        binding.tvVerifyName.visibility = View.GONE
+//                        binding.tvMealVerify.visibility = View.GONE
+//                    }
                 }
             }
         } else binding.verifyView.visibility = View.GONE

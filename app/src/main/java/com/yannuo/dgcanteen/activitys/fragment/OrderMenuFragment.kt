@@ -282,6 +282,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 .subscribe { integer: Int? ->
                     model.getDisplay()?.showLoading()
                     mHintDialog?.dismiss()
+                    closeIcQr()
                     model.getDisplay()?.showWaitHit(false)
                     model.loadingEvent.value = true
                 }
@@ -290,6 +291,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 .subscribe { integer: Int? ->
                     model.loadingEvent.value = false
                     model.getDisplay()?.closeLoading()
+                    closeIcQr()
                     Toast.makeText(context, any as String?, Toast.LENGTH_SHORT).show()
                 }
             3, 4 -> {
@@ -299,6 +301,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                         model.loadingEvent.value = false
                         model.getDisplay()?.closeLoading()
                         mHintDialog?.dismiss()
+                        closeIcQr()
                         model.getDisplay()?.showWaitHit(false)
                         clearShoppingCart()
                         model.getDisplay()?.dismiss()
@@ -318,6 +321,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                     }
                     model.loadingEvent.value = false
                     model.getDisplay()?.closeLoading()
+                    closeIcQr()
                 }
         }
     }

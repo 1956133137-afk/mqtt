@@ -8,6 +8,7 @@ class VerificationCountResponse {
 class TotalCount {
     var totalOrderNum: String = ""
     var verifyTotalOrderNum: String = ""
+    var unverifyTotalOrderNum: String = ""
 }
 
 class Meal {
