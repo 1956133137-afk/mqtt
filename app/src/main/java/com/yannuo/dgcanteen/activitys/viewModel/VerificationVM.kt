@@ -57,7 +57,6 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             TextUtils.isEmpty(mPayCfg!!.businessId) || TextUtils.isEmpty(mPayCfg!!.counterId)
         ) {
             LogUtil.e(TAG, "未配置支付环境")
-            throw Throwable("未配置支付环境")
         }
         showToastEvent = MutableLiveData()
         loadingEvent = MutableLiveData()

@@ -13,6 +13,7 @@ import android.text.format.DateFormat
 import android.view.Display
 import android.view.View
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.PayResultListener
@@ -24,6 +25,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragment
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragmentDirections
+import com.yannuo.dgcanteen.activitys.fragment.FaceVerificationFragmentDirections
 import com.yannuo.dgcanteen.activitys.fragment.ShowDishFragment
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
@@ -62,7 +64,7 @@ import java.util.*
  * Date: 2023/7/27 15:46
  **/
 class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
-    NetworkStateManager.NetWorkListener {
+    NetworkStateManager.NetWorkListener, CallbackListener {
 
     private var mXService: MyService? = null
     private var navigation = true
@@ -110,6 +112,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     private fun initObject() {
+        viewModel.setListener(this)
         productsVM.upDataDishes(true)
         var allMeals = DishesDBHelper.getInstance().queryAllMeals()
         allMeals.forEach {
@@ -395,14 +398,37 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-                val i = Intent(this, FaceVerificationActivity::class.java)
-                startActivity(i)
+                faceVerification()
             }
             Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
                 runOnUiThread { initVerify() }
             }
         }
+    }
+
+    //刷脸核销
+    private fun faceVerification() {
+        LogUtil.d(TAG,"查询人脸信息~")
+        var offline = 0  //在线
+        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        val mPayCfg = viewModel.getPayCfg()
+        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
+        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
+        val sn = Utils.getSN()
+        mFacePayService?.startFacePay(
+            null,
+            offline.toString(),
+            object : PayResultListener.Stub() {
+                override fun onResult(result: String?) {
+                    LogUtil.i(TAG, result)
+                    val res = Gson().fromJson(result, FaceResult::class.java)
+                    if (res.RESULT == "Y") {
+                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                    }
+                }
+            }
+        )
     }
 
     private fun btnViewChange(button: Button, constant: String) {
@@ -463,6 +489,30 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         confirmDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
+    }
+
+    override fun onOtherListener(event: Int, any: Any?) {
+        handler.post {
+            when (event) {
+                0 -> {
+                    LogUtil.d(TAG, "核销成功")
+                    val verificationUI = any as VerificationUI
+                    val i = Intent(this, FaceVerificationActivity::class.java)
+                    i.putExtra("id", 0)
+                    i.putExtra("verify", Gson().toJson(verificationUI))
+                    startActivity(i)
+                }
+
+                10 -> {
+                    LogUtil.d(TAG, "核销失败")
+                    val verificationUI = any as VerificationUI
+                    val i = Intent(this, FaceVerificationActivity::class.java)
+                    i.putExtra("id", 10)
+                    i.putExtra("verify", Gson().toJson(verificationUI))
+                    startActivity(i)
+                }
+            }
+        }
     }
 
 }
