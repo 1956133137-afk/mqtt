@@ -425,6 +425,15 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
                         viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                    }else {
+                        val verificationUI = VerificationUI().apply {
+                            errorMsg = res.ERRMSG
+                            time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                        }
+                        val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+                        i.putExtra("id", 10)
+                        i.putExtra("verify", Gson().toJson(verificationUI))
+                        startActivity(i)
                     }
                 }
             }

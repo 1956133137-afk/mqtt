@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.FragmentFailedBinding
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 
 class FailedFragment: BaseFragment<FragmentFailedBinding>() {
@@ -24,6 +25,7 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
 
     private fun initPrePar() {
         val fail: FailedFragmentArgs by navArgs()
+        CommonAndDpToPxUtil.speakWork(fail.verification.errorMsg)
         binding.tvMsg.text = fail.verification.errorMsg
         binding.tvTime.text = fail.verification.time
     }

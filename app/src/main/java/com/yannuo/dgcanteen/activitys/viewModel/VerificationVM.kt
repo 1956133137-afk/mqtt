@@ -164,7 +164,6 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
-                CommonAndDpToPxUtil.speakWork(ccbCodeVerification.msg)
                 val verificationUI = VerificationUI().apply {
                     errorMsg = ccbCodeVerification.msg.toString()
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
