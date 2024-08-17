@@ -54,11 +54,12 @@ class DishListAdapter(context :Context?) : BaseAdapter<DishesInfo,FoodsShowBindi
 
         val data = mData.get(position)
         holder.binding.tvName.text = data.dishesName
-        cnt?.also {
-            val spanStr = SpannableString(it.getString(R.string.money_format,data.price.toString()))
-            spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-            holder.binding.tvNumber.text = spanStr
-        }
+//        cnt?.also {
+//            val spanStr = SpannableString(it.getString(R.string.money_format,data.price.toString()))
+//            spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+//            holder.binding.tvNumber.text = spanStr
+//        }
+        holder.binding.tvNumber.text = "￥${data.price}"
         holder.binding.cvCountAdd.text = "${data.count}份"
 
         val layoutParams = holder.binding.ivPic.layoutParams

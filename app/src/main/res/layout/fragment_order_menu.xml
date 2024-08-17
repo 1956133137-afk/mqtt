@@ -61,7 +61,7 @@
                     android:gravity="center"
                     android:text="@string/shop_meal"
                     android:textColor="#FFFFFF"
-                    android:textSize="22dp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/imageButton2"
@@ -95,7 +95,7 @@
                     android:gravity="center"
                     android:text="@string/total_price"
                     android:textColor="#101010"
-                    android:textSize="23dp" />
+                    android:textSize="23sp" />
 
                 <TextView
                     android:id="@+id/tv_total_money"
@@ -106,7 +106,7 @@
                     android:textStyle="bold"
                     android:text="@string/init_money"
                     android:textColor="@color/red"
-                    android:textSize="23dp" />
+                    android:textSize="23sp" />
 
                 <TextView
                     android:layout_width="40dp"
@@ -114,7 +114,7 @@
                     android:gravity="center"
                     android:text="@string/total_title"
                     android:textColor="#101010"
-                    android:textSize="23dp" />
+                    android:textSize="23sp" />
 
                 <TextView
                     android:id="@+id/tv_total_count"
@@ -123,7 +123,7 @@
                     android:gravity="center"
                     android:textColor="@color/red"
                     android:text="@string/init_count"
-                    android:textSize="23dp" />
+                    android:textSize="23sp" />
 
                 <TextView
                     android:layout_width="40dp"
@@ -131,7 +131,7 @@
                     android:gravity="center"
                     android:text="@string/a_copy"
                     android:textColor="#101010"
-                    android:textSize="23dp" />
+                    android:textSize="23sp" />
             </LinearLayout>
 
             <View

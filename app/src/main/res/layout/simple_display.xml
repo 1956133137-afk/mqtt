@@ -1,219 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="120dp"
-        android:background="@drawable/ccb_img"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="智慧食堂"
-        android:textColor="#3894FF"
-        android:textSize="62sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView2"
-        app:layout_constraintEnd_toEndOf="@+id/imageView2"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="@+id/imageView2"
-        app:layout_constraintVertical_bias="0.512" />
-
-    <RelativeLayout
-        android:layout_width="470dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_marginStart="20dp"
-        app:layout_constraintStart_toStartOf="@+id/imageView2"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2">
-
-        <LinearLayout
-            android:id="@+id/verify_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="总订餐数:"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-
-                <TextView
-                    android:id="@+id/tv_total_order"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="总核销数:"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-
-                <TextView
-                    android:id="@+id/tv_total_verify"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="未核销数:"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-
-                <TextView
-                    android:id="@+id/tv_un_verify"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_order_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="餐别订餐数:"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-
-                <TextView
-                    android:id="@+id/tv_meal_order"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_verify_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="餐别核销数:"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-
-                <TextView
-                    android:id="@+id/tv_meal_verify"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="42sp" />
-            </LinearLayout>
-        </LinearLayout>
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout6"
-        android:layout_width="900dp"
-        android:layout_height="650dp"
-        android:layout_marginTop="120dp"
-        android:layout_marginStart="120dp"
-        android:background="@drawable/shape_verify_bg"
-        android:orientation="vertical"
-        android:padding="50dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView2"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp"
-            android:text="订餐核销信息"
-            android:textColor="#454545"
-            android:textSize="60sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_dishes"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_code"
-        android:layout_width="350dp"
-        android:layout_height="120dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="84dp"
-        android:background="@drawable/shape_btn_orange"
-        android:gravity="center"
-        android:text="订餐核销"
-        android:textColor="#ffffff"
-        android:textSize="50sp"
-        app:layout_constraintStart_toStartOf="@+id/linearLayout6"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
-
-    <TextView
-        android:id="@+id/tv_face"
-        android:layout_width="350dp"
-        android:layout_height="120dp"
-        android:layout_marginEnd="50dp"
-        android:layout_marginTop="84dp"
-        android:background="@drawable/shape_btn_orange"
-        android:gravity="center"
-        android:text="刷脸支付"
-        android:textColor="#ffffff"
-        android:textSize="50sp"
-        app:layout_constraintEnd_toEndOf="@+id/linearLayout6"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
+    android:layout_height="match_parent"
+        android:background="@drawable/simple_bg"
+    >
 
     <ViewFlipper
         android:id="@+id/vf_slidesshow"
@@ -222,88 +12,260 @@
         android:flipInterval="5000"
         android:inAnimation="@anim/slide_in1"
         android:outAnimation="@anim/slide_out1"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tv_fp_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:background="#B3FFFFFF"
-            android:drawableRight="@mipmap/ct"
-            android:drawablePadding="15dp"
-            android:fontFamily="@font/kai"
-            android:gravity="center"
-            android:paddingLeft="20dp"
-            android:paddingTop="10dp"
 
-            android:paddingRight="20dp"
-            android:textColor="@color/sky_color"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            tools:ignore="MissingConstraints" />
+    <TextClock
+        android:id="@+id/clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/fp_bg_white"
+        android:drawableBottom="@mipmap/ccb_logo"
+        android:format24Hour="MM-dd HH:mm:ss"
+        android:gravity="center"
+        android:padding="15dp"
+        android:textColor="@color/gray"
+        android:textSize="35sp" />
 
-        <View
-            android:id="@+id/v_setting"
-            android:layout_width="150dp"
-            android:layout_height="100dp"
-            android:layout_alignParentRight="true"
-            tools:ignore="MissingConstraints" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_dishes"
+        android:layout_width="300dp"
+        android:layout_height="180dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp" />
+
+    <LinearLayout
+        android:id="@+id/verify_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/shape_normal_white"
+        android:layout_toEndOf="@+id/rv_dishes"
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <LinearLayout
-            android:id="@+id/ll_pay"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="50px"
-            android:layout_marginBottom="20px"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            tools:ignore="MissingConstraints">
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_amount"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginRight="50px"
-                android:background="@color/white"
+                android:layout_height="wrap_content"
+                android:text="总订餐数:"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_total_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:padding="5px"
-                android:text="￥：15.66"
-                android:textColor="@color/table_unselet"
-                android:textSize="35sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btn_is_pay"
-                android:layout_width="200px"
-                android:layout_height="wrap_content"
-                android:background="@drawable/click_button"
-                android:padding="10dp"
-                android:text="码卡"
-                android:textColor="@color/table_unselet"
-                android:textSize="35sp"
-                android:textStyle="bold" />
-
-
-            <Button
-                android:id="@+id/btn_face_pay"
-                android:layout_width="200px"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="50px"
-                android:background="@drawable/click_button"
-                android:padding="10dp"
-                android:text="刷脸"
-                android:textColor="@color/table_unselet"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
         </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="总核销数:"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_total_verify"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_order_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="餐别订餐数:"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_meal_order"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_verify_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="餐别核销数:"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_meal_verify"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/fp_bg_white"
+        android:text="  订餐核销  "
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="15dp"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/tv_face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_toStartOf="@+id/tv_code"
+        android:background="@drawable/shape_btn_orange"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="刷脸支付"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_z"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:letterSpacing="0.2"
+        android:text="智慧食堂"
+        android:textColor="@color/white"
+        android:textSize="150sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_fp_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#B3FFFFFF"
+        android:drawableRight="@mipmap/ct"
+        android:drawablePadding="15dp"
+        android:fontFamily="@font/kai"
+        android:gravity="center"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+
+        android:paddingRight="20dp"
+        android:textColor="@color/sky_color"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/v_setting"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_alignParentRight="true" />
+
+    <LinearLayout
+        android:id="@+id/ll_pay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="50dp"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="￥：15.66"
+            android:textColor="@color/table_unselet"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_is_pay"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/click_button"
+            android:padding="10dp"
+            android:text="码卡"
+            android:textColor="@color/table_unselet"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+
+
+        <Button
+            android:id="@+id/btn_face_pay"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:background="@drawable/click_button"
+            android:padding="10dp"
+            android:text="刷脸"
+            android:textColor="@color/table_unselet"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+
+
+
+
+
+</RelativeLayout>

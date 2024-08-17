@@ -19,57 +19,57 @@
             android:layout_width="match_parent"
             android:orientation="horizontal"
             android:background="#FFFFFF"
-            android:layout_height="90px"
+            android:layout_height="90dp"
             android:gravity="center_vertical">
 
             <TextView
-                android:layout_width="120px"
-                android:layout_height="52px"
-                android:layout_marginStart="52px"
+                android:layout_width="120dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="52dp"
                 android:text="收银台"
                 android:gravity="center_vertical"
                 android:textColor="#2A92FA"
-                android:textSize="40px" />
+                android:textSize="40sp" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="44px"
-                android:layout_marginEnd="50px"
+                android:layout_height="44dp"
+                android:layout_marginEnd="50dp"
                 android:text="请检查菜品和扣款明细是否一致"
                 android:gravity="right"
                 android:textColor="#2A92FA"
-                android:textSize="30px" />
+                android:textSize="30sp" />
 
         </LinearLayout>
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_second_detail"
-        android:layout_width="1180px"
-        android:layout_height="600px"
-        android:layout_marginBottom="10px"
+        android:layout_width="1180dp"
+        android:layout_height="600dp"
+        android:layout_marginBottom="10dp"
         android:layout_gravity="center_horizontal"
         android:overScrollMode="never"
-        android:layout_marginTop="10px" />
+        android:layout_marginTop="10dp" />
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:background="@color/white"
-            android:padding="8px"
+            android:padding="8dp"
 
             android:layout_height="match_parent">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="68px"
+                android:layout_marginStart="68dp"
                 android:gravity="center"
-                android:padding="3px"
+                android:padding="3dp"
                 android:textColor="#65686A"
                 android:text="合计:"
-                android:textSize="35px"
+                android:textSize="35sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -81,11 +81,11 @@
                 android:id="@+id/tv_pay_money"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="170px"
+                android:layout_marginStart="170dp"
                 android:gravity="center"
-                android:padding="3px"
+                android:padding="3dp"
                 android:textColor="#D63D3D"
-                android:textSize="35px"
+                android:textSize="35sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -95,17 +95,17 @@
                 android:id="@+id/bt_pay_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="50px"
+                android:layout_marginEnd="50dp"
                 android:background="@drawable/common_bt_bg"
-                android:drawablePadding="8px"
+                android:drawablePadding="8dp"
                 android:drawableStart="@drawable/ic_face"
                 android:gravity="center"
-                android:padding="8px"
-                android:paddingEnd="10px"
-                android:paddingStart="10px"
+                android:padding="8dp"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
                 android:text="@string/scan_face_pay"
                 android:textColor="@color/white"
-                android:textSize="39px"
+                android:textSize="39sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/bt_pay_qrcode"
@@ -116,17 +116,17 @@
                 android:id="@+id/bt_pay_qrcode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="45px"
+                android:layout_marginEnd="45dp"
                 android:background="@drawable/common_bt_bg"
-                android:drawablePadding="8px"
+                android:drawablePadding="8dp"
                 android:drawableStart="@drawable/ic_qrcode"
                 android:gravity="center"
-                android:padding="8px"
-                android:paddingEnd="10px"
-                android:paddingStart="10px"
+                android:padding="8dp"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
                 android:text="@string/scan_qrcode_pay"
                 android:textColor="@color/white"
-                android:textSize="39px"
+                android:textSize="39sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

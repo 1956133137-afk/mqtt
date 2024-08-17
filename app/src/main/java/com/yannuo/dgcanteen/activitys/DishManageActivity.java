@@ -20,6 +20,7 @@ import com.yannuo.dgcanteen.databinding.ActivityDishManageBinding;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.DisplayUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -43,6 +44,7 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DisplayUtils.setCustomDensity(this, getApplication());
         initScreen();
         initView();
         initData();

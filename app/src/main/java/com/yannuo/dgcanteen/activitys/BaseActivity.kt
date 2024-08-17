@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
+import com.yannuo.dgcanteen.util.DisplayUtils
 
 abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
     lateinit var binding:T
@@ -15,6 +16,7 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
 
         super.onCreate(savedInstanceState)
 
+        DisplayUtils.setCustomDensity(this, application)
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

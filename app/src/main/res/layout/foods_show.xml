@@ -5,10 +5,10 @@
     xmlns:corner="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:layout_marginLeft="10px"
-    android:layout_marginRight="10px"
-    android:layout_marginBottom="10px"
-    app:cardCornerRadius="15px"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="15dp"
     app:cardBackgroundColor="@color/white"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -25,7 +25,7 @@
             android:layout_height="180dp" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginTop="5px"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -34,12 +34,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:paddingStart="18px"
-                android:paddingBottom="13px"
+                android:paddingStart="18dp"
+                android:paddingBottom="13dp"
                 android:gravity="center_vertical"
                 android:minWidth="250dp"
                 android:textColor="#101010"
-                android:textSize="28px"
+                android:textSize="28sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,14 +48,14 @@
                 android:id="@+id/tv_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="3px"
-                android:paddingEnd="10px"
-                android:paddingStart="18px"
-                android:paddingTop="3px"
+                android:paddingBottom="3dp"
+                android:paddingEnd="10dp"
+                android:paddingStart="18dp"
+                android:paddingTop="3dp"
                 android:singleLine="true"
                 android:text="@string/money_format"
                 android:textColor="#FFFF0000"
-                android:textSize="15px"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/cv_count_add"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -64,9 +64,9 @@
                 android:id="@+id/cv_count_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10px"
-                android:layout_marginEnd="10px"
-                android:layout_marginTop="5px"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="5dp"
                 android:text="2份"
                 android:textSize="33sp"
                 app:layout_constraintBottom_toBottomOf="parent"

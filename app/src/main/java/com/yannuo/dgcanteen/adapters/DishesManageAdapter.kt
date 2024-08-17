@@ -32,9 +32,10 @@ class DishesManageAdapter(context :Context) : BaseAdapter<DishesInfo,ItemGridLay
         val data = mData.get(position)
 
         holder.binding.tvName.text = data.dishesName
-        val spanStr = SpannableString(cnt.getString(R.string.money_format,data.price.toString()))
-        spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
-        holder.binding.tvPrice.text = spanStr
+//        val spanStr = SpannableString(cnt.getString(R.string.money_format,data.price.toString()))
+//        spanStr.setSpan(AbsoluteSizeSpan(28),1,spanStr.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+//        holder.binding.tvPrice.text = spanStr
+        holder.binding.tvPrice.text = "￥${data.price}"
 
         Glide.with(cnt).load(PictureUtil.getPictureName(data.imgUrl, cnt))
             .diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)

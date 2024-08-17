@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80px"
+        android:layout_height="80dp"
         android:gravity="center"
 
         android:background="@color/white"
@@ -19,14 +19,14 @@
         <TextView
             android:id="@+id/meal_time"
             android:layout_width="wrap_content"
-            android:minWidth="330px"
-            android:layout_height="55px"
-            android:layout_marginStart="30px"
+            android:minWidth="330dp"
+            android:layout_height="55dp"
+            android:layout_marginStart="30dp"
             android:gravity="center"
             android:text="@string/unOpen_meal"
-            android:textSize="28px"
-            android:paddingStart="27px"
-            android:paddingEnd="20px"
+            android:textSize="28sp"
+            android:paddingStart="27dp"
+            android:paddingEnd="20dp"
             android:background="@drawable/shape_tv_bg"
             android:drawableStart="@drawable/ic_noodles"/>
 
@@ -42,29 +42,29 @@
             android:textStyle="bold"
             android:textColor="#4095E5"
 
-            android:textSize="48px"/>
+            android:textSize="48sp"/>
 
         <TextView
             android:id="@+id/select_stopper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="3px"
-            android:layout_marginEnd="30px"
-            android:textSize="24px"
+            android:padding="3dp"
+            android:layout_marginEnd="30dp"
+            android:textSize="24sp"
             android:textColor="#4F4F4F"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10px"
-        android:paddingStart="18px"
-        android:paddingEnd="18px"
+        android:layout_marginTop="10dp"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
         android:orientation="horizontal">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_man_info"
-            android:layout_width="500px"
+            android:layout_width="500dp"
             android:layout_weight="2"
             android:layout_height="match_parent"
             android:overScrollMode="never"/>
@@ -73,22 +73,22 @@
             android:layout_width="0px"
             android:layout_weight="3"
             android:layout_height="match_parent"
-            android:layout_marginStart="20px"
-            android:layout_marginBottom="5px"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/shape_layout_bg"
             android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="60px"
+                android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:background="@drawable/common_bt_bg"
-                android:paddingStart="10px">
+                android:paddingStart="10dp">
 
 
                 <ImageButton
                     android:id="@+id/imageButton2"
-                    android:layout_width="60px"
+                    android:layout_width="60dp"
                     android:layout_height="match_parent"
                     android:layout_centerVertical="true"
                     android:background="@null"
@@ -99,11 +99,11 @@
 
                 <ImageButton
                     android:id="@+id/ib_del_all"
-                    android:layout_width="60px"
+                    android:layout_width="60dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginEnd="10px"
+                    android:layout_marginEnd="10dp"
                     android:background="@null"
                     android:src="@drawable/ic_clear_food"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -117,7 +117,7 @@
                     android:gravity="center"
                     android:text="@string/shop_meal"
                     android:textColor="#FFFFFF"
-                    android:textSize="22px"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/imageButton2"
@@ -131,7 +131,7 @@
                 android:layout_height="0px"
                 android:layout_weight="1"
                 android:overScrollMode="never"
-                android:padding="5px" />
+                android:padding="5dp" />
 
             <View
                 android:layout_width="match_parent"

@@ -71,7 +71,7 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:text="¥ 1.50"
-            android:textSize="26sp"
+            android:textSize="28sp"
             android:textColor="#E82F1E"/>
         
         <Button

@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="5dp"
     android:background="@drawable/shape_module_bg"
-    android:layout_marginTop="10px"
+    android:layout_marginTop="10dp"
     android:orientation="horizontal">
 
 
@@ -17,14 +17,14 @@
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:minLines="2"
-        android:paddingBottom="5px"
-        android:paddingTop="5px"
-        android:paddingRight="20px"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="20dp"
 
         android:singleLine="true"
-        android:layout_marginLeft="30px"
+        android:layout_marginLeft="30dp"
         android:textColor="#333333"
-        android:textSize="30px"
+        android:textSize="30sp"
         android:text="土豆炒肉"
         />
 
@@ -49,13 +49,13 @@
         android:text="@string/money_format"
         android:textColor="#E03C2D"
         android:textSize="24sp"
-        android:layout_marginRight="45px"
+        android:layout_marginRight="45dp"
         />
 
     <ImageView
         android:id="@+id/iv_shop_pic"
-        android:layout_width="110px"
-        android:layout_height="110px"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_marginEnd="10dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher"

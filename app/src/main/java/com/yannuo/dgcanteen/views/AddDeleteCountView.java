@@ -53,9 +53,9 @@ public class AddDeleteCountView extends LinearLayout {
 
        mIBDel.setBackgroundResource(R.drawable.reduce);
        mIBAdd.setBackgroundResource(R.drawable.add_icon);
-       LayoutParams layoutParams = new LayoutParams(40, 40);
+       LayoutParams layoutParams = new LayoutParams(35, 35);
        mIBDel.setLayoutParams(layoutParams);
-       LayoutParams layoutParams2 = new LayoutParams(40, 40);
+       LayoutParams layoutParams2 = new LayoutParams(35, 35);
 //
        mIBAdd.setLayoutParams(layoutParams2);
        LayoutParams layoutParams3 = new LayoutParams(50, 50);

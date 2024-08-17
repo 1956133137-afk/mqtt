@@ -51,6 +51,7 @@
 //
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
+//        DisplayUtils.setCustomDensity(this, getApplication());
 //        mBinding = ActivityPreviewBinding.inflate(layoutInflater)
 //        initSystemBar()
 //        setContentView(mBinding.root)

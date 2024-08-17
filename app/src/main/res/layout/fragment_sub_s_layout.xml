@@ -171,7 +171,7 @@
             android:background="@drawable/shape_btn_bg"
             android:text="@string/btn_back"
             android:gravity="center"
-            android:textSize="40dp"
+            android:textSize="40sp"
             android:textColor="#215476"/>
 
     </LinearLayout>
@@ -197,7 +197,7 @@
                 android:layout_marginTop="15dp"
                 android:text="点餐菜品列表"
                 android:textColor="#FF4F4F4F"
-                android:textSize="59dp"
+                android:textSize="59sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:text="合计："
                 android:textColor="#101010"
-                android:textSize="40dp"
+                android:textSize="40sp"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_sum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/tv_sum" />
@@ -219,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
                 android:textColor="#BD3124"
-                android:textSize="45dp"
+                android:textSize="45sp"
                 app:layout_constraintBottom_toTopOf="@+id/v_line3"
                 app:layout_constraintEnd_toEndOf="parent" />
 
