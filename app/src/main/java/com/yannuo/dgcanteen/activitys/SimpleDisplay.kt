@@ -144,7 +144,7 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = res.total.unverifyTotalOrderNum
+                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     if (mealId == meal.mealId.toInt()) {
                         binding.tvOrderName.text = "${meal.mealName}订餐数:"
@@ -152,12 +152,12 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         binding.tvVerifyName.text = "${meal.mealName}核销数:"
                         binding.tvMealVerify.text = meal.verifyMealOrderNum
                     }
-//                    if (mealId == 0) {
-//                        binding.tvOrderName.visibility = View.GONE
-//                        binding.tvMealOrder.visibility = View.GONE
-//                        binding.tvVerifyName.visibility = View.GONE
-//                        binding.tvMealVerify.visibility = View.GONE
-//                    }
+                    if (mealId == 0) {
+                        binding.tvOrderName.visibility = View.GONE
+                        binding.tvMealOrder.visibility = View.GONE
+                        binding.tvVerifyName.visibility = View.GONE
+                        binding.tvMealVerify.visibility = View.GONE
+                    }
                 }
             }
         } else binding.verifyView.visibility = View.GONE
@@ -195,9 +195,13 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
             true
         }
         binding.tvCode.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
+            lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
         }
         binding.tvFace.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
+            lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
         }
     }

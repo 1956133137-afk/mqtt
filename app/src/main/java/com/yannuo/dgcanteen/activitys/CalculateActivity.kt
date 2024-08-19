@@ -229,7 +229,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = res.total.unverifyTotalOrderNum
+                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     when (mealId) {
                         0 -> {
@@ -392,6 +392,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             }
             Constant.EVENT_CODE -> handler.post {
                 simpleDisplay.cancel()
+                CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
             }

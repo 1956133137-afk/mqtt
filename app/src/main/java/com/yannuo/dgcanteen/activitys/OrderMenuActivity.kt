@@ -233,7 +233,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = res.total.unverifyTotalOrderNum
+                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
                 res.mealList.forEach { meal ->
                     when (mealId) {
                         0 -> {
