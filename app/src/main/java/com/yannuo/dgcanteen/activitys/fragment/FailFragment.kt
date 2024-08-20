@@ -44,7 +44,7 @@ class FailFragment : Fragment() {
             binding.payMsg.text = errorMsg
             binding.tvTime.text = timestamp
         }
-        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 2).toLong())
+        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 5).toLong())
     }
 
     private fun onCountDownTimer(btnBack: Button?, time: Long) {
@@ -55,7 +55,7 @@ class FailFragment : Fragment() {
             }
 
             override fun onFinish() {
-                countDown?.cancel()
+//                countDown?.cancel()
                 requireActivity().finish()
             }
         }

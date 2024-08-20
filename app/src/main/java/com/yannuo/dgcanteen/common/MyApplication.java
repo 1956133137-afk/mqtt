@@ -117,9 +117,9 @@ public class MyApplication extends Application {
         if (kv.decodeString(Constant.FINAL_TIME) == null){
             kv.encode(Constant.FINAL_TIME, new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
         }
-        if (kv.decodeInt(Constant.SHOW_TIME,-2) == -2){
-            kv.encode(Constant.SHOW_TIME,2);
-        }
+//        if (kv.decodeInt(Constant.SHOW_TIME,5) <= 0){
+//            kv.encode(Constant.SHOW_TIME,5);
+//        }
         if (kv.decodeString(Constant.PRINTER_PATH_SET) == null){
             kv.encode(Constant.PRINTER_PATH_SET,"/dev/ttyXRUSB1");
         }

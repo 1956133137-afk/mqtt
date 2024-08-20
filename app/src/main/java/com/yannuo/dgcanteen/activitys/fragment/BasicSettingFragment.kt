@@ -170,7 +170,7 @@ class BasicSettingFragment : Fragment() {
         binding.etMqttAddress.setText(kv.decodeString(Constant.MQTT_ADDRESS))
         binding.etMqttAccount.setText(kv.decodeString(Constant.MQTT_ACCOUNT))
         binding.etMqttPassword.setText(kv.decodeString(Constant.MQTT_PASSWORD))
-        binding.etShowTime.setText("${kv.decodeInt(Constant.SHOW_TIME)}")
+        binding.etShowTime.setText("${kv.decodeInt(Constant.SHOW_TIME, 5)}")
         binding.awaitPayTime.setText("${kv.decodeInt(Constant.AWAIT_PAY_TIME, 30)}")
         binding.snCardformat.setSelection(kv.decodeInt(Constant.CARD_FORMAT))
         binding.printTicketName.setText(kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联"))

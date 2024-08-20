@@ -23,10 +23,11 @@ import com.yannuo.dgcanteen.util.LogUtil
 open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
 
-    private lateinit var model : ProductsVM
+    private lateinit var model: ProductsVM
     private var time = 0
     private var mPayResultAdapter: PayResultAdapter? = null
     private var countDownTimer: CountDownTimer? = null
+    private val kv = MMKV.defaultMMKV()
 
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentOrderSFBinding.inflate(inflater, container, false)
@@ -41,17 +42,12 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
     }
 
 
-
-
-
-    private fun loadData(){
+    private fun loadData() {
 
     }
 
 
     private fun initObject() {
-        val kv = MMKV.defaultMMKV()
-        time = kv.decodeInt(Constant.SHOW_TIME)
         model = ViewModelProvider(requireActivity()).get(ProductsVM::class.java)
         binding.subS.rvDishList.layoutManager = LinearLayoutManager(context)
         mPayResultAdapter = PayResultAdapter(requireContext())
@@ -62,23 +58,22 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
 
     private fun initView() {
-        LogUtil.i(TAG,"initView")
+        LogUtil.i(TAG, "initView")
 //        val gridLayoutManager = GridLayoutManager(context,6,)
 //        binding.rvManInfo.layoutManager = gridLayoutManager
 //        binding.rvManInfo.adapter = adapter
-        model.uiData.observe(this){
+        model.uiData.observe(this) {
             if (it.result == PayResultForUI.Result.FAIL) {
                 updateFChange(it)
-            }else updateSChange(it)
+            } else updateSChange(it)
 //            LogUtil.i(TAG,"initView")
         }
     }
 
-    private fun release(){
+    private fun release() {
 //        adapter.setListener(null)
 //        model.loadDialog.value = false
     }
-
 
 
     private fun initEvent() {
@@ -94,6 +89,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
     private fun back() {
         model.tab.postValue(0)
+        countDownTimer?.cancel()
         model.getDisplay()?.also {
             if (it.isShowing.not()) {
                 it.show()
@@ -102,10 +98,10 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
     }
 
 
-    private fun updateFChange(mPayResult : PayResultForUI){
+    private fun updateFChange(mPayResult: PayResultForUI) {
         binding.subF.btBack.isEnabled = true
         binding.subS.root.visibility = View.GONE
-        if (binding.subF.root.visibility == View.GONE){
+        if (binding.subF.root.visibility == View.GONE) {
             binding.subF.root.visibility = View.VISIBLE
         }
         mPayResult.errormsg?.also {
@@ -131,22 +127,22 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         startTime(mPayResult)
     }
 
-    private fun updateSChange(mPayResult : PayResultForUI){
+    private fun updateSChange(mPayResult: PayResultForUI) {
         binding.subS.btBack.isEnabled = true
         binding.subF.root.visibility = View.GONE;
-        if (binding.subS.root.visibility == View.GONE){
+        if (binding.subS.root.visibility == View.GONE) {
             binding.subS.root.visibility = View.VISIBLE
         }
 
-        if (mPayResult.way.equals("20") || mPayResult.way.equals("21")){
+        if (mPayResult.way.equals("20") || mPayResult.way.equals("21")) {
             mPayResultAdapter!!.data = mPayResult.dishes
             binding.subS.tvSum.text = "${mPayResult.piece} 件"
             binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
-            var str ="支付宝"
-            if (mPayResult.way.equals("20"))str ="微信"
-            CommonAndDpToPxUtil.speakWork("${str}收款${mPayResult.payment } 元")
+            var str = "支付宝"
+            if (mPayResult.way.equals("20")) str = "微信"
+            CommonAndDpToPxUtil.speakWork("${str}收款${mPayResult.payment} 元")
             var time = mPayResult.timestamp
-            if (time.isNullOrEmpty().not()  && mPayResult.way != "人脸支付") {
+            if (time.isNullOrEmpty().not() && mPayResult.way != "人脸支付") {
                 val buffer = StringBuffer()
                 time = buffer.append(mPayResult.timestamp?.substring(0, 4))
                     .append("-")
@@ -163,7 +159,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             binding.subS.tvPayTime.text = time
             binding.subS.tvTransNumber.text = mPayResult.traceid
 
-        }else {
+        } else {
 
             val persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.custId)
             var cls = "***"
@@ -203,20 +199,21 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         }
 //        CommonAndDpToPxUtil.speakWork("欢迎用餐")
         PrinterOperator.printerFoodsList(mPayResult)
-        if (mPayResult.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(mPayResult)
+        if (mPayResult.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(
+            mPayResult
+        )
         startTime(mPayResult)
     }
 
-    fun startTime(mPayResult : PayResultForUI){
-        var totalTime = 0
-        if (time >= 0) totalTime = time
+    fun startTime(mPayResult: PayResultForUI) {
+        var totalTime = kv.decodeInt(Constant.SHOW_TIME, 5)
         if (mPayResult.way == "人脸支付") {
             if (mPayResult.result === PayResultForUI.Result.FAIL)
                 binding.subF.btBack.isEnabled = false
             else binding.subS.btBack.isEnabled = false
-            if (time < 3) totalTime = 3
+            if (totalTime < 3) totalTime = 3
         }
-        dida(totalTime,mPayResult)
+        dida(totalTime, mPayResult)
     }
 
 
@@ -225,8 +222,8 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         countDownTimer = object : CountDownTimer((tm * 1000 + 100).toLong(), 1000) {
             override fun onTick(mil: Long) {
                 if (mPayResult.result === PayResultForUI.Result.FAIL)
-                    binding.subF.btBack.text = "返回${ mil / 1000}秒"
-                else binding.subS.btBack.text = "返回${ mil / 1000}秒"
+                    binding.subF.btBack.text = "返回${mil / 1000}秒"
+                else binding.subS.btBack.text = "返回${mil / 1000}秒"
 
                 if (mil / 1000 == (tm - 3).toLong()) {
                     if (mPayResult.way == "人脸支付") {
@@ -257,6 +254,10 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
     }
 
 
+    override fun onStop() {
+        super.onStop()
+        countDownTimer?.cancel()
+    }
 
 
 }

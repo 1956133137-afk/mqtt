@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.FragmentSuccessBinding
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import java.util.concurrent.TimeUnit
 
 class SuccessFragment : Fragment() {
@@ -33,6 +34,7 @@ class SuccessFragment : Fragment() {
 
     private fun initEvent() {
         binding.btnBack.setOnClickListener {
+            countDown?.cancel()
             requireActivity().finish()
         }
     }
@@ -58,14 +60,15 @@ class SuccessFragment : Fragment() {
             }
 
         }
-        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 2).toLong())
+        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.SHOW_TIME, 5).toLong())
     }
 
     private fun onCountDownTimer(btnBack: Button?, time: Long) {
         countDown?.cancel()
-        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time) + 200, 1000) {
+        countDown = object : CountDownTimer(time + 200, 1000) {
             override fun onTick(mil: Long) {
-                btnBack?.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
+                btnBack?.text = "返回 ( $mil )"
+                LogUtil.d(TAG, "test_onTick: $mil")
             }
 
             override fun onFinish() {

@@ -183,6 +183,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
         mXService?.hideNavBar = true
         mDishDisplay.cancel()
         mDishDisplay = DishesDisplay(this, secondDisplays!!)
+        mProductsVM.setDisplay(mDishDisplay)
         mDishDisplay.show()
     }
 

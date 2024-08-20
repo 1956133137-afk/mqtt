@@ -51,7 +51,7 @@ public class PayResultDisplay extends Presentation {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MMKV kv = MMKV.defaultMMKV();
-        time = kv.decodeInt(Constant.SHOW_TIME);
+        time = kv.decodeInt(Constant.SHOW_TIME, 5);
 
         if (mPayResult.getResult() == PayResultForUI.Result.FAIL){
             mFailBinding = PayFailureBinding.inflate(getLayoutInflater());
