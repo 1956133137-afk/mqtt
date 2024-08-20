@@ -180,7 +180,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
-        mDishDisplay.cancel()
+        mDishDisplay.safeCancel()
         mDishDisplay = DishesDisplay(this, secondDisplays!!)
         mProductsVM.setDisplay(mDishDisplay)
         mDishDisplay.show()
@@ -289,7 +289,8 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
 
             Constant.EVENT_CODE -> {
-                mDishDisplay.cancel()
+//                mDishDisplay.cancel()
+                mDishDisplay.safeCancel()
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
@@ -390,7 +391,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun release() {
         mScope?.cancel()
         passwordDialog.cancel()
-        mDishDisplay.cancel()
+        mDishDisplay.safeCancel()
         loadingDialog?.cancel()
 //        unbindService(mServiceConnection)
         EventBus.getDefault().unregister(this)

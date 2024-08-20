@@ -5,6 +5,7 @@ import android.app.Application;
 import android.app.Dialog;
 import android.app.Presentation;
 import android.content.ComponentCallbacks;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -22,7 +23,7 @@ public class DisplayUtils {
     private static float sNoncompatDensity;
     private static float sNoncompatScaledDensity;
 
-    public static void setCustomDensity(@NonNull Activity activity, @NonNull final Application application) {
+    public static void setCustomDensity(Presentation presentation, @NonNull Activity activity, @NonNull final Application application) {
         DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
         if (sNoncompatDensity == 0) {
             sNoncompatDensity = appDisplayMetrics.density;
@@ -55,6 +56,13 @@ public class DisplayUtils {
         activityDisplayMetrics.density = targetDensity;
         activityDisplayMetrics.scaledDensity = targetScaleDensity;
         activityDisplayMetrics.densityDpi = targetDensityDpi;
+
+        if (presentation != null) {
+           final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+           presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
+           presentationDisplayMetrics.density = targetDensity;  // 1.0
+           presentationDisplayMetrics.scaledDensity = targetScaleDensity; // 1.0
+        }
     }
 
 }

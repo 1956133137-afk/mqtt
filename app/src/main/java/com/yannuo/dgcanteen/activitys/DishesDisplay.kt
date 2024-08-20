@@ -21,7 +21,7 @@ import org.greenrobot.eventbus.EventBus
  * Description: 简易异现
  * Date: 2023/8/4 15:41
  **/
-class DishesDisplay(context: Context, display: Display) : Presentation(context, display) {
+class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, display) {
     private val TAG = javaClass.simpleName
     private lateinit var binding: DishesDisplayBinding
     private lateinit var kv: MMKV
@@ -98,7 +98,4 @@ class DishesDisplay(context: Context, display: Display) : Presentation(context, 
         binding.tvAmount.text = money
         binding.tvDishesCount.text = count
     }
-
-
-
 }

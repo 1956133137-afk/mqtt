@@ -125,7 +125,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     }
 
     override fun onStop() {
-        simpleDisplay.cancel()
+//        simpleDisplay.cancel()
+        simpleDisplay.safeCancel()
         super.onStop()
     }
 

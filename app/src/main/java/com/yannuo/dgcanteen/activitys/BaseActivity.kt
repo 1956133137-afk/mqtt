@@ -16,7 +16,7 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
 
         super.onCreate(savedInstanceState)
 
-        DisplayUtils.setCustomDensity(this, application)
+        DisplayUtils.setCustomDensity(null, this, application)
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

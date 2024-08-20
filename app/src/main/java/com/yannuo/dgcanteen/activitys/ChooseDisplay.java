@@ -33,7 +33,7 @@ import org.greenrobot.eventbus.EventBus;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class ChooseDisplay extends Presentation implements CallbackListener {
+public class ChooseDisplay extends BaseDisplay implements CallbackListener {
 
     private ChooseSecondDisplayBinding binding;
     private String TAG = getClass().getSimpleName();
@@ -67,6 +67,7 @@ public class ChooseDisplay extends Presentation implements CallbackListener {
         initEvent();
         initView();
     }
+
 
 
     private void initData() {

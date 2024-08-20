@@ -141,13 +141,15 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
         displayManager?.displays?.also {
             secondDisplays = it[1]
-            mProductsDisplay?.cancel()
+//            mProductsDisplay?.cancel()
+            mProductsDisplay?.safeCancel()
             mProductsDisplay = DifferentDisplay(this, secondDisplays)
             mProductsDisplay?.setFoodsCallback(this)
             clearFoods()
             mProductsDisplay?.show()
-            mPayResultDisplay?.cancel()
-            mChooseDisplay?.cancel()
+//            mPayResultDisplay?.cancel()
+            mPayResultDisplay?.safeCancel()
+            mChooseDisplay?.safeCancel()
             mPayResultDisplay = null
             mChooseDisplay = null
         }
@@ -199,7 +201,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
-        mProductsDisplay?.cancel()
+//        mProductsDisplay?.cancel()
+        mProductsDisplay?.safeCancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
         mProductsDisplay?.show()
     }
@@ -219,7 +222,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 if (it != null && it.isShowing) {
                     return@also
                 }
-                mProductsDisplay?.cancel()
+//                mProductsDisplay?.cancel()
+                mProductsDisplay?.safeCancel()
                 mProductsDisplay = DifferentDisplay(this, secondDisplays)
                 mProductsDisplay?.setFoodsCallback(this)
                 clearFoods()
@@ -229,10 +233,12 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
             if (mChooseDisplay != null) {
                 CommonAndDpToPxUtil.speakWork("取消支付");
-                mChooseDisplay?.cancel()
+//                mChooseDisplay?.cancel()
+                mChooseDisplay?.safeCancel()
             }
             mChooseDisplay = null
-            mPayResultDisplay?.cancel()
+//            mPayResultDisplay?.cancel()
+            mPayResultDisplay?.safeCancel()
             mPayResultDisplay = null
             binding.btBackPay.text = "支付解锁\n(选餐页面)"
         }
@@ -304,9 +310,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                             LogUtil.e(TAG, "获取不到人脸句柄")
                             return
                         }
-                        mPayResultDisplay?.cancel()
+//                        mPayResultDisplay?.cancel()
+                        mPayResultDisplay?.safeCancel()
                         mPayResultDisplay = null
-                        mChooseDisplay?.cancel()
+//                        mChooseDisplay?.cancel()
+                        mChooseDisplay?.safeCancel()
                         mChooseDisplay = null
                         mProductsVM.startPayWithFace(mFacePayService, iit)
                     }
@@ -326,9 +334,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 event.any?.also {
                     (it as? PayForUI)?.also { fit ->
                         handler.postDelayed({
-                            mChooseDisplay?.cancel()
+//                            mChooseDisplay?.cancel()
+                            mChooseDisplay?.safeCancel()
                             mChooseDisplay = null
-                            mProductsDisplay?.cancel()
+//                            mProductsDisplay?.cancel()
+                            mProductsDisplay?.safeCancel()
                             mProductsDisplay = null
                             binding.btBackPay.text = "支付解锁\n(结果页面)"
                         }, delayTime)
@@ -357,7 +367,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 //            }
 
             Constant.EVENT_CODE -> {
-                mProductsDisplay?.cancel()
+//                mProductsDisplay?.cancel()
+                mProductsDisplay?.safeCancel()
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
@@ -514,8 +525,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private fun updatePayResult(payForUI: PayForUI) {
         runOnUiThread {
-            mPayResultDisplay?.cancel()
-            mPayResultDisplay = PayResultDisplay(this, payForUI, secondDisplays)
+//            mPayResultDisplay?.cancel()
+//            mPayResultDisplay = PayResultDisplay(this, payForUI, secondDisplays)
+//            mPayResultDisplay?.cancel()
+            mPayResultDisplay?.safeCancel()
+            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
 //            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
             mPayResultDisplay?.show()
             updatePayState(payForUI)
@@ -563,13 +577,15 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      * @param list ProductsDetail
      */
     private fun dealWith(list: ProductsDetail) {
-        mChooseDisplay?.cancel()
+        mChooseDisplay?.safeCancel()
         mChooseDisplay = ChooseDisplay(this, list, secondDisplays)
         mChooseDisplay?.show()
-        mPayResultDisplay?.cancel()
+//        mPayResultDisplay?.cancel()
+        mPayResultDisplay?.safeCancel()
         mPayResultDisplay = null
         handler.postDelayed({
-            mProductsDisplay?.cancel()
+//            mProductsDisplay?.cancel()
+            mProductsDisplay?.safeCancel()
             mProductsDisplay = null
         }, delayTime)
 
@@ -629,16 +645,19 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      * 打开选餐界面
      */
     private fun startDishDisplay() {
-        mProductsDisplay?.cancel()
+//        mProductsDisplay?.cancel()
+        mProductsDisplay?.safeCancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
         mProductsDisplay?.setFoodsCallback(this)
         clearFoods()
         mProductsDisplay?.show()
 
-        mChooseDisplay?.cancel()
+        mChooseDisplay?.safeCancel()
+
         mChooseDisplay = null
         handler.postDelayed({
-            mPayResultDisplay?.cancel()
+//            mPayResultDisplay?.cancel()
+            mPayResultDisplay?.safeCancel()
             mPayResultDisplay = null
         }, delayTime)
     }
@@ -669,11 +688,13 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     private fun release() {
         mScope?.cancel()
-        mProductsDisplay?.cancel()
+//        mProductsDisplay?.cancel()
+        mProductsDisplay?.safeCancel()
         mProductsDisplay = null
-        mChooseDisplay?.cancel()
+        mChooseDisplay?.safeCancel()
         mChooseDisplay = null
-        mPayResultDisplay?.cancel()
+//        mPayResultDisplay?.cancel()
+        mPayResultDisplay?.safeCancel()
         mPayResultDisplay = null
         passwordDialog.cancel()
         unbindService(mServiceConnection)

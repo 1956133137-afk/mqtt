@@ -23,7 +23,11 @@ import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
-public class PayResultDisplay extends Presentation {
+import java.text.SimpleDateFormat;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+public class PayResultDisplay extends BaseDisplay {
 
     private PaySuccessBinding mBinding;  //成功
     private PayFailureBinding mFailBinding;  //失败

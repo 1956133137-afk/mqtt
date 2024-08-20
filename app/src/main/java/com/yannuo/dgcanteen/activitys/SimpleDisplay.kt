@@ -39,7 +39,7 @@ import java.io.File
  * Description: 简易异现
  * Date: 2023/8/4 15:41
  **/
-class SimpleDisplay(context: Context, display: Display) : Presentation(context, display) {
+class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, display) {
     private val TAG = javaClass.simpleName
     private lateinit var binding: SimpleDisplayBinding
     private lateinit var kv: MMKV

@@ -39,7 +39,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener, PayForAdapter.WorkListener {
+import kotlinx.coroutines.CoroutineScope;
+
+public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
     private String TAG = getClass().getSimpleName();
 
     private DifferrentDialogBinding binding;

@@ -3,9 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:layout_width="950dp"
+    android:layout_width="864dp"
     android:background="@drawable/wait_hit_bg"
-    android:layout_height="594dp">
+    android:layout_height="540dp">
+<!--
+    原本的值为：950、594
+    dialog最大宽度与高度不能超过屏幕的80%，DisplayUtils设置的是虚拟宽度 1080
+        宽度：1080 * 0.8 = 864 px
+        高度：1080 / 1280 * 800 * 0.8 = 540 px
+  -->
 
     <TextView
         android:id="@+id/textView"

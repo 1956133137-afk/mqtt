@@ -44,7 +44,7 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DisplayUtils.setCustomDensity(this, getApplication());
+        DisplayUtils.setCustomDensity(null, this, getApplication());
         initScreen();
         initView();
         initData();

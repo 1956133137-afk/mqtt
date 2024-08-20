@@ -166,7 +166,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
         initVerify()
         mXService?.hideNavBar = true
-        simpleDisplay.cancel()
+//        simpleDisplay.cancel()
+        simpleDisplay.safeCancel()
         simpleDisplay = SimpleDisplay(this, secondDisplays)
         simpleDisplay.show()
         maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
@@ -259,7 +260,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
         binding.btnConfirm.setTextColor(Color.BLACK)
         binding.btnConfirm.text = "确认金额"
-        simpleDisplay.cancel()
+//        simpleDisplay.cancel()
+        simpleDisplay.safeCancel()
         LogUtil.i(TAG,"onstop!")
         super.onStop()
     }
@@ -378,7 +380,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 btnViewChange(binding.btnOff, Constant.SWITCH)
             }
             Constant.EVENT_CODE -> handler.post {
-                simpleDisplay.cancel()
+//                simpleDisplay.cancel()
+                simpleDisplay.safeCancel()
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)

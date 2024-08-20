@@ -247,7 +247,8 @@ object L {
 
         var stackOffset = LoggerPrinter.getStackOffset(sElements)
 
-        stackOffset++
+//        stackOffset++
+        stackOffset += 2
 
         return StringBuilder().apply {
 
