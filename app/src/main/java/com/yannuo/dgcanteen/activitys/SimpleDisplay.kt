@@ -118,6 +118,11 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
                         }
                     }
                 }
+            if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+                binding.tvCode.visibility = View.VISIBLE
+            } else {
+                binding.tvCode.visibility = View.GONE
+            }
             mealId = TimeUtil.CurrentTimeSection()
             verifyAdapter = VerifyDishesAdapter()
             val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
@@ -197,12 +202,19 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
         binding.tvCode.setOnClickListener {
             if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
             lastTime = System.currentTimeMillis()
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+                binding.tvCode.text = "刷脸核销"
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+            }else {
+                binding.tvCode.text = "订餐核销"
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+            }
         }
         binding.tvFace.setOnClickListener {
             if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
             lastTime = System.currentTimeMillis()
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+            //支付
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))
         }
     }
 

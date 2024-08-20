@@ -405,6 +405,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
                 runOnUiThread { initVerify() }
             }
+            Constant.EVENT_SECOND -> handler.post {
+                maps[binding.btnFirst.text.trim()].also {
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
+                }
+            }
         }
     }
 
