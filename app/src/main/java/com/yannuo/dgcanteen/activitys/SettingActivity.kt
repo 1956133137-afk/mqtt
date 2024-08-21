@@ -1,5 +1,7 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager

@@ -65,10 +65,9 @@ class SuccessFragment : Fragment() {
 
     private fun onCountDownTimer(btnBack: Button?, time: Long) {
         countDown?.cancel()
-        countDown = object : CountDownTimer(time + 200, 1000) {
+        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time) + 200, 1000) {
             override fun onTick(mil: Long) {
-                btnBack?.text = "返回 ( $mil )"
-                LogUtil.d(TAG, "test_onTick: $mil")
+                btnBack?.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
             }
 
             override fun onFinish() {

@@ -129,7 +129,7 @@ class CameraLogic {
             bean.RESULT  = "Y"
 
             bean.CUST_ID = payResult.CUST_ID
-            bean.PAYMENT = payResult.PAYMENT!!.toDouble()
+            bean.PAYMENT = payResult.PAYMENT?.toDouble() ?: 0.0
 
             bean.ACTUAL_PAYMENT = if (payResult.ACTUAL_PAYMENT.isNullOrEmpty().not()) payResult.ACTUAL_PAYMENT!!.toDouble()
             else 0.0

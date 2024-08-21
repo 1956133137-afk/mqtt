@@ -123,6 +123,12 @@ class SimpleDisplay(context: Context, display: Display) : Presentation(context, 
             } else {
                 binding.tvCode.visibility = View.GONE
             }
+            binding.tvFace.text = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
+                Constant.PAY_CODE_TYPE -> "扫码支付"
+                Constant.PAY_IC_TYPE -> "刷卡支付"
+                Constant.PAY_CODE_IC_TYPE -> "码卡支付"
+                else -> "刷脸支付"
+            }
             mealId = TimeUtil.CurrentTimeSection()
             verifyAdapter = VerifyDishesAdapter()
             val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()

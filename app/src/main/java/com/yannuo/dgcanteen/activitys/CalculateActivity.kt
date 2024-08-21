@@ -406,9 +406,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 runOnUiThread { initVerify() }
             }
             Constant.EVENT_SECOND -> handler.post {
-                maps[binding.btnFirst.text.trim()].also {
-                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
-                }
+                val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+                LogUtil.d(TAG, "支付方式：$type")
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, type))
             }
         }
     }
