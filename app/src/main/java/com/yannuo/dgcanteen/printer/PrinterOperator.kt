@@ -1,33 +1,31 @@
 package com.yannuo.dgcanteen.printer
 
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 object PrinterOperator {
-    private var helper:SCNPrinterHelper
-    private var lastPort  :String ?= null
-    private var lastBaudrate :String ?= null
+    private var helper: SCNPrinterHelper
+    private var lastPort: String? = null
+    private var lastBaudrate: String? = null
 
     private var printering = AtomicBoolean(false)
     private val TAG = javaClass.simpleName
     private var mScope: CoroutineScope
 
-
     init {
         helper = SCNPrinterHelper()
-        val exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
-            LogUtil.e(TAG,"打印异常： $throwable ${throwable.stackTraceToString()}")
+        val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+            LogUtil.e(TAG, "打印异常： $throwable ${throwable.stackTraceToString()}")
             error("协程异常： ${throwable} ")
 
         }
         mScope = CoroutineScope(Dispatchers.IO + exceptionHandler)
     }
 
-
-    fun open(){
+    fun open() {
         val mv = MMKV.defaultMMKV()
         val port = mv.decodeString(Constant.PRINTER_PATH_SET)
         val tr = mv.decodeString(Constant.PRINTER_BAUD_SET)
@@ -35,7 +33,7 @@ object PrinterOperator {
             helper.closePrinter()
             helper.release()
             helper.openPrinter()
-        }else{
+        } else {
             if (helper.isOpenPrinter.not()) {
                 helper.release()
                 helper.openPrinter()
@@ -43,7 +41,7 @@ object PrinterOperator {
         }
     }
 
-    fun close(){
+    fun close() {
         if (helper.isOpenPrinter) {
             helper.closePrinter()
             lastBaudrate = null
@@ -75,10 +73,10 @@ object PrinterOperator {
         printering.set(true)
         mScope.launch {
             val code = helper.queryStatus()
-            if (code != 0){
+            if (code != 0) {
                 val err = helper.resultCodeToString(code)
                 CommonAndDpToPxUtil.speakWork("打印出错${err}")
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     ToastShowUtil.show("打印出错：${err}")
                 }
                 helper.clearPreData()
@@ -90,9 +88,8 @@ object PrinterOperator {
         }
     }
 
-
-     fun printerFoodsList(data: PayResultForUI){
-        if (MMKV.defaultMMKV().decodeBool(Constant.EN_PRINTER).not()){
+    fun printerFoodsList(payForUI: PayForUI) {
+        if (MMKV.defaultMMKV().decodeBool(Constant.EN_PRINTER).not()) {
             close()
             helper.release()
             return
@@ -101,82 +98,81 @@ object PrinterOperator {
             PrinterOperator.apply {
                 open()
                 var dat = TextPrint().apply {
-                    text="消费明细"
+                    text = "消费明细"
                     font = 0
                     style = 8
-                    scaleW =1
+                    scaleW = 1
                     scaleH = 1
                     align = 1
                 }
                 addElement(dat)
                 dat = TextPrint().apply {
-                    text=" \n"
+                    text = " \n"
                 }
                 addElement(dat)
 
                 dat = TextPrint().apply {
-                    text="用户:${data.cust_name ?:"***"}"
+                    text = "用户:${payForUI.username}"
                 }
                 addElement(dat)
 
                 dat = TextPrint().apply {
-                    text="下单时间:${data.timestamp}"
+                    text = "下单时间:${payForUI.payTime}"
                 }
                 addElement(dat)
-                var way = data.way
-                if (data.way == "20" || data.way == "21") {
-                    way = "支付宝"
-                    if (data.way == "20") way = "微信"
+                val way = when (payForUI.payType) {
+                    "1" -> "刷脸支付"
+                    "2" -> "扫码支付"
+                    "3" -> "刷卡支付"
+                    else -> ""
                 }
                 dat = TextPrint().apply {
-                    text="支付方式:${way}"
+                    text = "支付方式:${way}"
                 }
                 addElement(dat)
 
                 dat = TextPrint().apply {
-                    text="${String.format("%-7s","商品名称：")}${String.format("%5s","数量*单价")}" +
-                            "${String.format("%4s","金额")}"
+                    text = "${String.format("%-7s", "商品名称：")}${String.format("%5s", "数量*单价")}" +
+                            "${String.format("%4s", "金额")}"
                     style = 8
                 }
                 addElement(dat)
                 dat = TextPrint().apply {
-                    text="-----"
+                    text = "-----"
                 }
                 addElement(dat)
 
-                data.dishes?.forEach {
+                payForUI.paymentDishes.forEach {
                     dat = TextPrint().apply {
-                        val width = EscapeUtil.calculateSize(it.dishesName,7)
-                        text="${String.format("%-${width}s",it.dishesName)}${String.format("%-9s","${it.count}*${it.price}")}" +
-                                "${String.format("%-8.2f",it.count * it.price)}"
+                        val width = EscapeUtil.calculateSize(it.dishesName, 7)
+                        text = "${String.format("%-${width}s", it.dishesName)}${String.format("%-9s", "${it.dishesNumber}*${it.dishesPrice}")}" +
+                                "${String.format("%-8.2f", it.dishesNumber.toFloat() * it.dishesPrice.toFloat())}"
                     }
                     addElement(dat)
                 }
                 dat = TextPrint().apply {
-                    text="-----"
+                    text = "-----"
                 }
                 addElement(dat)
                 addElement(Integer.valueOf(1))
                 dat = TextPrint().apply {
-                    text="订单号:"
+                    text = "订单号:"
                 }
                 addElement(dat)
                 dat = TextPrint().apply {
-                    var odi = ""
-                    if (data.traceid.isNullOrEmpty())odi = data.orderid!!
-                    text="${odi}"
+                    text = payForUI.orderId.ifEmpty { payForUI.traceId }
                 }
                 addElement(dat)
 
                 dat = TextPrint().apply {
-                    text="付款:  ￥${data.payment}"
+                    text = "付款:  ￥${payForUI.payment}"
                     align = 2
                     style = 8
                 }
                 addElement(dat)
                 addElement(Integer.valueOf(1))
                 dat = TextPrint().apply {
-                    text="谢谢惠顾！欢迎下次光临"
+                    text = "谢谢惠顾！欢迎下次光临"
                     align = 1
                 }
                 addElement(dat)
@@ -187,6 +183,4 @@ object PrinterOperator {
             }
         }
     }
-
-
 }

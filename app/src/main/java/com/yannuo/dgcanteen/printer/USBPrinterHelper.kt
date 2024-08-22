@@ -12,7 +12,7 @@ import com.csnprintersdk.csnio.CSNUSBPrinting
 import com.csnprintersdk.csnio.csnbase.CSNIOCallBack
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
@@ -34,7 +34,7 @@ class USBPrinterHelper {
     private var mPos: CSNPOS? = null
     private val kv = MMKV.defaultMMKV()
     private val printerThread: PrinterThread = PrinterThread()
-    private val printQueue: ArrayBlockingQueue<PayResultForUI> = ArrayBlockingQueue(5)
+    private val printQueue: ArrayBlockingQueue<PayForUI> = ArrayBlockingQueue(5)
     private var connectStatus = false
     private var connectTimes = 0
 
@@ -124,7 +124,7 @@ class USBPrinterHelper {
         handler.post { ToastShowUtil.show(str) }
     }
 
-    fun printTicket(data: PayResultForUI) {
+    fun printTicket(payForUI: PayForUI) {
         if (mPos?.GetIO()?.IsOpened() == false) return
         val state = queryPrintState()
         if (state != 0) LogUtil.e(TAG, codeToResult(state))
@@ -135,7 +135,7 @@ class USBPrinterHelper {
                 kv.encode(Constant.PRINTER_AMOUNT, 1)
             }
             // 入队
-            printQueue.offer(data)
+            printQueue.offer(payForUI)
             startPrint()
         }
     }
@@ -184,7 +184,7 @@ class USBPrinterHelper {
         }
     }
 
-    private fun printContent(data: PayResultForUI) {
+    private fun printContent(payForUI: PayForUI) {
         mPos?.POS_Reset() //复位打印机
         mPos?.POS_S_Align(1) //居中对齐
         //按照一定的格式打印字符串
@@ -193,34 +193,31 @@ class USBPrinterHelper {
         mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_AMOUNT, 1))}\r\n", 0, 0, 1, 1, 0, 0)
         mPos?.POS_S_Align(0) //左对齐
         mPos?.POS_TextOut("================================\r\n", 0, 0, 0, 0, 0, 0)
-        if (data.cust_name != null && data.cust_name!!.isNotEmpty()) {
-            mPos?.POS_TextOut("${printFormat("用户姓名", data.cust_name!!)}\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.username.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("用户姓名", payForUI.username)}\r\n", 0, 0, 0, 0, 0, 0)
         }
-        if (data.acc_bal != null && data.acc_bal!!.isNotEmpty()) {
-            mPos?.POS_TextOut("${printFormat("用户余额", "${data.acc_bal}元")}\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.accBal.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("用户余额", "${payForUI.accBal}元")}\r\n", 0, 0, 0, 0, 0, 0)
         }
-        if (data.orderid != null && data.orderid!!.isNotEmpty()) {
-            mPos?.POS_TextOut("${printFormat("订单号", data.orderid!!)}\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.orderId.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("订单号", payForUI.orderId)}\r\n", 0, 0, 0, 0, 0, 0)
         }
-        if (data.payment != null && data.payment!!.isNotEmpty()) {
-            mPos?.POS_TextOut("${printFormat("订单金额", String.format("%.02f元", data.payment!!.toFloat()))}\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.payment.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("订单金额", String.format("%.02f元", payForUI.payment.toFloat()))}\r\n", 0, 0, 0, 0, 0, 0)
         }
-        if (data.timestamp != null && data.timestamp!!.length == 14) {
-            val time = data.timestamp!!
-            val dateTime = "${time.substring(0, 4)}-${time.substring(4, 6)}-${time.substring(6, 8)} " +
-                    "${time.substring(8, 10)}:${time.substring(10, 12)}:${time.substring(12, 14)}"
-            mPos?.POS_TextOut("${printFormat("订单时间", dateTime)}\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.payTime.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("订单时间", payForUI.payTime)}\r\n", 0, 0, 0, 0, 0, 0)
         }
         mPos?.POS_TextOut("${printFormat("收银员", "${kv.decodeString(Constant.PRINTER_CASHIER_NAME, "10000001")}")}\r\n", 0, 0, 0, 0, 0, 0)
-        val dishes = data.dishes
-        if (dishes != null && dishes.size > 0) {
+        val dishes = payForUI.paymentDishes
+        if (dishes.size > 0) {
             var sum = 0.0
             mPos?.POS_FeedLine()
             mPos?.POS_TextOut("${printFormatMenu("名称", "数量", "小计")}\r\n", 0, 0, 0, 0, 0, 0)
             mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
             dishes.forEach {
-                sum += it.count * it.price
-                mPos?.POS_TextOut("${printFormatMenu(it.dishesName, "${it.count}", "${it.count * it.price}")}\r\n", 0, 0, 0, 0, 0, 0)
+                sum += it.dishesNumber.toFloat() * it.dishesPrice.toFloat()
+                mPos?.POS_TextOut("${printFormatMenu(it.dishesName, it.dishesNumber, "${it.dishesNumber.toFloat() * it.dishesPrice.toFloat()}")}\r\n", 0, 0, 0, 0, 0, 0)
             }
             mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
             mPos?.POS_TextOut("${printFormat("合计", String.format("%.02f元", sum))}\r\n", 0, 0, 0, 0, 0, 0)

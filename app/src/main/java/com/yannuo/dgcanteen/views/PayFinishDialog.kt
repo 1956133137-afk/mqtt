@@ -11,27 +11,22 @@ import android.widget.ImageButton
 import android.widget.PopupWindow
 import android.widget.TextView
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
 
 
-class PayFinishDialog(context :Context,dat : PayResultForUI) :BaseDialog(context, R.layout.dialog_pay_finish) {
+class PayFinishDialog(context: Context, payForUI: PayForUI) : BaseDialog(context, R.layout.dialog_pay_finish) {
     private val TAG = javaClass.simpleName
-    private lateinit var tv_close : ImageButton
-    private lateinit var tv_count  :TextView
-    private lateinit var tv_title :TextView
-    private lateinit var tv_time :TextView
-    private lateinit var tv_order_number :TextView
-    private lateinit var tv_pay_way :TextView
-    private lateinit var tv_pay_account :TextView
-    private lateinit var tv_product_name :TextView
-    private lateinit var tv_error_hit :TextView
-    private lateinit var tv_full_names :TextView
-    private var data : PayResultForUI
-
-    init {
-        data = dat
-    }
-
+    private lateinit var tv_close: ImageButton
+    private lateinit var tv_count: TextView
+    private lateinit var tv_title: TextView
+    private lateinit var tv_time: TextView
+    private lateinit var tv_order_number: TextView
+    private lateinit var tv_pay_way: TextView
+    private lateinit var tv_pay_account: TextView
+    private lateinit var tv_product_name: TextView
+    private lateinit var tv_error_hit: TextView
+    private lateinit var tv_full_names: TextView
+    private var mPayForUI: PayForUI = payForUI
 
     override fun initViewAndEvent() {
         kotlin.runCatching {
@@ -49,39 +44,43 @@ class PayFinishDialog(context :Context,dat : PayResultForUI) :BaseDialog(context
             tv_close.setOnClickListener(this)
             tv_product_name.setOnClickListener(this)
 
-            if (data.result == PayResultForUI.Result.FAIL) {
+            if (mPayForUI.result != "Y") {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     tv_title.setTextColor(context.getColor(R.color.red))
                 }
                 tv_title.text = "支付失败"
             }
-            tv_time.text = data.timestamp
-            tv_order_number.text = data.orderid
-            tv_pay_way.text = data.way
+            tv_time.text = mPayForUI.payTime
+            tv_order_number.text = mPayForUI.orderId
+            tv_pay_way.text = when (mPayForUI.payType) {
+                "1" -> "刷脸支付"
+                "2" -> "扫码支付"
+                else -> "刷卡支付"
+            }
 //            tv_pay_account.text = "￥${data.amount}"
-            tv_count.text = "${data.piece} 件"
-            tv_product_name.text = data.cmdty_nm
-            tv_error_hit.text = data.errormsg
+//            tv_count.text = "${mPayForUI.paymentDishes.size} 件"
+//            tv_product_name.text = mPayForUI.cmdty_nm
+            tv_error_hit.text = mPayForUI.errMsg
         }
     }
 
     override fun onClick(v: View?) {
-        when(v?.id){
+        when (v?.id) {
             R.id.ib_close -> cancel()
             R.id.tv_product_name -> {
                 kotlin.runCatching {
-                val popupWindow = PopupWindow()
-                val view = LayoutInflater.from(context).inflate(R.layout.popwindow_name_list,null,false)
-                tv_full_names = view.findViewById(R.id.tv_names_list)
-                val str = data.cmdty_nm
-                tv_full_names.text = str!!.replace(";","\r\n")
-                popupWindow.contentView = view
-                popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-                popupWindow.height = ViewGroup.LayoutParams.WRAP_CONTENT
-                popupWindow.isTouchable = true
-                popupWindow.setBackgroundDrawable( ColorDrawable())
-                popupWindow.isOutsideTouchable = true
-                popupWindow.showAtLocation(v,Gravity.CENTER,0,0)
+                    val popupWindow = PopupWindow()
+                    val view = LayoutInflater.from(context).inflate(R.layout.popwindow_name_list, null, false)
+                    tv_full_names = view.findViewById(R.id.tv_names_list)
+//                    val str = data.cmdty_nm
+//                    tv_full_names.text = str!!.replace(";", "\r\n")
+                    popupWindow.contentView = view
+                    popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    popupWindow.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    popupWindow.isTouchable = true
+                    popupWindow.setBackgroundDrawable(ColorDrawable())
+                    popupWindow.isOutsideTouchable = true
+                    popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0)
                 }
             }
         }

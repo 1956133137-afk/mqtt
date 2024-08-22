@@ -17,10 +17,10 @@ import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.dao.*
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.facepass.SDKInitResult
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.*
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IMqttConnectState
 import com.yannuo.dgcanteen.model.*
@@ -34,7 +34,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
@@ -129,14 +128,13 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //        processingData()   //启动图片下载重新入库任务
         synConsumerDish()   //同步消费记录
         offLineFillMoney() //离线补扣
-        cardFillMoney() //离线刷卡补扣
         checkNetPass()
     }
 
     @OptIn(ExperimentalTime::class)
     private fun checkNetPass() {
         mScope.launch {
-            while (isActive){
+            while (isActive) {
                 delay(Duration.minutes(5))
                 if (NetworkStateManager.getInstance().isOnline(this@CameraService)) {
                     if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
@@ -150,7 +148,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
     private suspend fun getPayCfg() {
         val result = mRespository.getPayCfg()
-        if (result.code == 200) {
+        if (result.code == "200") {
             val mv = MMKV.defaultMMKV()
             mv.encode(Constant.PAY_CONFIG, result.data)
             LogUtil.i(TAG, "已更新配置信息！")
@@ -164,7 +162,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 
         val work = PeriodicWorkRequest.Builder(
             CheckVersionWorker::class.java,
-            15L +Random.nextInt(15),
+            15L + Random.nextInt(15),
             TimeUnit.MINUTES
         ).build()
 
@@ -486,23 +484,11 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     @OptIn(ExperimentalTime::class)
     private fun downPerson() {
         mScope.launch {
-            val prvKey = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIGRJ0RqOaaYrem6zmTo" +
-                    "/SF2OROMcJwRws/b05kaG0N90ZKFdRucIuiWvCiU4y9LLD6yNaCIyDGH0VubFOGnwzF7BqGR" +
-                    "4LTJgCHtfYodkE8XA99/P/cT/gi38uoX+UBnjxR2WeJPhHEr59tvVejb93KJQPMnhs7wJnxX" +
-                    "YycTmJuLAgMBAAECgYAvoMcZfB7jIb7Ua2oRaCAc29ORXw/KHzFIrVs0LYeWILsYLFznIFco" +
-                    "vrg+BrUYnn6OMX5LG9zTcETCctiTNtMmaBwG6J41GNWdwwJDdTmhjXs/jh6q1Wp3oT4jzlJW" +
-                    "DozrwTWnzxFg/zoywntSFd46xzlt0YIXxpSQR8e0WxktYQJBAME/MTnp8csABoZ/OGhIS4qb" +
-                    "xlVayHS+H8qCOU1mdb/aYDoiqf94LYpebqkCwcerjhz02ZX9xwqWTA2TUib8p1ECQQCrpDDi" +
-                    "/M+mU2f63qs66usmLCIeJpaD56AeYIm5TdVC7PI6ZOx/FsBxJGkk1b6pmrOEAKQ7lFhMoq4U" +
-                    "Z2I28hYbAkAqQF/J8s2L/ehvVbeGjW/+0UpO9Tdo1vzqcQiIVMOf++YYL+YNVkBWxYjaaSDn" +
-                    "QColSJ+ePMtdFDlyqmhG3+zRAkAghHq+hibQ2/xXCthl0Ru7n6DXFXhuhPNQzflJofVFOJ6r" +
-                    "cXNcoHLU/JDu6Y+1khlwaK60muYfnrJcKznwLu0BAkAKhJcHprKRRCJpT//A169jrbfuX1B6" +
-                    "mFcOGXwPzO2s1JYzUlXCU4ylOVrLmdOpV+e7OSkrKNihVeIUm+TJt4MK"
             val mv = MMKV.defaultMMKV()
             while (isActive) {
 
                 val upTime = mv.decodeLong(Constant.PERSONINFO_TIME, 0)
-                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.MINUTES.toMillis(30+Random.nextLong(5)))
+                var timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.MINUTES.toMillis(30 + Random.nextLong(5)))
 //                val timeout = (System.currentTimeMillis() - upTime) >= (TimeUnit.MINUTES.toMillis(1))
 //                timeout = true
                 var finish = false
@@ -513,8 +499,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                     do {
                         val res = mRespository.downPerson(200, currentPage)
                         try {
-                            if (res.code == 200) {
-                                val result = DES3CBCUtil.decryptRSA(res.data, prvKey)
+                            if (res.code == "200") {
+                                val result = DES3CBCUtil.decryptRSA(res.data)
 //                                LogUtil.d(TAG,"更新人员 : $result")
                                 val bean = Gson().fromJson(result, PersonList::class.java)
                                 bean.list?.forEach {
@@ -589,49 +575,51 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     @OptIn(ExperimentalTime::class)
     private fun synConsumerDish() {
         mScope.launch {
-
             while (isActive) {
-                LogUtil.i(TAG, "离线消费上传任务开始...")
+                LogUtil.i(TAG, "消费记录上传任务开始...")
                 delay(Duration.minutes(30))
 //                delay(Duration.seconds(30))
                 val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
                 if (offline) continue
                 //在线模式下
-                // 1、先复位上传标志
-                do {
-                    val dishList = DishesDBHelper.getInstance().extractConsumerOrder(true)
-                    dishList.forEach {
-                        it.up = false
+                val payOrderToAll = DishesDBHelper.getInstance().queryPayOrderToAll()
+                payOrderToAll.forEach { order ->
+                    val bean = SynConsumeRecordBean().apply {
+                        deviceSerialNumber = order.deviceId
+                        businessId = order.businessId
+                        counterId = order.vposId
+                        consumptionType = order.payType
+                        RESULT = order.result
+                        CUST_ID = order.custId
+                        PAYMENT = order.payment
+                        ACTUAL_PAYMENT = order.actualPayment ?: "0.0"
+                        ACC_NO = order.accNo
+                        ACC_BAL = order.accBal
+                        ACC_TYPE = order.accType
+                        TRACEID = order.traceId
+                        ORDER_ID = order.orderId
+                        TRAN_RESULT = order.tranResult
+                        OFFLINE = order.offline
+                        ERRCODE = ""
+                        ERRMSG = ""
+                        ACCALIAS = order.accList
+                        PAYTIME = order.payTime
+                        BUSINESS_NAME = order.businessName
                     }
-                    DishesDBHelper.getInstance().updateConsumerOrders(dishList)
-                } while (dishList.size == 100 && runTask)
-                //2、上传记录
-
-                val gson = Gson()
-                do {
-                    val order = DishesDBHelper.getInstance().queryConsumerOrder()
-                    order?.also {
-                        val js = gson.toJson(order)
-                        LogUtil.d(TAG, js)
-                        val bean = gson.fromJson(js, SynConsumeRecordBean::class.java)
-                        val res = mRespository.synCsRecord(bean)
-                        if (res.code == HttpURLConnection.HTTP_OK) {
-                            //删除对应的消费记录
-                            DishesDBHelper.getInstance().deleteConsumerOrder(it.ordeR_ID)
-                            LogUtil.i(TAG, "离线订单${bean.ORDER_ID} 上传成功!")
-                        } else {
-                            LogUtil.e(TAG, "离线上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
-                            //修改上传标志
-                            it.up = true
-                            DishesDBHelper.getInstance().updateConsumerOrder(it)
-                        }
+                    order.paymentDishesList.forEach { dish ->
+                        bean.paymentDishesList.add(Gson().fromJson(Gson().toJson(dish), Dish::class.java))
                     }
-                } while (order != null && runTask)
-                LogUtil.i(TAG, "离线消费上传任务结束...")
+                    val res = mRespository.synCsRecord(bean)
+                    if (res.code == "200") {
+                        order.flag = 1
+                        DishesDBHelper.getInstance().updatePayOrder(order)
+                        LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
+                    } else LogUtil.e(TAG, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                }
+                LogUtil.i(TAG, "消费记录上传任务结束...")
             }
         }
     }
-
 
     /**
      * 恢复网络并且不是离线模式离线补扣
@@ -641,170 +629,66 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         mScope.launch {
             while (isActive) {
                 delay(Duration.minutes(40))
-//                delay(Duration.seconds(30))
-
-                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态 //进行离线补扣
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
+                    val offlineOrder = DishesDBHelper.getInstance().queryOfflineOrderToAll()
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
-                    // 1、先复位上传标志
-                    do {
-                        val dishList = DishesDBHelper.getInstance().extractQRCodeConsumerOrder(true)
-                        dishList.forEach {
-                            it.postTag = false
+                    offlineOrder.forEach { order ->
+                        val payForUI = Gson().fromJson(Gson().toJson(order), PayForUI::class.java)
+                        order.paymentDishes.forEach { payForUI.paymentDishes.add(Gson().fromJson(Gson().toJson(it), Dish::class.java)) }
+                        val response = when (payForUI.payType) {
+                            "2" -> {
+                                val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
+                                request.qrCode = payForUI.payContent
+                                val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
+                                mRespository.payByQrCode(encryption)
+                            }
+                            "3" -> {
+                                val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
+                                request.cardId = payForUI.payContent
+                                val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
+                                mRespository.payByIcCard(encryption)
+                            }
+                            else -> CanteenResponse<String>()
                         }
-                        DishesDBHelper.getInstance().updateQRCodeConsumerOrders(dishList)
-                    } while (dishList.size == 100 && runTask)
-                    do {
-                        val order = DishesDBHelper.getInstance().queryOffLineOrder()
-                        order?.also { it ->
-                            val bean =
-                                Gson().fromJson(Gson().toJson(order), OffLineTable::class.java)
-                            val map = CanteenEncryptionUtil.getScanToPay(bean)
-                            val res = mRespository.getCcbData(map).body()?.let { //扫码支付
-                                Gson().fromJson(
-                                    it.string().replace("\r\n", ""),
-                                    ScanQrResultBean::class.java
-                                )
-                            }
-                            if (res == null){
-                                LogUtil.e(TAG, "扫码离线补扣${bean.ordeR_ID} 订单失败==网络错误")
-                                //修改请求标志
-                                it.postTag = true
-                                DishesDBHelper.getInstance().updateOffLineOrder(it)
-                                return@also
-                            }
-                            val dishes: MutableList<DishesInfo> = mutableListOf()
-                            it.offLineDishesList.forEach {
-                                dishes.add(
-                                    DishesInfo(
-                                        it.dishesId,
-                                        it.dishesName,
-                                        0,
-                                        null,
-                                        it.dishesPrice,
-                                        "",
-                                        "",
-                                        0,
-                                        it.dishesNumber
-                                    )
-                                )
-                            }
-
-//                            if (res?.RESULT.toString() == "Y") {
-//
-//                                //上传消费记录
-//                                res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
-//                                //删除对应的离线订单记录
-//                                DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
-//                                LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
-//                            } else {
-//                                LogUtil.e(TAG, "离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
-//                                //修改请求标志
-//                                it.postTag = true
-//                                DishesDBHelper.getInstance().updateOffLineOrder(it)
-//                            }
-
-                            if (res?.RESULT.toString() == "Y") {
-                                LogUtil.i(TAG, "离线订单${bean.ordeR_ID} 上传成功!")
-                            } else {
-                                LogUtil.e(TAG, "离线补扣${bean.ordeR_ID} 订单失败==\n${res?.ERRMSG}")
-                            }
-
-                            //上传消费记录
-                            res?.let { mDataPresenter.consumeRecord(bean, it, dishes) }
-                            //删除对应的离线订单记录
-                            DishesDBHelper.getInstance().deleteOffLineOrder(it.ordeR_ID)
+                        if (response.code == "200") {
+                            val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
+                            val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                            payForUI.result = result.RESULT
+                            payForUI.accType = result.ACC_TYPE
+                            payForUI.accNo = result.ACC_NO
+                            payForUI.accBal = result.ACC_BAL
+                            payForUI.accList = result.ACC_LIST
+                            payForUI.actualPayment = result.ACTUAL_PAYMENT
+                            payForUI.orderId = result.ORDERID
+                            payForUI.traceId = result.TRACEID
+                            payForUI.errCode = result.ERRCODE
+                            payForUI.errMsg = result.ERRMSG
+                        } else {
+                            payForUI.errCode = response.code
+                            payForUI.errMsg = response.msg
                         }
-                    } while (order != null && runTask && !MMKV.defaultMMKV()
-                            .decodeBool(Constant.SWITCH)
-                    )
+                        if (payForUI.result == "Y") {
+                            order.flag = 1
+                            DishesDBHelper.getInstance().updateOLOrder(order)
+                            saveOrderRecord(payForUI)
+                        }
+                        LogUtil.d(TAG, Gson().toJson(payForUI))
+                    }
                     LogUtil.i(TAG, "离线订单补扣请求结束...")
                 }
             }
         }
     }
 
-    /**
-     * 恢复网络并且不是离线模式离线刷卡补扣
-     */
-    @OptIn(ExperimentalTime::class)
-    private fun cardFillMoney() {
-        mScope.launch {
-            while (isActive) {
-                delay(Duration.minutes(35))
-//                delay(Duration.seconds(30))
-                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
-                    LogUtil.i(TAG, "离线刷卡订单请求开始...")
-                    // 1、先复位上传标志
-                    do {
-                        val dishList = DishesDBHelper.getInstance().extractCardConsumerOrder(true)
-                        dishList.forEach {
-                            it.up = false
-                        }
-                        DishesDBHelper.getInstance().updateCardConsumerOrders(dishList)
-                    } while (dishList.size == 100 && runTask)
-
-                    do {
-                        val order = DishesDBHelper.getInstance().queryCardOrder()
-                        order?.also { it ->
-                            val bean = Gson().fromJson(Gson().toJson(order), CardPay::class.java)
-                            val map = CanteenEncryptionUtil.getCardToPay(bean)
-                            val res = mRespository.getCcbData(map).body()?.let { //扫码支付
-                                Gson().fromJson(
-                                    it.string().replace("\r\n", ""),
-                                    ScanQrResultBean::class.java
-                                )
-                            }
-                            if (res == null){
-                                //修改请求标志
-                                it.up = true
-                                DishesDBHelper.getInstance().updateCardOrder(it)
-                                return@also
-                            }
-                            val dishes: MutableList<DishesInfo> = mutableListOf()
-                            it.cardDishesList.forEach {
-                                dishes.add(
-                                    DishesInfo(
-                                        it.dishesId,
-                                        it.dishesName,
-                                        0,
-                                        null,
-                                        it.dishesPrice,
-                                        "",
-                                        "",
-                                        0,
-                                        it.dishesNumber
-                                    )
-                                )
-                            }
-//                            if (res?.RESULT.toString() == "Y") {
-//                                //上传消费记录
-//                                res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
-//
-//                                //删除对应的离线订单记录
-//                                DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
-//                                LogUtil.i(TAG, "离线订单${bean.order_id} 上传成功!")
-//                            } else {
-//                                LogUtil.e(TAG, "离线补扣${bean.order_id} 订单失败==\n${res?.ERRMSG}")
-//                                //修改请求标志
-//                                it.up = true
-//                                DishesDBHelper.getInstance().updateCardOrder(it)
-//                            }
-                            if (res?.RESULT.toString() == "Y") {
-                                LogUtil.i(TAG, "离线订单${bean.order_id} 上传成功!")
-                            } else {
-                                LogUtil.e(TAG, "离线补扣${bean.order_id} 订单失败==\n${res?.ERRMSG}")
-                            }
-                            //上传消费记录
-                            res?.let { mDataPresenter.cardConsumeRecord(bean, it, dishes) }
-                            //删除对应的离线订单记录
-                            DishesDBHelper.getInstance().deleteCardOrder(it.order_id)
-                        }
-                    } while (order != null && runTask && !MMKV.defaultMMKV()
-                            .decodeBool(Constant.SWITCH)
-                    )
-                    LogUtil.i(TAG, "离线刷卡订单请求结束...")
-                }
-            }
+    private fun saveOrderRecord(payForUI: PayForUI) {
+        val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
+        payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+        DishesDBHelper.getInstance().insertPayOrder(payOrder)
+        val order = DishesDBHelper.getInstance().queryPayOrder(payOrder.orderId)
+        payForUI.paymentDishes.forEach {
+            val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
+            dish.payOrderTable = order
+            DishesDBHelper.getInstance().insertPayDish(dish)
         }
     }
 

@@ -2,16 +2,14 @@ package com.yannuo.dgcanteen.common;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 
 import com.safframework.log.LogLevel;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mmkv.MMKV;
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper;
 import com.yannuo.dgcanteen.service.KeepAliveJobService;
-import com.yannuo.dgcanteen.service.MyMqttService;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogManager;

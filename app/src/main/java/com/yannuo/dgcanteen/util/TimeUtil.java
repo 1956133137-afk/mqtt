@@ -2,8 +2,8 @@ package com.yannuo.dgcanteen.util;
 
 import android.text.format.Time;
 
-import com.yannuo.dgcanteen.dao.MealTable;
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
+import com.yannuo.dgcanteen.greendao.entity.MealTable;
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -13,23 +13,23 @@ public class TimeUtil {
 
     public static List<MealTable> mealTables = null;
 
-    public static int CurrentTimeSection(){
+    public static int CurrentTimeSection() {
         int result = 0;
-        if (mealTables != null && mealTables.size() > 0){
-            for (MealTable u : mealTables){
-                if (isCurrentInTimeScope(u)){
+        if (mealTables != null && mealTables.size() > 0) {
+            for (MealTable u : mealTables) {
+                if (isCurrentInTimeScope(u)) {
                     result = u.getMealId();
                     break;
                 }
             }
-        }else {
+        } else {
             mealTables = DishesDBHelper.getInstance().queryAllMeals();
         }
         return result;
     }
 
-//    判断时间区间
-    private static boolean isCurrentInTimeScope(MealTable data){
+    //    判断时间区间
+    private static boolean isCurrentInTimeScope(MealTable data) {
         boolean result = false;
         final long aDayInMillis = 1000 * 60 * 60 * 24;
         final long currentTimeMillis = System.currentTimeMillis();
@@ -64,12 +64,12 @@ public class TimeUtil {
     }
 
     //判断时间戳间隔
-    public static long timestamp(long time){
+    public static long timestamp(long time) {
         long diff = time - System.currentTimeMillis();
         long days = diff / (1000 * 60 * 60 * 24);
         long hours = (diff - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
         long minutes = (diff - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60);
-        return days * 24 + hours;
+        return days * 24 * 60 + hours * 60 + minutes;
     }
 
     //时间格式化

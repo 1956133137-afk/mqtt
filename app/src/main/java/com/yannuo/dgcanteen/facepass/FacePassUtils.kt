@@ -2,7 +2,7 @@
 //
 //import android.graphics.Bitmap
 //import android.text.TextUtils
-//import com.yannuo.dgcanteen.dao.FaceTokens
+//import com.yannuo.dgcanteen.greendao.entity.FaceTokens
 //import com.yannuo.dgcanteen.util.Constant
 //import com.yannuo.dgcanteen.util.LogUtil
 //import mcv.facepass.FacePassException

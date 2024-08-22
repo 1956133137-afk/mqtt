@@ -6,12 +6,10 @@ import android.os.Build
 import android.os.Handler
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.presenters.SelfHelpPresenter
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityBalanceBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener

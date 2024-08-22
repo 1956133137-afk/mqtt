@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.yannuo.dgcanteen.activitys.presenters.OrderMenuPresenter
-import com.yannuo.dgcanteen.activitys.presenters.PayPresenter
+import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
@@ -24,7 +24,7 @@ import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.interfaces.ReadCardListener
 import com.yannuo.dgcanteen.model.DishesInfo
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
@@ -40,7 +40,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     private lateinit var mAdapter: ProductsAdapter
     private lateinit var model: ProductsVM
     private lateinit var mPresenter: OrderMenuPresenter
-    private lateinit var mPayPresenter: PayPresenter
+    private val payViewModel by lazy { ViewModelProvider(requireActivity())[PayViewModel::class.java] }
     private lateinit var mAdapterPayFor: PayForAdapter
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
@@ -98,31 +98,18 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         val gridLayoutManager = GridLayoutManager(requireContext(), 5)
         binding.rvManInfo.layoutManager = gridLayoutManager
         mAdapter.setImgSize(gridLayoutManager)
-
-        initIcAndQr()
-    }
-
-    private fun initIcAndQr() {
-        mPayPresenter = PayPresenter()
     }
 
     private fun openIcQr() {
-        mPayPresenter.setScanState(PayPresenter.ScanState.PAY)
-        mPayPresenter.setCardState(PayPresenter.ScanState.PAY)
-        if (state_opened) {
-            return
-        }
-        mPayPresenter.listener = this
-        mPayPresenter.mReadCardListener = CardCallBack()
+        payViewModel.openPayStatus()
+        if (state_opened) return
         state_opened = true
-        mPayPresenter.openIcCard()
-        mPayPresenter.openScan()
+        payViewModel.listener = this
     }
 
     private fun closeIcQr() {
         state_opened = false
-        mPayPresenter.setScanState(PayPresenter.ScanState.INVALID)
-        mPayPresenter.release()
+        payViewModel.closePayStatus()
     }
 
 
@@ -149,12 +136,6 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         closeIcQr()
         requireActivity().unbindService(mServiceConnection)
         super.onDestroy()
-    }
-
-
-    private fun release() {
-//        adapter.setListener(null)
-//        model.loadDialog.value = false
     }
 
     private fun initEvent() {
@@ -219,7 +200,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
             binding.tvTotalMoney.text.toString(),
             binding.tvTotalCount.text.toString()
         )
-        mPayPresenter.mDishes = productsDetail.copy()
+        payViewModel.mDishes = productsDetail.copy()
     }
 
 
@@ -306,7 +287,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                         clearShoppingCart()
                         model.getDisplay()?.dismiss()
                         model.tab.postValue(1)
-                        model.uiData.postValue(any as PayResultForUI)
+                        model.uiData.postValue(any as PayForUI)
                     }
             }
             5 -> Observable.just(1)
@@ -316,6 +297,8 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                         CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
                     } else if (any == 2) {
                         CommonAndDpToPxUtil.speakWork("请检查网络,不支持离线聚合支付!")
+                    } else if (any == 3) {
+                        CommonAndDpToPxUtil.speakWork("非本园区人员")
                     } else {
                         CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                     }
@@ -326,7 +309,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         }
     }
 
-    override fun onFacePayResult(data: PayResultForUI) {
+    override fun onFacePayResult(data: PayForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
         runBlocking(Dispatchers.Main) {
             clearShoppingCart()

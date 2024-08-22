@@ -4,27 +4,24 @@ import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.text.TextUtils;
 import android.view.Display;
 import android.view.WindowManager;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.PayResultAdapter;
-import com.yannuo.dgcanteen.dao.Persons;
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.PayFailureBinding;
 import com.yannuo.dgcanteen.databinding.PaySuccessBinding;
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper;
+import com.yannuo.dgcanteen.greendao.entity.Persons;
 import com.yannuo.dgcanteen.model.MessageEvent;
-import com.yannuo.dgcanteen.model.PayResultForUI;
+import com.yannuo.dgcanteen.model.PayForUI;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.text.SimpleDateFormat;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class PayResultDisplay extends Presentation {
 
@@ -34,17 +31,16 @@ public class PayResultDisplay extends Presentation {
 
 
     private PayResultAdapter mPayResultAdapter;
-    private PayResultForUI mPayResult;
+    private PayForUI mPayForUI;
     private CountDownTimer countDownTimer;
     private int time = 0;
     private volatile boolean sendCancel = false;
 
-    public PayResultDisplay(Context outerContext, PayResultForUI payResult , Display display) {
+    public PayResultDisplay(Context outerContext, PayForUI payForUI, Display display) {
         super(outerContext, display);
         getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        mPayResult = payResult;
+        mPayForUI = payForUI;
     }
-
 
 
     @Override
@@ -53,11 +49,11 @@ public class PayResultDisplay extends Presentation {
         MMKV kv = MMKV.defaultMMKV();
         time = kv.decodeInt(Constant.SHOW_TIME, 5);
 
-        if (mPayResult.getResult() == PayResultForUI.Result.FAIL){
+        if (!mPayForUI.getResult().equals("Y")) {
             mFailBinding = PayFailureBinding.inflate(getLayoutInflater());
             setContentView(mFailBinding.getRoot());
             initFail();
-        }else {
+        } else {
             mBinding = PaySuccessBinding.inflate(getLayoutInflater());
             setContentView(mBinding.getRoot());
             initData();
@@ -65,9 +61,9 @@ public class PayResultDisplay extends Presentation {
             initView();
         }
         int totalTime = 0;
-        if (time >= 0)totalTime = time;
-        if (mPayResult.getWay().equals("人脸支付")) {
-            if (mPayResult.getResult() == PayResultForUI.Result.FAIL)
+        if (time >= 0) totalTime = time;
+        if (mPayForUI.getPayType().equals("1")) {
+            if (mPayForUI.getResult().equals("N"))
                 mFailBinding.btBack.setEnabled(false);
             else mBinding.btBack.setEnabled(false);
             if (time < 3) totalTime = 3;
@@ -76,32 +72,17 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initFail() {
-        if (!TextUtils.isEmpty(mPayResult.getErrormsg())) {
-            mFailBinding.payFailMsg.setText(mPayResult.getErrormsg());
-        }
-        if (!TextUtils.isEmpty(mPayResult.getTimestamp())) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(mPayResult.getTimestamp().substring(0,4))
-                    .append("-")
-                    .append(mPayResult.getTimestamp().substring(4,6)).append("-")
-                    .append(mPayResult.getTimestamp().substring(6,8))
-                    .append(" ")
-                    .append(mPayResult.getTimestamp().substring(8,10))
-                    .append(":")
-                    .append(mPayResult.getTimestamp().substring(10,12))
-                    .append(":")
-                    .append(mPayResult.getTimestamp().substring(12)).toString();
-            mFailBinding.payTime.setText(buffer.toString());
-        }
+        mFailBinding.payFailMsg.setText(mPayForUI.getErrMsg());
+        mFailBinding.payTime.setText(mPayForUI.getPayTime());
         CommonAndDpToPxUtil.speakWork("支付失败");
         initFailEvent();
     }
 
     private void initFailEvent() {
 //        if (time < 0) {
-            mFailBinding.btBack.setOnClickListener(v -> {
-                back();
-            });
+        mFailBinding.btBack.setOnClickListener(v -> {
+            back();
+        });
 //        }
     }
 
@@ -120,84 +101,50 @@ public class PayResultDisplay extends Presentation {
     }
 
     private void initView() {
-        mPayResultAdapter.setData(mPayResult.getDishes());
-        mBinding.tvSum.setText(""+mPayResult.getPiece()+"件");
-        mBinding.payTotalMoney.setText(String.format("￥ %s 元",mPayResult.getPayment()));
+        mPayResultAdapter.setData(mPayForUI.getPaymentDishes());
+        mBinding.tvSum.setText("" + mPayForUI.getPaymentDishes().size() + "件");
+        mBinding.payTotalMoney.setText(String.format("￥ %s 元", mPayForUI.getPayment()));
+        String str = "";
+        if (mPayForUI.getPayType().equals("1")) str = "刷脸支付";
+        else if (mPayForUI.getPayType().equals("2")) str = "扫码支付";
+        else str = "刷卡支付";
+        CommonAndDpToPxUtil.speakWork(str + mPayForUI.getPayment() + "元");
+        mBinding.tvTransNumber.setText(mPayForUI.getOrderId().isEmpty() ? mPayForUI.getTraceId() : mPayForUI.getOrderId());
 
-        if (mPayResult.getWay().equals("20")||mPayResult.getWay().equals("21")){
-            String str ="支付宝收款";
-            if (mPayResult.getWay().equals("20"))str ="微信收款";
-            CommonAndDpToPxUtil.speakWork(str + mPayResult.getPayment()+"元");
-            mBinding.tvTransNumber.setText(mPayResult.getTraceid());
-        }else {
-            Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.getCustId());
-            String cls = "***";
-            if (persons != null){
-                cls = persons.getGrade() + "("+persons.getUserClass()+")";
-            }
-            mBinding.tvClass.setText(cls);
-            cls = mPayResult.getCust_name();
-            if (TextUtils.isEmpty(mPayResult.getCust_name())){
-                cls ="***";
-            }
-            mBinding.tvName.setText(cls);
-            CommonAndDpToPxUtil.speakWork("已支付"+mPayResult.getPayment()+"元");
-            mBinding.tvTransNumber.setText(mPayResult.getOrderid());
-            String cont = (mPayResult.getAcc_bal().isEmpty() ? "" :mPayResult.getAcc_bal()) + "元";
-            mBinding.tvBalance.setText( cont);
-        }
-
-        String time = mPayResult.getTimestamp();
-        if (!mPayResult.getTimestamp().isEmpty() && !mPayResult.getWay().equals("人脸支付")){
-            StringBuffer buffer = new StringBuffer();
-            time = buffer.append(mPayResult.getTimestamp().substring(0,4))
-                    .append("-")
-                    .append(mPayResult.getTimestamp().substring(4,6))
-                    .append("-")
-                    .append(mPayResult.getTimestamp().substring(6,8))
-                    .append(" ")
-                    .append(mPayResult.getTimestamp().substring(8,10))
-                    .append(":")
-                    .append(mPayResult.getTimestamp().substring(10,12))
-                    .append(":")
-                    .append(mPayResult.getTimestamp().substring(12)).toString();
-        }
-        mBinding.tvPayTime.setText(time);
-
+        Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayForUI.getCustId());
+        if (persons != null && persons.getGrade() != null) mBinding.tvClass.setText(persons.getGrade() + "(" + persons.getUserClass() + ")");
+        mBinding.tvName.setText(mPayForUI.getUsername());
+        mBinding.tvBalance.setText(mPayForUI.getAccBal().isEmpty() ? "" : mPayForUI.getAccBal() + "元");
+        mBinding.tvPayTime.setText(mPayForUI.getPayTime());
     }
 
     private void initEvent() {
 //        if (time < 0) {
-            mBinding.btBack.setOnClickListener(v -> {
-                back();
-            });
+        mBinding.btBack.setOnClickListener(v -> {
+            back();
+        });
 //        }
     }
 
-    private void back(){
-        if (sendCancel)return;
+    private void back() {
+        if (sendCancel) return;
         sendCancel = true;
-        EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD,null));
+        EventBus.getDefault().post(new MessageEvent(Constant.EVENT_THIRD, null));
     }
 
 
-    private void dida(int tm){
-        if (tm == 0)return;
-        countDownTimer = new CountDownTimer(tm * 1000 +100, 1000) {
+    private void dida(int tm) {
+        if (tm == 0) return;
+        countDownTimer = new CountDownTimer(tm * 1000 + 100, 1000) {
             @Override
             public void onTick(long mil) {
-                if (mPayResult.getResult() == PayResultForUI.Result.FAIL)
-                    mFailBinding.btBack.setText("返回"+(mil)/1000+"秒");
-                else
-                    mBinding.btBack.setText("返回"+(mil)/1000+"秒");
+                if (!mPayForUI.getResult().equals("Y")) mFailBinding.btBack.setText("返回" + (mil) / 1000 + "秒");
+                else mBinding.btBack.setText("返回" + (mil) / 1000 + "秒");
 
-                if ((mil /1000) == (tm - 3)) {
-                    if (mPayResult.getWay().equals("人脸支付")) {
-                        if (mPayResult.getResult() == PayResultForUI.Result.FAIL) {
-                            mFailBinding.btBack.setEnabled(true);
-                        } else {
-                            mBinding.btBack.setEnabled(true);
-                        }
+                if ((mil / 1000) == (tm - 3)) {
+                    if (mPayForUI.getPayType().equals("1")) {
+                        if (!mPayForUI.getResult().equals("Y")) mFailBinding.btBack.setEnabled(true);
+                        else mBinding.btBack.setEnabled(true);
                     }
                 }
             }
@@ -205,26 +152,27 @@ public class PayResultDisplay extends Presentation {
             @Override
             public void onFinish() {
                 if (time < 0) {
-                    if (mPayResult.getResult() == PayResultForUI.Result.FAIL) {
+                    if (!mPayForUI.getResult().equals("Y")) {
                         mFailBinding.btBack.setEnabled(true);
                         mFailBinding.btBack.setText("返回");
                     } else {
                         mBinding.btBack.setEnabled(true);
                         mBinding.btBack.setText("返回");
                     }
-                }else {
+                } else {
                     back();
                 }
             }
         };
         countDownTimer.start();
     }
+
     @Override
     protected void onStop() {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
-        LogUtil.i(TAG,"stop...");
+        LogUtil.i(TAG, "stop...");
         super.onStop();
     }
 }

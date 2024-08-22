@@ -12,7 +12,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ItemGridLayoutBinding
 import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.LogUtil

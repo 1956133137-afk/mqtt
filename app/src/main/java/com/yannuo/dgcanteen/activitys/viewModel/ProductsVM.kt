@@ -17,17 +17,14 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.DishesDisplay
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.dao.DishesTable
-import com.yannuo.dgcanteen.dao.MealTable
-import com.yannuo.dgcanteen.dao.OrderDishList
-import com.yannuo.dgcanteen.dao.OwnOrder
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.*
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
-import com.yannuo.dgcanteen.model.Result
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,93 +33,79 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.HttpURLConnection
 import java.util.*
 import java.util.stream.Collectors
 
-class ProductsVM :ViewModel() {
-    var showToastEvent : MutableLiveData<String>
-    var loadingEvent : MutableLiveData<Boolean>
-    var menuChange : MutableLiveData<Int>
-    var tab : MutableLiveData<Int>
-    var uiData : MutableLiveData<PayResultForUI>
+class ProductsVM : ViewModel() {
     private val TAG = javaClass.simpleName
-    private lateinit var mRespository :PayRepositoryOfPay
-    private var exceptionHandler :CoroutineExceptionHandler
-    private lateinit var kv : MMKV
-    private var mPayCfg : PayCfg ?= null
-    private var mDishesDisplay : DishesDisplay ?= null
+    private val kv: MMKV = MMKV.defaultMMKV()
+    private val dbHelper = DishesDBHelper.getInstance()
 
-    var listener : IProductsVM?= null
+    val showToastEvent: MutableLiveData<String> = MutableLiveData()
+    val loadingEvent: MutableLiveData<Boolean> = MutableLiveData()
+    val menuChange: MutableLiveData<Int> = MutableLiveData()
+    val tab: MutableLiveData<Int> = MutableLiveData()
+    val uiData: MutableLiveData<PayForUI> = MutableLiveData()
 
+    private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
+    private val mPayCfg: PayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+    private var mDishesDisplay: DishesDisplay? = null
+    var listener: IProductsVM? = null
 
-    init {
-        kv = MMKV.defaultMMKV()
-        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
-        showToastEvent = MutableLiveData()
-        loadingEvent = MutableLiveData()
-        menuChange = MutableLiveData()
-        tab = MutableLiveData()
-        uiData = MutableLiveData()
-        mRespository =  PayRepositoryOfPay()
-
-        exceptionHandler =  CoroutineExceptionHandler { coroutineContext, throwable ->
-            LogUtil.e(TAG,"协程异常： $throwable ${throwable.stackTraceToString()}")
-            showToastEvent.postValue("错误： ${throwable.message}")
-            loadingEvent.postValue(false)
-        }
+    private val exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        LogUtil.e(TAG, "协程异常： $throwable ${throwable.stackTraceToString()}")
+        showToastEvent.postValue("错误： ${throwable.message}")
+        loadingEvent.postValue(false)
     }
-
 
     /**
      * 检查是否已更新菜品
      * @return Boolean
      */
-    private fun checkIsNeedUpdate() :Boolean{
-//        val kv = MMKV.defaultMMKV()
-        val old = kv.decodeString(Constant.UPDATE_TIME,Constant.update_time)
-        val now = DateFormat.format("yyyyMMdd",System.currentTimeMillis()).toString()
-        return  (old!!.toInt() >= now.toInt())
+    private fun checkIsNeedUpdate(): Boolean {
+        val old = kv.decodeString(Constant.UPDATE_TIME, Constant.update_time)
+        val now = DateFormat.format("yyyyMMdd", System.currentTimeMillis()).toString()
+        return (old!!.toInt() >= now.toInt())
     }
 
-    fun setDisplay(display : DishesDisplay?){
+    fun setDisplay(display: DishesDisplay?) {
         mDishesDisplay = display
     }
 
     fun getDisplay(): DishesDisplay? {
-       return mDishesDisplay
+        return mDishesDisplay
     }
 
-
-
-
     @RequiresApi(Build.VERSION_CODES.N)
-    fun upDataDishes(force :Boolean = false){
+    fun upDataDishes(force: Boolean = false) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val check = checkIsNeedUpdate()
-            if (check.not() || force){
+            if (check.not() || force) {
                 loadingEvent.postValue(true)
                 val rs = mRespository.getDayDishes()
-                if (rs.code == HttpURLConnection.HTTP_OK){
+                if (rs.code == "200") {
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
-                    val picList =  mutableListOf<String>() //菜品图片
+                    val picList = mutableListOf<String>() //菜品图片
 
                     //提取下架菜品
-                    val dishMap =  DishesDBHelper.getInstance().queryDishes().stream()
-                        .filter { it.status == 0 }.collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
-                    LogUtil.i(TAG,"未更新时已下架菜品总数: ${dishMap.size}")
+                    val dishMap = DishesDBHelper.getInstance().queryDishes().stream().filter {
+                        it.status == 0
+                    }.collect(Collectors.toMap({
+                        "${it.mealId}:${it.dishesId}:${it.dishesName}"
+                    }) { t -> t.status })
+                    LogUtil.i(TAG, "未更新时已下架菜品总数: ${dishMap.size}")
                     dishMap.forEach { t, u ->
-                        LogUtil.i(TAG,"下架的菜品 $t $u")
+                        LogUtil.i(TAG, "下架的菜品 $t $u")
                     }
 
-                    for (da in rs.data!!){
+                    for (da in rs.data!!) {
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
 
                         da.startTime?.also {
-                            val split =it.split(":")
+                            val split = it.split(":")
                             val date = Date()
                             date.hours = split[0].toInt()
                             date.minutes = split[1].toInt()
@@ -131,7 +114,7 @@ class ProductsVM :ViewModel() {
                         }
 
                         da.endTime?.also {
-                            val split =it.split(":")
+                            val split = it.split(":")
                             val date = Date()
                             date.hours = split[0].toInt()
                             date.minutes = split[1].toInt()
@@ -162,14 +145,13 @@ class ProductsVM :ViewModel() {
                     downLoadPic(picList)
 
                     //设置菜品数据已更新
-//                    val kv = MMKV.defaultMMKV()
-                    val now = DateFormat.format("yyyyMMdd HH:mm:ss",System.currentTimeMillis()).toString()
-                    kv.encode(Constant.UPDATE_TIME,now.substring(0,8))
-                    kv.encode(Constant.FINAL_TIME,now )
+                    val now = DateFormat.format("yyyyMMdd HH:mm:ss", System.currentTimeMillis()).toString()
+                    kv.encode(Constant.UPDATE_TIME, now.substring(0, 8))
+                    kv.encode(Constant.FINAL_TIME, now)
                     //发送菜品更新通知
                     EventBus.getDefault().post(MessageEvent(Constant.EVENT_FIFTH, null))
-                }else {
-                    LogUtil.e(TAG,"菜品下载出错 ${rs.msg}")
+                } else {
+                    LogUtil.e(TAG, "菜品下载出错 ${rs.msg}")
                     showToastEvent.postValue("菜品下载出错 ${rs.msg}")
                 }
                 loadingEvent.postValue(false)
@@ -187,182 +169,144 @@ class ProductsVM :ViewModel() {
      */
     fun startPayWithFace(service: ZHSTFacePayService?, detail: ProductsDetail) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
-            if (mPayCfg == null || TextUtils.isEmpty(mPayCfg!!.campusId) ||
-                TextUtils.isEmpty(mPayCfg!!.businessId) || TextUtils.isEmpty(mPayCfg!!.counterId)
-            ) {
+            if (TextUtils.isEmpty(mPayCfg.campusId) || TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)) {
                 LogUtil.e(TAG, "未配置支付环境")
                 throw Throwable("未配置支付环境")
             }
-            val stringBuffer  = StringBuffer()
-            for (da in detail.products){
-                stringBuffer.append("${ da.dishesName};")
-            }
-            var offline = 0  //在线
-            if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+            val stringBuffer = StringBuffer()
+            for (da in detail.products) stringBuffer.append("${da.dishesName};")
+            //0-在线 1-离线
+            val offline = if (kv.decodeBool(Constant.SWITCH)) 1 else 0
 
             val bean = CcbFacePayBean()
-            bean.CAMPUS_ID = mPayCfg!!.campusId.toString()
-            bean.CORP_ID = mPayCfg!!.corp_id.toString()
-            bean.PAYMENT = detail.totalMoney.replace('元',' ')
-            bean.BUSINESS_ID = mPayCfg!!.businessId.toString()
-            bean.VPOS_ID = mPayCfg!!.counterId.toString()
+            bean.CAMPUS_ID = mPayCfg.campusId
+            bean.CORP_ID = mPayCfg.corp_id
+            bean.PAYMENT = detail.totalMoney.replace('元', ' ')
+            bean.BUSINESS_ID = mPayCfg.businessId
+            bean.VPOS_ID = mPayCfg.counterId
             bean.REMARK = stringBuffer.toString()
             bean.OFFLINE = offline.toString()
 
-            service!!.startFacePay(
-                Gson().toJson(bean),
-                bean.OFFLINE,
-                object : PayResultListener.Stub() {
-                    override fun onResult(result: String) {
-                        LogUtil.d(TAG, result)
-                        val payResult =
-                            Gson().fromJson(result, CcbFacePayResultBean::class.java)
-                        val payState = PayResultForUI()
-                        payState.way = "人脸支付"
-                        payState.orderid = payResult.ORDER_ID
-                        payState.timestamp = payResult.PAYTIME
-                        payState.dishes = detail.products
-                        payState.piece = detail.count.toInt()
-                        when (payResult.RESULT) {
-                            "Y" -> { //订单状态,成功
-                                payState.cust_name = payResult.CUST_NAME
-                                payState.custId = payResult.CUST_ID
-                                payState.payment = payResult.PAYMENT
-                                if (offline == 0) payState.payment =
-                                    payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                                payState.acc_no = payResult.ACC_NO
-                                payState.acc_bal = payResult.ACC_BAL
-                                //检查支付结果，
-                                when (payResult.TRAN_RESULT) {
-                                    "3" -> {  //3支付成功
-                                        payState.result = PayResultForUI.Result.SUCCESS
-                                        payState.traceid = payResult.TRACEID
-                                        saveOrSynConsumeRecord(payResult, detail.products)
-                                    }
-                                    else -> { //1 -待支付、2-支付失败
-                                        payState.errormsg =
-                                            "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                                    }
+            service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
+                override fun onResult(result: String) {
+                    LogUtil.d(TAG, result)
+                    val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                    val payForUI = PayForUI().apply {
+                        businessId = mPayCfg.businessId
+                        businessName = mPayCfg.businessName
+                        campusId = mPayCfg.campusId
+                        corpId = mPayCfg.corp_id
+                        vposId = mPayCfg.counterId
+                        deviceId = CommonAndDpToPxUtil.getDeviceSerial()
+                        payType = "1"
+                        payment = detail.totalMoney
+                        orderId = payResult.ORDER_ID
+                        payTime = payResult.PAYTIME
+                        sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}${System.currentTimeMillis()}${Random().nextInt(10)}"
+                        signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", System.currentTimeMillis())
+                        this.offline = offline.toString()
+                    }
+                    detail.products.forEach {
+                        val dish = Dish().apply {
+                            dishesId = it.dishesId
+                            dishesName = it.dishesName
+                            dishesNumber = it.count.toString()
+                            dishesPrice = it.price.toString()
+                        }
+                        payForUI.paymentDishes.add(dish)
+                    }
+                    when (payResult.RESULT) {
+                        "Y" -> { //订单状态,成功
+                            payForUI.username = payResult.CUST_NAME
+                            payForUI.custId = payResult.CUST_ID
+                            if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                            payForUI.accType = payResult.ACC_TYPE
+                            payForUI.accNo = payResult.ACC_NO
+                            payForUI.accBal = payResult.ACC_BAL
+                            payForUI.accList = payResult.ACC_LIST
+                            //检查支付结果，
+                            when (payResult.TRAN_RESULT) {
+                                "3" -> {  //3支付成功
+                                    payForUI.result = "Y"
+                                    payForUI.traceId = payResult.TRACEID
+                                    saveOrSynOrder(payForUI)
+                                }
+                                else -> { //1 -待支付、2-支付失败
+                                    payForUI.errCode = payResult.ERRCODE
+                                    payForUI.errMsg = payResult.ERRMSG
                                 }
                             }
-                            else -> { //订单状态,失败
-                                payState.errormsg =
-                                    "error ${payResult.ERRCODE} ${payResult.ERRMSG} "
-                            }
                         }
-                        listener?.onFacePayResult(payState)
+                        else -> { //订单状态,失败
+                            payForUI.errCode = payResult.ERRCODE
+                            payForUI.errMsg = payResult.ERRMSG
+                        }
                     }
-                })
+                    listener?.onFacePayResult(payForUI)
+                }
+            })
         }
-
     }
 
 
     /**
      * 保存或同步消费记录,离线模式将直接保存，在线模式上传失败也会保存
      */
-    private fun saveOrSynConsumeRecord(
-        payResult: CcbFacePayResultBean,
-        products: MutableList<DishesInfo>
-    ) {
+    private fun saveOrSynOrder(payForUI: PayForUI) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
-            val bean = SynConsumeRecordBean()
-            bean.deviceSerialNumber = CommonAndDpToPxUtil.getDeviceSerial()
-            bean.businessId = mPayCfg?.businessId
-            bean.counterId = mPayCfg?.counterId
-            bean.consumptionType = 1
-            bean.RESULT  = "Y"
-            bean.CUST_ID = payResult.CUST_ID
-            bean.PAYMENT = payResult.PAYMENT!!.toDouble()
-
-            bean.ACTUAL_PAYMENT = if (payResult.ACTUAL_PAYMENT.isNullOrEmpty().not()) payResult.ACTUAL_PAYMENT!!.toDouble()
-            else 0.0
-            bean.ACC_NO = payResult.ACC_NO
-
-            bean.ACC_BAL =  if (payResult.ACC_BAL.isNullOrEmpty().not()) payResult.ACC_BAL!!.toDouble()
-            else 0.0
-            bean.ACC_TYPE =   if (payResult.ACC_TYPE.isNullOrEmpty().not()) payResult.ACC_TYPE!!.toInt()
-            else 1
-            bean.TRACEID = payResult.TRACEID
-            bean.ORDER_ID = payResult.ORDER_ID
-            bean.TRAN_RESULT =  3
-            bean.OFFLINE = payResult.OFFLINE.toInt()
-            bean.ERRCODE = ""
-            bean.ERRMSG = ""
-            bean.ACCALIAS =payResult.ACCALIAS
-
-            bean.PAYTIME = payResult.PAYTIME
-            bean.BUSINESS_NAME =  mPayCfg?.businessName
-            bean.paymentDishesList = mutableListOf()
-            products.forEach {
-                bean.paymentDishesList.add(PaymentDishesList(
-                    it.dishesId,
-                    it.dishesName,
-                    it.count,
-                    it.price
-                ))
+            //保存记录
+            val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
+            payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            dbHelper.insertPayOrder(payOrder)
+            val order = dbHelper.queryPayOrder(payOrder.orderId)
+            payForUI.paymentDishes.forEach {
+                val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
+                dish.payOrderTable = order
+                dbHelper.insertPayDish(dish)
             }
-            var needSave = true
-            if(bean.OFFLINE == 0){
+            //上传记录
+            val bean = SynConsumeRecordBean().apply {
+                deviceSerialNumber = order.deviceId
+                businessId = order.businessId
+                counterId = order.vposId
+                consumptionType = order.payType
+                RESULT = order.result
+                CUST_ID = order.custId
+                PAYMENT = order.payment
+                ACTUAL_PAYMENT = order.actualPayment ?: "0.0"
+                ACC_NO = order.accNo
+                ACC_BAL = order.accBal
+                ACC_TYPE = order.accType
+                TRACEID = order.traceId
+                ORDER_ID = order.orderId
+                TRAN_RESULT = order.tranResult
+                OFFLINE = order.offline
+                ERRCODE = ""
+                ERRMSG = ""
+                ACCALIAS = order.accList
+                PAYTIME = order.payTime
+                BUSINESS_NAME = order.businessName
+            }
+            payForUI.paymentDishes.forEach { bean.paymentDishesList.add(it) }
+            if (payForUI.offline == "0") {
                 val res = mRespository.synCsRecord(bean)
-                if (res.code == HttpURLConnection.HTTP_OK){
-                    needSave = false
-                    LogUtil.i(TAG,"订单${bean.ORDER_ID} 上传成功!")
-                }else{
-                    LogUtil.e(TAG,"上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
-                }
+                if (res.code == "200") {
+                    order.flag = 1
+                    dbHelper.updatePayOrder(order)
+                    LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
+                } else LogUtil.e(TAG, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
             }
-            //上传成功直接返回
-            if (needSave.not()) return@launch
-            val saveOrder =  OwnOrder()
-            bean.apply {
-                saveOrder.deviceSerialNumber = deviceSerialNumber
-                saveOrder.businessId = businessId
-                saveOrder.counterId = counterId
-                saveOrder.consumptionType = consumptionType
-                saveOrder.result = RESULT
-                saveOrder.cusT_ID = CUST_ID
-                saveOrder.payment = PAYMENT ?:0.0
-
-                saveOrder.actuaL_PAYMENT = ACTUAL_PAYMENT ?:0.0
-                saveOrder.acC_NO = ACC_NO
-                saveOrder.acC_BAL = ACC_BAL ?:0.0
-                saveOrder.acC_TYPE = ACC_TYPE ?:1
-                saveOrder.traceid = TRACEID
-                saveOrder.ordeR_ID = ORDER_ID
-                saveOrder.traN_RESULT = TRAN_RESULT ?: 3
-                saveOrder.offline = OFFLINE
-                saveOrder.errcode = ERRCODE
-                saveOrder.errmsg = ERRMSG
-                saveOrder.accalias = ACCALIAS
-                saveOrder.paytime = PAYTIME
-                saveOrder.businesS_NAME = BUSINESS_NAME
-            }
-            DishesDBHelper.getInstance().insertConsumerOrder(saveOrder)
-            val saveDishList = mutableListOf<OrderDishList>()
-            bean.paymentDishesList.forEach {
-                val dish = OrderDishList()
-                dish.dishesId = it.dishesId
-                dish.dishesName = it.dishesName
-                dish.dishesNumber = it.dishesNumber
-                dish.dishesPrice = it.dishesPrice
-                dish.order = saveOrder
-                saveDishList.add(dish)
-            }
-            DishesDBHelper.getInstance().insertConsumerDishes(saveDishList)
         }
     }
 
-
-
     private fun downLoadPic(picList: MutableList<String>) {
-        if (picList.size<1)return
+        if (picList.size < 1) return
         // 清空目录
         val savePath = File(MyApplication.applicationContext.filesDir, Constant.PIC_DIR)
         if (!savePath.exists()) {
             savePath.mkdirs()
         }
-        for (fi in savePath.listFiles()){
+        for (fi in savePath.listFiles()) {
             fi.delete()
         }
         for (path in picList) {
@@ -370,11 +314,11 @@ class ProductsVM :ViewModel() {
                 .load(path)
                 .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                 .get()
-            writeFile2Sd(pic, path.substring(path.lastIndexOf("/")+1))
+            writeFile2Sd(pic, path.substring(path.lastIndexOf("/") + 1))
         }
     }
 
-    private fun writeFile2Sd(source :File ,name :String) {
+    private fun writeFile2Sd(source: File, name: String) {
         val file = File("${MyApplication.applicationContext.filesDir.absolutePath}${File.separator}${Constant.PIC_DIR}${File.separator}${name}")
         var fos: FileOutputStream? = null
         var fis: FileInputStream? = null
@@ -391,7 +335,7 @@ class ProductsVM :ViewModel() {
                 fos.write(buf, 0, len)
             }
             fos.flush()
-            LogUtil.i(TAG,"download ：${file.name} !")
+            LogUtil.i(TAG, "download ：${file.name} !")
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -402,9 +346,5 @@ class ProductsVM :ViewModel() {
                 e.printStackTrace()
             }
         }
-
     }
-
-
-
 }

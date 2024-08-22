@@ -1,0 +1,558 @@
+package com.yannuo.dgcanteen.greendao.dbHelper;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
+
+import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
+import com.yannuo.dgcanteen.greendao.dao.DaoSession;
+import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
+import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
+import com.yannuo.dgcanteen.greendao.dao.FaceTokensDao;
+import com.yannuo.dgcanteen.greendao.dao.MealTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
+import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
+import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
+import com.yannuo.dgcanteen.greendao.entity.DishesTable;
+import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
+import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
+import com.yannuo.dgcanteen.greendao.entity.MealTable;
+import com.yannuo.dgcanteen.greendao.entity.OfflineDishTable;
+import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
+import com.yannuo.dgcanteen.greendao.entity.PayDishTable;
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable;
+import com.yannuo.dgcanteen.greendao.entity.Persons;
+import com.yannuo.dgcanteen.greendao.entity.VerifyDishes;
+import com.yannuo.dgcanteen.util.LogUtil;
+
+import java.util.List;
+
+public class DishesDBHelper {
+    private String TAG = "DishesDBHelper";
+    /**
+     * Helper
+     */
+    private MySQLiteOpenHelper mHelper;
+    /**
+     * 数据库
+     */
+    private SQLiteDatabase db;
+    /**
+     * 数据库名称
+     */
+    private final String dbName = "canteen.db";
+    /**
+     * DaoMaster
+     */
+    private DaoMaster mDaoMaster;
+    /**
+     * DaoSession
+     */
+    private DaoSession mDaoSession;
+    /**
+     * 上下文
+     */
+    private Context mContext;
+
+    private static DishesDBHelper mDBHelper;
+    private DishesTableDao mDishesTableDao;
+    private MealTableDao mMealTableDao;
+    private PersonsDao mPersonsDao;
+    private FaceTokensDao mFaceTokensDao;
+    private FaceRecordDao mFaceRecordDao;
+    private VerifyDishesDao mVerifyDishesDao;
+    private PayOrderTableDao payOrderTableDao;
+    private PayDishTableDao payDishTableDao;
+    private OfflineOrderTableDao olOrderTableDao;
+    private OfflineDishTableDao olDishTableDao;
+
+    //获取实例
+    public static DishesDBHelper getInstance(Context context) {
+        if (mDBHelper == null) {
+            synchronized (DishesDBHelper.class) {
+                if (mDBHelper == null) {
+                    mDBHelper = new DishesDBHelper(context);
+                }
+            }
+        }
+        return mDBHelper;
+    }
+
+    public static DishesDBHelper getInstance() {
+        if (mDBHelper == null) {
+            return null;
+        }
+        return mDBHelper;
+    }
+
+    public DaoSession getsession() {
+        return mDaoSession;
+    }
+
+    /**
+     * 初始化
+     *
+     * @param context
+     */
+    public DishesDBHelper(Context context) {
+        this.mContext = context;
+        mHelper = new MySQLiteOpenHelper(context, dbName, null);
+        mDaoMaster = new DaoMaster(getWritableDatabase());
+        mDaoSession = mDaoMaster.newSession();
+
+        mDishesTableDao = mDaoSession.getDishesTableDao();
+        mMealTableDao = mDaoSession.getMealTableDao();
+        mPersonsDao = mDaoSession.getPersonsDao();
+        mFaceTokensDao = mDaoSession.getFaceTokensDao();
+        mFaceRecordDao = mDaoSession.getFaceRecordDao();
+        mVerifyDishesDao = mDaoSession.getVerifyDishesDao();
+        payOrderTableDao = mDaoSession.getPayOrderTableDao();
+        payDishTableDao = mDaoSession.getPayDishTableDao();
+        olOrderTableDao = mDaoSession.getOfflineOrderTableDao();
+        olDishTableDao = mDaoSession.getOfflineDishTableDao();
+    }
+
+    /**
+     * 获取可读数据库
+     */
+    private SQLiteDatabase getReadableDatabase() {
+        if (mHelper == null) {
+            mHelper = new MySQLiteOpenHelper(mContext, dbName, null);
+        }
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        return db;
+    }
+
+    /**
+     * 获取可写数据库
+     *
+     * @return
+     */
+    private SQLiteDatabase getWritableDatabase() {
+        if (mHelper == null) {
+            mHelper = new MySQLiteOpenHelper(mContext, dbName, null);
+        }
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        return db;
+    }
+
+    /**
+     * 获取指定餐别菜品
+     *
+     * @param mealId
+     * @return
+     */
+    public List<DishesTable> queryDishesByMealId(int mealId) {
+
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(mealId))
+                .build()
+                .list();
+    }
+
+    public List<DishesTable> queryDishesByMealIdAneStatus(int MealId, int Status) {
+
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status))
+                .build()
+                .list();
+    }
+
+    /**
+     * 获取全部菜品
+     *
+     * @return
+     */
+    public List<DishesTable> queryDishes() {
+        return mDishesTableDao.queryBuilder()
+                .build()
+                .list();
+    }
+
+    /**
+     * 更新数据
+     *
+     * @param
+     */
+    public void updateDishes(String dishId, int mealId, int status) {
+        DishesTable dish = mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.DishesId.eq(dishId), DishesTableDao.Properties.MealId.eq(mealId))
+                .build().unique();
+        dish.setStatus(status);
+        mDishesTableDao.update(dish);
+    }
+
+    /**
+     * 插入菜品列表
+     *
+     * @param
+     */
+    public void insertDishes(List<DishesTable> dishes) {
+        mDishesTableDao.insertOrReplaceInTx(dishes);
+    }
+
+    public List<DishesTable> queryDishById(String dishId) {
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.DishesId.eq(dishId))
+                .build().list();
+    }
+
+    /**
+     * 插入全部餐别
+     *
+     * @param
+     */
+    public void insertMeals(List<MealTable> meals) {
+        mMealTableDao.insertInTx(meals);
+    }
+
+    /**
+     * 查询餐别
+     *
+     * @param
+     */
+    public MealTable queryToMeals(int meals) {
+        return mMealTableDao.queryBuilder()
+                .where(MealTableDao.Properties.MealId.eq(meals))
+                .build()
+                .unique();
+    }
+
+    public List<MealTable> queryAllMeals() {
+        return mMealTableDao.queryBuilder()
+                .build()
+                .list();
+    }
+
+    /**
+     * 保存人员
+     *
+     * @param persons
+     */
+    public void insertPersons(List<Persons> persons) {
+        mPersonsDao.insertOrReplaceInTx(persons);
+    }
+
+    /**
+     * 总人数人员
+     *
+     * @param
+     */
+    public long getPersonsCount() {
+        return mPersonsDao.count();
+    }
+
+    //删除人员信息表
+    public void deleteAllPersons() {
+        mPersonsDao.deleteAll();
+    }
+
+    /**
+     * 添加一条待入库的记录
+     *
+     * @param record
+     */
+    public void insertWaitAddFace(FaceRecord record) {
+        mFaceRecordDao.insertOrReplaceInTx(record);
+    }
+
+    /**
+     * 清空待入库记录表
+     */
+    public void deleteAllWaitAddFace() {
+        mFaceRecordDao.deleteAll();
+    }
+
+    /**
+     * @param id 人员Id
+     * @return
+     */
+    public Persons queryPersonToCustId(String id) {
+        if (id == null) return null;
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.CustId.eq(id))
+                .build()
+                .unique();
+    }
+
+
+    /**
+     * 筛选未更新的人员记录
+     *
+     * @return
+     */
+    public FaceRecord queryOnePerson() {
+        return mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.Tryd.eq(false))
+                .limit(1)
+                .build()
+                .unique();
+    }
+
+
+    public void updatePeopleInfo(FaceRecord info) {
+        mFaceRecordDao.update(info);
+        LogUtil.i(TAG, "FaceRecord update");
+    }
+
+    public void deleteFaceRecord(String custId) {
+        mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.CustId.eq(custId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 分页查询图片添加记录
+     *
+     * @param page
+     * @param up
+     * @return
+     */
+    public List<FaceRecord> searchFaceRecords(int page, boolean up) {
+        return mFaceRecordDao.queryBuilder()
+                .where(FaceRecordDao.Properties.Tryd.in(up))
+                .offset(page * 100)
+                .limit(100)
+                .build()
+                .list();
+
+    }
+
+    /**
+     * 分页查询人员
+     *
+     * @param page
+     * @return
+     */
+    public List<Persons> searchPersons(int page) {
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.Image.isNotNull())
+                .offset(page * 100)
+                .limit(100)
+                .build()
+                .list();
+    }
+
+    /**
+     * 批量修改未入库图片记录
+     *
+     * @param peopleInfo
+     */
+    public void insertFaceRecords(List<FaceRecord> peopleInfo) {
+        mFaceRecordDao.insertOrReplaceInTx(peopleInfo);
+    }
+
+    /**
+     * @param id 卡号
+     * @return
+     */
+    public Persons queryPersonToCardId(String id) {
+        if (id == null) return null;
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.CardId.eq(id))
+                .build().unique();
+    }
+
+    /**
+     * @param cidNo 学号
+     * @return
+     */
+    public Persons queryPersonToCidNo(String cidNo) {
+        if (cidNo == null) return null;
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.PersonNumber.eq(cidNo))
+                .build()
+                .unique();
+    }
+
+    /**
+     * cidNo
+     *
+     * @param personNumber
+     * @return
+     */
+    public Persons queryPersonToNumber(String personNumber) {
+        if (personNumber == null) return null;
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.PersonNumber.eq(personNumber))
+                .build()
+                .unique();
+    }
+
+    /**
+     * 保存人员
+     *
+     * @param cardId
+     */
+    public void deletePersons(String cardId) {
+        if (cardId == null || cardId.isEmpty()) return;
+        mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.CardId.eq(cardId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+//        LogUtil.d(TAG,"删除卡号人员"+cardId);
+    }
+
+    /**
+     * 清空所有菜品
+     */
+    public void clearAllDishes() {
+        mDishesTableDao.deleteAll();
+    }
+
+    /**
+     * 清除餐别
+     */
+    public void clearAllMeal() {
+        mMealTableDao.deleteAll();
+    }
+
+
+    //特征库相关
+
+    /**
+     * 通过人员ID查询人员特征信息
+     *
+     * @param number 人员ID
+     * @return
+     */
+    public FaceTokens searchFaceToken(String number) {
+        if (TextUtils.isEmpty(number)) return null;
+        return mFaceTokensDao.queryBuilder()
+                .where(FaceTokensDao.Properties.Number.eq(number))
+                .build()
+                .unique();
+    }
+
+    /**
+     * 根据行number删除人脸token记录
+     *
+     * @param number
+     */
+    public void deleteFaceToken(String number) {
+        if (TextUtils.isEmpty(number)) return;
+        mFaceTokensDao.queryBuilder()
+                .where(FaceTokensDao.Properties.Number.in(number))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 插入人脸特征
+     *
+     * @param tokens
+     */
+    public void insertFaceToken(FaceTokens tokens) {
+        if (tokens == null) return;
+        mFaceTokensDao.insertOrReplace(tokens);
+    }
+
+    /**
+     * 清空人员特征表
+     */
+    public void deleteAllFaceToken() {
+        mFaceTokensDao.deleteAll();
+    }
+
+    /**
+     * 插入核销菜品信息
+     *
+     * @param dishes
+     */
+    public void insertVerifyDishes(VerifyDishes dishes) {
+        mVerifyDishesDao.insert(dishes);
+    }
+
+    /**
+     * 删除指定Id核销菜品信息
+     *
+     * @param dishId
+     */
+    public void deleteVerifyDishes(String dishId) {
+        mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Id.eq(dishId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 清空所有核销菜品信息
+     */
+    public void delAllVerifyDishes() {
+        mVerifyDishesDao.deleteAll();
+    }
+
+    /**
+     * 查询100条核销菜品信息
+     */
+    public List<VerifyDishes> selectVerifyDishes() {
+        return mVerifyDishesDao.queryBuilder()
+                .limit(100)
+                .build()
+                .list();
+    }
+
+    /*******************************  消费记录  *******************************/
+    public void insertPayOrder(PayOrderTable payOrderTable) {
+        payOrderTableDao.insertOrReplace(payOrderTable);
+    }
+
+    public PayOrderTable queryPayOrder(String orderId) {
+        return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.OrderId.eq(orderId))
+                .build().unique();
+    }
+
+    public void updatePayOrder(PayOrderTable payOrder) {
+        PayOrderTable order = queryPayOrder(payOrder.getOrderId());
+        if (order != null) {
+            order.setFlag(payOrder.getFlag());
+            payOrderTableDao.update(order);
+        }
+    }
+
+    public List<PayOrderTable> queryPayOrderToAll() {
+        return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.PayType.eq("1"))
+                .where(PayOrderTableDao.Properties.Flag.eq(0))
+                .build().list();
+    }
+
+    public void insertPayDish(PayDishTable payDishTable) {
+        payDishTableDao.insert(payDishTable);
+    }
+
+
+    /*******************************  离线记录  *******************************/
+    public void insertOfflineOrder(OfflineOrderTable offLineOrder) {
+        olOrderTableDao.insertOrReplace(offLineOrder);
+    }
+
+    public OfflineOrderTable queryOfflineOrder(String sessionId) {
+        return olOrderTableDao.queryBuilder()
+                .where(OfflineOrderTableDao.Properties.SessionId.eq(sessionId))
+                .build().unique();
+    }
+
+    public List<OfflineOrderTable> queryOfflineOrderToAll() {
+        return olOrderTableDao.queryBuilder()
+                .where(OfflineOrderTableDao.Properties.Flag.notEq(1))
+                .build().list();
+    }
+
+    public void updateOLOrder(OfflineOrderTable offlineOrder) {
+        OfflineOrderTable order = queryOfflineOrder(offlineOrder.getSessionId());
+        if (order != null) {
+            order.setFlag(offlineOrder.getFlag());
+            olOrderTableDao.update(order);
+        }
+    }
+
+    public void insertOfflineDish(OfflineDishTable offLineDish) {
+        olDishTableDao.insert(offLineDish);
+    }
+}

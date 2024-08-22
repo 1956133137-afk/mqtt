@@ -10,8 +10,8 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
-import com.yannuo.dgcanteen.dao.VerifyDishes
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.VerifyDishes
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
@@ -20,7 +20,6 @@ import com.yannuo.dgcanteen.util.CanteenEncryptionUtil.getAnalysisCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     var showToastEvent: MutableLiveData<String>
@@ -117,7 +116,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             LogUtil.d(TAG, Gson().toJson(verification))
             val ccbCodeVerification = mRespository.getCcbCodeVerification(verification)
             LogUtil.d(TAG, Gson().toJson(ccbCodeVerification))
-            if (ccbCodeVerification.code == 200) {
+            if (ccbCodeVerification.code == "200") {
                 val toJson = Gson().toJson(ccbCodeVerification.data)
                 LogUtil.d(TAG, toJson)
                 val json = Gson().fromJson(toJson, VerificationResponse::class.java)
@@ -184,7 +183,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
             val request = VerificationCountRequest(campusId.toString(), businessId.toString())
             val res = mRespository.getCcbCountDCofDay(request)
-            if (res.code == 200) {
+            if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), VerificationCountResponse::class.java)
                 response(json)
             }
@@ -197,7 +196,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
             val request = VerificationCountRequest(campusId.toString(), businessId.toString())
             val res = mRespository.getDishesCount(request)
-            if (res.code == 200) {
+            if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), DishesCountResponse::class.java)
                 response(json)
             }

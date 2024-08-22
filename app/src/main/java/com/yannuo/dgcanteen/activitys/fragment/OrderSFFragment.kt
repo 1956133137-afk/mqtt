@@ -1,7 +1,6 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
 import android.os.CountDownTimer
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,18 +9,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayResultAdapter
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentOrderSFBinding
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.printer.PrinterOperator
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
-
 open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
-
 
     private lateinit var model: ProductsVM
     private var time = 0
@@ -33,7 +30,6 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         binding = FragmentOrderSFBinding.inflate(inflater, container, false)
     }
 
-
     override fun onInit() {
         initObject()
         initView()
@@ -41,21 +37,16 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         loadData()
     }
 
-
     private fun loadData() {
 
     }
-
 
     private fun initObject() {
         model = ViewModelProvider(requireActivity()).get(ProductsVM::class.java)
         binding.subS.rvDishList.layoutManager = LinearLayoutManager(context)
         mPayResultAdapter = PayResultAdapter(requireContext())
         binding.subS.rvDishList.adapter = mPayResultAdapter
-
-
     }
-
 
     private fun initView() {
         LogUtil.i(TAG, "initView")
@@ -63,9 +54,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 //        binding.rvManInfo.layoutManager = gridLayoutManager
 //        binding.rvManInfo.adapter = adapter
         model.uiData.observe(this) {
-            if (it.result == PayResultForUI.Result.FAIL) {
-                updateFChange(it)
-            } else updateSChange(it)
+            if (it.result != "Y") updateFChange(it) else updateSChange(it)
 //            LogUtil.i(TAG,"initView")
         }
     }
@@ -74,7 +63,6 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 //        adapter.setListener(null)
 //        model.loadDialog.value = false
     }
-
 
     private fun initEvent() {
 //        if (time < 0) {
@@ -97,148 +85,77 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         }
     }
 
-
-    private fun updateFChange(mPayResult: PayResultForUI) {
+    private fun updateFChange(payForUI: PayForUI) {
         binding.subF.btBack.isEnabled = true
         binding.subS.root.visibility = View.GONE
         if (binding.subF.root.visibility == View.GONE) {
             binding.subF.root.visibility = View.VISIBLE
         }
-        mPayResult.errormsg?.also {
-            binding.subF.payFailMsg.text = it
-        }
 
+        binding.subF.payFailMsg.text = payForUI.errMsg
+        binding.subF.payTime.text = payForUI.payTime
 
-        mPayResult.timestamp?.also {
-            val buffer = StringBuffer()
-            buffer.append(it.substring(0, 4))
-                .append("-")
-                .append(it.substring(4, 6)).append("-")
-                .append(it.substring(6, 8))
-                .append(" ")
-                .append(it.substring(8, 10))
-                .append(":")
-                .append(it.substring(10, 12))
-                .append(":")
-                .append(it.substring(12)).toString()
-            binding.subF.payTime.text = buffer.toString()
-        }
         CommonAndDpToPxUtil.speakWork("支付失败")
-        startTime(mPayResult)
+        startTime(payForUI)
     }
 
-    private fun updateSChange(mPayResult: PayResultForUI) {
+    private fun updateSChange(payForUI: PayForUI) {
         binding.subS.btBack.isEnabled = true
         binding.subF.root.visibility = View.GONE;
         if (binding.subS.root.visibility == View.GONE) {
             binding.subS.root.visibility = View.VISIBLE
         }
 
-        if (mPayResult.way.equals("20") || mPayResult.way.equals("21")) {
-            mPayResultAdapter!!.data = mPayResult.dishes
-            binding.subS.tvSum.text = "${mPayResult.piece} 件"
-            binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
-            var str = "支付宝"
-            if (mPayResult.way.equals("20")) str = "微信"
-            CommonAndDpToPxUtil.speakWork("${str}收款${mPayResult.payment} 元")
-            var time = mPayResult.timestamp
-            if (time.isNullOrEmpty().not() && mPayResult.way != "人脸支付") {
-                val buffer = StringBuffer()
-                time = buffer.append(mPayResult.timestamp?.substring(0, 4))
-                    .append("-")
-                    .append(mPayResult.timestamp?.substring(4, 6))
-                    .append("-")
-                    .append(mPayResult.timestamp?.substring(6, 8))
-                    .append(" ")
-                    .append(mPayResult.timestamp?.substring(8, 10))
-                    .append(":")
-                    .append(mPayResult.timestamp?.substring(10, 12))
-                    .append(":")
-                    .append(mPayResult.timestamp?.substring(12)).toString()
-            }
-            binding.subS.tvPayTime.text = time
-            binding.subS.tvTransNumber.text = mPayResult.traceid
-
-        } else {
-
-            val persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayResult.custId)
-            var cls = "***"
-            if (persons != null) {
-                cls = persons.grade + "(" + persons.userClass + ")"
-            }
-            mPayResultAdapter!!.data = mPayResult.dishes
-            binding.subS.tvSum.text = "${mPayResult.piece} 件"
-
-            binding.subS.payTotalMoney.text = "￥ ${mPayResult.payment} 元"
-            CommonAndDpToPxUtil.speakWork("收款${mPayResult.payment} 元")
-            binding.subS.tvClass.text = cls
-            cls = mPayResult.cust_name.toString()
-            if (TextUtils.isEmpty(mPayResult.cust_name)) {
-                cls = "***"
-            }
-            binding.subS.tvName.text = cls
-            var time = mPayResult.timestamp
-            if (time.isNullOrEmpty().not() && mPayResult.way != "人脸支付") {
-                val buffer = StringBuffer()
-                time = buffer.append(mPayResult.timestamp?.substring(0, 4))
-                    .append("-")
-                    .append(mPayResult.timestamp?.substring(4, 6))
-                    .append("-")
-                    .append(mPayResult.timestamp?.substring(6, 8))
-                    .append(" ")
-                    .append(mPayResult.timestamp?.substring(8, 10))
-                    .append(":")
-                    .append(mPayResult.timestamp?.substring(10, 12))
-                    .append(":")
-                    .append(mPayResult.timestamp?.substring(12)).toString()
-            }
-            binding.subS.tvPayTime.text = time
-            binding.subS.tvTransNumber.text = mPayResult.orderid
-            val cont = (if (mPayResult.acc_bal.isNullOrEmpty()) "" else mPayResult.acc_bal) + "元"
-            binding.subS.tvBalance.text = cont
+        val str = when (payForUI.payType) {
+            "1" -> "刷脸支付"
+            "2" -> "扫码支付"
+            else -> "刷卡支付"
         }
-//        CommonAndDpToPxUtil.speakWork("欢迎用餐")
-        PrinterOperator.printerFoodsList(mPayResult)
-        if (mPayResult.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(
-            mPayResult
-        )
-        startTime(mPayResult)
+        CommonAndDpToPxUtil.speakWork("${str} ${payForUI.payment} 元")
+        mPayResultAdapter!!.data = payForUI.paymentDishes
+        binding.subS.tvSum.text = "${payForUI.paymentDishes.size} 件"
+        binding.subS.payTotalMoney.text = "￥ ${payForUI.payment} 元"
+        binding.subS.tvPayTime.text = payForUI.payTime
+        binding.subS.tvTransNumber.text = payForUI.orderId.ifEmpty { payForUI.traceId }
+
+        val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
+        if (persons != null && persons.grade != null) binding.subS.tvClass.text = "${persons.grade}(${persons.userClass})"
+        binding.subS.tvName.text = payForUI.username
+        binding.subS.tvBalance.text = payForUI.accBal
+
+        PrinterOperator.printerFoodsList(payForUI)
+        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket(payForUI)
+        startTime(payForUI)
     }
 
-    fun startTime(mPayResult: PayResultForUI) {
+    fun startTime(payForUI: PayForUI) {
         var totalTime = kv.decodeInt(Constant.SHOW_TIME, 5)
-        if (mPayResult.way == "人脸支付") {
-            if (mPayResult.result === PayResultForUI.Result.FAIL)
-                binding.subF.btBack.isEnabled = false
+        if (payForUI.payType == "1") {
+            if (payForUI.result != "Y") binding.subF.btBack.isEnabled = false
             else binding.subS.btBack.isEnabled = false
             if (totalTime < 3) totalTime = 3
         }
-        dida(totalTime, mPayResult)
+        dida(totalTime, payForUI)
     }
 
-
-    private fun dida(tm: Int, mPayResult: PayResultForUI) {
+    private fun dida(tm: Int, payForUI: PayForUI) {
         if (tm == 0) return
         countDownTimer = object : CountDownTimer((tm * 1000 + 100).toLong(), 1000) {
             override fun onTick(mil: Long) {
-                if (mPayResult.result === PayResultForUI.Result.FAIL)
-                    binding.subF.btBack.text = "返回${mil / 1000}秒"
+                if (payForUI.result != "Y") binding.subF.btBack.text = "返回${mil / 1000}秒"
                 else binding.subS.btBack.text = "返回${mil / 1000}秒"
 
                 if (mil / 1000 == (tm - 3).toLong()) {
-                    if (mPayResult.way == "人脸支付") {
-                        if (mPayResult.result === PayResultForUI.Result.FAIL) {
-                            binding.subF.btBack.isEnabled = true
-                        } else {
-                            binding.subS.btBack.isEnabled = true
-                        }
+                    if (payForUI.payType == "1") {
+                        if (payForUI.result != "Y") binding.subF.btBack.isEnabled = true
+                        else binding.subS.btBack.isEnabled = true
                     }
                 }
             }
 
             override fun onFinish() {
                 if (time < 0) {
-                    if (mPayResult.result === PayResultForUI.Result.FAIL) {
+                    if (payForUI.result != "Y") {
                         binding.subF.btBack.isEnabled = true
                         binding.subF.btBack.text = "返回"
                     } else {
@@ -253,11 +170,8 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         countDownTimer?.start()
     }
 
-
     override fun onStop() {
         super.onStop()
         countDownTimer?.cancel()
     }
-
-
 }

@@ -2,7 +2,7 @@ package com.yannuo.dgcanteen.activitys.presenters
 
 import android.content.Context
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.DishesInfo
 
 class OrderMenuPresenter(context: Context) {

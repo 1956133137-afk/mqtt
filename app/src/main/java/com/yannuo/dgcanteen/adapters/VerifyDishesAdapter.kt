@@ -2,7 +2,7 @@ package com.yannuo.dgcanteen.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.yannuo.dgcanteen.dao.VerifyDishes
+import com.yannuo.dgcanteen.greendao.entity.VerifyDishes
 import com.yannuo.dgcanteen.databinding.ItemVerifyDishesBinding
 
 class VerifyDishesAdapter: BaseAdapter<VerifyDishes, ItemVerifyDishesBinding>() {

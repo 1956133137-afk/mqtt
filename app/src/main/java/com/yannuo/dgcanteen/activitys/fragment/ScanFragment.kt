@@ -8,16 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
-import com.yannuo.dgcanteen.activitys.presenters.CardPresenter
-import com.yannuo.dgcanteen.activitys.presenters.CodePresenter
+import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.OrderPayInfo
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
+import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.model.SimpleForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
@@ -30,35 +31,24 @@ import java.util.concurrent.TimeUnit
  */
 class ScanFragment : Fragment(), CallbackListener {
     private val TAG = javaClass.simpleName
-
+    private val kv: MMKV = MMKV.defaultMMKV()
     private lateinit var binding: FragmentScanBinding
-    private lateinit var cardPresenter: CardPresenter
-    private lateinit var codePresenter: CodePresenter
+    private val payViewModel by lazy { ViewModelProvider(requireActivity())[PayViewModel::class.java] }
     private lateinit var awaitPayDialog: AwaitingDialog
-    private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
     private val handler = Handler()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentScanBinding.inflate(inflater, container, false)
-        initObject()
         initEvent()
         initData()
         return binding.root
     }
 
-    private fun initObject() {
-        if (!this::cardPresenter.isInitialized) cardPresenter = CardPresenter()
-        if (!this::codePresenter.isInitialized) codePresenter = CodePresenter()
-        kv = MMKV.defaultMMKV()
-    }
-
     private fun initEvent() {
         binding.btnBack.setOnClickListener {
             CommonAndDpToPxUtil.speakWork("取消支付")
+            payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
             requireActivity().finish()
         }
     }
@@ -71,33 +61,19 @@ class ScanFragment : Fragment(), CallbackListener {
             Constant.PAY_IC_TYPE -> {
                 CommonAndDpToPxUtil.speakWork("请刷卡支付")
                 binding.payTitle.text = "请刷卡支付"
-                scanCardPay(data.payment)
             }
             Constant.PAY_CODE_TYPE -> {
                 CommonAndDpToPxUtil.speakWork("请出示二维码支付")
                 binding.payTitle.text = "请出示二维码支付"
-                scanCodePay(data.payment)
             }
             Constant.PAY_CODE_IC_TYPE -> {
                 CommonAndDpToPxUtil.speakWork("请出示二维码或刷卡支付")
                 binding.payTitle.text = "请出示二维码或刷卡支付"
-                scanCardPay(data.payment)
-                scanCodePay(data.payment)
             }
         }
-    }
-
-    private fun scanCardPay(payment: Float) {
-        cardPresenter.initCard()
-        cardPresenter.listener = this
-        cardPresenter.openIcCard(payment)
-    }
-
-    private fun scanCodePay(payment: Float) {
-        codePresenter.initCode()
-        codePresenter.listener = this
-        codePresenter.openQrCode(payment)
-
+        payViewModel.openPayStatus()
+        payViewModel.listener = this
+        payViewModel.mDishes = ProductsDetail(mutableListOf(), data?.payment.toString())
         binding.animationView.playAnimation()
     }
 
@@ -109,8 +85,7 @@ class ScanFragment : Fragment(), CallbackListener {
                 if (this::awaitPayDialog.isInitialized && awaitPayDialog.isShowing) awaitPayDialog.dismiss()
                 when (event) {
                     1 -> { //开始支付
-                        if (!this::awaitPayDialog.isInitialized)
-                            awaitPayDialog = AwaitingDialog(requireActivity())
+                        if (!this::awaitPayDialog.isInitialized) awaitPayDialog = AwaitingDialog(requireActivity())
                         awaitPayDialog.show()
                         awaitPayDialog.updateText("支付中")
                     }
@@ -120,19 +95,19 @@ class ScanFragment : Fragment(), CallbackListener {
                     }
                     3, 4 -> { //支付结果
                         countDown?.cancel()
-                        val data = any as PayResultForUI
-                        LogUtil.d(TAG, Gson().toJson(data))
+                        val payForUI = any as PayForUI
+                        LogUtil.d(TAG, Gson().toJson(payForUI))
                         val bean = SimpleForUI().apply {
-                            custName = data.cust_name.toString()
-                            payment = data.payment?.toFloat()!!
-                            accNo = data.acc_no.toString()
-                            timestamp = data.timestamp.toString()
-                            tranId = data.traceid ?: "---"
-                            orderId = data.orderid.toString()
-                            errorMsg = data.errormsg.toString()
-                            acc_bal = data.acc_bal
+                            custName = payForUI.username
+                            payment = payForUI.payment.toFloat()
+                            accNo = payForUI.accNo
+                            timestamp = payForUI.payTime
+                            tranId = payForUI.traceId
+                            orderId = payForUI.orderId
+                            errorMsg = payForUI.errMsg
+                            acc_bal = payForUI.accBal
                         }
-                        if (data.result == PayResultForUI.Result.SUCCESS) {
+                        if (payForUI.result == "Y") {
                             CommonAndDpToPxUtil.speakWork("支付成功")
                             val action = ScanFragmentDirections.actionScanToSuccess(bean)
                             findNavController().navigate(action)
@@ -157,19 +132,19 @@ class ScanFragment : Fragment(), CallbackListener {
                                 CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
                             }
                         }
-                        codePresenter.setPayStatus()
+                        payViewModel.setPayState(PayViewModel.PayStatus.PAY)
                     }
                     6 -> { //异常
                         ToastShowUtil.show("支付异常：${any as? String}")
                         LogUtil.d(TAG, "支付异常：$any")
-                        codePresenter.setPayStatus()
+                        payViewModel.setPayState(PayViewModel.PayStatus.PAY)
                     }
                     7 -> {
                         countDown?.cancel()
                         val bean = any as SimpleForUI
-                        val str =  when(bean.way!!.toInt()){
-                            20->"微信"
-                            else-> "支付宝"
+                        val str = when (bean.way!!.toInt()) {
+                            20 -> "微信"
+                            else -> "支付宝"
                         }
                         if (bean.state == 0) {
                             CommonAndDpToPxUtil.speakWork("${str}收款${bean.payment}元")
@@ -182,8 +157,8 @@ class ScanFragment : Fragment(), CallbackListener {
                         }
                     }
                 }
-            }catch (e :Exception){
-                LogUtil.e(TAG,"${e.cause} ${e.message}")
+            } catch (e: Exception) {
+                LogUtil.e(TAG, "${e.cause} ${e.message}")
             }
         }
     }
@@ -209,13 +184,12 @@ class ScanFragment : Fragment(), CallbackListener {
         super.onDestroy()
     }
 
-    private fun release(){
+    private fun release() {
         binding.animationView.pauseAnimation();
         binding.animationView.cancelAnimation()
-        LogUtil.d(TAG,"release")
+        LogUtil.d(TAG, "release")
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
-        cardPresenter.closeIcCard()
-        codePresenter.closeQrCode()
+        payViewModel.closePayStatus()
         countDown?.cancel()
         countDown = null
     }

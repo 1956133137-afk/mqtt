@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:background="@drawable/item_pay_result_bg"
-    >
+    android:background="@drawable/item_pay_result_bg">
 
     <TextView
         android:id="@+id/tv_dish_name"

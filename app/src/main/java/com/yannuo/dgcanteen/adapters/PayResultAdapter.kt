@@ -9,16 +9,18 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemPayResultDishsBinding
-import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.Dish
 import com.yannuo.dgcanteen.util.PictureUtil
 
-class PayResultAdapter(context : Context)   : BaseAdapter<DishesInfo, ItemPayResultDishsBinding> (){
+class PayResultAdapter(context: Context) : BaseAdapter<Dish, ItemPayResultDishsBinding>() {
     private var TAG = javaClass.simpleName
-//    var textsize = -1f  //45
+
+    //    var textsize = -1f  //45
     private var cnt = context
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup?): ItemPayResultDishsBinding {
-        return  ItemPayResultDishsBinding.inflate(inflater, parent, false)
+        return ItemPayResultDishsBinding.inflate(inflater, parent, false)
     }
 
 
@@ -30,13 +32,18 @@ class PayResultAdapter(context : Context)   : BaseAdapter<DishesInfo, ItemPayRes
 //                holder.binding.tvDishCount.textSize = textsize
 //            }
 //        }
+        val dishList = DishesDBHelper.getInstance().queryDishById(dat.dishesId)
+        val dishImgUrl = if (dishList != null && dishList.size > 0) dishList[0].imgUrl else ""
 
-        holder.binding.tvDishName.text =dat.dishesName
-        holder.binding.tvDishCount.text = "x${dat.count} 份"
-        cnt.let { Glide.with(it).load(PictureUtil.getPictureName(dat.imgUrl, cnt)).diskCacheStrategy(
-            DiskCacheStrategy.NONE).placeholder(
-            R.drawable.no_picture)
-            .transform(CenterCrop(), GranularRoundedCorners(10f,10f,10f,10f)).into(holder.binding.ivShopPic)
+        holder.binding.tvDishName.text = dat.dishesName
+        holder.binding.tvDishCount.text = "x${dat.dishesNumber} 份"
+        cnt.let {
+            Glide.with(it)
+                .load(PictureUtil.getPictureName(dishImgUrl, cnt))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .placeholder(R.drawable.no_picture)
+                .transform(CenterCrop(), GranularRoundedCorners(10f, 10f, 10f, 10f))
+                .into(holder.binding.ivShopPic)
         }
 
     }
@@ -44,7 +51,6 @@ class PayResultAdapter(context : Context)   : BaseAdapter<DishesInfo, ItemPayRes
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
         bindHolder(holder, position)
     }
-
 
 
 }

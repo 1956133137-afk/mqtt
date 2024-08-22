@@ -1,6 +1,6 @@
 package com.yannuo.dgcanteen.model
 
-import com.yannuo.dgcanteen.dao.Persons
+import com.yannuo.dgcanteen.greendao.entity.Persons
 
 class PersonList(){
     var list :MutableList<Persons> ?= null

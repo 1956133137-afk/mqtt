@@ -3,7 +3,6 @@ package com.yannuo.dgcanteen.activitys.presenters
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.SerialPortHelper
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.CallBackBean
@@ -87,7 +86,7 @@ class SelfHelpPresenter : OnReadDataListener {
                 }
             }
            val person = mRespository.queryPerson(CardUserRequest(mPayCfg?.campusId!!,uppercase))
-           if (person.code != 200){
+           if (person.code != "200"){
                error(person.msg)
                return@launch
            }
@@ -107,7 +106,7 @@ class SelfHelpPresenter : OnReadDataListener {
             hashMap.put("ccbSafeParam",prikey)
 
             val res = mRespository.ccbPersonBanlance(hashMap)
-            if (res.code != 200){
+            if (res.code != "200"){
                 error(res.msg)
                 return@launch
             }

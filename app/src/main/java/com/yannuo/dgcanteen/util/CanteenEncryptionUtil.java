@@ -2,10 +2,7 @@ package com.yannuo.dgcanteen.util;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.yannuo.dgcanteen.dao.CardPay;
-import com.yannuo.dgcanteen.dao.OffLineTable;
+import com.yannuo.dgcanteen.model.PayForUI;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +11,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -30,7 +26,7 @@ public class CanteenEncryptionUtil {
     private final static String CCB_IBSVersion = "V6";
     private final static String PT_STYLE = "8";
     private final static String PT_LANGUAGE = "CN";
-    private final static String STR_KEY =  Constant.STR_KEY;
+    private final static String STR_KEY = Constant.STR_KEY;
 //    private final static String STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试
 //    private final static String STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu"; //生产
 
@@ -41,11 +37,11 @@ public class CanteenEncryptionUtil {
      * @param param
      * @return
      */
-    private static HashMap<String, String> getSamePart(String CAMPUS_ID, String TXCODE, String CORP_ID, String param){
-        HashMap<String, String> map = new HashMap<String,String>();
+    private static HashMap<String, String> getSamePart(String CAMPUS_ID, String TXCODE, String CORP_ID, String param) {
+        HashMap<String, String> map = new HashMap<String, String>();
         map.put("CCB_IBSVersion", CCB_IBSVersion);
         map.put("PT_STYLE", PT_STYLE);
-        map.put("PT_LANGUAGE",PT_LANGUAGE);
+        map.put("PT_LANGUAGE", PT_LANGUAGE);
         map.put("CAMPUS_ID", CAMPUS_ID);
         map.put("TXCODE", TXCODE);
         map.put("CORP_ID", CORP_ID);
@@ -55,118 +51,51 @@ public class CanteenEncryptionUtil {
 
     /**
      * 解析二维码
+     *
      * @param ccbBean
      * @return
      */
-    public static HashMap<String, String> getAnalysisQr(OffLineTable ccbBean){
-        return getSamePart(ccbBean.getCAMPUS_ID(),
-                            ccbBean.getTXCODE(),
-                            ccbBean.getCORP_ID(),
-                     "QR_CODE=" + ccbBean.getQR_CODE());
-    }
 
-    public static HashMap<String, String> getAnalysisQr(Map<String,String> map){
-        return getSamePart(map.get("CAMPUS_ID"),
-                           map.get("TXCODE"),
-                           map.get("CORP_ID"),
-                    "QR_CODE=" + map.get("QR_CODE"));
+    public static HashMap<String, String> getAnalysisQr(PayForUI payForUI, String TXCODE) {
+        return getSamePart(payForUI.getCampusId(), TXCODE, payForUI.getCorpId(), "QR_CODE=" + payForUI.getPayContent());
     }
 
     /**
      * 解析核销码
+     *
      * @param code
      * @return
      */
-    public static HashMap<String, String> getAnalysisCode(String code){
+    public static HashMap<String, String> getAnalysisCode(String code) {
         HashMap<String, String> ccbParam = new HashMap<>();
         try {
             MCipherDecryptor ccbDecryptor = new MCipherDecryptor(STR_KEY);
             StringBuilder ccbSafeParam = new StringBuilder(ccbDecryptor.doDecrypt(code));
             String sn = Utils.getSN();
             String cardId = "";
-            ccbSafeParam.append("&DEVICE_ID="+sn)
-                            .append("&CARD_ID=" + cardId);
-            Log.d("TAG", "getAnalysisCode:"+ccbSafeParam);
+            ccbSafeParam.append("&DEVICE_ID=" + sn)
+                    .append("&CARD_ID=" + cardId);
+            Log.d("TAG", "getAnalysisCode:" + ccbSafeParam);
             ccbParam = storeInfo(String.valueOf(ccbSafeParam));
-        }catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
-                ShortBufferException | IllegalBlockSizeException | BadPaddingException |
-                NoSuchProviderException | InvalidAlgorithmParameterException |
-                IOException e) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
+                 ShortBufferException | IllegalBlockSizeException | BadPaddingException |
+                 NoSuchProviderException | InvalidAlgorithmParameterException |
+                 IOException e) {
             e.printStackTrace();
         }
         return ccbParam;
     }
 
     /**
-     * 扫码支付
-     * @param ccbBean
-     * @return
-     */
-    public static HashMap<String, String> getScanToPay(OffLineTable ccbBean){
-        StringBuilder param = new StringBuilder();
-        param.append("BUSINESS_ID=" + ccbBean.getBUSINESS_ID())
-             .append("&VPOS_ID=" + ccbBean.getVPOS_ID())
-             .append("&PAYMENT=" + ccbBean.getPAYMENT())
-             .append("&ACTUAL_PAYMENT=" + ccbBean.getACTUAL_PAYMENT())
-             .append("&COUPON_INFO=" + ccbBean.getCOUPON_INFO())
-             .append("&QR_CODE=" + ccbBean.getQR_CODE())
-             .append("&CUST_ID=" + ccbBean.getCUST_ID())
-             .append("&ORDER_ID=" + ccbBean.getORDER_ID())
-             .append("&OFFLINE=" + ccbBean.getOFFLINE())
-             .append("&SIGN_TIME=" + ccbBean.getSIGN_TIME());
-
-        return getSamePart(ccbBean.getCAMPUS_ID(),
-                            ccbBean.getTXCODE(),
-                            ccbBean.getCORP_ID(),
-                            param.toString());
-    }
-
-    /**
-     * 查询记录
-     * @param ccbBean
-     * @return
-     */
-    public static HashMap<String, String> getQueryRecord(OffLineTable ccbBean){
-        return getSamePart(ccbBean.getCAMPUS_ID(),
-                            ccbBean.getTXCODE(),
-                            ccbBean.getCORP_ID(),
-                    "ORDER_ID=" + ccbBean.getORDER_ID());
-    }
-
-    /**
-     * 刷卡支付
-     * @param payBean
-     * @return
-     */
-    public static HashMap<String, String> getCardToPay(CardPay payBean){
-
-        StringBuilder param = new StringBuilder();
-        param.append("BUSINESS_ID=" + payBean.getBusiness_id())
-             .append("&VPOS_ID=" + payBean.getVpos_id())
-             .append("&PAYMENT=" + payBean.getPayment())
-             .append("&ACTUAL_PAYMENT=" + payBean.getActual_payment())
-             .append("&COUPON_INFO=" + payBean.getCoupon_info())
-             .append("&OFFLINE=" + payBean.getOffline())
-             .append("&SIGN_TIME=" + payBean.getSign_time())
-             .append("&CARD_ID=" + payBean.getCard_id())
-             .append("&CUST_ID=" + payBean.getCust_id())
-             .append("&ORDER_ID=" + payBean.getOrder_id());
-
-        return getSamePart(payBean.getCampus_id(),
-                            payBean.getTxcode(),
-                            payBean.getCorp_id(),
-                            param.toString());
-    }
-
-    /**
      * 请求报文加密方法
+     *
      * @param param
      * @return
      */
-    public static String encryption(String param){
+    public static String encryption(String param) {
 
-        try{
-            Log.d("TAG", "encryption: "+param);
+        try {
+            Log.d("TAG", "encryption: " + param);
             //创建加密对象，向构造函数传入密钥
             MCipherEncryptor ccbEncryptor = new MCipherEncryptor(STR_KEY);
 
@@ -174,10 +103,10 @@ public class CanteenEncryptionUtil {
             String ccbSafeParam = ccbEncryptor.doEncrypt(param);
 
             return ccbSafeParam;
-        }catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
-                ShortBufferException | IllegalBlockSizeException | BadPaddingException |
-                NoSuchProviderException | InvalidAlgorithmParameterException |
-                UnsupportedEncodingException e){
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
+                 ShortBufferException | IllegalBlockSizeException | BadPaddingException |
+                 NoSuchProviderException | InvalidAlgorithmParameterException |
+                 UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 

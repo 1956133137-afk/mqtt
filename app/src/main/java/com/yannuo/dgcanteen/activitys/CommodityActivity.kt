@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -11,16 +12,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Message
-import android.text.TextUtils
 import android.text.format.DateFormat
 import android.view.Display
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
-import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
@@ -28,18 +26,17 @@ import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.FoodsAdapter
 import com.yannuo.dgcanteen.adapters.HostPayResultAdapter
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.DishesInfo
-import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.PayResultForUI
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.printer.PrinterOperator
@@ -52,9 +49,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 
-
-class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
-    NetworkStateManager.NetWorkListener, FoodsCallback {
+class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -329,7 +324,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             Constant.EVENT_FOURTH -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收扫码/IC支付完事件,将跳转结果展示~")
                 event.any?.also {
-                    (it as? PayResultForUI)?.also { fit ->
+                    (it as? PayForUI)?.also { fit ->
                         handler.postDelayed({
                             mChooseDisplay?.cancel()
                             mChooseDisplay = null
@@ -408,19 +403,19 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 //
 //    }
 
-    private fun updatePayState(data: PayResultForUI) {
+    private fun updatePayState(payForUI: PayForUI) {
         try {
             binding.flPayResult.removeAllViews()
-            when (data.result) {
-                PayResultForUI.Result.SUCCESS -> {
+            when (payForUI.result) {
+                "Y" -> {
                     initSuccessBinding()
                     binding.flPayResult.addView(successBinding?.root)
-                    refreshSuccessState(data)
+                    refreshSuccessState(payForUI)
                 }
                 else -> {
                     initFailBinding()
                     binding.flPayResult.addView(failBinding?.root)
-                    refreshFailState(data)
+                    refreshFailState(payForUI)
                 }
             }
         } catch (e: Exception) {
@@ -450,72 +445,31 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     }
 
-    private fun refreshSuccessState(data: PayResultForUI) {
+    @SuppressLint("SetTextI18n")
+    private fun refreshSuccessState(payForUI: PayForUI) {
 
-        if (data.way == "20" || data.way == "21") {
-            var str = "支付宝收款"
-            if (data.way == "20") str = "微信收款"
-            CommonAndDpToPxUtil.speakWork(str + data.payment + "元")
-            successBinding!!.tvTransNumber.text = data.traceid
-        } else {
-            val persons = DishesDBHelper.getInstance().queryPersonToCustId(data.custId)
-            var cls = "***"
-            if (persons != null) {
-                cls = persons.grade + persons.userClass
-            }
-            successBinding!!.tvName.text = data.cust_name ?: "***"
-            successBinding!!.tvClass.text = cls
-            successBinding!!.tvBalance.text = (data.acc_bal ?: "") + "元"
-            successBinding!!.tvTransNumber.text = data.orderid
-        }
+        CommonAndDpToPxUtil.speakWork(payForUI.payment + "元")
+        successBinding!!.tvTransNumber.text = payForUI.traceId.ifEmpty { payForUI.orderId }
+        val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
+        if (persons != null && persons.grade != null) successBinding!!.tvClass.text = "${persons.grade}(${persons.userClass})"
+        successBinding!!.tvName.text = payForUI.username
+        successBinding!!.tvBalance.text = payForUI.accBal + "元"
+        successBinding!!.tvPayTime.text = payForUI.payTime
 
         //更新数据
-        (successBinding!!.rvDishList.adapter as HostPayResultAdapter).data = data.dishes
-        successBinding!!.tvSum.text = " ${data.piece} 件"
-        successBinding!!.payTotalMoney.text = "￥ ${data.payment} 元"
+        (successBinding!!.rvDishList.adapter as HostPayResultAdapter).data = payForUI.paymentDishes
+        successBinding!!.tvSum.text = " ${payForUI.paymentDishes.size} 件"
+        successBinding!!.payTotalMoney.text = "￥ ${payForUI.payment} 元"
 
-
-        var time = data.timestamp ?: ""
-        if (time.isEmpty().not() && data.way.equals("人脸支付").not()) {
-            val buffer = StringBuffer()
-            buffer.append(data.timestamp!!.substring(0, 4))
-                .append("-")
-                .append(data.timestamp!!.substring(4, 6)).append("-")
-                .append(data.timestamp!!.substring(6, 8))
-                .append(" ")
-                .append(data.timestamp!!.substring(8, 10))
-                .append(":")
-                .append(data.timestamp!!.substring(10, 12))
-                .append(":")
-                .append(data.timestamp!!.substring(12)).toString()
-            time = buffer.toString()
-        }
-        successBinding!!.tvPayTime.text = time
-        PrinterOperator.printerFoodsList(data)
-        if (data.result == PayResultForUI.Result.SUCCESS) USBPrinterHelper.instance.printTicket(data)
+        PrinterOperator.printerFoodsList(payForUI)
+        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket(payForUI)
     }
 
 
-    private fun refreshFailState(data: PayResultForUI) {
+    private fun refreshFailState(payForUI: PayForUI) {
         //更新数据
-        if (!TextUtils.isEmpty(data.errormsg)) {
-            failBinding!!.payFailMsg.text = data.errormsg
-        }
-        if (data.timestamp.isNullOrEmpty().not()) {
-            val buffer = StringBuffer()
-            buffer.append(data.timestamp!!.substring(0, 4))
-                .append("-")
-                .append(data.timestamp!!.substring(4, 6)).append("-")
-                .append(data.timestamp!!.substring(6, 8))
-                .append(" ")
-                .append(data.timestamp!!.substring(8, 10))
-                .append(":")
-                .append(data.timestamp!!.substring(10, 12))
-                .append(":")
-                .append(data.timestamp!!.substring(12)).toString()
-            failBinding!!.payTime.text = buffer.toString()
-        }
-
+        failBinding!!.payFailMsg.text = payForUI.errMsg
+        failBinding!!.payTime.text = payForUI.payTime
     }
 
 
@@ -553,18 +507,18 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      * 刷脸结果回调
      * @param data PayResultForUI
      */
-    override fun onFacePayResult(data: PayResultForUI) {
+    override fun onFacePayResult(payForUI: PayForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
-        updatePayResult(data)
+        updatePayResult(payForUI)
     }
 
-    private fun updatePayResult(data: PayResultForUI) {
+    private fun updatePayResult(payForUI: PayForUI) {
         runOnUiThread {
             mPayResultDisplay?.cancel()
-            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
+            mPayResultDisplay = PayResultDisplay(this, payForUI, secondDisplays)
 //            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
             mPayResultDisplay?.show()
-            updatePayState(data)
+            updatePayState(payForUI)
         }
     }
 

@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.interfaces
 
 import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
+import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.model.*
 import io.reactivex.Observable
 import okhttp3.ResponseBody
@@ -54,7 +55,7 @@ interface ApiService {
     // 根据卡号查询用户信息
     @Headers("content-type: application/json")
     @POST("deviceData/byCardIdSelectUser")
-    suspend fun userInfo(@Body map: Map<String, String>): CanteenResponse<UserInfoBean>
+    suspend fun queryPersonByCardId(@Body bean: RequestPerson): CanteenResponse<Persons>
 
     //智慧食堂请求
     @Headers("content-type: application/x-www-form-urlencoded")
@@ -98,4 +99,17 @@ interface ApiService {
     @POST("dcCcb/dcOrderRecord/countDCofDishes")
     suspend fun dishesCount(@Body data: VerificationCountRequest): CanteenResponse<DishesCountResponse>
 
+    /**
+     * 二维码被扫支付
+     */
+    @Headers("content-type: application/json")
+    @POST("android/qrCodePayment")
+    suspend fun payByQrCode(@Body bean: RequestPay): CanteenResponse<String>
+
+    /**
+     * 刷卡支付
+     */
+    @Headers("content-type: application/json")
+    @POST("android/cardPayment")
+    suspend fun payByIcCard(@Body bean: RequestPay): CanteenResponse<String>
 }

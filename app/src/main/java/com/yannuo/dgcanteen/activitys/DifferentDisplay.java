@@ -2,14 +2,10 @@ package com.yannuo.dgcanteen.activitys;
 
 import android.app.Presentation;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -22,10 +18,10 @@ import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter;
 import com.yannuo.dgcanteen.adapters.PayForAdapter;
 import com.yannuo.dgcanteen.adapters.ProductsAdapter;
-import com.yannuo.dgcanteen.dao.DishesTable;
-import com.yannuo.dgcanteen.dao.MealTable;
-import com.yannuo.dgcanteen.dao.dbhelp.DishesDBHelper;
 import com.yannuo.dgcanteen.databinding.DifferrentDialogBinding;
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper;
+import com.yannuo.dgcanteen.greendao.entity.DishesTable;
+import com.yannuo.dgcanteen.greendao.entity.MealTable;
 import com.yannuo.dgcanteen.interfaces.FoodsCallback;
 import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
@@ -43,9 +39,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlinx.coroutines.CoroutineScope;
-
-public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
+public class DifferentDisplay extends Presentation implements ProductsAdapter.WorkListener, PayForAdapter.WorkListener {
     private String TAG = getClass().getSimpleName();
 
     private DifferrentDialogBinding binding;
@@ -84,7 +78,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         refreshMeal();
         adapterDishes = new ProductsAdapter(getContext());
         adapterDishes.setListener(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(),4);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 4);
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         adapterDishes.setImgSize(gridLayoutManager);
@@ -103,12 +97,12 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         binding.rvSelectItem.setAdapter(adapterPayFor);
         MMKV mv = MMKV.defaultMMKV();
         PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
-        if (payCfg != null){
+        if (payCfg != null) {
             binding.selectStopper.setText(payCfg.getWindowName());
         }
         if (mv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
             binding.btVerification.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             binding.btVerification.setVisibility(View.GONE);
         }
     }
@@ -117,10 +111,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
         EventBus.getDefault().register(this);
     }
 
-    public void dishesData(){
+    public void dishesData() {
         List<DishesInfo> dataList = new ArrayList<>();
-        List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds,1);
-        for (DishesTable u : list){
+        List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
+        for (DishesTable u : list) {
             dataList.add(new DishesInfo(
                     u.getDishesId(),
                     u.getDishesName(),
@@ -137,7 +131,6 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     }
 
 
-
     private void initEvent() {
         binding.ibDelAll.setOnClickListener(view -> {
             if (adapterPayFor.getData().size() < 1)
@@ -147,7 +140,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
 
         binding.btSureMeal.setOnClickListener(v -> {
-            if (adapterPayFor.getData().size() < 1){
+            if (adapterPayFor.getData().size() < 1) {
                 CommonAndDpToPxUtil.speakWork("请添加菜品");
                 return;
             }
@@ -155,16 +148,16 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
             if (payCfg == null || TextUtils.isEmpty(payCfg.getCampusId()) ||
                     TextUtils.isEmpty(payCfg.getBusinessId()) || TextUtils.isEmpty(payCfg.getCounterId())
-            ){
+            ) {
                 CommonAndDpToPxUtil.speakWork("请配置支付环境");
-                LogUtil.e(TAG,"请配置支付环境");
+                LogUtil.e(TAG, "请配置支付环境");
                 return;
             }
-            if (flag)return;
+            if (flag) return;
             flag = true;
 //            binding.btSureMeal.setEnabled(false);
-            ProductsDetail prods = new ProductsDetail(adapterPayFor.getData(),binding.tvTotalMoney.getText().toString(),binding.tvTotalCount.getText().toString());
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST,prods));
+            ProductsDetail prods = new ProductsDetail(adapterPayFor.getData(), binding.tvTotalMoney.getText().toString(), binding.tvTotalCount.getText().toString());
+            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST, prods));
 
         });
 
@@ -173,9 +166,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
             PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
             if (payCfg == null || TextUtils.isEmpty(payCfg.getCampusId()) ||
                     TextUtils.isEmpty(payCfg.getBusinessId()) || TextUtils.isEmpty(payCfg.getCounterId())
-            ){
+            ) {
                 CommonAndDpToPxUtil.speakWork("请配置支付环境");
-                LogUtil.e(TAG,"请配置支付环境");
+                LogUtil.e(TAG, "请配置支付环境");
                 return;
             }
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
@@ -200,9 +193,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     }
 
     //更新购物车UI
-    private void updateUiItems(DishesInfo it, Boolean accumulation){
-        adapterPayFor.insertedData(it,accumulation);
-        binding.rvSelectItem.scrollToPosition(adapterPayFor.getData().size() -1); //插入数据后滑动到底部
+    private void updateUiItems(DishesInfo it, Boolean accumulation) {
+        adapterPayFor.insertedData(it, accumulation);
+        binding.rvSelectItem.scrollToPosition(adapterPayFor.getData().size() - 1); //插入数据后滑动到底部
         float[] res = presenter.calculate(adapterPayFor.getData());
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
@@ -211,9 +204,9 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void arrive(MessageEvent event){
-        LogUtil.d(TAG, "event : "+event.getCode());
-        if(event.getCode() == Constant.EVENT_FIFTH ){
+    public void arrive(MessageEvent event) {
+        LogUtil.d(TAG, "event : " + event.getCode());
+        if (event.getCode() == Constant.EVENT_FIFTH) {
             clearShoppingCart();
             dishesData();
         }
@@ -223,10 +216,10 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     public void onEventClick(int position) {
         data = adapterDishes.getData(position);
         //选择的购买商品添加到购物车
-        updateUiItems( data,false);
+        updateUiItems(data, false);
 
         if (foodsCallback != null)
-        foodsCallback.onFoodsUpdate(adapterPayFor.getData());
+            foodsCallback.onFoodsUpdate(adapterPayFor.getData());
     }
 
     @Override
@@ -242,23 +235,23 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
 
 
     //根据餐别时间，更新餐别
-    public void subScreenView(int mealId, StringBuilder str){
+    public void subScreenView(int mealId, StringBuilder str) {
         mealIds = mealId;
         binding.mealTime.setText(str);
         dishesData();
     }
 
     //副屏重新加载时，更新餐别
-    private void refreshMeal(){
+    private void refreshMeal() {
         mealIds = TimeUtil.CurrentTimeSection();
         StringBuilder str = new StringBuilder();
-        if (mealIds == 0){
+        if (mealIds == 0) {
             str.append(getResources().getString(R.string.unOpen_meal));
-        }else {
+        } else {
             MealTable meal = DishesDBHelper.getInstance().queryToMeals(mealIds);
             str.append(meal.getMealName() + " ");
-            str.append(DateFormat.format("HH:mm",meal.getStartTime()).toString() + "~");
-            str.append(DateFormat.format("HH:mm",meal.getEndTime()).toString());
+            str.append(DateFormat.format("HH:mm", meal.getStartTime()).toString() + "~");
+            str.append(DateFormat.format("HH:mm", meal.getEndTime()).toString());
         }
         binding.mealTime.setText(str);
     }
@@ -267,7 +260,7 @@ public class DifferentDisplay extends Presentation implements ProductsAdapter.Wo
     protected void onStop() {
 
         EventBus.getDefault().unregister(this);
-        LogUtil.i(TAG,"stop...");
+        LogUtil.i(TAG, "stop...");
         foodsCallback = null;
         super.onStop();
     }
