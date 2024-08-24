@@ -1,17 +1,14 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
 import android.app.job.JobScheduler
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -36,28 +33,21 @@ import java.util.concurrent.TimeUnit
  **/
 class BasicSettingFragment : Fragment() {
     private lateinit var binding: FragmentBasicSettingBinding
-    private lateinit var kv: MMKV
+    private val kv: MMKV = MMKV.defaultMMKV()
     private val mContext = MyApplication.applicationContext
     private lateinit var portAdapter: ArrayAdapter<String>
     private lateinit var baudrateAdapter: ArrayAdapter<String>
     private lateinit var spinnerAdapter: ArrayAdapter<String>
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentBasicSettingBinding.inflate(inflater, container, false)
-        initObject()
         initData()
         initEvent()
-        cardFormat()
         return binding.root
-    }
-
-    private fun initObject() {
-        kv = MMKV.defaultMMKV()
     }
 
     private fun initData() {
         try {
-            binding.tvVersion.text =
-                mContext.packageManager.getPackageInfo(mContext.packageName, 0).versionName
+            binding.tvVersion.text = mContext.packageManager.getPackageInfo(mContext.packageName, 0).versionName
         } catch (e: PackageManager.NameNotFoundException) {
             throw RuntimeException(e)
         }
@@ -90,20 +80,14 @@ class BasicSettingFragment : Fragment() {
         }
         binding.btnExitAlive.setOnClickListener { view: View? ->  //退出保活
             // 创建 JobScheduler
-            val jobScheduler =
-                mContext!!.getSystemService(AppCompatActivity.JOB_SCHEDULER_SERVICE) as JobScheduler
+            val jobScheduler = mContext!!.getSystemService(AppCompatActivity.JOB_SCHEDULER_SERVICE) as JobScheduler
             jobScheduler?.cancelAll()
             ToastShowUtil.show("已取消保活")
         }
 
 
         binding.snPrinterPort.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 (parent?.getItemAtPosition(position) as? String)?.also {
                     kv.encode(Constant.PRINTER_PATH_SET, it)
                 }
@@ -113,12 +97,7 @@ class BasicSettingFragment : Fragment() {
         }
 
         binding.snPrinterBaudrate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 (parent?.getItemAtPosition(position) as? String)?.also {
                     kv.encode(Constant.PRINTER_BAUD_SET, it);
                 }
@@ -126,8 +105,6 @@ class BasicSettingFragment : Fragment() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-
-
     }
 
     private fun reload() {
@@ -217,20 +194,9 @@ class BasicSettingFragment : Fragment() {
         kv.encode(Constant.AWAIT_PAY_TIME, binding.awaitPayTime.text.toString().toInt())
         kv.encode(Constant.PRINTER_TICKET_NAME, binding.printTicketName.text.toString())
         kv.encode(Constant.PRINTER_CASHIER_NAME, binding.printCashierName.text.toString())
+        //卡号格式选择
+        kv.encode(Constant.CARD_FORMAT, binding.snCardformat.selectedItemPosition)
         if (flag) ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
-    }
-
-    //卡号格式选择
-    private fun cardFormat() {
-        binding.snCardformat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                kv.encode(Constant.CARD_FORMAT, position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-        }
     }
 
     private fun isValidUrl(url: String): Boolean {

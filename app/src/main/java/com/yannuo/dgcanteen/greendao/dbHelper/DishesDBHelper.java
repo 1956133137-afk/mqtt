@@ -140,6 +140,13 @@ public class DishesDBHelper {
     }
 
     /**
+     * 清空缓存
+     */
+    public void clearCache() {
+        mDaoSession.clear();
+    }
+
+    /**
      * 获取指定餐别菜品
      *
      * @param mealId
@@ -515,6 +522,18 @@ public class DishesDBHelper {
         }
     }
 
+    public void updatePayOrderById(PayOrderTable payOrder) {
+        payOrderTableDao.update(payOrder);
+    }
+
+    public List<PayOrderTable> queryPayOrder(String username, String orderId) {
+        return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.Username.like("%" + username + "%"))
+                .where(PayOrderTableDao.Properties.OrderId.like("%" + orderId + "%"))
+                .orderDesc(PayOrderTableDao.Properties.PayTime)
+                .build().list();
+    }
+
     public List<PayOrderTable> queryPayOrderToAll() {
         return payOrderTableDao.queryBuilder()
                 .where(PayOrderTableDao.Properties.PayType.eq("1"))
@@ -522,10 +541,31 @@ public class DishesDBHelper {
                 .build().list();
     }
 
+    public void deletePayOrder(PayOrderTable payOrder) {
+        payOrderTableDao.delete(payOrder);
+    }
+
+    public void deletePayOrderByPayDate(String payDate) {
+        List<PayOrderTable> orderList = payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.PayDate.notEq(payDate))
+                .where(PayOrderTableDao.Properties.Flag.eq(1))
+                .build().list();
+        for (PayOrderTable order : orderList) {
+            deletePayDish(order.getId());
+            deletePayOrder(order);
+        }
+    }
+
     public void insertPayDish(PayDishTable payDishTable) {
         payDishTableDao.insert(payDishTable);
     }
 
+    public void deletePayDish(long payOrderId) {
+        payDishTableDao.queryBuilder()
+                .where(PayDishTableDao.Properties.PayOrderId.eq(payOrderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+    }
 
     /*******************************  离线记录  *******************************/
     public void insertOfflineOrder(OfflineOrderTable offLineOrder) {
@@ -538,13 +578,21 @@ public class DishesDBHelper {
                 .build().unique();
     }
 
+    public List<OfflineOrderTable> queryOfflineOrderByUsername(String username) {
+        return olOrderTableDao.queryBuilder()
+                .where(OfflineOrderTableDao.Properties.Flag.eq(0))
+                .where(OfflineOrderTableDao.Properties.Username.like("%" + username + "%"))
+                .orderDesc(OfflineOrderTableDao.Properties.SignTime)
+                .build().list();
+    }
+
     public List<OfflineOrderTable> queryOfflineOrderToAll() {
         return olOrderTableDao.queryBuilder()
                 .where(OfflineOrderTableDao.Properties.Flag.notEq(1))
                 .build().list();
     }
 
-    public void updateOLOrder(OfflineOrderTable offlineOrder) {
+    public void updateOfflineOrder(OfflineOrderTable offlineOrder) {
         OfflineOrderTable order = queryOfflineOrder(offlineOrder.getSessionId());
         if (order != null) {
             order.setFlag(offlineOrder.getFlag());
@@ -552,7 +600,29 @@ public class DishesDBHelper {
         }
     }
 
+    public void deleteOfflineOrder(OfflineOrderTable offlineOrder) {
+        olOrderTableDao.delete(offlineOrder);
+    }
+
+    public void deleteOfflineOrderByPayDate(String payDate) {
+        List<OfflineOrderTable> orderList = olOrderTableDao.queryBuilder()
+                .where(OfflineOrderTableDao.Properties.PayDate.notEq(payDate))
+                .where(OfflineOrderTableDao.Properties.Flag.eq(1))
+                .build().list();
+        for (OfflineOrderTable order : orderList) {
+            deleteOfflineDish(order.getId());
+            deleteOfflineOrder(order);
+        }
+    }
+
     public void insertOfflineDish(OfflineDishTable offLineDish) {
         olDishTableDao.insert(offLineDish);
+    }
+
+    public void deleteOfflineDish(long offlineOrderId) {
+        olDishTableDao.queryBuilder()
+                .where(OfflineDishTableDao.Properties.OfflineOrderId.eq(offlineOrderId))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
     }
 }

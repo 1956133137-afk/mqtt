@@ -64,6 +64,7 @@ class CameraLogic {
             service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
                 override fun onResult(result: String) {
                     LogUtil.d(TAG, result)
+                    val currentTime = System.currentTimeMillis()
                     val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
                     val payForUI = PayForUI().apply {
                         businessId = mPayCfg.businessId
@@ -76,8 +77,9 @@ class CameraLogic {
                         payment = payResult.PAYMENT
                         orderId = payResult.ORDER_ID
                         payTime = payResult.PAYTIME
-                        sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}${System.currentTimeMillis()}${Random().nextInt(10)}"
-                        signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", System.currentTimeMillis())
+                        payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
+                        sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
+                        signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
                         this.offline = offline.toString()
                     }
                     when (payResult.RESULT) {

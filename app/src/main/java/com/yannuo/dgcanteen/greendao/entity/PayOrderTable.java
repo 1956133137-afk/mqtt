@@ -43,6 +43,7 @@ public class PayOrderTable {
     private String payment;         //订单金额
     private String actualPayment;   //实际支付金额
     private String payTime;         //支付时间 yyyy-MM-dd HH:mm:ss
+    private String payDate;         //支付日期
     private String offline;         //离线标记 0在线 1离线
     private Integer flag = 0;       //上传标记 0未上传 1已上传
 
@@ -55,12 +56,12 @@ public class PayOrderTable {
     @Generated(hash = 808079322)
     private transient PayOrderTableDao myDao;
 
-    @Generated(hash = 902254769)
+    @Generated(hash = 1638769043)
     public PayOrderTable(Long id, String result, String tranResult, String businessId,
             String businessName, String campusId, String corpId, String vposId, String deviceId,
             String custId, String username, String accNo, String accBal, String accType, String accList,
             String orderId, String traceId, String payType, String payContent, String payment,
-            String actualPayment, String payTime, String offline, Integer flag) {
+            String actualPayment, String payTime, String payDate, String offline, Integer flag) {
         this.id = id;
         this.result = result;
         this.tranResult = tranResult;
@@ -83,6 +84,7 @@ public class PayOrderTable {
         this.payment = payment;
         this.actualPayment = actualPayment;
         this.payTime = payTime;
+        this.payDate = payDate;
         this.offline = offline;
         this.flag = flag;
     }
@@ -353,5 +355,13 @@ public class PayOrderTable {
 
     public void setAccList(String accList) {
         this.accList = accList;
+    }
+
+    public String getPayDate() {
+        return this.payDate;
+    }
+
+    public void setPayDate(String payDate) {
+        this.payDate = payDate;
     }
 }

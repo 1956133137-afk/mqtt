@@ -38,9 +38,10 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
         public final static Property Payment = new Property(11, String.class, "payment", false, "PAYMENT");
         public final static Property ActualPayment = new Property(12, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
         public final static Property SessionId = new Property(13, String.class, "sessionId", false, "SESSION_ID");
-        public final static Property SignTime = new Property(14, String.class, "signTime", false, "SIGN_TIME");
-        public final static Property Offline = new Property(15, String.class, "offline", false, "OFFLINE");
-        public final static Property Flag = new Property(16, Integer.class, "flag", false, "FLAG");
+        public final static Property PayDate = new Property(14, String.class, "payDate", false, "PAY_DATE");
+        public final static Property SignTime = new Property(15, String.class, "signTime", false, "SIGN_TIME");
+        public final static Property Offline = new Property(16, String.class, "offline", false, "OFFLINE");
+        public final static Property Flag = new Property(17, Integer.class, "flag", false, "FLAG");
     }
 
     private DaoSession daoSession;
@@ -73,9 +74,10 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
                 "\"PAYMENT\" TEXT," + // 11: payment
                 "\"ACTUAL_PAYMENT\" TEXT," + // 12: actualPayment
                 "\"SESSION_ID\" TEXT UNIQUE ," + // 13: sessionId
-                "\"SIGN_TIME\" TEXT," + // 14: signTime
-                "\"OFFLINE\" TEXT," + // 15: offline
-                "\"FLAG\" INTEGER);"); // 16: flag
+                "\"PAY_DATE\" TEXT," + // 14: payDate
+                "\"SIGN_TIME\" TEXT," + // 15: signTime
+                "\"OFFLINE\" TEXT," + // 16: offline
+                "\"FLAG\" INTEGER);"); // 17: flag
     }
 
     /** Drops the underlying database table. */
@@ -158,19 +160,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
             stmt.bindString(14, sessionId);
         }
  
+        String payDate = entity.getPayDate();
+        if (payDate != null) {
+            stmt.bindString(15, payDate);
+        }
+ 
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(15, signTime);
+            stmt.bindString(16, signTime);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(16, offline);
+            stmt.bindString(17, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(17, flag);
+            stmt.bindLong(18, flag);
         }
     }
 
@@ -248,19 +255,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
             stmt.bindString(14, sessionId);
         }
  
+        String payDate = entity.getPayDate();
+        if (payDate != null) {
+            stmt.bindString(15, payDate);
+        }
+ 
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(15, signTime);
+            stmt.bindString(16, signTime);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(16, offline);
+            stmt.bindString(17, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(17, flag);
+            stmt.bindLong(18, flag);
         }
     }
 
@@ -292,9 +304,10 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
             cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // payment
             cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // actualPayment
             cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // sessionId
-            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // signTime
-            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // offline
-            cursor.isNull(offset + 16) ? null : cursor.getInt(offset + 16) // flag
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // payDate
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // signTime
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // offline
+            cursor.isNull(offset + 17) ? null : cursor.getInt(offset + 17) // flag
         );
         return entity;
     }
@@ -315,9 +328,10 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
         entity.setPayment(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
         entity.setActualPayment(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
         entity.setSessionId(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
-        entity.setSignTime(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
-        entity.setOffline(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
-        entity.setFlag(cursor.isNull(offset + 16) ? null : cursor.getInt(offset + 16));
+        entity.setPayDate(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setSignTime(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setOffline(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setFlag(cursor.isNull(offset + 17) ? null : cursor.getInt(offset + 17));
      }
     
     @Override

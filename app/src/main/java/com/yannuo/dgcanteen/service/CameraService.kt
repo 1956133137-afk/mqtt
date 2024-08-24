@@ -120,6 +120,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //        }
 //        authFace.authCheck(initcallback)
         deviceInit()
+        deleteNonTodayRecords()
     }
 
 
@@ -632,9 +633,11 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
                     val offlineOrder = DishesDBHelper.getInstance().queryOfflineOrderToAll()
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
-                    offlineOrder.forEach { order ->
-                        val payForUI = Gson().fromJson(Gson().toJson(order), PayForUI::class.java)
-                        order.paymentDishes.forEach { payForUI.paymentDishes.add(Gson().fromJson(Gson().toJson(it), Dish::class.java)) }
+                    offlineOrder.forEach { offline ->
+                        val payForUI = Gson().fromJson(Gson().toJson(offline), PayForUI::class.java)
+                        payForUI.payTime = TimeUtil.dateFormat(offline.signTime)
+                        payForUI.payDate = TimeUtil.formatDate(offline.signTime)
+                        offline.paymentDishes.forEach { payForUI.paymentDishes.add(Gson().fromJson(Gson().toJson(it), Dish::class.java)) }
                         val response = when (payForUI.payType) {
                             "2" -> {
                                 val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
@@ -668,9 +671,9 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                             payForUI.errMsg = response.msg
                         }
                         if (payForUI.result == "Y") {
-                            order.flag = 1
-                            DishesDBHelper.getInstance().updateOLOrder(order)
-                            saveOrderRecord(payForUI)
+                            offline.flag = 1
+                            DishesDBHelper.getInstance().updateOfflineOrder(offline)
+                            saveOrderRecord(payForUI, offline.sessionId)
                         }
                         LogUtil.d(TAG, Gson().toJson(payForUI))
                     }
@@ -680,16 +683,26 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         }
     }
 
-    private fun saveOrderRecord(payForUI: PayForUI) {
-        val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
-        payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
-        DishesDBHelper.getInstance().insertPayOrder(payOrder)
-        val order = DishesDBHelper.getInstance().queryPayOrder(payOrder.orderId)
-        payForUI.paymentDishes.forEach {
-            val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
-            dish.payOrderTable = order
-            DishesDBHelper.getInstance().insertPayDish(dish)
-        }
+    private fun saveOrderRecord(payForUI: PayForUI, session: String) {
+        val order = DishesDBHelper.getInstance().queryPayOrder(session)
+        order.accNo = payForUI.accNo
+        order.accBal = payForUI.accBal
+        order.accType = payForUI.accType
+        order.accList = payForUI.accList
+        order.orderId = payForUI.orderId
+        order.traceId = payForUI.traceId
+        order.actualPayment = payForUI.actualPayment
+        order.flag = 1
+        DishesDBHelper.getInstance().updatePayOrderById(order)
+    }
+
+    private fun deleteNonTodayRecords() {
+        val date = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+        LogUtil.d(TAG, "删除非今日记录...$date")
+        //消费订单
+        DishesDBHelper.getInstance().deletePayOrderByPayDate(date)
+        //离线订单
+        DishesDBHelper.getInstance().deleteOfflineOrderByPayDate(date)
     }
 
     inner class LocalBinder : Binder() {

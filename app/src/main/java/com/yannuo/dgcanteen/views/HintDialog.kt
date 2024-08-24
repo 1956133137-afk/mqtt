@@ -1,23 +1,19 @@
 package com.yannuo.dgcanteen.views
 
 import android.content.Context
-import android.os.CountDownTimer
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.TextView
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.interfaces.CloseEvent
-import com.yannuo.dgcanteen.util.LogUtil
-import java.util.concurrent.TimeUnit
 
-class HintDialog(context :Context) :BaseDialog(context, R.layout.dialog_waitfor_pay) {
+class HintDialog(context: Context) : BaseDialog(context, R.layout.dialog_waitfor_pay) {
     private val TAG = javaClass.simpleName
-    private lateinit var tv_close : ImageButton
-    private lateinit var tv_count  :TextView
-    private lateinit var tv_content  :TextView
-    private var listener : CloseEvent?= null
-
+    private lateinit var tv_close: ImageButton
+    private lateinit var tv_count: TextView
+    private lateinit var tv_content: TextView
+    private var listener: CloseEvent? = null
 
     override fun initViewAndEvent() {
         window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
@@ -28,24 +24,17 @@ class HintDialog(context :Context) :BaseDialog(context, R.layout.dialog_waitfor_
         tv_content.text = "正在等待用户支付..."
     }
 
-
-
-    fun setListener(lis : CloseEvent):HintDialog{
+    fun setListener(lis: CloseEvent): HintDialog {
         listener = lis
         return this
     }
 
     override fun onClick(v: View) {
-        when(v.id){
-            R.id.ib_close ->{
+        when (v.id) {
+            R.id.ib_close -> {
                 dismiss()
-                listener?.onEvent(0,"取消交易")
+                listener?.onEvent(0, "取消交易")
             }
         }
-
     }
-
-
-
-
 }

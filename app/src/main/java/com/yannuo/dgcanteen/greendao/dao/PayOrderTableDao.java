@@ -46,8 +46,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         public final static Property Payment = new Property(19, String.class, "payment", false, "PAYMENT");
         public final static Property ActualPayment = new Property(20, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
         public final static Property PayTime = new Property(21, String.class, "payTime", false, "PAY_TIME");
-        public final static Property Offline = new Property(22, String.class, "offline", false, "OFFLINE");
-        public final static Property Flag = new Property(23, Integer.class, "flag", false, "FLAG");
+        public final static Property PayDate = new Property(22, String.class, "payDate", false, "PAY_DATE");
+        public final static Property Offline = new Property(23, String.class, "offline", false, "OFFLINE");
+        public final static Property Flag = new Property(24, Integer.class, "flag", false, "FLAG");
     }
 
     private DaoSession daoSession;
@@ -88,8 +89,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
                 "\"PAYMENT\" TEXT," + // 19: payment
                 "\"ACTUAL_PAYMENT\" TEXT," + // 20: actualPayment
                 "\"PAY_TIME\" TEXT," + // 21: payTime
-                "\"OFFLINE\" TEXT," + // 22: offline
-                "\"FLAG\" INTEGER);"); // 23: flag
+                "\"PAY_DATE\" TEXT," + // 22: payDate
+                "\"OFFLINE\" TEXT," + // 23: offline
+                "\"FLAG\" INTEGER);"); // 24: flag
     }
 
     /** Drops the underlying database table. */
@@ -212,14 +214,19 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(22, payTime);
         }
  
+        String payDate = entity.getPayDate();
+        if (payDate != null) {
+            stmt.bindString(23, payDate);
+        }
+ 
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(23, offline);
+            stmt.bindString(24, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(24, flag);
+            stmt.bindLong(25, flag);
         }
     }
 
@@ -337,14 +344,19 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(22, payTime);
         }
  
+        String payDate = entity.getPayDate();
+        if (payDate != null) {
+            stmt.bindString(23, payDate);
+        }
+ 
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(23, offline);
+            stmt.bindString(24, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(24, flag);
+            stmt.bindLong(25, flag);
         }
     }
 
@@ -384,8 +396,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // payment
             cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // actualPayment
             cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // payTime
-            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // offline
-            cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23) // flag
+            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // payDate
+            cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // offline
+            cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24) // flag
         );
         return entity;
     }
@@ -414,8 +427,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         entity.setPayment(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
         entity.setActualPayment(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
         entity.setPayTime(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
-        entity.setOffline(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
-        entity.setFlag(cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23));
+        entity.setPayDate(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
+        entity.setOffline(cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23));
+        entity.setFlag(cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24));
      }
     
     @Override

@@ -37,6 +37,7 @@ public class OfflineOrderTable {
     private String actualPayment;   //实际支付金额
     @Unique
     private String sessionId;       //订单唯一随机标记位
+    private String payDate;         //支付日期
     private String signTime;        //交易时间 yyyyMMddHHmmss
     private String offline;         //离线标记 0在线 1离线
     private Integer flag = 0;       //上传标记 0未上传 1已上传
@@ -54,12 +55,11 @@ public class OfflineOrderTable {
     @Generated(hash = 420413952)
     private transient OfflineOrderTableDao myDao;
 
-    @Generated(hash = 1194480792)
-    public OfflineOrderTable(Long id, String businessId, String businessName,
-                             String campusId, String corpId, String vposId, String deviceId,
-                             String custId, String username, String payType, String payContent,
-                             String payment, String actualPayment, String sessionId, String signTime,
-                             String offline, Integer flag) {
+    @Generated(hash = 1145552457)
+    public OfflineOrderTable(Long id, String businessId, String businessName, String campusId,
+            String corpId, String vposId, String deviceId, String custId, String username,
+            String payType, String payContent, String payment, String actualPayment, String sessionId,
+            String payDate, String signTime, String offline, Integer flag) {
         this.id = id;
         this.businessId = businessId;
         this.businessName = businessName;
@@ -74,6 +74,7 @@ public class OfflineOrderTable {
         this.payment = payment;
         this.actualPayment = actualPayment;
         this.sessionId = sessionId;
+        this.payDate = payDate;
         this.signTime = signTime;
         this.offline = offline;
         this.flag = flag;
@@ -293,6 +294,14 @@ public class OfflineOrderTable {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getOfflineOrderTableDao() : null;
+    }
+
+    public String getPayDate() {
+        return this.payDate;
+    }
+
+    public void setPayDate(String payDate) {
+        this.payDate = payDate;
     }
 
 }

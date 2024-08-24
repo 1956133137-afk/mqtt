@@ -203,7 +203,7 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
             if (code == 1) {
                 CommonAndDpToPxUtil.speakWork("超时未完成支付");
             } else if (code == 0) {
-                //todo 取消处理逻辑
+                payViewModel.setPayState(PayViewModel.PayStatus.INVALID);
             }
         }
     }

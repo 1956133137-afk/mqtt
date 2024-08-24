@@ -178,6 +178,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
                 mHintDialog = HintDialog(requireContext()).apply {
                     this.setListener(object : CloseEvent {
                         override fun onEvent(code: Int, msg: String?) {
+                            if (code == 0) payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
                             model.getDisplay()?.showWaitHit(false)
                         }
                     })

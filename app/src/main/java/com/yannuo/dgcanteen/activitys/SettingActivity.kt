@@ -1,23 +1,19 @@
 package com.yannuo.dgcanteen.activitys
 
-import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.fragment.BasicSettingFragment
-import com.yannuo.dgcanteen.activitys.fragment.DeviceInfoFragment
-import com.yannuo.dgcanteen.activitys.fragment.FaceSettingFragment
-import com.yannuo.dgcanteen.activitys.fragment.ModeSettingFragment
+import com.yannuo.dgcanteen.activitys.fragment.*
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
-import com.yannuo.dgcanteen.util.LogUtil
 
 class SettingActivity : BaseActivity<ActivitySettingBinding>() {
 
     private lateinit var basicFragment: BasicSettingFragment
     private lateinit var modeFragment: ModeSettingFragment
     private lateinit var faceFragment: FaceSettingFragment
+    private lateinit var payOrderFragment: PayOrderFragment
+    private lateinit var olOrderFragment: OfflineOrderFragment
     private lateinit var deviceFragment: DeviceInfoFragment
     private lateinit var fragments: Array<Fragment>
 
@@ -27,25 +23,22 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
 
     override fun onInit() {
         initFragment()
-        initView()
         initEvent()
-        initListener()
     }
 
     private fun initFragment() {
         basicFragment = BasicSettingFragment()
         modeFragment = ModeSettingFragment()
         faceFragment = FaceSettingFragment()
+        payOrderFragment = PayOrderFragment()
+        olOrderFragment = OfflineOrderFragment()
         deviceFragment = DeviceInfoFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment, deviceFragment)
-    }
-
-    private fun initView() {
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, olOrderFragment, deviceFragment)
         binding.radioGroup.check(R.id.basic)
     }
 
     private fun initEvent() {
-        binding.ibtBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             when (binding.viewPager.currentItem) {
                 0 -> basicFragment.save()
@@ -54,8 +47,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 else -> return@setOnClickListener
             }
         }
-        binding.viewPager.adapter = object :
-            FragmentPagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        binding.viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
             override fun getCount(): Int {
                 return fragments.size
             }
@@ -64,24 +56,18 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 return fragments[position]
             }
         }
-    }
-
-    private fun initListener() {
         //滑动切换界面
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-            }
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
                 when (position) {
                     0 -> binding.radioGroup.check(R.id.basic)
                     1 -> binding.radioGroup.check(R.id.mode)
                     2 -> binding.radioGroup.check(R.id.face)
-                    3 -> binding.radioGroup.check(R.id.device)
+                    3 -> binding.radioGroup.check(R.id.pay_order)
+                    4 -> binding.radioGroup.check(R.id.offline_order)
+                    5 -> binding.radioGroup.check(R.id.device)
                 }
             }
 
@@ -94,7 +80,9 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.basic -> binding.viewPager.currentItem = 0
                 R.id.mode -> binding.viewPager.currentItem = 1
                 R.id.face -> binding.viewPager.currentItem = 2
-                R.id.device -> binding.viewPager.currentItem = 3
+                R.id.pay_order -> binding.viewPager.currentItem = 3
+                R.id.offline_order -> binding.viewPager.currentItem = 4
+                R.id.device -> binding.viewPager.currentItem = 5
             }
         }
     }

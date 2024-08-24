@@ -131,6 +131,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             payment = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
             actualPayment = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
             payTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime)
+            payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
             offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
@@ -257,7 +258,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 payForUI.errCode = response.code
                 payForUI.errMsg = response.msg
             }
-            if (payForUI.result == "Y") saveOrderRecord(payForUI)
+            if (payForUI.result == "Y") saveOrderRecord(payForUI, 1)
             LogUtil.d(TAG, Gson().toJson(payForUI))
             listener?.onOtherListener(3, payForUI)
         }
@@ -272,12 +273,15 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             dbHelper.insertOfflineDish(it)
         }
         payForUI.result = "Y"
+        payForUI.orderId = payForUI.sessionId
+        saveOrderRecord(payForUI, 0)
         listener?.onOtherListener(3, payForUI)
     }
 
-    private fun saveOrderRecord(payForUI: PayForUI) {
+    private fun saveOrderRecord(payForUI: PayForUI, flag: Int) {
         val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
         payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+        payOrder.flag = flag
         dbHelper.insertPayOrder(payOrder)
         val order = dbHelper.queryPayOrder(payOrder.orderId)
         payForUI.paymentDishes.forEach {

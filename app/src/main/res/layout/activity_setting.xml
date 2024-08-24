@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="#EFEFEF"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="#FFFFFF"
@@ -14,58 +13,81 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/ibt_back"
-            android:layout_width="115dp"
-            android:layout_height="50dp"
+            android:id="@+id/btn_back"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
             android:layout_marginStart="45dp"
-            android:layout_marginEnd="20dp"
             android:background="@drawable/shape_btn_bg_white"
             android:src="@drawable/ic_back" />
 
-        <RadioGroup
-            android:id="@+id/radio_Group"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/basic"
-                style="@style/radiobutton"
-                android:text="基础设置" />
-
-            <RadioButton
-                android:id="@+id/mode"
-                style="@style/radiobutton"
-                android:text="模式设置" />
-
-            <RadioButton
-                android:id="@+id/face"
-                style="@style/radiobutton"
-                android:text="人脸算法设置" />
-
-            <RadioButton
-                android:id="@+id/device"
-                style="@style/radiobutton"
-                android:text="设备信息" />
-        </RadioGroup>
-
         <Button
             android:id="@+id/btn_save"
-            android:layout_width="115dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="20dp"
+            android:layout_width="120dp"
+            android:layout_height="60dp"
+            android:layout_alignParentEnd="true"
             android:layout_marginEnd="45dp"
             android:background="@drawable/shape_btn_bg_white"
             android:text="@string/btn_save"
             android:textColor="#101010"
             android:textSize="20sp" />
-    </LinearLayout>
+    </RelativeLayout>
 
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp">
+
+            <RadioGroup
+                android:id="@+id/radio_Group"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/basic"
+                    style="@style/radiobutton"
+                    android:text="基础设置" />
+
+                <RadioButton
+                    android:id="@+id/mode"
+                    style="@style/radiobutton"
+                    android:text="模式设置" />
+
+                <RadioButton
+                    android:id="@+id/face"
+                    style="@style/radiobutton"
+                    android:text="算法设置" />
+
+                <RadioButton
+                    android:id="@+id/pay_order"
+                    style="@style/radiobutton"
+                    android:text="消费记录" />
+
+                <RadioButton
+                    android:id="@+id/offline_order"
+                    style="@style/radiobutton"
+                    android:text="离线记录" />
+
+                <RadioButton
+                    android:id="@+id/device"
+                    style="@style/radiobutton"
+                    android:text="设备信息" />
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
 </LinearLayout>

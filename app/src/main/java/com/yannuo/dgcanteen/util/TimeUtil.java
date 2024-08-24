@@ -77,4 +77,23 @@ public class TimeUtil {
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.SIMPLIFIED_CHINESE);
         return sdf.format(currentTime);
     }
+
+    public static String dateFormat(String time) {
+        StringBuilder timeStr = new StringBuilder();
+        timeStr.append(time.substring(0, 4)).append("-")
+                .append(time.substring(4, 6)).append("-")
+                .append(time.substring(6, 8)).append(" ")
+                .append(time.substring(8, 10)).append(":")
+                .append(time.substring(10, 12)).append(":")
+                .append(time.substring(12));
+        return new String(timeStr);
+    }
+
+    public static String formatDate(String time) {
+        StringBuilder timeStr = new StringBuilder();
+        timeStr.append(time.substring(0, 4)).append("-")
+                .append(time.substring(4, 6)).append("-")
+                .append(time.substring(6, 8));
+        return new String(timeStr);
+    }
 }

@@ -26,6 +26,7 @@ class PayForUI {
     var payment = ""            //订单金额
     var actualPayment = ""      //实际支付金额
     var payTime = ""            //支付时间 yyyy-MM-dd HH:mm:ss
+    var payDate = ""            //支付日期
     var sessionId = ""          //订单唯一随机标记位
     var signTime = ""           //交易时间 yyyyMMddHHmmss
     var offline = ""            //离线标记 0在线 1离线
