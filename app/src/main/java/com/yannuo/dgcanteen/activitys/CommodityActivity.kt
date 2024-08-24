@@ -529,7 +529,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 //            mPayResultDisplay = PayResultDisplay(this, payForUI, secondDisplays)
 //            mPayResultDisplay?.cancel()
             mPayResultDisplay?.safeCancel()
-            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
+            mPayResultDisplay = PayResultDisplay(this, payForUI, secondDisplays)
 //            mPayResultDisplay = PayResultDisplay(this, data, secondDisplays)
             mPayResultDisplay?.show()
             updatePayState(payForUI)

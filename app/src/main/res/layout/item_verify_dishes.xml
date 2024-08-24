@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2024-08-16 17:26:22"
-            android:textSize="35sp"
+            android:textSize="25sp"
             android:textColor="#4F4F4F" />
         <TextView
             android:id="@+id/verify_info"
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="张三已取餐"
-            android:textSize="35sp"
+            android:textSize="25sp"
             android:textColor="#4F4F4F"/>
     </LinearLayout>
 
