@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.common.NTScanHelp
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.entity.VerifyDishes
@@ -35,6 +37,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     }
     private lateinit var mCodeDevice: ScanDevice
     private lateinit var mCardDevice: SerialPortHelper
+    private lateinit var ntHelp: NTScanHelp
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
 
@@ -61,6 +64,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         loadingEvent = MutableLiveData()
         mCodeDevice = ScanDevice()
         mCardDevice = SerialPortHelper()
+        ntHelp = NTScanHelp()
         exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
             LogUtil.e(TAG, "协程异常： $throwable ${throwable.stackTraceToString()}")
             showToastEvent.postValue("错误： ${throwable.message}")
@@ -76,6 +80,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         mCardDevice.openSerialPort("/dev/ttyS4", 9600)
         mCodeDevice.setCallbackListener(this)
         mCardDevice.readDataListener = this
+        ntHelp?.OpenScanCode(this, MyApplication.applicationContext)
     }
 
     //修改支付状态
@@ -95,6 +100,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         if (this::mCardDevice.isInitialized) {
             mCardDevice.readDataListener = null
             mCardDevice.closeSerialPort()
+        }
+        if (this::ntHelp.isInitialized) {
+            ntHelp.CloseScanCode()
         }
     }
 

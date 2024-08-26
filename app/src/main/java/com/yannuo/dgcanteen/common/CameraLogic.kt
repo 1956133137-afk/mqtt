@@ -11,6 +11,7 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -39,7 +40,7 @@ class CameraLogic {
      * @param productsDetail ProductsDetail
      * @throws RemoteException
      */
-    fun startPayWithFace(service: ZHSTFacePayService?, amount: Float, listener: IProductsVM?) {
+    fun startPayWithFace(service: ZHSTFacePayService?, amount: Float, listener: CallbackListener?) {
         mScope.launch() {
             if (TextUtils.isEmpty(mPayCfg.campusId) || TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)) {
                 LogUtil.e(TAG, "未配置支付环境")
@@ -47,7 +48,7 @@ class CameraLogic {
                 err.payType = "1"
                 err.errMsg = "未配置支付环境"
                 err.payTime = DateFormat.format("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis()).toString()
-                listener?.onFacePayResult(err)
+                listener?.onOtherListener(3 ,err)
                 return@launch
             }
 
@@ -109,7 +110,7 @@ class CameraLogic {
                             payForUI.errMsg = payResult.ERRMSG
                         }
                     }
-                    listener?.onFacePayResult(payForUI)
+                    listener?.onOtherListener(3 ,payForUI)
                 }
             })
         }

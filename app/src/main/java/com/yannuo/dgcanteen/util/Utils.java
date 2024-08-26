@@ -49,6 +49,10 @@ public class Utils {
         return serial;
     }
 
+    public String getDeviceName() {
+        return Build.MODEL;
+    }
+
 //    public static void rotateNV21(int angle , byte[] dst , CameraPreviewData src ) {
 //        switch (angle) {
 //            case 0:

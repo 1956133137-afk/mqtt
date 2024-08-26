@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.common.NTScanHelp
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -34,6 +35,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     private var mCardHandle: SerialPortHelper? = null
     private var mScanDevice: ScanDevice? = null
+    private var ntHelp: NTScanHelp? = null
 
     var mDishes: ProductsDetail? = null
     var listener: CallbackListener? = null
@@ -67,6 +69,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         mScanDevice = ScanDevice()
         mScanDevice?.setCallbackListener(this)
         mScanDevice?.openScan()
+        ntHelp = NTScanHelp()
+        ntHelp?.OpenScanCode(this, MyApplication.applicationContext)
     }
 
     fun closePayStatus() {
@@ -79,6 +83,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         mScanDevice?.setCallbackListener(null)
         mScanDevice?.closeScan()
         mScanDevice = null
+        ntHelp?.CloseScanCode()
+        ntHelp = null
     }
 
     override fun onData(data: String) {

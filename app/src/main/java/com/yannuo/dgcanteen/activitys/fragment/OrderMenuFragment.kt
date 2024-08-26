@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -312,12 +314,13 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
     override fun onFacePayResult(data: PayForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
-        runBlocking(Dispatchers.Main) {
+        Handler(Looper.getMainLooper()).postDelayed({
             clearShoppingCart()
-        }
-
-        model.tab.postValue(1)
-        model.uiData.postValue(data)
+            
+            model.getDisplay()?.dismiss()
+            model.tab.postValue(1)
+            model.uiData.postValue(data)
+        }, 300)
     }
 }
 

@@ -12,6 +12,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 /**
  * Created by zhanmian on 2024-07-22 19:46
  */
@@ -22,6 +24,7 @@ public class DisplayUtils {
      */
     private static float sNoncompatDensity;
     private static float sNoncompatScaledDensity;
+    private static Utils utils;
 
     public static void setCustomDensity(Presentation presentation, @NonNull Activity activity, @NonNull final Application application) {
         DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
@@ -57,11 +60,22 @@ public class DisplayUtils {
         activityDisplayMetrics.scaledDensity = targetScaleDensity;
         activityDisplayMetrics.densityDpi = targetDensityDpi;
 
-        if (presentation != null) {
-           final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
-           presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
-           presentationDisplayMetrics.density = targetDensity;  // 1.0
-           presentationDisplayMetrics.scaledDensity = targetScaleDensity; // 1.0
+        utils = new Utils();
+        if (Objects.equals(utils.getDeviceName(), "rk3288")) {
+            if (presentation != null) {
+                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+                float value = presentationDisplayMetrics.scaledDensity / appDisplayMetrics.scaledDensity;
+                presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
+                presentationDisplayMetrics.density = targetDensity;  // 1.0
+                presentationDisplayMetrics.scaledDensity = targetScaleDensity * value; // 1.0
+            }
+        } else {
+            if (presentation != null) {
+                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+                presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
+                presentationDisplayMetrics.density = targetDensity;  // 1.0
+                presentationDisplayMetrics.scaledDensity = targetScaleDensity; // 1.0
+            }
         }
     }
 

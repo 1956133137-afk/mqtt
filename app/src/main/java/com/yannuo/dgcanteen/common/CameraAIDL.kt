@@ -6,6 +6,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import com.ccb.smartcanteen.ZHSTFacePayService
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
@@ -49,7 +50,7 @@ object CameraAIDL {
 
 
 
-    fun startCamera(amount:Float , listener : IProductsVM?){
+    fun startCamera(amount:Float , listener : CallbackListener?){
         if (mFacePayService == null) {
             CommonAndDpToPxUtil.speakWork("人脸服务通信异常")
             return

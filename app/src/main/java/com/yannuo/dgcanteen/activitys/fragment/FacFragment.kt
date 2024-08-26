@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.databinding.FragmentFacBinding
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayForUI
@@ -17,7 +18,7 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.*
 
-class FacFragment : Fragment(), IProductsVM {
+class FacFragment : Fragment(), CallbackListener {
     private lateinit var binding: FragmentFacBinding
     private val TAG = javaClass.simpleName
 
@@ -64,10 +65,12 @@ class FacFragment : Fragment(), IProductsVM {
         }
     }
 
-    override fun onFacePayResult(payForUI: PayForUI) {
+
+    override fun onOtherListener(event: Int, any: Any?) {
+        val payForUI = any as PayForUI
         val bean = SimpleForUI().apply {
             custName = payForUI.username
-            payment = payForUI.payment.toFloat()
+            payment = payForUI.payment.toFloat() ?: 0f
             accNo = payForUI.accNo
             timestamp = payForUI.payTime
             tranId = payForUI.traceId

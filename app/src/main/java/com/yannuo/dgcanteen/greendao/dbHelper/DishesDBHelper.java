@@ -213,7 +213,7 @@ public class DishesDBHelper {
      * @param
      */
     public void insertMeals(List<MealTable> meals) {
-        mMealTableDao.insertInTx(meals);
+        mMealTableDao.insertOrReplaceInTx(meals);
     }
 
     /**

@@ -31,6 +31,7 @@ import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
@@ -459,7 +460,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     @SuppressLint("SetTextI18n")
     private fun refreshSuccessState(payForUI: PayForUI) {
 
-        CommonAndDpToPxUtil.speakWork(payForUI.payment + "元")
+//        CommonAndDpToPxUtil.speakWork(payForUI.payment + "元")
         successBinding!!.tvTransNumber.text = payForUI.traceId.ifEmpty { payForUI.orderId }
         val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
         if (persons != null && persons.grade != null) successBinding!!.tvClass.text = "${persons.grade}(${persons.userClass})"

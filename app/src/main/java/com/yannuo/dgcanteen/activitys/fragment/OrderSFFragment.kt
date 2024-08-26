@@ -87,10 +87,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
     private fun updateFChange(payForUI: PayForUI) {
         binding.subF.btBack.isEnabled = true
-        binding.subS.root.visibility = View.GONE
-        if (binding.subF.root.visibility == View.GONE) {
-            binding.subF.root.visibility = View.VISIBLE
-        }
+        binding.subF.root.visibility = View.VISIBLE
 
         binding.subF.payFailMsg.text = payForUI.errMsg
         binding.subF.payTime.text = payForUI.payTime
@@ -142,6 +139,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         if (tm == 0) return
         countDownTimer = object : CountDownTimer((tm * 1000 + 100).toLong(), 1000) {
             override fun onTick(mil: Long) {
+                LogUtil.i("onTick", "返回时间${mil / 1000}")
                 if (payForUI.result != "Y") binding.subF.btBack.text = "返回${mil / 1000}秒"
                 else binding.subS.btBack.text = "返回${mil / 1000}秒"
 
