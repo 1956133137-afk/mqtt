@@ -141,6 +141,11 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             val linearLayoutManager = LinearLayoutManager(context)
             binding.rvDishes.layoutManager = linearLayoutManager
             binding.rvDishes.adapter = verifyAdapter
+            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+                binding.tvCode.text = "刷脸核销"
+            }else {
+                binding.tvCode.text = "订餐核销"
+            }
             initVerify()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -209,10 +214,8 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-                binding.tvCode.text = "刷脸核销"
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
             }else {
-                binding.tvCode.text = "订餐核销"
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
             }
         }

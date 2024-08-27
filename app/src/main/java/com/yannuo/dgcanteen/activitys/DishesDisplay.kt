@@ -54,6 +54,11 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
         binding.rvFoods.layoutManager = gridLayoutManager
         binding.rvFoods.adapter = mAdapter
         //        binding.btPayFace.requestFocus();
+        if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+            binding.tvVerification.text = "  刷脸核销  "
+        }else {
+            binding.tvVerification.text = "  订餐核销  "
+        }
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
             binding.tvVerification.visibility = View.VISIBLE
         } else {
@@ -64,7 +69,11 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
 
     private fun initEvent() {
         binding.tvVerification.setOnClickListener {
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+            }else {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
+            }
         }
     }
 

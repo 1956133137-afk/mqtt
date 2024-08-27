@@ -28,6 +28,7 @@ import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
@@ -35,6 +36,7 @@ import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
+import com.yannuo.dgcanteen.model.VerificationUI
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import com.yannuo.dgcanteen.views.LoadingDialog
@@ -44,7 +46,8 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 
-class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
+class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback,
+    CallbackListener {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -73,7 +76,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private var mMealId = 0
     private var mealId = 0
 
-    private var mScope: CoroutineScope? = null
     private lateinit var mAdapter: ScreenSlidePagerAdapter
     private lateinit var displayManager: DisplayManager
     private val viewModel by lazy { VerificationVM() }
@@ -115,6 +117,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     }
 
     private fun initObj() {
+        viewModel.setListener(this)
         handler = MyHandler(this)
         mProductsVM = ViewModelProvider(this).get(ProductsVM::class.java)
         mProductsVM.listener = this
@@ -313,6 +316,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     //刷脸核销
     private fun faceVerification() {
         LogUtil.d(TAG, "查询人脸信息~")
+        mDishDisplay.safeCancel()
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
         val mPayCfg = viewModel.getPayCfg()
@@ -328,6 +332,16 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
                         viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                    }else {
+                        mDishDisplay.safeCancel()
+                        val verificationUI = VerificationUI().apply {
+                            errorMsg = res.ERRMSG
+                            time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                        }
+                        val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+                        i.putExtra("id", 10)
+                        i.putExtra("verify", Gson().toJson(verificationUI))
+                        startActivity(i)
                     }
                 }
             }
@@ -335,7 +349,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     }
 
     private fun checkTime() {
-        mScope?.launch {
+        mScope.launch {
             while (isActive) {
                 mMealId = TimeUtil.CurrentTimeSection()
                 if (mMealId != mealId) {
@@ -389,7 +403,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     }
 
     private fun release() {
-        mScope?.cancel()
+        mScope.cancel()
         passwordDialog.cancel()
         mDishDisplay.safeCancel()
         loadingDialog?.cancel()
@@ -456,5 +470,30 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     override fun onFoodsUpdate(foods: Any?) {
 
+    }
+
+    override fun onOtherListener(event: Int, any: Any?) {
+        handler.post {
+            mDishDisplay.safeCancel()
+            when (event) {
+                0 -> {
+                    LogUtil.d(TAG, "核销成功")
+                    val verificationUI = any as VerificationUI
+                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+                    i.putExtra("id", 0)
+                    i.putExtra("verify", Gson().toJson(verificationUI))
+                    startActivity(i)
+                }
+
+                10 -> {
+                    LogUtil.d(TAG, "核销失败")
+                    val verificationUI = any as VerificationUI
+                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+                    i.putExtra("id", 10)
+                    i.putExtra("verify", Gson().toJson(verificationUI))
+                    startActivity(i)
+                }
+            }
+        }
     }
 }

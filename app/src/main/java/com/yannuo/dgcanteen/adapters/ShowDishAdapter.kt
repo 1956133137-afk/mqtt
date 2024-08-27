@@ -24,7 +24,6 @@ class ShowDishAdapter : BaseAdapter<Dish, ItemShowDishBinding>() {
 
     override fun bindHolder(holder: Holder, position: Int) {
         getData(position).apply {
-            holder.binding.dishId.text = dishesId
             holder.binding.dishName.text = dishesName
             holder.binding.dishCount.text = dishesNumber
             holder.binding.dishPrice.text = dishesPrice

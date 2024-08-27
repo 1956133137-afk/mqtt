@@ -45,7 +45,7 @@ public class MealTableDao extends AbstractDao<MealTable, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"MEAL_TABLE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"MEAL_ID\" INTEGER NOT NULL ," + // 1: mealId
+                "\"MEAL_ID\" INTEGER NOT NULL UNIQUE ," + // 1: mealId
                 "\"MEAL_NAME\" TEXT NOT NULL ," + // 2: mealName
                 "\"START_TIME\" INTEGER NOT NULL ," + // 3: startTime
                 "\"END_TIME\" INTEGER);"); // 4: endTime

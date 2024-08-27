@@ -69,9 +69,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private val dishCountAdapter by lazy {
         VerifyDishCountAdapter()
     }
-    private val mScope: CoroutineScope by lazy {
-        CoroutineScope(Dispatchers.IO)
-    }
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -422,6 +419,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     if (res.RESULT == "Y") {
                         viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
                     }else {
+                        simpleDisplay.safeCancel()
                         val verificationUI = VerificationUI().apply {
                             errorMsg = res.ERRMSG
                             time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
@@ -498,6 +496,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
+            simpleDisplay.safeCancel()
             when (event) {
                 0 -> {
                     LogUtil.d(TAG, "核销成功")

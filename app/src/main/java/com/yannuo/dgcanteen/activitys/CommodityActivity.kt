@@ -11,6 +11,7 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
@@ -92,7 +93,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private var mealId = 0
     private var successBinding: PaySuccessHostBinding? = null
     private var failBinding: PayFailureHostBinding? = null
-    private var mScope: CoroutineScope? = null
     private var adapterDishes: FoodsAdapter? = null
     private val viewModel by lazy {
         VerificationVM()
@@ -486,7 +486,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
 
     private fun checkTime() {
-        mScope?.launch {
+        mScope.launch {
             while (isActive) {
                 if (mProductsDisplay != null) {
                     mMealId = TimeUtil.CurrentTimeSection()
@@ -521,7 +521,9 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
      */
     override fun onFacePayResult(payForUI: PayForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
-        updatePayResult(payForUI)
+        Handler(Looper.getMainLooper()).postDelayed({
+            updatePayResult(payForUI)
+        }, 300)
     }
 
     private fun updatePayResult(payForUI: PayForUI) {
@@ -688,7 +690,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
 
     private fun release() {
-        mScope?.cancel()
+        mScope.cancel()
 //        mProductsDisplay?.cancel()
         mProductsDisplay?.safeCancel()
         mProductsDisplay = null
@@ -765,7 +767,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         }
         val bg = binding.rvFoods.background
         if (bg == null) binding.rvFoods.setBackgroundResource(R.drawable.shape_btn_bg_white)
-        list?.forEach {
+        list.forEach {
             foodsList?.add(it.copy())
             adapterDishes?.data = foodsList
         }

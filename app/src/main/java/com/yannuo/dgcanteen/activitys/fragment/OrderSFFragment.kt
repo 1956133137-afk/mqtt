@@ -168,6 +168,11 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         countDownTimer?.start()
     }
 
+    override fun onPause() {
+        super.onPause()
+        back()
+    }
+
     override fun onStop() {
         super.onStop()
         countDownTimer?.cancel()

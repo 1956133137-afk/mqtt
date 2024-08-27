@@ -22,6 +22,7 @@ import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.VerificationUI
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.Utils
 import org.greenrobot.eventbus.EventBus
 
@@ -91,6 +92,16 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
                         verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                    }else {
+                        handler.postDelayed({
+                            val verificationUI = VerificationUI().apply {
+                                errorMsg = res.ERRMSG
+                                time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                            }
+                            val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
+                            EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
+                            findNavController().navigate(toFail)
+                        }, 300)
                     }
                 }
             }

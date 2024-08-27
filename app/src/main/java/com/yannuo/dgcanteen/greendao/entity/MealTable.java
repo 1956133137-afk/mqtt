@@ -6,12 +6,13 @@ import org.greenrobot.greendao.annotation.NotNull;
 
 import java.util.Date;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
 public class MealTable {
     @Id(autoincrement = true)
     private Long id;
-    @NotNull
+    @Unique
     private int mealId;  //餐别ID
     @NotNull
     private String mealName;  //餐别名称：早餐/午餐/晚餐/下午茶/夜宵等

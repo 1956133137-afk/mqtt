@@ -17,7 +17,7 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="192dp"
+        android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:text="@string/pay_failure_title"
         android:textColor="#AA2A2A"

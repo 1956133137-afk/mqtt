@@ -8,6 +8,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.databinding.FragmentFaceVerificationBinding
 import com.yannuo.dgcanteen.model.VerificationUI
+import com.yannuo.dgcanteen.util.LogUtil
 
 class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>() {
     private val kv by lazy {
@@ -23,6 +24,7 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
 
     private fun initObject() {
         if (requireActivity().intent.extras?.getString("verify") != null) {
+            LogUtil.d(TAG, "进入核销结果界面")
             val verify = requireActivity().intent.extras?.getString("verify")
             val verificationUI = Gson().fromJson(verify, VerificationUI::class.java)
             val skip = requireActivity().intent.extras?.getInt("id")
