@@ -62,34 +62,34 @@
             android:layout_height="match_parent">
 
             <TextView
+                android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="68dp"
                 android:gravity="center"
                 android:padding="3dp"
-                android:textColor="#65686A"
                 android:text="合计:"
-                android:textSize="35sp"
+                android:textColor="#65686A"
+                android:textSize="60sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <TextView
                 android:id="@+id/tv_pay_money"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="170dp"
                 android:gravity="center"
                 android:padding="3dp"
                 android:textColor="#D63D3D"
-                android:textSize="35sp"
+                android:textSize="60sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toEndOf="@+id/textView5"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.501" />
 
             <Button
                 android:id="@+id/bt_pay_face"
@@ -105,7 +105,7 @@
                 android:paddingStart="10dp"
                 android:text="@string/scan_face_pay"
                 android:textColor="@color/white"
-                android:textSize="39sp"
+                android:textSize="60sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/bt_pay_qrcode"
@@ -126,7 +126,7 @@
                 android:paddingStart="10dp"
                 android:text="@string/scan_qrcode_pay"
                 android:textColor="@color/white"
-                android:textSize="39sp"
+                android:textSize="60sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

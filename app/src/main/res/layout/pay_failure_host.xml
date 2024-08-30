@@ -10,6 +10,7 @@
         android:id="@+id/iv_hit_pic"
         android:layout_width="400dp"
         android:layout_height="400dp"
+        android:layout_marginTop="100dp"
         android:src="@drawable/ic_pay_failure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,10 +29,11 @@
 
     <LinearLayout
         android:id="@+id/ll_a"
-        android:layout_width="700dp"
+        android:layout_width="900dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="-245dp"
+
         android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
         app:layout_constraintStart_toStartOf="@+id/textView3"
         app:layout_constraintTop_toBottomOf="@+id/textView3">
 
@@ -41,17 +43,17 @@
             android:layout_height="wrap_content"
             android:text="@string/pay_failure_reason"
             android:textColor="#6C6C6C"
-            android:textSize="30sp" />
+            android:textSize="32sp" />
 
         <TextView
             android:id="@+id/pay_fail_msg"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="end|center_vertical"
             android:maxLines="2"
             android:textColor="#6C6C6C"
-            android:textSize="30sp"/>
+            android:textSize="32sp" />
 
     </LinearLayout>
 
@@ -62,7 +64,7 @@
         android:layout_marginTop="40dp"
         android:text="@string/pay_time"
         android:textColor="#6C6C6C"
-        android:textSize="30sp"
+        android:textSize="32sp"
         app:layout_constraintStart_toStartOf="@+id/ll_a"
         app:layout_constraintTop_toBottomOf="@+id/ll_a" />
 
@@ -72,7 +74,7 @@
         android:layout_height="wrap_content"
         android:gravity="right|center_vertical"
         android:textColor="#6C6C6C"
-        android:textSize="30sp"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_time"
         app:layout_constraintEnd_toEndOf="@+id/ll_a" />
 

@@ -3,11 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:layout_width="1600dp"
-    android:layout_height="960dp"
-    tools:context=".activitys.CommodityActivity"
-
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
     <!--    android:layout_width="1280dp"-->
     <!--    android:layout_height="800dp"-->

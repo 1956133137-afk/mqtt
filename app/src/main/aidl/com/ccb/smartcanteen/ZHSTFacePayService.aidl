@@ -17,4 +17,8 @@ interface ZHSTFacePayService {
     void closeOffline(PayResultListener listener);
     /** 查看人脸离线订单 */
     void checkOfflineOrder();
+    /** 设置活检超时时间 */
+    void setTimeOut(int timeOut);
+
+    void registFace(String dataJson, PayResultListener listener);
 }

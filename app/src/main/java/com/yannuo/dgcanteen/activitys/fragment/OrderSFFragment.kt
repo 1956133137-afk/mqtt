@@ -17,6 +17,7 @@ import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 
 open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
@@ -78,20 +79,20 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
     private fun back() {
         model.tab.postValue(0)
         countDownTimer?.cancel()
-        model.getDisplay()?.also {
-            if (it.isShowing.not()) {
-                it.show()
-            }
-        }
+        model.getDisplay()?.show()
     }
 
     private fun updateFChange(payForUI: PayForUI) {
         binding.subF.btBack.isEnabled = true
+        binding.subS.root.visibility = View.GONE
         binding.subF.root.visibility = View.VISIBLE
 
         binding.subF.payFailMsg.text = payForUI.errMsg
-        binding.subF.payTime.text = payForUI.payTime
-
+        if (payForUI.payTime.isEmpty() || payForUI.payTime == "") {
+            binding.subF.payTime.text = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        }else {
+            binding.subF.payTime.text = payForUI.payTime
+        }
         CommonAndDpToPxUtil.speakWork("支付失败")
         startTime(payForUI)
     }
@@ -139,7 +140,6 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         if (tm == 0) return
         countDownTimer = object : CountDownTimer((tm * 1000 + 100).toLong(), 1000) {
             override fun onTick(mil: Long) {
-                LogUtil.i("onTick", "返回时间${mil / 1000}")
                 if (payForUI.result != "Y") binding.subF.btBack.text = "返回${mil / 1000}秒"
                 else binding.subS.btBack.text = "返回${mil / 1000}秒"
 
