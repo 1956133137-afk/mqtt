@@ -7,7 +7,9 @@ import com.google.gson.Gson
 import com.yannuo.dgcanteen.adapters.PayOrderAdapter
 import com.yannuo.dgcanteen.databinding.FragmentPayOrderBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 
 class PayOrderFragment : BaseFragment<FragmentPayOrderBinding>() {
 
@@ -20,8 +22,28 @@ class PayOrderFragment : BaseFragment<FragmentPayOrderBinding>() {
     override fun onInit() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = payOrderAdapter
-        payOrderAdapter.data = DishesDBHelper.getInstance().queryPayOrder("", "")
+        val payOrderList = DishesDBHelper.getInstance().queryPayOrder("", "")
+        payOrderAdapter.data = payOrderList
+        initData(payOrderList)
         initEvent()
+    }
+
+    private fun initData(payOrderList: MutableList<PayOrderTable>) {
+        val date = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+        var tranCount = 0
+        var tranAmount = 0.0
+        var uploadCount = 0
+        var notCount = 0
+        payOrderList.forEach {
+            tranCount++
+            tranAmount += it.actualPayment.toDouble()
+            if (it.flag == 1) uploadCount++ else notCount++
+        }
+        binding.dateMsg.text = "$date\n消费汇总统计"
+        binding.tranCount.text = "$tranCount"
+        binding.tranAmount.text = String.format("%.02f", tranAmount)
+        binding.alreadyUploadCount.text = "$uploadCount"
+        binding.notUploadCount.text = "$notCount"
     }
 
     private fun initEvent() {
