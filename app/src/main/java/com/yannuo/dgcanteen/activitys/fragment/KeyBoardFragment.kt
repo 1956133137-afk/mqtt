@@ -2,14 +2,13 @@ package com.yannuo.dgcanteen.activitys.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.HostActivity
-import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.model.MessageEvent
@@ -23,7 +22,7 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.*
+import java.util.Locale
 
 /**
  * Author: filowl
@@ -36,7 +35,7 @@ class KeyBoardFragment : Fragment() {
     private lateinit var binding: FragmentInputKeyboardBinding
     private var tvText: StringBuilder = StringBuilder()
     private val kv = MMKV.defaultMMKV()
-    private var mLock = false
+//    private var mLock = false
 //    private val handler = Handler()
 
     override fun onCreateView(
@@ -53,7 +52,6 @@ class KeyBoardFragment : Fragment() {
         EventBus.getDefault().register(this)
         val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
 //        if (type == 0)
-            CameraAIDL.connectAIDL()
 
     }
 
@@ -86,31 +84,6 @@ class KeyBoardFragment : Fragment() {
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
             collectMoney()
-//            if (!judgePayCfg()) {
-//                ToastShowUtil.show("商户信息不完整，请检查商户信息")
-//                return@setOnClickListener
-//            }
-//            val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
-//            val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
-//            if (tvText.isNotEmpty() && kv.decodeBool(Constant.QUOTA_SWITCH)) {
-//                val amount = String.format(Locale.CHINA, "%.02f", tvText.toString().toFloat())
-//                if (amount.toFloat() > limitAmount) {
-//                    ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
-//                    return@setOnClickListener
-//                }
-//                payPageJump(amount.toFloat())
-//            } else {
-//                val count = totalValue()
-//                if (count != null) {
-//                    if (count > limitAmount) {
-//                        ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
-//                        return@setOnClickListener
-//                    }
-//                    payPageJump(count)
-//                    tvText = StringBuilder()
-//                    binding.inputAmount.text = null
-//                }
-//            }
         }
         binding.backspace.setOnClickListener { //回退
             if (tvText.isNotEmpty()) {
@@ -126,7 +99,7 @@ class KeyBoardFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        mLock = true
+//        mLock = true
         LogUtil.i(TAG,"键盘解锁...")
     }
 
@@ -264,17 +237,6 @@ class KeyBoardFragment : Fragment() {
             payment = amount
         }
 
-        if (bean.type == 0) {
-//            if (!FaceHandler.getFaceHInstance().isFaceInit) {
-//                ToastShowUtil.show("人脸服务未启动,请重启软件")
-//                return
-//            }
-            if (CameraAIDL.connectAIDL()) { //服务未连接，返回
-                CommonAndDpToPxUtil.speakWork("正在连接人脸服务")
-                return
-            }
-        }
-
         if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
             && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
         ) { //网络监听
@@ -282,11 +244,11 @@ class KeyBoardFragment : Fragment() {
             ToastShowUtil.show("设备没有网络或者开启离线模式")
             return
         }
-        if (mLock.not())return
-        mLock = false
+//        if (mLock.not())return
+//        mLock = false
         val payIntent = Intent(requireContext(), HostActivity::class.java)
         payIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        payIntent.putExtra(Constant.PAY_DATE, bean)
+        payIntent.putExtra(Constant.PAY_DATE, Gson().toJson(bean))
         startActivity(payIntent)
     }
 

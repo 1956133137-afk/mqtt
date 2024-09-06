@@ -237,7 +237,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
     }
 
     private fun saveOrderRecord(payForUI: PayForUI, session: String) {
-        val order = DishesDBHelper.getInstance().queryPayOrder(session)
+        val order = DishesDBHelper.getInstance().queryPayOrder(session) ?: return
         order.accNo = payForUI.accNo
         order.accBal = payForUI.accBal
         order.accType = payForUI.accType

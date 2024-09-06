@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.NavHostFragment
+import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ActivityHostBinding
 import com.yannuo.dgcanteen.model.OrderPayInfo
@@ -20,7 +21,7 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
     }
 
     override fun onInit() {
-        val payInfo = intent.getParcelableExtra<OrderPayInfo>(Constant.PAY_DATE)
+        val payInfo = Gson().fromJson(intent.getStringExtra(Constant.PAY_DATE), OrderPayInfo::class.java)
         if (payInfo == null) {
             LogUtil.e(TAG, "非法参数")
             return

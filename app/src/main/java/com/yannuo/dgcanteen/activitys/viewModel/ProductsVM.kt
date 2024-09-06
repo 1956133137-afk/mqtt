@@ -251,6 +251,87 @@ class ProductsVM : ViewModel() {
         }
     }
 
+    /**
+     * 收款模式发起人脸支付
+     */
+    fun startPayWithFace(service: ZHSTFacePayService?, amount: Float) {
+        viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
+            if (TextUtils.isEmpty(mPayCfg.campusId) || TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)) {
+                LogUtil.e(TAG, "未配置支付环境")
+                val err = PayForUI()
+                err.payType = "1"
+                err.errMsg = "未配置支付环境"
+                err.payTime = DateFormat.format("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis()).toString()
+                listener?.onFacePayResult(err)
+                return@launch
+            }
+
+            val offline = if (kv.decodeBool(Constant.SWITCH)) 1 else 0  //在线
+
+            val bean = CcbFacePayBean()
+            bean.CAMPUS_ID = mPayCfg.campusId
+            bean.CORP_ID = mPayCfg.corp_id
+            bean.PAYMENT = String.format("%.2f", amount)
+            bean.BUSINESS_ID = mPayCfg.businessId
+            bean.VPOS_ID = mPayCfg.counterId
+            bean.OFFLINE = offline.toString()
+
+            service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
+                override fun onResult(result: String) {
+                    LogUtil.d(TAG, result)
+                    val currentTime = System.currentTimeMillis()
+                    val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                    val payForUI = PayForUI().apply {
+                        businessId = mPayCfg.businessId
+                        businessName = mPayCfg.businessName
+                        campusId = mPayCfg.campusId
+                        corpId = mPayCfg.corp_id
+                        vposId = mPayCfg.counterId
+                        deviceId = CommonAndDpToPxUtil.getDeviceSerial()
+                        payType = "1"
+                        payment = payResult.PAYMENT
+                        orderId = payResult.ORDER_ID
+                        payTime = payResult.PAYTIME
+                        payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
+                        sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
+                        signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+                        this.offline = offline.toString()
+                    }
+                    when (payResult.RESULT) {
+                        "Y" -> { //订单状态,成功
+                            payForUI.username = payResult.CUST_NAME
+                            payForUI.custId = payResult.CUST_ID
+                            if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                            payForUI.accType = payResult.ACC_TYPE
+                            payForUI.accNo = payResult.ACC_NO
+                            payForUI.accBal = payResult.ACC_BAL
+                            payForUI.accList = payResult.ACC_LIST
+                            //检查支付结果，
+                            when (payResult.TRAN_RESULT) {
+                                "3" -> {  //3支付成功
+                                    payForUI.result = payResult.RESULT
+                                    payForUI.traceId = payResult.TRACEID
+                                    saveOrSynOrder(payForUI)
+                                }
+                                else -> { //1 -待支付、2-支付失败
+                                    payForUI.result = payResult.RESULT
+                                    payForUI.errCode = payResult.ERRCODE
+                                    payForUI.errMsg = payResult.ERRMSG
+                                }
+                            }
+                        }
+                        else -> { //订单状态,失败
+                            payForUI.result = payResult.RESULT
+                            payForUI.errCode = payResult.ERRCODE
+                            payForUI.errMsg = payResult.ERRMSG
+                        }
+                    }
+                    listener?.onFacePayResult(payForUI)
+                }
+            })
+        }
+    }
+
 
     /**
      * 保存或同步消费记录,离线模式将直接保存，在线模式上传失败也会保存

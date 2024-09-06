@@ -53,8 +53,11 @@ public class NTScanHelp {
     public void CloseScanCode() {
         LogUtil.d(TAG, "扫码设备已关闭！");
         uartDriver.CloseDevice();
+        uartDriver = null;
         thread.interrupt();
         callback = null;
+        readBuffer = null;
+        writeBuffer = null;
     }
 
 

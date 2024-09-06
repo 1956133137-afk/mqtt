@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/successFragment"
         android:name="com.yannuo.dgcanteen.activitys.fragment.SuccessFragment"
-        android:label="fragment_setting"
+        android:label="fragment_success"
         tools:layout="@layout/fragment_success" >
         <argument
             android:name="simpleForUI"
