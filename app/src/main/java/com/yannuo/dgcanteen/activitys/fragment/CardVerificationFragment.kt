@@ -3,10 +3,12 @@ package com.yannuo.dgcanteen.activitys.fragment
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import com.ccb.smartcanteen.PayResultListener
@@ -20,17 +22,20 @@ import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.model.FaceResult
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.VerificationUI
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.Utils
 import org.greenrobot.eventbus.EventBus
+import java.util.concurrent.TimeUnit
 
 class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(), CallbackListener {
     private lateinit var verificationVM: VerificationVM
     private val kv by lazy {
         MMKV.defaultMMKV()
     }
+    private var countDown: CountDownTimer? = null
     val handler = Handler(MyApplication.applicationContext.mainLooper)
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -55,6 +60,7 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
 
     private fun initOpear() {
         if (!this::verificationVM.isInitialized) verificationVM = VerificationVM()
+        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
         verificationVM.openQrCode()
         verificationVM.setListener(this)
         val lIntent = Intent()
@@ -70,6 +76,20 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
         binding.toFace.setOnClickListener {
             faceVerification()
         }
+    }
+
+    private fun onCountDownTimer(btnBack: Button?, time: Long) {
+        countDown?.cancel()
+        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time) + 200, 1000) {
+            override fun onTick(mil: Long) {
+                btnBack?.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
+            }
+
+            override fun onFinish() {
+                requireActivity().finish()
+            }
+        }
+        countDown?.start()
     }
 
     /**
@@ -111,6 +131,8 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
     override fun onDestroy() {
         super.onDestroy()
         verificationVM.closeQrCode()
+        countDown?.cancel()
+        countDown = null
     }
 
     override fun onOtherListener(event: Int, any: Any?) {
