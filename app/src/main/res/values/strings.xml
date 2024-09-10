@@ -64,7 +64,7 @@
     <string-array name="spiCard">
         <item>16进制</item>
         <item>W26(直转)</item>
-        <item>W26(反序)</item>
+        <item>10进制</item>
     </string-array>
 
     <string-array name="spVerify">
