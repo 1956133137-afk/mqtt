@@ -23,7 +23,7 @@ class ResponsePay {
     var PAY_METHOD = ""
     var OFFLINE = ""
     var SIGN = ""
-    var ACC_LIST = ""
+    var ACC_LIST: MutableList<CcbFacePayResultBean.ACCLIST> = mutableListOf()
     var REMARK = ""
     var TRAN_RESULT = ""
     var ERRCODE = ""

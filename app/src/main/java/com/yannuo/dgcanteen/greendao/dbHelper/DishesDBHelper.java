@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
+import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
@@ -16,6 +17,7 @@ import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
+import com.yannuo.dgcanteen.greendao.entity.AccListTable;
 import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
@@ -68,6 +70,7 @@ public class DishesDBHelper {
     private PayDishTableDao payDishTableDao;
     private OfflineOrderTableDao olOrderTableDao;
     private OfflineDishTableDao olDishTableDao;
+    private AccListTableDao accListDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -113,6 +116,7 @@ public class DishesDBHelper {
         payDishTableDao = mDaoSession.getPayDishTableDao();
         olOrderTableDao = mDaoSession.getOfflineOrderTableDao();
         olDishTableDao = mDaoSession.getOfflineDishTableDao();
+        accListDao = mDaoSession.getAccListTableDao();
     }
 
     /**
@@ -565,6 +569,20 @@ public class DishesDBHelper {
                 .where(PayDishTableDao.Properties.PayOrderId.eq(payOrderId))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
+    }
+
+    /**
+     * 插入所有账户信息
+     * @param accListTable
+     */
+    public void insertAccList(AccListTable accListTable) {
+        accListDao.insert(accListTable);
+    }
+
+    public void queryAccList(String orderId) {
+        payDishTableDao.queryBuilder()
+                .where(PayDishTableDao.Properties.PayOrderId.eq(orderId))
+                .build().list();
     }
 
     /*******************************  离线记录  *******************************/

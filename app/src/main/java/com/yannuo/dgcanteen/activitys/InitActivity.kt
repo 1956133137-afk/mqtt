@@ -170,16 +170,25 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
                     val intent = Intent(this@InitActivity, MyMqttService::class.java)
                     startService(intent)
-                    when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
-                        true ->{
-                            val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                    when (kv.decodeBool(Constant.QUERY_VERIFY, false)) {
+                        true -> {
+                            val intent = Intent(this@InitActivity, CheckVerifyActivity::class.java)
                             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             startActivity(intent)
                         }
-                        else ->{
-                            val intent = Intent(this@InitActivity, CommodityActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                            startActivity(intent)
+                        else -> {
+                            when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                                true ->{
+                                    val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                    startActivity(intent)
+                                }
+                                else ->{
+                                    val intent = Intent(this@InitActivity, CommodityActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                    startActivity(intent)
+                                }
+                            }
                         }
                     }
                     delay(50)
@@ -194,16 +203,25 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         }
                         val intent = Intent(this@InitActivity, CameraService::class.java)
                         startService(intent)
-                        when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
-                            true ->{
-                                val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                        when (kv.decodeBool(Constant.QUERY_VERIFY, false)) {
+                            true -> {
+                                val intent = Intent(this@InitActivity, CheckVerifyActivity::class.java)
                                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                                 startActivity(intent)
                             }
-                            else ->{
-                                val intent = Intent(this@InitActivity, CalculateActivity::class.java)
-                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                startActivity(intent)
+                            else -> {
+                                when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                                    true ->{
+                                        val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                        startActivity(intent)
+                                    }
+                                    else ->{
+                                        val intent = Intent(this@InitActivity, CalculateActivity::class.java)
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                        startActivity(intent)
+                                    }
+                                }
                             }
                         }
                         delay(50)
@@ -216,16 +234,25 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                     }
                     val intent = Intent(this@InitActivity, MyMqttService::class.java)
                     startService(intent)
-                    when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
-                        true ->{
-                            val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                    when (kv.decodeBool(Constant.QUERY_VERIFY, false)) {
+                        true -> {
+                            val intent = Intent(this@InitActivity, CheckVerifyActivity::class.java)
                             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             startActivity(intent)
                         }
-                        else ->{
-                            val intent = Intent(this@InitActivity, OrderMenuActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                            startActivity(intent)
+                        else -> {
+                            when (kv.decodeBool(Constant.BALANCE_SWITCH, false)){
+                                true ->{
+                                    val intent = Intent(this@InitActivity, BalanceActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                    startActivity(intent)
+                                }
+                                else ->{
+                                    val intent = Intent(this@InitActivity, OrderMenuActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                    startActivity(intent)
+                                }
+                            }
                         }
                     }
                     delay(50)

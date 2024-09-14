@@ -111,7 +111,7 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     LogUtil.i(TAG, result)
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
-                        verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                        verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null, 0)
                     }else {
                         handler.postDelayed({
                             val verificationUI = VerificationUI().apply {

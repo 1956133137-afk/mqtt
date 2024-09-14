@@ -417,7 +417,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     LogUtil.i(TAG, result)
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
-                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null)
+                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null, 0)
                     }else {
                         simpleDisplay.safeCancel()
                         val verificationUI = VerificationUI().apply {

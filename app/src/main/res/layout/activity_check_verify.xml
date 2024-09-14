@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/sky_color"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageButton
+            android:id="@+id/ibt_back"
+            android:layout_width="115dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="订餐信息查询"
+            android:textColor="@color/white"
+            android:textSize="50sp" />
+
+        <TextView
+            android:id="@+id/tv_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:text="设置"
+            android:textColor="@color/white"
+            android:textSize="50sp" />
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/iv_dh"
+        android:layout_width="650dp"
+        android:layout_height="600dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/shape_btn_bg_white"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+
+
+    <TextView
+        android:id="@+id/btn_face_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/click_button_blue"
+        android:padding="10dp"
+        android:text="刷脸查询"
+        android:textColor="@color/white"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toEndOf="@+id/btn_clear"
+        app:layout_constraintTop_toBottomOf="@+id/iv_dh" />
+
+    <TextView
+        android:id="@+id/btn_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/click_button_blue"
+        android:padding="10dp"
+        android:text="清除查询结果"
+        android:textColor="@color/white"
+        android:textSize="38sp"
+        app:layout_constraintEnd_toStartOf="@+id/btn_face_check"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/iv_dh" />
+
+    <TextView
+        android:id="@+id/serial_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/tv_clock" />
+
+    <TextClock
+        android:id="@+id/tv_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:format24Hour="MM-dd HH:mm:ss"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:textColor="@color/gray"
+        android:textSize="50sp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_dh"
+        app:layout_constraintStart_toStartOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/btn_clear" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tv_person_info"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/shape_btn_bg_white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_dh"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="30dp"
+
+            android:drawableLeft="@mipmap/name"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_student_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="100dp"
+
+            android:drawableLeft="@mipmap/student_number"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_glass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:drawableLeft="@mipmap/glass"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_name" />
+
+        <TextView
+            android:id="@+id/tv_card_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/card_nb"
+            android:gravity="center_vertical"
+            android:drawablePadding="15dp"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_glass"
+            app:layout_constraintStart_toStartOf="@+id/tv_student_number" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/shape_btn_bg_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_person_info"
+        app:layout_constraintStart_toStartOf="@+id/tv_person_info"
+        app:layout_constraintTop_toBottomOf="@+id/tv_person_info"
+
+        >
+
+        <TextView
+            android:id="@+id/tv_acc_no"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:lineSpacingMultiplier="1.2"
+            android:drawableLeft="@mipmap/tip"
+            android:drawablePadding="20dp"
+            android:minLines="3"
+            android:padding="20dp"
+            android:textSize="48sp"
+            />
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -143,6 +143,9 @@ class ModeSettingFragment : Fragment() {
             amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
+        binding.queryVerify.setOnClickListener {
+            kv.encode(Constant.QUERY_VERIFY, binding.queryVerify.isChecked)
+        }
 
 //        binding.mealTime.setOnClickListener {
 //            kv.encode(Constant.MEAL_TIME, 10)
@@ -317,6 +320,7 @@ class ModeSettingFragment : Fragment() {
         binding.cbBalance.isChecked = self_help
         binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
+        binding.queryVerify.isChecked = kv.decodeBool(Constant.QUERY_VERIFY, false)
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))

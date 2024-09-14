@@ -18,7 +18,7 @@ class PayForUI {
     var accNo = ""              //支付账号
     var accBal = ""             //账户金额
     var accType = ""            //账户类型: 01-现金账户，02-餐补账户1,03-餐补账户2，04-餐补账户3，05-餐补账户4，06-餐补账户5
-    var accList = ""            //账户类型名称
+    var accList: MutableList<CcbFacePayResultBean.ACCLIST> = mutableListOf()
     var orderId = ""            //订单号
     var traceId = ""            //交易流水号
     var payType = ""            //支付类型  1-刷脸 2-扫码 3-刷卡

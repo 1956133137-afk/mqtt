@@ -81,7 +81,7 @@ class DishesManageAdapter(context :Context) : BaseAdapter<DishesInfo,ItemGridLay
             holder.binding.dropdownBg.visibility = View.INVISIBLE
         } else {
             holder.binding.btnStatus.setText(R.string.shelf)
-            holder.binding.btnStatus.setTextColor(cnt.getColor(R.color.white))
+            holder.binding.btnStatus.setTextColor(cnt.getColor(R.color.under_black))
             holder.binding.btnStatus.background = cnt.getDrawable(R.drawable.shape_btn_two)
             holder.binding.dropdownIc.visibility = View.VISIBLE
             holder.binding.dropdownBg.visibility = View.VISIBLE

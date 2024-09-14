@@ -163,6 +163,9 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                     order.paymentDishesList.forEach { dish ->
                         bean.paymentDishesList.add(Gson().fromJson(Gson().toJson(dish), Dish::class.java))
                     }
+                    order.accList.forEach {
+                        bean.ACCALIAS.add(Gson().fromJson(Gson().toJson(it), AccListTable::class.java))
+                    }
                     val res = mRespository.synCsRecord(bean)
                     if (res.code == "200") {
                         order.flag = 1
@@ -241,7 +244,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         order.accNo = payForUI.accNo
         order.accBal = payForUI.accBal
         order.accType = payForUI.accType
-        order.accList = payForUI.accList
+//        order.accList = payForUI.accList
+
         order.orderId = payForUI.orderId
         order.traceId = payForUI.traceId
         order.actualPayment = payForUI.actualPayment

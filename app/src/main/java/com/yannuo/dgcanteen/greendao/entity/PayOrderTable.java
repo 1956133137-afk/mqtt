@@ -11,6 +11,7 @@ import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
 
 /**
  * Author: filowl
@@ -34,7 +35,7 @@ public class PayOrderTable {
     private String accNo;           //支付账号
     private String accBal;          //账户金额
     private String accType;         //账户类型: 01-现金账户，02-餐补账户1,03-餐补账户2，04-餐补账户3，05-餐补账户4，06-餐补账户5
-    private String accList;         //账户类型名称
+//    private String accList;         //账户类型名称
     @Unique
     private String orderId;         //订单号
     private String traceId;         //交易流水号
@@ -49,6 +50,10 @@ public class PayOrderTable {
 
     @ToMany(referencedJoinProperty = "payOrderId")
     private List<PayDishTable> paymentDishesList;
+
+    @ToMany(referencedJoinProperty = "accId")
+    private List<AccListTable> accList;
+    /** Used to resolve relations */
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -56,12 +61,12 @@ public class PayOrderTable {
     @Generated(hash = 808079322)
     private transient PayOrderTableDao myDao;
 
-    @Generated(hash = 1638769043)
+    @Generated(hash = 727829600)
     public PayOrderTable(Long id, String result, String tranResult, String businessId,
             String businessName, String campusId, String corpId, String vposId, String deviceId,
-            String custId, String username, String accNo, String accBal, String accType, String accList,
-            String orderId, String traceId, String payType, String payContent, String payment,
-            String actualPayment, String payTime, String payDate, String offline, Integer flag) {
+            String custId, String username, String accNo, String accBal, String accType, String orderId,
+            String traceId, String payType, String payContent, String payment, String actualPayment,
+            String payTime, String payDate, String offline, Integer flag) {
         this.id = id;
         this.result = result;
         this.tranResult = tranResult;
@@ -76,7 +81,6 @@ public class PayOrderTable {
         this.accNo = accNo;
         this.accBal = accBal;
         this.accType = accType;
-        this.accList = accList;
         this.orderId = orderId;
         this.traceId = traceId;
         this.payType = payType;
@@ -261,6 +265,14 @@ public class PayOrderTable {
         this.payTime = payTime;
     }
 
+    public String getPayDate() {
+        return this.payDate;
+    }
+
+    public void setPayDate(String payDate) {
+        this.payDate = payDate;
+    }
+
     public String getOffline() {
         return this.offline;
     }
@@ -307,6 +319,34 @@ public class PayOrderTable {
     }
 
     /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 656921021)
+    public List<AccListTable> getAccList() {
+        if (accList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            AccListTableDao targetDao = daoSession.getAccListTableDao();
+            List<AccListTable> accListNew = targetDao._queryPayOrderTable_AccList(id);
+            synchronized (this) {
+                if (accList == null) {
+                    accList = accListNew;
+                }
+            }
+        }
+        return accList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1306375034)
+    public synchronized void resetAccList() {
+        accList = null;
+    }
+
+    /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
      */
@@ -348,20 +388,5 @@ public class PayOrderTable {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getPayOrderTableDao() : null;
     }
-
-    public String getAccList() {
-        return this.accList;
-    }
-
-    public void setAccList(String accList) {
-        this.accList = accList;
-    }
-
-    public String getPayDate() {
-        return this.payDate;
-    }
-
-    public void setPayDate(String payDate) {
-        this.payDate = payDate;
-    }
+    
 }

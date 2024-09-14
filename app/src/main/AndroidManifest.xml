@@ -55,6 +55,8 @@
         <activity
             android:name=".activitys.FaceVerificationActivity"
             android:exported="false" />
+        <activity android:name=".activitys.CheckVerifyActivity"
+            android:exported="false" />
         <activity
             android:name=".activitys.InitActivity"
             android:exported="true">

@@ -44,7 +44,7 @@ class CcbFacePayResultBean {
     var TRAN_RESULT: String = ""
     var ERRCODE: String = ""
     var ERRMSG: String = ""
-    var ACC_LIST: String = ""
+    var ACC_LIST: MutableList<ACCLIST> = mutableListOf()
 
 
     /**

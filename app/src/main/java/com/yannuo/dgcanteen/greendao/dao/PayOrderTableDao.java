@@ -38,17 +38,16 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         public final static Property AccNo = new Property(11, String.class, "accNo", false, "ACC_NO");
         public final static Property AccBal = new Property(12, String.class, "accBal", false, "ACC_BAL");
         public final static Property AccType = new Property(13, String.class, "accType", false, "ACC_TYPE");
-        public final static Property AccList = new Property(14, String.class, "accList", false, "ACC_LIST");
-        public final static Property OrderId = new Property(15, String.class, "orderId", false, "ORDER_ID");
-        public final static Property TraceId = new Property(16, String.class, "traceId", false, "TRACE_ID");
-        public final static Property PayType = new Property(17, String.class, "payType", false, "PAY_TYPE");
-        public final static Property PayContent = new Property(18, String.class, "payContent", false, "PAY_CONTENT");
-        public final static Property Payment = new Property(19, String.class, "payment", false, "PAYMENT");
-        public final static Property ActualPayment = new Property(20, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
-        public final static Property PayTime = new Property(21, String.class, "payTime", false, "PAY_TIME");
-        public final static Property PayDate = new Property(22, String.class, "payDate", false, "PAY_DATE");
-        public final static Property Offline = new Property(23, String.class, "offline", false, "OFFLINE");
-        public final static Property Flag = new Property(24, Integer.class, "flag", false, "FLAG");
+        public final static Property OrderId = new Property(14, String.class, "orderId", false, "ORDER_ID");
+        public final static Property TraceId = new Property(15, String.class, "traceId", false, "TRACE_ID");
+        public final static Property PayType = new Property(16, String.class, "payType", false, "PAY_TYPE");
+        public final static Property PayContent = new Property(17, String.class, "payContent", false, "PAY_CONTENT");
+        public final static Property Payment = new Property(18, String.class, "payment", false, "PAYMENT");
+        public final static Property ActualPayment = new Property(19, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
+        public final static Property PayTime = new Property(20, String.class, "payTime", false, "PAY_TIME");
+        public final static Property PayDate = new Property(21, String.class, "payDate", false, "PAY_DATE");
+        public final static Property Offline = new Property(22, String.class, "offline", false, "OFFLINE");
+        public final static Property Flag = new Property(23, Integer.class, "flag", false, "FLAG");
     }
 
     private DaoSession daoSession;
@@ -81,17 +80,16 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
                 "\"ACC_NO\" TEXT," + // 11: accNo
                 "\"ACC_BAL\" TEXT," + // 12: accBal
                 "\"ACC_TYPE\" TEXT," + // 13: accType
-                "\"ACC_LIST\" TEXT," + // 14: accList
-                "\"ORDER_ID\" TEXT UNIQUE ," + // 15: orderId
-                "\"TRACE_ID\" TEXT," + // 16: traceId
-                "\"PAY_TYPE\" TEXT," + // 17: payType
-                "\"PAY_CONTENT\" TEXT," + // 18: payContent
-                "\"PAYMENT\" TEXT," + // 19: payment
-                "\"ACTUAL_PAYMENT\" TEXT," + // 20: actualPayment
-                "\"PAY_TIME\" TEXT," + // 21: payTime
-                "\"PAY_DATE\" TEXT," + // 22: payDate
-                "\"OFFLINE\" TEXT," + // 23: offline
-                "\"FLAG\" INTEGER);"); // 24: flag
+                "\"ORDER_ID\" TEXT UNIQUE ," + // 14: orderId
+                "\"TRACE_ID\" TEXT," + // 15: traceId
+                "\"PAY_TYPE\" TEXT," + // 16: payType
+                "\"PAY_CONTENT\" TEXT," + // 17: payContent
+                "\"PAYMENT\" TEXT," + // 18: payment
+                "\"ACTUAL_PAYMENT\" TEXT," + // 19: actualPayment
+                "\"PAY_TIME\" TEXT," + // 20: payTime
+                "\"PAY_DATE\" TEXT," + // 21: payDate
+                "\"OFFLINE\" TEXT," + // 22: offline
+                "\"FLAG\" INTEGER);"); // 23: flag
     }
 
     /** Drops the underlying database table. */
@@ -174,59 +172,54 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(14, accType);
         }
  
-        String accList = entity.getAccList();
-        if (accList != null) {
-            stmt.bindString(15, accList);
-        }
- 
         String orderId = entity.getOrderId();
         if (orderId != null) {
-            stmt.bindString(16, orderId);
+            stmt.bindString(15, orderId);
         }
  
         String traceId = entity.getTraceId();
         if (traceId != null) {
-            stmt.bindString(17, traceId);
+            stmt.bindString(16, traceId);
         }
  
         String payType = entity.getPayType();
         if (payType != null) {
-            stmt.bindString(18, payType);
+            stmt.bindString(17, payType);
         }
  
         String payContent = entity.getPayContent();
         if (payContent != null) {
-            stmt.bindString(19, payContent);
+            stmt.bindString(18, payContent);
         }
  
         String payment = entity.getPayment();
         if (payment != null) {
-            stmt.bindString(20, payment);
+            stmt.bindString(19, payment);
         }
  
         String actualPayment = entity.getActualPayment();
         if (actualPayment != null) {
-            stmt.bindString(21, actualPayment);
+            stmt.bindString(20, actualPayment);
         }
  
         String payTime = entity.getPayTime();
         if (payTime != null) {
-            stmt.bindString(22, payTime);
+            stmt.bindString(21, payTime);
         }
  
         String payDate = entity.getPayDate();
         if (payDate != null) {
-            stmt.bindString(23, payDate);
+            stmt.bindString(22, payDate);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(24, offline);
+            stmt.bindString(23, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(25, flag);
+            stmt.bindLong(24, flag);
         }
     }
 
@@ -304,59 +297,54 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(14, accType);
         }
  
-        String accList = entity.getAccList();
-        if (accList != null) {
-            stmt.bindString(15, accList);
-        }
- 
         String orderId = entity.getOrderId();
         if (orderId != null) {
-            stmt.bindString(16, orderId);
+            stmt.bindString(15, orderId);
         }
  
         String traceId = entity.getTraceId();
         if (traceId != null) {
-            stmt.bindString(17, traceId);
+            stmt.bindString(16, traceId);
         }
  
         String payType = entity.getPayType();
         if (payType != null) {
-            stmt.bindString(18, payType);
+            stmt.bindString(17, payType);
         }
  
         String payContent = entity.getPayContent();
         if (payContent != null) {
-            stmt.bindString(19, payContent);
+            stmt.bindString(18, payContent);
         }
  
         String payment = entity.getPayment();
         if (payment != null) {
-            stmt.bindString(20, payment);
+            stmt.bindString(19, payment);
         }
  
         String actualPayment = entity.getActualPayment();
         if (actualPayment != null) {
-            stmt.bindString(21, actualPayment);
+            stmt.bindString(20, actualPayment);
         }
  
         String payTime = entity.getPayTime();
         if (payTime != null) {
-            stmt.bindString(22, payTime);
+            stmt.bindString(21, payTime);
         }
  
         String payDate = entity.getPayDate();
         if (payDate != null) {
-            stmt.bindString(23, payDate);
+            stmt.bindString(22, payDate);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(24, offline);
+            stmt.bindString(23, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(25, flag);
+            stmt.bindLong(24, flag);
         }
     }
 
@@ -388,17 +376,16 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // accNo
             cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // accBal
             cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // accType
-            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // accList
-            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // orderId
-            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // traceId
-            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // payType
-            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // payContent
-            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // payment
-            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // actualPayment
-            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // payTime
-            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // payDate
-            cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // offline
-            cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24) // flag
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // orderId
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // traceId
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // payType
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // payContent
+            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // payment
+            cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19), // actualPayment
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // payTime
+            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // payDate
+            cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // offline
+            cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23) // flag
         );
         return entity;
     }
@@ -419,17 +406,16 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         entity.setAccNo(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
         entity.setAccBal(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
         entity.setAccType(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
-        entity.setAccList(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
-        entity.setOrderId(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
-        entity.setTraceId(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
-        entity.setPayType(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
-        entity.setPayContent(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
-        entity.setPayment(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
-        entity.setActualPayment(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
-        entity.setPayTime(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
-        entity.setPayDate(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
-        entity.setOffline(cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23));
-        entity.setFlag(cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24));
+        entity.setOrderId(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setTraceId(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setPayType(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setPayContent(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setPayment(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
+        entity.setActualPayment(cursor.isNull(offset + 19) ? null : cursor.getString(offset + 19));
+        entity.setPayTime(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setPayDate(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
+        entity.setOffline(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
+        entity.setFlag(cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23));
      }
     
     @Override

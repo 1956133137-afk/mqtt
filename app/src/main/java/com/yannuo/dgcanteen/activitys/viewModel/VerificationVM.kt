@@ -113,13 +113,14 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     /**
      * 订餐核销
      */
-    fun verification(campusId: String?, businessId: String?, custId: String?, orderId: String?, deviceId: String?, cardId: String?) {
+    fun verification(campusId: String?, businessId: String?, custId: String?, orderId: String?, deviceId: String?, cardId: String?, flag: Int) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             val data =
                 CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
             LogUtil.d(TAG, "加密数据: $data")
             var verification = VerificationRequest().apply {
                 this.dcEncryptParam = data
+                this.flag = flag
             }
             LogUtil.d(TAG, Gson().toJson(verification))
             val ccbCodeVerification = mRespository.getCcbCodeVerification(verification)
@@ -212,29 +213,46 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     }
 
     override fun onData(data: String) {
-        if (codeStatus == CodeStatus.INVALID) return
-        codeStatus = CodeStatus.INVALID
-        val qrData = data.trim().replace("\r\n", "")
-        val info = getAnalysisCode(qrData)
-        Log.d(TAG, "onData: $info")
-        verification(
-            info["CAMPUS_ID"],
-            info["BUSINESS_ID"],
-            info["CUST_ID"],
-            info["ORDER_ID"],
-            info["DEVICE_ID"],
-            info["CARD_ID"]
-        )
+        viewModelScope.launch {
+            if (!kv.decodeBool(Constant.QUERY_VERIFY)) {
+                if (codeStatus == CodeStatus.INVALID) return@launch
+                codeStatus = CodeStatus.INVALID
+            }
+            val qrData = data.trim().replace("\r\n", "")
+            val info = getAnalysisCode(qrData)
+            Log.d(TAG, "onData: $info")
+            verification(
+                info["CAMPUS_ID"],
+                info["BUSINESS_ID"],
+                info["CUST_ID"],
+                info["ORDER_ID"],
+                info["DEVICE_ID"],
+                info["CARD_ID"],
+                if (kv.decodeBool(Constant.QUERY_VERIFY,false)) 1 else 0
+            )
+        }
     }
 
     override fun numberOfIcCard(number: String?) {
-        if (cardStatus == CardStatus.INVALID) return
-        cardStatus = CardStatus.INVALID
-        val cardData = number?.trim()?.replace("\r\n", "")
-        LogUtil.d(TAG, "卡号：$cardData")
-        val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
-        val sn = Utils.getSN()
-        verification(campusId, businessId, null, null, sn, cardData)
+        viewModelScope.launch {
+            if (!kv.decodeBool(Constant.QUERY_VERIFY)) {
+                if (cardStatus == CardStatus.INVALID) return@launch
+                cardStatus = CardStatus.INVALID
+            }
+            val cardData = number?.trim()?.replace("\r\n", "")
+            LogUtil.d(TAG, "卡号：$cardData")
+            val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
+            val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+            val sn = Utils.getSN()
+            verification(
+                campusId,
+                businessId,
+                null,
+                null,
+                sn,
+                cardData,
+                if (kv.decodeBool(Constant.QUERY_VERIFY, false)) 1 else 0
+            )
+        }
     }
 }
