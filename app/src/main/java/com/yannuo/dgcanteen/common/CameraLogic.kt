@@ -89,9 +89,16 @@ class CameraLogic {
                             payForUI.custId = payResult.CUST_ID
                             if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
                             payForUI.accType = payResult.ACC_TYPE
-                            payForUI.accNo = payResult.ACC_NO
-                            payForUI.accBal = payResult.ACC_BAL
-                            payForUI.accList = payResult.ACC_LIST
+                            payResult.ACC_LIST.forEach {
+                                val acclist = ACCLIST().apply {
+                                    ACC_NO = it.ACC_NO
+                                    ACC_BAL = it.ACC_BAL
+                                    ACC_TYPE = it.ACC_TYPE
+                                    TRAN_ID = it.TRAN_ID
+                                    PAYMENT = it.PAYMENT
+                                }
+                                payForUI.accList.add(acclist)
+                            }
                             //检查支付结果，
                             when (payResult.TRAN_RESULT) {
                                 "3" -> {  //3支付成功
@@ -151,7 +158,16 @@ class CameraLogic {
                 OFFLINE = order.offline
                 ERRCODE = ""
                 ERRMSG = ""
-                ACCALIAS = order.accList
+                order.accList.forEach {
+                    val acclist = ACCLIST().apply {
+                        ACC_NO = it.acC_NO
+                        ACC_BAL = it.acC_BAL
+                        ACC_TYPE = it.acC_TYPE
+                        TRAN_ID = it.traN_ID
+                        PAYMENT = it.payment
+                    }
+                    ACCALIAS.add(acclist)
+                }
                 PAYTIME = order.payTime
                 BUSINESS_NAME = order.businessName
             }

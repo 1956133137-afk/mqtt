@@ -54,7 +54,6 @@ public class PayOrderTable {
     @ToMany(referencedJoinProperty = "accId")
     private List<AccListTable> accList;
     /** Used to resolve relations */
-    /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
     /** Used for active entity operations. */

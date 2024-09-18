@@ -187,7 +187,7 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
             disposalData(spanWatcher, "查询失败：\n${verify.errorMsg}")
             binding.tvAccNo.text = spanWatcher
         }else {
-            val dish = Gson().toJson(verify.dish).replace("\\[|\\]|\"".toRegex(), "")
+            val dish = Gson().toJson(verify.dish).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
             disposalData(spanWatcher, "待核销的菜品：\n${dish}")
             binding.tvAccNo.text = spanWatcher
         }

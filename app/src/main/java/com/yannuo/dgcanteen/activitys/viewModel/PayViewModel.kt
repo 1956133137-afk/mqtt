@@ -10,6 +10,7 @@ import com.yannuo.dgcanteen.common.NTScanHelp
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.AccListTable
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
@@ -254,7 +255,16 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
                 payForUI.accBal = result.ACC_BAL
-                payForUI.accList = result.ACC_LIST
+                result.ACC_LIST.forEach {
+                    val acclist = ACCLIST().apply {
+                        ACC_NO = it.ACC_NO
+                        ACC_BAL = it.ACC_BAL
+                        ACC_TYPE = it.ACC_TYPE
+                        TRAN_ID = it.TRAN_ID
+                        PAYMENT = it.PAYMENT
+                    }
+                    payForUI.accList.add(acclist)
+                }
                 payForUI.actualPayment = result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID
@@ -278,6 +288,10 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             it.offlineOrderTable = order
             dbHelper.insertOfflineDish(it)
         }
+        offlineOrder.accList.forEach {
+            it.offlineOrderTable = order
+            dbHelper.insertOfflineAccList(it)
+        }
         payForUI.result = "Y"
         payForUI.orderId = payForUI.sessionId
         saveOrderRecord(payForUI, 0)
@@ -294,6 +308,11 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
             dish.payOrderTable = order
             dbHelper.insertPayDish(dish)
+        }
+        payForUI.accList.forEach {
+            val acc = Gson().fromJson(Gson().toJson(it), AccListTable::class.java)
+            acc.payOrderTable = order
+            dbHelper.insertAccList(acc)
         }
     }
 }

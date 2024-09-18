@@ -13,6 +13,7 @@ import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
 import com.yannuo.dgcanteen.greendao.entity.MealTable;
+import com.yannuo.dgcanteen.greendao.entity.OfflineAccListTable;
 import com.yannuo.dgcanteen.greendao.entity.OfflineDishTable;
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable;
@@ -25,6 +26,7 @@ import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.greendao.dao.MealTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
@@ -46,6 +48,7 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig faceRecordDaoConfig;
     private final DaoConfig faceTokensDaoConfig;
     private final DaoConfig mealTableDaoConfig;
+    private final DaoConfig offlineAccListTableDaoConfig;
     private final DaoConfig offlineDishTableDaoConfig;
     private final DaoConfig offlineOrderTableDaoConfig;
     private final DaoConfig payDishTableDaoConfig;
@@ -58,6 +61,7 @@ public class DaoSession extends AbstractDaoSession {
     private final FaceRecordDao faceRecordDao;
     private final FaceTokensDao faceTokensDao;
     private final MealTableDao mealTableDao;
+    private final OfflineAccListTableDao offlineAccListTableDao;
     private final OfflineDishTableDao offlineDishTableDao;
     private final OfflineOrderTableDao offlineOrderTableDao;
     private final PayDishTableDao payDishTableDao;
@@ -84,6 +88,9 @@ public class DaoSession extends AbstractDaoSession {
         mealTableDaoConfig = daoConfigMap.get(MealTableDao.class).clone();
         mealTableDaoConfig.initIdentityScope(type);
 
+        offlineAccListTableDaoConfig = daoConfigMap.get(OfflineAccListTableDao.class).clone();
+        offlineAccListTableDaoConfig.initIdentityScope(type);
+
         offlineDishTableDaoConfig = daoConfigMap.get(OfflineDishTableDao.class).clone();
         offlineDishTableDaoConfig.initIdentityScope(type);
 
@@ -107,6 +114,7 @@ public class DaoSession extends AbstractDaoSession {
         faceRecordDao = new FaceRecordDao(faceRecordDaoConfig, this);
         faceTokensDao = new FaceTokensDao(faceTokensDaoConfig, this);
         mealTableDao = new MealTableDao(mealTableDaoConfig, this);
+        offlineAccListTableDao = new OfflineAccListTableDao(offlineAccListTableDaoConfig, this);
         offlineDishTableDao = new OfflineDishTableDao(offlineDishTableDaoConfig, this);
         offlineOrderTableDao = new OfflineOrderTableDao(offlineOrderTableDaoConfig, this);
         payDishTableDao = new PayDishTableDao(payDishTableDaoConfig, this);
@@ -119,6 +127,7 @@ public class DaoSession extends AbstractDaoSession {
         registerDao(FaceRecord.class, faceRecordDao);
         registerDao(FaceTokens.class, faceTokensDao);
         registerDao(MealTable.class, mealTableDao);
+        registerDao(OfflineAccListTable.class, offlineAccListTableDao);
         registerDao(OfflineDishTable.class, offlineDishTableDao);
         registerDao(OfflineOrderTable.class, offlineOrderTableDao);
         registerDao(PayDishTable.class, payDishTableDao);
@@ -133,6 +142,7 @@ public class DaoSession extends AbstractDaoSession {
         faceRecordDaoConfig.clearIdentityScope();
         faceTokensDaoConfig.clearIdentityScope();
         mealTableDaoConfig.clearIdentityScope();
+        offlineAccListTableDaoConfig.clearIdentityScope();
         offlineDishTableDaoConfig.clearIdentityScope();
         offlineOrderTableDaoConfig.clearIdentityScope();
         payDishTableDaoConfig.clearIdentityScope();
@@ -159,6 +169,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public MealTableDao getMealTableDao() {
         return mealTableDao;
+    }
+
+    public OfflineAccListTableDao getOfflineAccListTableDao() {
+        return offlineAccListTableDao;
     }
 
     public OfflineDishTableDao getOfflineDishTableDao() {

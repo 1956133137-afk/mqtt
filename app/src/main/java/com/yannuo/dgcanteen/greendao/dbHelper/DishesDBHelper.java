@@ -11,6 +11,7 @@ import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.greendao.dao.MealTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
@@ -22,6 +23,7 @@ import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
 import com.yannuo.dgcanteen.greendao.entity.MealTable;
+import com.yannuo.dgcanteen.greendao.entity.OfflineAccListTable;
 import com.yannuo.dgcanteen.greendao.entity.OfflineDishTable;
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable;
@@ -71,6 +73,7 @@ public class DishesDBHelper {
     private OfflineOrderTableDao olOrderTableDao;
     private OfflineDishTableDao olDishTableDao;
     private AccListTableDao accListDao;
+    private OfflineAccListTableDao olAccListDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -117,6 +120,7 @@ public class DishesDBHelper {
         olOrderTableDao = mDaoSession.getOfflineOrderTableDao();
         olDishTableDao = mDaoSession.getOfflineDishTableDao();
         accListDao = mDaoSession.getAccListTableDao();
+        olAccListDao = mDaoSession.getOfflineAccListTableDao();
     }
 
     /**
@@ -588,6 +592,10 @@ public class DishesDBHelper {
     /*******************************  离线记录  *******************************/
     public void insertOfflineOrder(OfflineOrderTable offLineOrder) {
         olOrderTableDao.insertOrReplace(offLineOrder);
+    }
+
+    public void insertOfflineAccList(OfflineAccListTable accListTable) {
+        olAccListDao.insertOrReplace(accListTable);
     }
 
     public OfflineOrderTable queryOfflineOrder(String sessionId) {

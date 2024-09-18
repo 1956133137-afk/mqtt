@@ -13,6 +13,8 @@ import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
 
 /**
  * Author: filowl
@@ -44,22 +46,22 @@ public class OfflineOrderTable {
 
     @ToMany(referencedJoinProperty = "offlineOrderId")
     private List<OfflineDishTable> paymentDishes;
-    /**
-     * Used to resolve relations
-     */
+
+    @ToMany(referencedJoinProperty = "accId")
+    private List<OfflineAccListTable> accList;
+    /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /**
-     * Used for active entity operations.
-     */
+    /** Used for active entity operations. */
     @Generated(hash = 420413952)
     private transient OfflineOrderTableDao myDao;
 
     @Generated(hash = 1145552457)
-    public OfflineOrderTable(Long id, String businessId, String businessName, String campusId,
-            String corpId, String vposId, String deviceId, String custId, String username,
-            String payType, String payContent, String payment, String actualPayment, String sessionId,
-            String payDate, String signTime, String offline, Integer flag) {
+    public OfflineOrderTable(Long id, String businessId, String businessName,
+            String campusId, String corpId, String vposId, String deviceId,
+            String custId, String username, String payType, String payContent,
+            String payment, String actualPayment, String sessionId, String payDate,
+            String signTime, String offline, Integer flag) {
         this.id = id;
         this.businessId = businessId;
         this.businessName = businessName;
@@ -196,6 +198,14 @@ public class OfflineOrderTable {
         this.sessionId = sessionId;
     }
 
+    public String getPayDate() {
+        return this.payDate;
+    }
+
+    public void setPayDate(String payDate) {
+        this.payDate = payDate;
+    }
+
     public String getSignTime() {
         return this.signTime;
     }
@@ -243,12 +253,40 @@ public class OfflineOrderTable {
         return paymentDishes;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 975409320)
     public synchronized void resetPaymentDishes() {
         paymentDishes = null;
+    }
+
+    /**
+     * To-many relationship, resolved on first access (and after reset).
+     * Changes to to-many relations are not persisted, make changes to the target entity.
+     */
+    @Generated(hash = 808079585)
+    public List<OfflineAccListTable> getAccList() {
+        if (accList == null) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            OfflineAccListTableDao targetDao = daoSession
+                    .getOfflineAccListTableDao();
+            List<OfflineAccListTable> accListNew = targetDao
+                    ._queryOfflineOrderTable_AccList(id);
+            synchronized (this) {
+                if (accList == null) {
+                    accList = accListNew;
+                }
+            }
+        }
+        return accList;
+    }
+
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    @Generated(hash = 1306375034)
+    public synchronized void resetAccList() {
+        accList = null;
     }
 
     /**
@@ -287,21 +325,10 @@ public class OfflineOrderTable {
         myDao.update(this);
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
+    /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 484564419)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getOfflineOrderTableDao() : null;
     }
-
-    public String getPayDate() {
-        return this.payDate;
-    }
-
-    public void setPayDate(String payDate) {
-        this.payDate = payDate;
-    }
-
 }

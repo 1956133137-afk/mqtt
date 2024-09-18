@@ -7,10 +7,10 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
-import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
-
+import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 @Entity
-public class AccListTable {
+public class OfflineAccListTable {
     @Id(autoincrement = true)
     private Long id;
     private Long accId;        //外键
@@ -20,15 +20,15 @@ public class AccListTable {
     private String PAYMENT;    //支付金额
     private String TRAN_ID;    //交易流水号
     @ToOne(joinProperty = "accId")
-    private PayOrderTable payOrderTable;
+    private OfflineOrderTable offlineOrderTable;
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
     /** Used for active entity operations. */
-    @Generated(hash = 2042922282)
-    private transient AccListTableDao myDao;
-    @Generated(hash = 975868530)
-    public AccListTable(Long id, Long accId, String ACC_BAL, String ACC_NO,
+    @Generated(hash = 858338849)
+    private transient OfflineAccListTableDao myDao;
+    @Generated(hash = 2100398950)
+    public OfflineAccListTable(Long id, Long accId, String ACC_BAL, String ACC_NO,
             String ACC_TYPE, String PAYMENT, String TRAN_ID) {
         this.id = id;
         this.accId = accId;
@@ -38,8 +38,8 @@ public class AccListTable {
         this.PAYMENT = PAYMENT;
         this.TRAN_ID = TRAN_ID;
     }
-    @Generated(hash = 1540985685)
-    public AccListTable() {
+    @Generated(hash = 574317949)
+    public OfflineAccListTable() {
     }
     public Long getId() {
         return this.id;
@@ -83,34 +83,34 @@ public class AccListTable {
     public void setTRAN_ID(String TRAN_ID) {
         this.TRAN_ID = TRAN_ID;
     }
-    @Generated(hash = 236130374)
-    private transient Long payOrderTable__resolvedKey;
+    @Generated(hash = 1775446895)
+    private transient Long offlineOrderTable__resolvedKey;
     /** To-one relationship, resolved on first access. */
-    @Generated(hash = 1191416637)
-    public PayOrderTable getPayOrderTable() {
+    @Generated(hash = 622992805)
+    public OfflineOrderTable getOfflineOrderTable() {
         Long __key = this.accId;
-        if (payOrderTable__resolvedKey == null
-                || !payOrderTable__resolvedKey.equals(__key)) {
+        if (offlineOrderTable__resolvedKey == null
+                || !offlineOrderTable__resolvedKey.equals(__key)) {
             final DaoSession daoSession = this.daoSession;
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
             }
-            PayOrderTableDao targetDao = daoSession.getPayOrderTableDao();
-            PayOrderTable payOrderTableNew = targetDao.load(__key);
+            OfflineOrderTableDao targetDao = daoSession.getOfflineOrderTableDao();
+            OfflineOrderTable offlineOrderTableNew = targetDao.load(__key);
             synchronized (this) {
-                payOrderTable = payOrderTableNew;
-                payOrderTable__resolvedKey = __key;
+                offlineOrderTable = offlineOrderTableNew;
+                offlineOrderTable__resolvedKey = __key;
             }
         }
-        return payOrderTable;
+        return offlineOrderTable;
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 64354715)
-    public void setPayOrderTable(PayOrderTable payOrderTable) {
+    @Generated(hash = 2041350516)
+    public void setOfflineOrderTable(OfflineOrderTable offlineOrderTable) {
         synchronized (this) {
-            this.payOrderTable = payOrderTable;
-            accId = payOrderTable == null ? null : payOrderTable.getId();
-            payOrderTable__resolvedKey = accId;
+            this.offlineOrderTable = offlineOrderTable;
+            accId = offlineOrderTable == null ? null : offlineOrderTable.getId();
+            offlineOrderTable__resolvedKey = accId;
         }
     }
     /**
@@ -147,10 +147,9 @@ public class AccListTable {
         myDao.update(this);
     }
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 1574792428)
+    @Generated(hash = 2127860559)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getAccListTableDao() : null;
+        myDao = daoSession != null ? daoSession.getOfflineAccListTableDao() : null;
     }
-
 }

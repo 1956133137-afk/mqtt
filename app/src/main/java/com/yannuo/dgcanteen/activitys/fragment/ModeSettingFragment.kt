@@ -59,6 +59,7 @@ class ModeSettingFragment : Fragment() {
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
     private var self_help = false
+    private var saveCheck = false
 //    private var mService: CameraService? = null
 
 //    private val connection = object : ServiceConnection {
@@ -312,15 +313,21 @@ class ModeSettingFragment : Fragment() {
             startActivity(restartIntent)
             exitProcess(0)
         }
+        if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()) {
+            val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+            startActivity(restartIntent)
+            exitProcess(0)
+        }
     }
 
     private fun reload() {
         self_help = kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help
+        saveCheck = kv.decodeBool(Constant.QUERY_VERIFY, false)
         binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
-        binding.queryVerify.isChecked = kv.decodeBool(Constant.QUERY_VERIFY, false)
+        binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))

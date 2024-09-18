@@ -25,9 +25,6 @@ package com.yannuo.dgcanteen.model
  * @constructor
  */
 class CcbFacePayResultBean {
-    var ACCALIAS: String = ""
-    var ACC_BAL: String = ""
-    var ACC_NO: String = ""
     var ACC_TYPE: String = ""
     var ACTUAL_PAYMENT: String = ""
     var BUSINESS_NAME: String = ""
@@ -45,23 +42,22 @@ class CcbFacePayResultBean {
     var ERRCODE: String = ""
     var ERRMSG: String = ""
     var ACC_LIST: MutableList<ACCLIST> = mutableListOf()
-
-
-    /**
-     *
-     * @property ACC_BAL String 账户余额
-     * @property ACC_NO String   账户ID
-     * @property ACC_TYPE String  账户类型
-     * @property PAYMENT String  支付金额
-     * @property TRAN_ID String 交易流水号
-     * @constructor
-     */
-    inner class ACCLIST(
-        var ACC_BAL: String = "",
-        var ACC_NO: String = "",
-        var ACC_TYPE: String = "",
-        var PAYMENT: String = "",
-        var TRAN_ID: String = ""
-    )
 }
+
+/**
+ *
+ * @property ACC_BAL String 账户余额
+ * @property ACC_NO String   账户ID
+ * @property ACC_TYPE String  账户类型
+ * @property PAYMENT String  支付金额
+ * @property TRAN_ID String 交易流水号
+ * @constructor
+ */
+class ACCLIST(
+    var ACC_BAL: String = "",
+    var ACC_NO: String = "",
+    var ACC_TYPE: String = "",
+    var PAYMENT: String = "",
+    var TRAN_ID: String = ""
+)
 

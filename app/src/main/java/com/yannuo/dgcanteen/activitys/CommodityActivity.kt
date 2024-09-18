@@ -465,7 +465,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
         if (persons != null && persons.grade != null) successBinding!!.tvClass.text = "${persons.grade}(${persons.userClass})"
         successBinding!!.tvName.text = payForUI.username
-        successBinding!!.tvBalance.text = payForUI.accBal + "元"
+        successBinding!!.tvBalance.text = if (payForUI.accBal.isNotEmpty()) payForUI.accBal + "元" else ""
         successBinding!!.tvPayTime.text = payForUI.payTime
 
         //更新数据

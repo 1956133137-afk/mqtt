@@ -156,7 +156,16 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         OFFLINE = order.offline
                         ERRCODE = ""
                         ERRMSG = ""
-                        ACCALIAS = order.accList
+                        order.accList.forEach {
+                            val acclist = ACCLIST().apply {
+                                ACC_NO = it.acC_NO
+                                ACC_BAL = it.acC_BAL
+                                ACC_TYPE = it.acC_TYPE
+                                TRAN_ID = it.traN_ID
+                                PAYMENT = it.payment
+                            }
+                            ACCALIAS.add(acclist)
+                        }
                         PAYTIME = order.payTime
                         BUSINESS_NAME = order.businessName
                     }
@@ -164,7 +173,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         bean.paymentDishesList.add(Gson().fromJson(Gson().toJson(dish), Dish::class.java))
                     }
                     order.accList.forEach {
-                        bean.ACCALIAS.add(Gson().fromJson(Gson().toJson(it), AccListTable::class.java))
+                        bean.ACCALIAS.add(Gson().fromJson(Gson().toJson(it), ACCLIST::class.java))
                     }
                     val res = mRespository.synCsRecord(bean)
                     if (res.code == "200") {
@@ -216,7 +225,17 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                             payForUI.accType = result.ACC_TYPE
                             payForUI.accNo = result.ACC_NO
                             payForUI.accBal = result.ACC_BAL
-                            payForUI.accList = result.ACC_LIST
+                            result.ACC_LIST.forEach {
+                                val acclist = ACCLIST().apply {
+                                    ACC_NO = it.ACC_NO
+                                    ACC_BAL = it.ACC_BAL
+                                    ACC_TYPE = it.ACC_TYPE
+                                    TRAN_ID = it.TRAN_ID
+                                    PAYMENT = it.PAYMENT
+                                }
+                                payForUI.accList.add(acclist)
+                            }
+//                            payForUI.accList = result.ACC_LIST
                             payForUI.actualPayment = result.ACTUAL_PAYMENT
                             payForUI.orderId = result.ORDERID
                             payForUI.traceId = result.TRACEID
@@ -241,11 +260,10 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
     private fun saveOrderRecord(payForUI: PayForUI, session: String) {
         val order = DishesDBHelper.getInstance().queryPayOrder(session) ?: return
-        order.accNo = payForUI.accNo
-        order.accBal = payForUI.accBal
+//        order.accNo = payForUI.accNo
+//        order.accBal = payForUI.accBal
         order.accType = payForUI.accType
 //        order.accList = payForUI.accList
-
         order.orderId = payForUI.orderId
         order.traceId = payForUI.traceId
         order.actualPayment = payForUI.actualPayment

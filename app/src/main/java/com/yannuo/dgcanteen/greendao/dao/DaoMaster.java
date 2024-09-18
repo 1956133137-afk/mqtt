@@ -26,6 +26,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FaceRecordDao.createTable(db, ifNotExists);
         FaceTokensDao.createTable(db, ifNotExists);
         MealTableDao.createTable(db, ifNotExists);
+        OfflineAccListTableDao.createTable(db, ifNotExists);
         OfflineDishTableDao.createTable(db, ifNotExists);
         OfflineOrderTableDao.createTable(db, ifNotExists);
         PayDishTableDao.createTable(db, ifNotExists);
@@ -41,6 +42,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FaceRecordDao.dropTable(db, ifExists);
         FaceTokensDao.dropTable(db, ifExists);
         MealTableDao.dropTable(db, ifExists);
+        OfflineAccListTableDao.dropTable(db, ifExists);
         OfflineDishTableDao.dropTable(db, ifExists);
         OfflineOrderTableDao.dropTable(db, ifExists);
         PayDishTableDao.dropTable(db, ifExists);
@@ -70,6 +72,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(FaceRecordDao.class);
         registerDaoClass(FaceTokensDao.class);
         registerDaoClass(MealTableDao.class);
+        registerDaoClass(OfflineAccListTableDao.class);
         registerDaoClass(OfflineDishTableDao.class);
         registerDaoClass(OfflineOrderTableDao.class);
         registerDaoClass(PayDishTableDao.class);
