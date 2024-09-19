@@ -18,8 +18,6 @@ import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.proembed.service.MyService
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.CardVerificationFragmentDirections

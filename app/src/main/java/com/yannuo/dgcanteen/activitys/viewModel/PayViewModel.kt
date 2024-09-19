@@ -159,21 +159,21 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         when {
             payForUI.payContent.contains("CT0001") && payForUI.offline == "0" -> {
                 //解析在线码获取用户信息
-                val analysisBean = runBlocking(Dispatchers.IO + mHandler) {
-                    val map = CanteenEncryptionUtil.getAnalysisQr(payForUI, "PAY002")
-                    val analysisResult = mRespository.getCcbData(map).body()?.string() ?: ""
-                    Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
-                }
-                if (analysisBean.RESULT == "Y") {
-                    payForUI.custId = analysisBean.CUST_ID
-                    val person = dbHelper.queryPersonToCustId(payForUI.custId)
-                    payForUI.username = person.personName
+//                val analysisBean = runBlocking(Dispatchers.IO + mHandler) {
+//                    val map = CanteenEncryptionUtil.getAnalysisQr(payForUI, "PAY002")
+//                    val analysisResult = mRespository.getCcbData(map).body()?.string() ?: ""
+//                    Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
+//                }
+//                if (analysisBean.RESULT == "Y") {
+//                    payForUI.custId = analysisBean.CUST_ID
+//                    val person = dbHelper.queryPersonToCustId(payForUI.custId)
+//                    payForUI.username = person.personName
                     onLinePay(payForUI)
-                } else {
-                    payForUI.errCode = analysisBean.ERRCODE
-                    payForUI.errMsg = analysisBean.ERRMSG
-                    listener?.onOtherListener(3, payForUI)
-                }
+//                } else {
+//                    payForUI.errCode = analysisBean.ERRCODE
+//                    payForUI.errMsg = analysisBean.ERRMSG
+//                    listener?.onOtherListener(3, payForUI)
+//                }
             }
             payForUI.payContent.contains("CCB") -> {
                 val plainText = DES3CBCUtil.transDecryption(payForUI.payContent)
@@ -181,22 +181,22 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 val minutes = TimeUtil.timestamp(pastDueTime)
                 if (minutes > 1) {
                     //将离线码的密文串解密可以得到cidNo(学号)
-                    val cidNo = plainText.substring(0, plainText.indexOf("@"))
-                    //将离线码的密文串解密可以得到campusId(园区编号)
-                    val campusId = plainText.substring(plainText.indexOf("@") + 1, plainText.lastIndexOf("@"))
-                    if (payForUI.campusId == campusId) {
-                        //查询人员信息
-                        val person = dbHelper.queryPersonToCidNo(cidNo)
-                        if (person != null && person.custId.isNotEmpty()) {
-                            payForUI.custId = person.custId
-                            payForUI.username = person.personName
+//                    val cidNo = plainText.substring(0, plainText.indexOf("@"))
+//                    //将离线码的密文串解密可以得到campusId(园区编号)
+//                    val campusId = plainText.substring(plainText.indexOf("@") + 1, plainText.lastIndexOf("@"))
+//                    if (payForUI.campusId == campusId) {
+//                        //查询人员信息
+//                        val person = dbHelper.queryPersonToCidNo(cidNo)
+//                        if (person != null && person.custId.isNotEmpty()) {
+//                            payForUI.custId = person.custId
+//                            payForUI.username = person.personName
                             if (payForUI.offline == "0") onLinePay(payForUI) else offLinePay(payForUI)
-                        } else {
-                            payForUI.errCode = "PAY0001"
-                            payForUI.errMsg = "未查询到人员信息"
-                            listener?.onOtherListener(3, payForUI)
-                        }
-                    } else listener?.onOtherListener(5, 0)
+//                        } else {
+//                            payForUI.errCode = "PAY0001"
+//                            payForUI.errMsg = "未查询到人员信息"
+//                            listener?.onOtherListener(3, payForUI)
+//                        }
+//                    } else listener?.onOtherListener(5, 0)
                 } else listener?.onOtherListener(5, 1)
             }
             else -> if (payForUI.offline == "0") onLinePay(payForUI) else listener?.onOtherListener(5, 0)
