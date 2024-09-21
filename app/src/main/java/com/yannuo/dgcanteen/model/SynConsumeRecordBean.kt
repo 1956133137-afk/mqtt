@@ -20,7 +20,8 @@ class SynConsumeRecordBean {
     var OFFLINE: String = ""            //离线订单标识：0：联机支付，1离线补扣
     var ERRCODE: String = ""            //错误码
     var ERRMSG: String = ""             //错误信息
-    var ACCALIAS: MutableList<ACCLIST> = mutableListOf()           //账户类型名称
+    var ACCALIAS: String = ""           //账户类型名称
+    var ACC_LIST: MutableList<ACCLIST> = mutableListOf() //所有账户信息
     var PAYTIME: String = ""            //支付时间
     var BUSINESS_NAME: String = ""      //商家名称
     var paymentDishesList: MutableList<Dish> = mutableListOf()  //消费的菜品集合

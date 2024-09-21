@@ -37,9 +37,9 @@
         android:id="@+id/ll_a"
         android:layout_width="500dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="395dp"
         android:layout_marginTop="42dp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textView3"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
         app:layout_constraintTop_toBottomOf="@+id/textView3">
 
         <TextView
@@ -48,18 +48,18 @@
             android:layout_height="wrap_content"
             android:text="@string/pay_failure_reason"
             android:textColor="#6C6C6C"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/pay_fail_msg"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="right"
             android:maxLines="2"
             android:text="失败原因"
             android:textColor="#6C6C6C"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
     </LinearLayout>
 

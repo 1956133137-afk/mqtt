@@ -14,6 +14,7 @@ import com.yannuo.dgcanteen.greendao.entity.AccListTable
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
+import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.interfaces.ReadCardListener
@@ -190,7 +191,17 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 //                        if (person != null && person.custId.isNotEmpty()) {
 //                            payForUI.custId = person.custId
 //                            payForUI.username = person.personName
-                            if (payForUI.offline == "0") onLinePay(payForUI) else offLinePay(payForUI)
+                    if (payForUI.offline == "0") onLinePay(payForUI) else {
+                        val person: Persons
+                        //将离线码的密文串解密可以得到cidNo(学号)
+                        val plainText = DES3CBCUtil.transDecryption(payForUI.payContent)
+                        val cidNo = plainText.substring(0, plainText.indexOf("@"))
+                        person = dbHelper.queryPersonToCidNo(cidNo)
+                        LogUtil.d(TAG, Gson().toJson(person))
+                        payForUI.custId = person.custId ?: ""
+                        payForUI.username = person.personName ?: ""
+                        offLinePay(payForUI)
+                    }
 //                        } else {
 //                            payForUI.errCode = "PAY0001"
 //                            payForUI.errMsg = "未查询到人员信息"

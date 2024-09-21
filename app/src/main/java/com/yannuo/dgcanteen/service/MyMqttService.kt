@@ -164,7 +164,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                                 TRAN_ID = it.traN_ID
                                 PAYMENT = it.payment
                             }
-                            ACCALIAS.add(acclist)
+                            ACC_LIST.add(acclist)
                         }
                         PAYTIME = order.payTime
                         BUSINESS_NAME = order.businessName
@@ -173,7 +173,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         bean.paymentDishesList.add(Gson().fromJson(Gson().toJson(dish), Dish::class.java))
                     }
                     order.accList.forEach {
-                        bean.ACCALIAS.add(Gson().fromJson(Gson().toJson(it), ACCLIST::class.java))
+                        bean.ACC_LIST.add(Gson().fromJson(Gson().toJson(it), ACCLIST::class.java))
                     }
                     val res = mRespository.synCsRecord(bean)
                     if (res.code == "200") {

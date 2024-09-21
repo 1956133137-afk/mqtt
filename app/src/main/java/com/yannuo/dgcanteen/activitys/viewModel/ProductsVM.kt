@@ -390,12 +390,13 @@ class ProductsVM : ViewModel() {
                         TRAN_ID = it.traN_ID
                         PAYMENT = it.payment
                     }
-                    ACCALIAS.add(acclist)
+                    ACC_LIST.add(acclist)
                 }
                 PAYTIME = order.payTime
                 BUSINESS_NAME = order.businessName
             }
             payForUI.paymentDishes.forEach { bean.paymentDishesList.add(it) }
+            LogUtil.d(TAG, Gson().toJson(bean))
             if (payForUI.offline == "0") {
                 val res = mRespository.synCsRecord(bean)
                 if (res.code == "200") {

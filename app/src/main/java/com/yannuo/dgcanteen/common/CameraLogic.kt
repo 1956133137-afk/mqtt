@@ -166,7 +166,7 @@ class CameraLogic {
                         TRAN_ID = it.traN_ID
                         PAYMENT = it.payment
                     }
-                    ACCALIAS.add(acclist)
+                    ACC_LIST.add(acclist)
                 }
                 PAYTIME = order.payTime
                 BUSINESS_NAME = order.businessName
