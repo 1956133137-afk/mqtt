@@ -112,4 +112,11 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("android/cardPayment")
     suspend fun payByIcCard(@Body bean: RequestPay): CanteenResponse<String>
+
+    /**
+     * 获取TOKEN
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/decrypt")
+    suspend fun getToken(@Body bean: TokenBean): CanteenResponse<TokenReceive>
 }

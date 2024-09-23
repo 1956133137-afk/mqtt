@@ -12,11 +12,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.PopupWindow
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
@@ -25,10 +21,10 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.FragmentModeSettingBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PersonList
 import com.yannuo.dgcanteen.util.*
@@ -243,13 +239,15 @@ class ModeSettingFragment : Fragment() {
         val array = arrayOf(
             Constant.ORDERING_FOOD_MODE,
             Constant.PROCEEDS_MODE,
-            Constant.ORDERING_TWO_MODE
+            Constant.ORDERING_TWO_MODE,
+            Constant.ORDERING_MEAL_MODE
         )
         val position = byteArrayOf(0)
         val oldPosition = when (kv.decodeString(Constant.APP_MODE)) {
             array[0] -> 0
             array[1] -> 1
-            else -> 2
+            array[2] -> 2
+            else -> 3
         }
         val builder = AlertDialog.Builder(requireContext())
         builder.setCancelable(false)
@@ -260,30 +258,20 @@ class ModeSettingFragment : Fragment() {
                 LogUtil.i(TAG, "which $which")
             }
             .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
-            .setPositiveButton(
-                "确定"
-            ) { dialog, which ->
+            .setPositiveButton("确定") { dialog, which ->
                 ToastShowUtil.show(array[position[0].toInt()])
                 kv.encode(Constant.APP_MODE, array[position[0].toInt()])
 
-
-                val restartIntent =
-                    mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-                restartIntent?.addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK
-                )
+                val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(restartIntent)
                 exitProcess(0)
             }
         builder.create()
             .apply {
                 show()
-                getButton(DialogInterface.BUTTON_NEGATIVE)
-                    .setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-                getButton(DialogInterface.BUTTON_POSITIVE)
-                    .setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                getButton(DialogInterface.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                getButton(DialogInterface.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
             }
 
     }

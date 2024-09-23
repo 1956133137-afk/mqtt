@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context=".activitys.fragment.order.VerifyUserFragment">
+
+    <LinearLayout
+        android:id="@+id/err"
+        android:layout_width="800dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/shape_bg_white_20"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_bottom"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="错误代码: "
+                android:textColor="#4F4F4F"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/err_code"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textColor="#4F4F4F"
+                android:textSize="50sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_bottom"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="错误信息: "
+                android:textColor="#4F4F4F"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/err_msg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textColor="#4F4F4F"
+                android:textSize="50sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tips_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/select_login_mode"
+        android:layout_marginBottom="50dp"
+        android:gravity="center"
+        android:text="请您选择登录方式"
+        android:textColor="#4F4F4F"
+        android:textSize="70sp" />
+
+    <RelativeLayout
+        android:id="@+id/select_login_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="100dp">
+
+        <Button
+            android:id="@+id/btn_face_scan"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_toStartOf="@+id/btn_qr_code"
+            android:background="@drawable/select_btn_blue_press_round"
+            android:drawableStart="@drawable/ic_face_scan"
+            android:padding="10dp"
+            android:stateListAnimator="@null"
+            android:text="刷脸"
+            android:textColor="#FFFFFF"
+            android:textSize="70sp" />
+
+        <Button
+            android:id="@+id/btn_qr_code"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
+            android:background="@drawable/select_btn_blue_press_round"
+            android:drawableStart="@drawable/ic_qr_code"
+            android:padding="10dp"
+            android:stateListAnimator="@null"
+            android:text="扫码"
+            android:textColor="#FFFFFF"
+            android:textSize="70sp" />
+
+        <Button
+            android:id="@+id/btn_ic_card"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_toEndOf="@+id/btn_qr_code"
+            android:background="@drawable/select_btn_blue_press_round"
+            android:drawableStart="@drawable/ic_ic_card"
+            android:padding="10dp"
+            android:stateListAnimator="@null"
+            android:text="刷卡"
+            android:textColor="#FFFFFF"
+            android:textSize="70sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

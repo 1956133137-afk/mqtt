@@ -69,6 +69,7 @@ object Constant {
     const val ORDERING_FOOD_MODE = "点餐模式"
     const val PROCEEDS_MODE = "收款模式"
     const val ORDERING_TWO_MODE = "点餐模式2"
+    const val ORDERING_MEAL_MODE = "订餐模式"
 
     lateinit var CORP_ID: String  //合作方ID
     lateinit var CCB_API_PATH: String  //ccb开放平台接口地址

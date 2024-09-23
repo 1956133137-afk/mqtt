@@ -14,9 +14,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
-        tools:ignore="ProtectedPermissions" />
-
-    <!-- USB访问权限 -->
+        tools:ignore="ProtectedPermissions" /> <!-- USB访问权限 -->
     <uses-feature android:name="android.hardware.usb.UsbDevice" />
     <uses-feature android:name="android.hardware.usb.UsbManager" />
 
@@ -31,6 +29,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CommodityPay">
         <activity
+            android:name=".activitys.OrderMealActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.BalanceActivity"
             android:exported="false" />
         <activity
@@ -39,7 +40,7 @@
         <activity
             android:name=".activitys.SettingActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activitys.CommodityActivity"
             android:exported="false" />
@@ -55,7 +56,8 @@
         <activity
             android:name=".activitys.FaceVerificationActivity"
             android:exported="false" />
-        <activity android:name=".activitys.CheckVerifyActivity"
+        <activity
+            android:name=".activitys.CheckVerifyActivity"
             android:exported="false" />
         <activity
             android:name=".activitys.InitActivity"
@@ -86,7 +88,6 @@
                 <!-- <category android:name="android.intent.category.LAUNCHER"/> -->
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED" />

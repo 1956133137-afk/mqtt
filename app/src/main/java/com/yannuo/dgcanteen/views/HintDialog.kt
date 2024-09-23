@@ -29,6 +29,10 @@ class HintDialog(context: Context) : BaseDialog(context, R.layout.dialog_waitfor
         return this
     }
 
+    fun setTipsText(str: String) {
+        tv_content.text = str
+    }
+
     override fun onClick(v: View) {
         when (v.id) {
             R.id.ib_close -> {

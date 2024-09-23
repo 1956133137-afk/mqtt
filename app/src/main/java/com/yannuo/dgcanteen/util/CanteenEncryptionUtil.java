@@ -52,12 +52,15 @@ public class CanteenEncryptionUtil {
     /**
      * 解析二维码
      *
-     * @param ccbBean
      * @return
      */
 
     public static HashMap<String, String> getAnalysisQr(PayForUI payForUI, String TXCODE) {
         return getSamePart(payForUI.getCampusId(), TXCODE, payForUI.getCorpId(), "QR_CODE=" + payForUI.getPayContent());
+    }
+
+    public static HashMap<String, String> getAnalysisQr(String campusId, String TXCODE, String corpId, String qrCode) {
+        return getSamePart(campusId, TXCODE, corpId, "QR_CODE=" + qrCode);
     }
 
     /**

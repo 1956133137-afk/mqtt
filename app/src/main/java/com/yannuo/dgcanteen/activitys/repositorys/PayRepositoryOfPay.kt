@@ -124,6 +124,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getToken(campusId: String, encryptStr: String): CanteenResponse<TokenReceive> {
+        return apiCall {
+            RetrofitClient.getApi().getToken(TokenBean(campusId, encryptStr))
+        }
+    }
+
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {
             val res: CanteenResponse<T>

@@ -103,10 +103,10 @@ dependencies {
     implementation files('libs/bcprov-jdk14-128.jar')
     implementation files('libs/COM.CCB.EnDecryptAlgorithm_v1.0_20120220.jar')
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.3.2"
-    implementation "androidx.navigation:navigation-ui-ktx:2.3.2"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
     // Feature module Support
-    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.3.2")
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
     //Bugly
     implementation 'com.tencent.bugly:crashreport:latest.release' //latest.release指代最新版本
 

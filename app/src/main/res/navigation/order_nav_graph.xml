@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/order_nav_graph"
+    app:startDestination="@id/verifyUser">
+
+    <fragment
+        android:id="@+id/verifyUser"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.order.VerifyUserFragment"
+        android:label="fragment_verify_user"
+        tools:layout="@layout/fragment_verify_user">
+        <action
+            android:id="@+id/verifyUser_to_userOrder"
+            app:destination="@id/userOrder" />
+    </fragment>
+    <fragment
+        android:id="@+id/userOrder"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.order.UserOrderFragment"
+        android:label="fragment_user_order"
+        tools:layout="@layout/fragment_user_order">
+        <action
+            android:id="@+id/userOrder_to_orderSettle"
+            app:destination="@id/orderSettle" />
+        <argument
+            android:name="orderForUI"
+            app:argType="com.yannuo.dgcanteen.model.OrderForUI" />
+    </fragment>
+    <fragment
+        android:id="@+id/orderSettle"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.order.OrderSettleFragment"
+        android:label="fragment_order_settle"
+        tools:layout="@layout/fragment_order_settle">
+        <action
+            android:id="@+id/orderSettle_to_verifyUser"
+            app:destination="@id/verifyUser"
+            app:popUpTo="@+id/verifyUser"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>
