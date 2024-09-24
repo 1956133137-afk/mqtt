@@ -130,6 +130,18 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun queryOrderMeal(token: String, campusId: String, businessId: String): CanteenResponse<OrderMealReceive> {
+        return apiCall {
+            RetrofitClient.getApi().queryOrderMeal(token, OrderMealBean(campusId, businessId))
+        }
+    }
+
+    suspend fun queryOrderDish(token: String, date: String, mealId: String, businessId: String): CanteenResponse<OrderDishReceive> {
+        return apiCall {
+            RetrofitClient.getApi().queryOrderDish(token, OrderDishBean(date, mealId, businessId))
+        }
+    }
+
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {
             val res: CanteenResponse<T>

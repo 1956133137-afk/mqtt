@@ -119,4 +119,18 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("dcCcb/decrypt")
     suspend fun getToken(@Body bean: TokenBean): CanteenResponse<TokenReceive>
+
+    /**
+     * 查询餐别信息
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/order/qryOrderMeal")
+    suspend fun queryOrderMeal(@Header("dcccbauthorization") token: String, @Body bean: OrderMealBean): CanteenResponse<OrderMealReceive>
+
+    /**
+     * 查询餐别菜品信息
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dishes/batchList")
+    suspend fun queryOrderDish(@Header("dcccbauthorization") token: String, @Body bean: OrderDishBean): CanteenResponse<OrderDishReceive>
 }
