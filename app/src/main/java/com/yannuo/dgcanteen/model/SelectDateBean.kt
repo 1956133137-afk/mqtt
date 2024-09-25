@@ -5,7 +5,8 @@ package com.yannuo.dgcanteen.model
  * Description: ***
  * Date: 2024/9/24 18:06
  **/
-data class SelectDateBean(
-    var date: String = "",
+class SelectDateBean {
+    var date: String = ""
     var value: String = ""
-)
+    var mealList: MutableList<OrderMeal> = mutableListOf()
+}

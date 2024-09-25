@@ -21,7 +21,7 @@ class OrderMeal {
     var mealName: String = ""   //餐别名称
     var startTime: String = ""  //开始时间 HH:mm:ss
     var endTime: String = ""    //结束数据 HH:mm:ss
-    var orderMealDate: String = ""  //开餐星期"1,2,3,4,5,6,7"
+    var orderMealDay: String = ""  //开餐星期"1, 2, 3, 4, 5, 6, 7"
     var delFlag: String = ""    //是否删除 1-是 2-否
 
     var orderQuota: String = ""     //是否限购 1-是 2-否

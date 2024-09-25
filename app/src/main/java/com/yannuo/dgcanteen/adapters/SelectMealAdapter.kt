@@ -13,7 +13,7 @@ import com.yannuo.dgcanteen.model.OrderMeal
  * Date: 2024/9/24 16:16
  **/
 class SelectMealAdapter : BaseAdapter<OrderMeal, ItemSelectMealBinding>() {
-    private var selectPos = 0
+    var selectPos = 0
     private var listener: SelectMealListener? = null
 
     fun setMealListener(listener: SelectMealListener) {

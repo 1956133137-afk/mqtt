@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="190dp"
+    android:layout_margin="10dp"
+    android:background="@drawable/shape_bg_white_10"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_pic"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/load_failure" />
+
+        <TextView
+            android:id="@+id/dish_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/price"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="10dp"
+            android:layout_toEndOf="@+id/img_pic"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="#4F4F4F"
+            android:textSize="32sp" />
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/img_pic"
+            android:layout_marginStart="5dp"
+            android:layout_toEndOf="@+id/img_pic"
+            android:gravity="center_vertical"
+            android:textColor="#4F4F4F"
+            android:textSize="32sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/btn_minus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/tv_count"
+            android:background="@null"
+            android:src="@drawable/ic_minus" />
+
+        <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@drawable/shape_bg_orange_10"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/tv_count"
+            android:background="@null"
+            android:src="@drawable/ic_add" />
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -24,7 +24,7 @@
     <string name="trans_run_number">交易流水号</string>
     <string name="pay_failure_reason">当前状态</string>
 
-    <string name="total_price">合计￥：</string>
+    <string name="total_price">合计￥: </string>
     <string name="init_money">0.0元</string>
     <string name="init_count">0</string>
     <string name="money_format">￥%s</string>
