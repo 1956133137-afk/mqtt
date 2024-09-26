@@ -8,6 +8,7 @@ package com.yannuo.dgcanteen.model
 open class RequestPayBase {
     var businessId: String = ""
     var businessName: String = ""
+    var orderId: String = ""
     var campusId: String = ""
     var corpId: String = ""
     var vposId: String = ""

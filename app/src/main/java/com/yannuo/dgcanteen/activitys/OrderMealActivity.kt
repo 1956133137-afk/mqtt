@@ -13,12 +13,14 @@ import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkStateManager.NetWorkListener {
     private val orderMealVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))[OrderMealVM::class.java] }
     private val kv = MMKV.defaultMMKV()
     private var mXService: MyService? = null
     private var passwordDialog: PasswordDialog? = null
+    private var navigation = true
 
     override fun bindLayout() {
         binding = ActivityOrderMealBinding.inflate(layoutInflater)
@@ -40,6 +42,12 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     }
 
     private fun initEvent() {
+        binding.tvTitle.setOnLongClickListener {
+            navigation = !navigation
+            mXService?.hideNavBar = navigation
+            if (!navigation) ToastShowUtil.show("导航可用")
+            true
+        }
         binding.btnSetting.setOnClickListener {
             if (passwordDialog == null) passwordDialog = PasswordDialog(this)
             passwordDialog?.apply {
@@ -56,7 +64,7 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
 
     override fun onResume() {
         super.onResume()
-        mXService?.hideNavBar = false
+        mXService?.hideNavBar = true
     }
 
     override fun netWorkStatus(statue: String?) {

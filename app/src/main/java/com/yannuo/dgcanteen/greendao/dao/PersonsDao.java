@@ -30,9 +30,10 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         public final static Property Grade = new Property(3, String.class, "grade", false, "GRADE");
         public final static Property PersonName = new Property(4, String.class, "personName", false, "PERSON_NAME");
         public final static Property PersonNumber = new Property(5, String.class, "personNumber", false, "PERSON_NUMBER");
-        public final static Property UserClass = new Property(6, String.class, "userClass", false, "USER_CLASS");
-        public final static Property Image = new Property(7, String.class, "image", false, "IMAGE");
-        public final static Property MessageId = new Property(8, String.class, "messageId", false, "MESSAGE_ID");
+        public final static Property Phone = new Property(6, String.class, "phone", false, "PHONE");
+        public final static Property UserClass = new Property(7, String.class, "userClass", false, "USER_CLASS");
+        public final static Property Image = new Property(8, String.class, "image", false, "IMAGE");
+        public final static Property MessageId = new Property(9, String.class, "messageId", false, "MESSAGE_ID");
     }
 
 
@@ -54,9 +55,10 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
                 "\"GRADE\" TEXT," + // 3: grade
                 "\"PERSON_NAME\" TEXT," + // 4: personName
                 "\"PERSON_NUMBER\" TEXT," + // 5: personNumber
-                "\"USER_CLASS\" TEXT," + // 6: userClass
-                "\"IMAGE\" TEXT," + // 7: image
-                "\"MESSAGE_ID\" TEXT);"); // 8: messageId
+                "\"PHONE\" TEXT," + // 6: phone
+                "\"USER_CLASS\" TEXT," + // 7: userClass
+                "\"IMAGE\" TEXT," + // 8: image
+                "\"MESSAGE_ID\" TEXT);"); // 9: messageId
         // Add Indexes
         db.execSQL("CREATE INDEX " + constraint + "IDX_PERSONS_CARD_ID ON \"PERSONS\"" +
                 " (\"CARD_ID\" ASC);");
@@ -102,19 +104,24 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             stmt.bindString(6, personNumber);
         }
  
+        String phone = entity.getPhone();
+        if (phone != null) {
+            stmt.bindString(7, phone);
+        }
+ 
         String userClass = entity.getUserClass();
         if (userClass != null) {
-            stmt.bindString(7, userClass);
+            stmt.bindString(8, userClass);
         }
  
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(8, image);
+            stmt.bindString(9, image);
         }
  
         String messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindString(9, messageId);
+            stmt.bindString(10, messageId);
         }
     }
 
@@ -152,19 +159,24 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             stmt.bindString(6, personNumber);
         }
  
+        String phone = entity.getPhone();
+        if (phone != null) {
+            stmt.bindString(7, phone);
+        }
+ 
         String userClass = entity.getUserClass();
         if (userClass != null) {
-            stmt.bindString(7, userClass);
+            stmt.bindString(8, userClass);
         }
  
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(8, image);
+            stmt.bindString(9, image);
         }
  
         String messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindString(9, messageId);
+            stmt.bindString(10, messageId);
         }
     }
 
@@ -182,9 +194,10 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // grade
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // personName
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // personNumber
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // userClass
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // image
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // messageId
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // phone
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // userClass
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // image
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // messageId
         );
         return entity;
     }
@@ -197,9 +210,10 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         entity.setGrade(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setPersonName(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setPersonNumber(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setUserClass(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setImage(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setMessageId(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setPhone(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setUserClass(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setImage(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setMessageId(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     @Override

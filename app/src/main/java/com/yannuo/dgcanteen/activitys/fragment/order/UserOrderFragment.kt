@@ -21,6 +21,7 @@ import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.model.OrderMeal
 import com.yannuo.dgcanteen.model.SelectDateBean
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private val downloadVM by lazy { ViewModelProvider(requireActivity())[DownloadVM::class.java] }
@@ -91,6 +92,7 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                     dateBean = bean
                     selectMealAdapter.selectPos = 0
                     selectMealAdapter.data = dateBean.mealList
+                    selectDishAdapter.clear()
                     showDish(dateBean.date, if (dateBean.mealList.size > 0) dateBean.mealList[0] else null)
                 }
             }
@@ -98,7 +100,10 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         //餐别回调
         selectMealAdapter.setMealListener(object : SelectMealAdapter.SelectMealListener {
             override fun onSelectMeal(bean: OrderMeal) {
-                handler.post { showDish(dateBean.date, bean) }
+                handler.post {
+                    selectDishAdapter.clear()
+                    showDish(dateBean.date, bean)
+                }
             }
         })
         //菜品回调
@@ -134,7 +139,12 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
         //确定订餐
         binding.btnConfirm.setOnClickListener {
-            findNavController().navigate(R.id.userOrder_to_orderSettle)
+            orderForUI.dishList.clear()
+            selectDishAdapter.data.forEach { orderForUI.dishList.add(it) }
+            if (orderForUI.dishList.size > 0) {
+                val toOrderSettle = UserOrderFragmentDirections.userOrderToOrderSettle(orderForUI)
+                findNavController().navigate(toOrderSettle)
+            } else ToastShowUtil.show("未选择菜品")
         }
     }
 

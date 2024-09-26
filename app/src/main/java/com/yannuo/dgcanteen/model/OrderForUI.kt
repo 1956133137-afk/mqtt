@@ -20,6 +20,15 @@ class OrderForUI() : Parcelable {
     var orderTime: String = ""  //订餐时间
     var timestamp: String = ""  //时间戳
     var ccbToken: String = ""   //token信息
+    var distribute: String = "0"    //配送方式 1-配送 2-自提
+    var phone: String = ""      //联系电话
+    var address: String = ""    //配送地址
+    var remark: String = ""     //备注信息
+    var payment: String = ""    //订单金额
+    var actualPayment: String = ""  //实付金额
+    var payTime: String = ""    //支付时间
+    var orderId: String = ""    //订单Id
+    var dishList: MutableList<DishBean> = mutableListOf()
     var offline: String = ""    //离线状态 0在线 1离线
     var errCode: String = ""    //错误代码
     var errMsg: String = ""     //错误信息
@@ -36,6 +45,14 @@ class OrderForUI() : Parcelable {
         orderTime = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         ccbToken = parcel.readString().toString()
+        distribute = parcel.readString().toString()
+        phone = parcel.readString().toString()
+        address = parcel.readString().toString()
+        remark = parcel.readString().toString()
+        payment = parcel.readString().toString()
+        actualPayment = parcel.readString().toString()
+        payTime = parcel.readString().toString()
+        orderId = parcel.readString().toString()
         offline = parcel.readString().toString()
         errCode = parcel.readString().toString()
         errMsg = parcel.readString().toString()
@@ -53,6 +70,14 @@ class OrderForUI() : Parcelable {
         parcel.writeString(orderTime)
         parcel.writeString(timestamp)
         parcel.writeString(ccbToken)
+        parcel.writeString(distribute)
+        parcel.writeString(phone)
+        parcel.writeString(address)
+        parcel.writeString(remark)
+        parcel.writeString(payment)
+        parcel.writeString(actualPayment)
+        parcel.writeString(payTime)
+        parcel.writeString(orderId)
         parcel.writeString(offline)
         parcel.writeString(errCode)
         parcel.writeString(errMsg)
