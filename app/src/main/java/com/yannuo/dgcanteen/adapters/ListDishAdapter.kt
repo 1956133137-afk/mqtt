@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
@@ -7,13 +8,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemListDishBinding
 import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.util.PictureUtil
 
 /**
  * Author: filowl
  * Description: ***
  * Date: 2024/9/26 11:37
  **/
-class ListDishAdapter : BaseAdapter<DishBean, ItemListDishBinding>() {
+class ListDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemListDishBinding>() {
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup): ItemListDishBinding {
         return ItemListDishBinding.inflate(inflater, parent, false)
@@ -27,7 +29,7 @@ class ListDishAdapter : BaseAdapter<DishBean, ItemListDishBinding>() {
         val totalMoney = bean.dishPrice.toDouble() * bean.dishCount
         holder.binding.dishTotalPrice.text = String.format("%.02f", totalMoney)
         Glide.with(holder.binding.dishImg)
-            .load(bean.imgUrl)
+            .load(PictureUtil.getPictureName(bean.imgUrl, context))
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .fitCenter()

@@ -37,10 +37,10 @@ class AwaitingDialog(context: Context) : BaseDialog<DialogAwaitBinding>(context)
 //                binding.tvState.text = lin +strText.substring(0, value % 4)
 //            }
 //        }
-        binding.tvState.text = str
+        binding.tvState.text = "${str}•••"
     }
 
-    fun setText(str: String){
+    fun setText(str: String) {
         binding.tvState.text = str
     }
 }

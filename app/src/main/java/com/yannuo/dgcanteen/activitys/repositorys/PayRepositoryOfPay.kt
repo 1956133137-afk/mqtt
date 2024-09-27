@@ -142,6 +142,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun insertOrder(token: String, bean: InsertOrderBean): CanteenResponse<InsertOrderReceive> {
+        return apiCall {
+            RetrofitClient.getApi().insertOrder(token, bean)
+        }
+    }
+
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {
             val res: CanteenResponse<T>

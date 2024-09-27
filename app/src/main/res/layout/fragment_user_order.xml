@@ -151,7 +151,7 @@
                 android:id="@+id/btn_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/select_btn_blue_press"
+                android:background="@drawable/select_btn_red_press"
                 android:drawableStart="@drawable/ic_back_1"
                 android:paddingStart="10dp"
                 android:paddingTop="5dp"

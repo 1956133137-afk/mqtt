@@ -1,17 +1,24 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.yannuo.dgcanteen.util.ToastShowUtil
+import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 
 /**
@@ -43,7 +50,7 @@ class DownloadVM : ViewModel() {
                 val orderMealList = orderMeal.data?.orderMealList
                 val delFlag = orderMeal.data?.delFlag ?: "1"
                 if (orderMealList != null && orderMealList.size > 0 && delFlag != "2") mealList.addAll(orderMealList)
-            }
+            } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步餐别失败") }
             boolean(true)
         }
     }
@@ -68,9 +75,10 @@ class DownloadVM : ViewModel() {
                             }
                             dishList.add(bean)
                         }
+                        downloadImgUrl(it.imgUrl)
                     }
                 }
-            }
+            } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步菜品失败") }
             res(true, dishList)
         }
     }
@@ -83,17 +91,17 @@ class DownloadVM : ViewModel() {
             val dateBean = SelectDateBean()
             dateBean.date = dateFormat
             dateBean.value = getWeekDay(dateFormat)
-            dateBean.mealList = getDayMeal(dateBean.value)
+            dateBean.mealList = getDayMeal(dateFormat, dateBean.value)
             beanList.add(dateBean)
         }
         return beanList
     }
 
-    private fun getDayMeal(value: String): MutableList<OrderMeal> {
+    private fun getDayMeal(date: String, value: String): MutableList<OrderMeal> {
         val orderMeal: MutableList<OrderMeal> = mutableListOf()
         mealList.forEach {
             val split = it.orderMealDay.split(", ".toRegex())
-            if (split.contains(value) && it.delFlag != "1") orderMeal.add(it)
+            if (split.contains(value) && it.delFlag != "1" && isJudgeTime("$date ${it.endTime}")) orderMeal.add(it)
         }
         return orderMeal
     }
@@ -115,9 +123,52 @@ class DownloadVM : ViewModel() {
         }
     }
 
+    private fun isJudgeTime(time: String): Boolean {
+        val timeMillis = Date(time.replace("-", "/")).time
+        return timeMillis >= System.currentTimeMillis()
+    }
+
     private fun isValidDate(dateFormat: String): Boolean {
         // yyyy-MM-dd
         val regex = Regex("""^\d{4}-\d{2}-\d{2}$""", RegexOption.IGNORE_CASE)
         return regex.matches(dateFormat)
+    }
+
+    private fun downloadImgUrl(imgUrl: String) {
+        val fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1)
+        val filePath = File("${File(MyApplication.applicationContext.filesDir.absolutePath, Constant.PIC_DIR).path}/${fileName}")
+        if (filePath.exists()) return
+        //下载图片
+        val bitmap = runBlocking {
+            withContext(Dispatchers.IO) {
+                try { //图片加载失败返回null
+                    Glide.with(MyApplication.applicationContext)
+                        .asBitmap()
+                        .load(imgUrl)
+                        .submit()
+                        .get()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+        }
+        //保存图片
+        if (bitmap != null) {
+            var fos: FileOutputStream? = null
+            try {
+                if (!filePath.exists()) filePath.createNewFile()
+                fos = FileOutputStream(filePath)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                try {
+                    fos?.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
@@ -9,13 +10,14 @@ import com.yannuo.dgcanteen.databinding.ItemOrderDishBinding
 import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.OrderDish
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.PictureUtil
 
 /**
  * Author: filowl
  * Description: ***
  * Date: 2024/9/25 11:02
  **/
-class OrderDishAdapter : BaseAdapter<DishBean, ItemOrderDishBinding>() {
+class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDishBinding>() {
     private var listener: OrderDishListener? = null
 
     fun setDishListener(listener: OrderDishListener) {
@@ -32,7 +34,7 @@ class OrderDishAdapter : BaseAdapter<DishBean, ItemOrderDishBinding>() {
         holder.binding.dishName.text = bean.dishName
         holder.binding.tvCount.text = bean.dishCount.toString()
         Glide.with(holder.binding.imgPic)
-            .load(bean.imgUrl)
+            .load(PictureUtil.getPictureName(bean.imgUrl, context))
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .fitCenter()

@@ -12,15 +12,21 @@ class OrderForUI() : Parcelable {
     var result: String = "N"    //订餐结果
     var campusId: String = ""
     var businessId: String = ""
+    var businessName: String = ""
     var vposId: String = ""
+    var corpId: String = ""
     var custId: String = ""     //用户编号
     var custName: String = ""   //用户姓名
-    var orderType: String = ""      //登录方式
+    var accBal: String = ""     //用户余额
+    var orderType: String = ""  //登录方式 1-刷脸 2-扫码 3-刷卡
     var orderContent: String = ""   //登录内容
     var orderTime: String = ""  //订餐时间
     var timestamp: String = ""  //时间戳
     var ccbToken: String = ""   //token信息
-    var distribute: String = "0"    //配送方式 1-配送 2-自提
+    var mealId: String = ""     //餐别id
+    var mealName: String = ""   //餐别名称
+    var distribute: String = "0"//配送方式 1-配送 2-自提
+    var deliveryTime: String = ""   //配送时间
     var phone: String = ""      //联系电话
     var address: String = ""    //配送地址
     var remark: String = ""     //备注信息
@@ -37,14 +43,19 @@ class OrderForUI() : Parcelable {
         result = parcel.readString().toString()
         campusId = parcel.readString().toString()
         businessId = parcel.readString().toString()
+        businessName = parcel.readString().toString()
         vposId = parcel.readString().toString()
+        corpId = parcel.readString().toString()
         custId = parcel.readString().toString()
         custName = parcel.readString().toString()
+        accBal = parcel.readString().toString()
         orderType = parcel.readString().toString()
         orderContent = parcel.readString().toString()
         orderTime = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         ccbToken = parcel.readString().toString()
+        mealId = parcel.readString().toString()
+        mealName = parcel.readString().toString()
         distribute = parcel.readString().toString()
         phone = parcel.readString().toString()
         address = parcel.readString().toString()
@@ -62,14 +73,19 @@ class OrderForUI() : Parcelable {
         parcel.writeString(result)
         parcel.writeString(campusId)
         parcel.writeString(businessId)
+        parcel.writeString(businessName)
         parcel.writeString(vposId)
+        parcel.writeString(corpId)
         parcel.writeString(custId)
         parcel.writeString(custName)
+        parcel.writeString(accBal)
         parcel.writeString(orderType)
         parcel.writeString(orderContent)
         parcel.writeString(orderTime)
         parcel.writeString(timestamp)
         parcel.writeString(ccbToken)
+        parcel.writeString(mealId)
+        parcel.writeString(mealName)
         parcel.writeString(distribute)
         parcel.writeString(phone)
         parcel.writeString(address)

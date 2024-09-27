@@ -133,4 +133,12 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("dcCcb/dishes/batchList")
     suspend fun queryOrderDish(@Header("dcccbauthorization") token: String, @Body bean: OrderDishBean): CanteenResponse<OrderDishReceive>
+
+    /**
+     * 订餐下单接口
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/insert")
+    suspend fun insertOrder(@Header("dcccbauthorization") token: String, @Body bean: InsertOrderBean): CanteenResponse<InsertOrderReceive>
+
 }

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,18 +19,14 @@ import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
-import com.yannuo.dgcanteen.model.CcbFacePayResultBean
-import com.yannuo.dgcanteen.model.OrderForUI
-import com.yannuo.dgcanteen.model.PayCfg
-import com.yannuo.dgcanteen.model.ScanAnalysisBean
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.*
 
 /**
  * Author: filowl
@@ -43,6 +38,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private val kv = MMKV.defaultMMKV()
     private val dbHelper = DishesDBHelper.getInstance()
     private val userName: MutableLiveData<String> = MutableLiveData<String>("")
+    private val reorderStatus: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
 
     private var mFacePayService: ZHSTFacePayService? = null
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
@@ -70,6 +66,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     fun getUserName(): MutableLiveData<String> = userName
+    fun getReorderStatus(): MutableLiveData<Boolean> = reorderStatus
+
     fun setOrderStatus(status: OrderStatus) {
         orderStatus = status
     }
@@ -165,7 +163,9 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             val orderForUI = OrderForUI().apply {
                 campusId = payCfg.campusId
                 businessId = payCfg.businessId
+                businessName = payCfg.businessName
                 vposId = payCfg.counterId
+                corpId = payCfg.corp_id
                 orderType = type
                 orderContent = content
                 offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
@@ -257,6 +257,84 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             .append("&TIMESTAMP=${System.currentTimeMillis()}")
         LogUtil.d(TAG, encryptStr.toString())
         return CanteenEncryptionUtil.encryption(encryptStr.toString())
+    }
+
+    fun placeAnOrder(orderForUI: OrderForUI, orderResult: (type: Int) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            orderResult(1)
+            //下单
+            val orderBean = getOrderMealData(orderForUI)
+            LogUtil.d(TAG, Gson().toJson(orderBean))
+            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
+            if (orderRes.code == "200") {
+                orderResult(2)
+                orderForUI.orderId = orderRes.data?.orderId ?: ""
+                //支付
+                val encryption = getOrderPayData(orderForUI)
+                val payRes = mRepository.payByIcCard(encryption)
+                if (payRes.code == "200") {
+                    val decryptStr = DES3CBCUtil.decryptRSA(payRes.data ?: "")
+                    val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                    LogUtil.d(TAG, Gson().toJson(result))
+                    orderForUI.result = result.RESULT
+                    orderForUI.actualPayment = result.ACTUAL_PAYMENT
+                    orderForUI.accBal = result.REMAIN_BAL
+                    orderResult(3)
+                } else {
+                    orderForUI.errCode = payRes.code
+                    orderForUI.errMsg = payRes.msg
+                    orderResult(3)
+                }
+            } else {
+                orderForUI.errCode = orderRes.code
+                orderForUI.errMsg = orderRes.msg
+                orderResult(3)
+            }
+        }
+    }
+
+    private fun getOrderMealData(orderForUI: OrderForUI): InsertOrderBean {
+        orderForUI.orderTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        val orderBean = Gson().fromJson(Gson().toJson(orderForUI), InsertOrderBean::class.java)
+        if (orderForUI.distribute == "2") {
+            orderBean.deliveryTime = ""
+            orderBean.pickupTime = orderForUI.orderTime
+        }
+        orderBean.apply {
+            personName = orderForUI.custName
+            discountPayment = "0.00"
+            packagingFee = "0.00"
+            deliveryFee = "0.00"
+            orderType = orderForUI.distribute
+            delFlag = "1"
+        }
+        orderForUI.dishList.forEach {
+            val insertDish = InsertDish().apply {
+                dishesId = it.dishId
+                dishesName = it.dishName
+                dishesNum = it.dishCount.toString()
+                dishesPrice = it.dishPrice
+                imgUrl = it.imgUrl
+                delFlag = "1"
+            }
+            orderBean.dcOrderDishesList.add(insertDish)
+        }
+        return orderBean
+    }
+
+    private fun getOrderPayData(orderForUI: OrderForUI): String {
+        val payBean = Gson().fromJson(Gson().toJson(orderForUI), CardPayBean::class.java)
+        val deviceSerial = CommonAndDpToPxUtil.getDeviceSerial() ?: ""
+        val currentTime = System.currentTimeMillis()
+        orderForUI.payTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime)
+        payBean.apply {
+            cardId = orderForUI.orderContent
+            deviceId = deviceSerial
+            sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
+            signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+        }
+        LogUtil.d(TAG, Gson().toJson(payBean))
+        return DES3CBCUtil.encryption(Gson().toJson(payBean))
     }
 
     interface OrderMealListener {
