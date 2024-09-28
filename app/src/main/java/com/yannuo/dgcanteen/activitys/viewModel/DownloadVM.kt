@@ -137,7 +137,8 @@ class DownloadVM : ViewModel() {
 
     private fun downloadImgUrl(imgUrl: String) {
         val fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1)
-        val filePath = File("${File(MyApplication.applicationContext.filesDir.absolutePath, Constant.PIC_DIR).path}/${fileName}")
+        val fileDir = File(MyApplication.applicationContext.filesDir.absolutePath, Constant.PIC_DIR)
+        val filePath = File("${fileDir.path}/${fileName}")
         if (filePath.exists()) return
         //下载图片
         val bitmap = runBlocking {
@@ -158,6 +159,7 @@ class DownloadVM : ViewModel() {
         if (bitmap != null) {
             var fos: FileOutputStream? = null
             try {
+                if (!fileDir.exists()) fileDir.mkdirs()
                 if (!filePath.exists()) filePath.createNewFile()
                 fos = FileOutputStream(filePath)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)

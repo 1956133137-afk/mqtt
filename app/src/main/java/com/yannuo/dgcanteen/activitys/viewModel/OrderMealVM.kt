@@ -228,6 +228,18 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         orderForUI.custId = person.custId
                         orderForUI.custName = person.personName
                         getOrderToken(orderForUI)
+                    } else if (orderForUI.offline == "0") {
+                        val result = mRepository.queryPersonByCardId(RequestPerson(orderForUI.campusId, orderForUI.orderContent))
+                        if (result.code == "200") {
+                            orderForUI.custId = result.data?.custId ?: ""
+                            orderForUI.custName = result.data?.personName ?: ""
+                            orderForUI.phone = result.data?.phone ?: ""
+                            getOrderToken(orderForUI)
+                        } else {
+                            orderForUI.errCode = "ORDER0003"
+                            orderForUI.errMsg = "未查询到用户信息"
+                            listener?.onOrderResult(0, orderForUI)
+                        }
                     } else {
                         orderForUI.errCode = "ORDER0003"
                         orderForUI.errMsg = "未查询到用户信息"
@@ -283,6 +295,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
                     LogUtil.d(TAG, Gson().toJson(result))
                     orderForUI.result = result.RESULT
+                    orderForUI.errCode = result.ERRCODE
+                    orderForUI.errMsg = result.ERRMSG
                     orderForUI.actualPayment = result.ACTUAL_PAYMENT
                     orderForUI.accBal = result.REMAIN_BAL
                     saveOrderRecord(orderForUI, result)
