@@ -7,16 +7,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.ListDishAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderSettleBinding
-import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderForUI
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import java.text.DecimalFormat
 
 class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private val orderMealVM by lazy { ViewModelProvider(requireActivity())[OrderMealVM::class.java] }
@@ -24,7 +28,6 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private val infoAdapter by lazy { InfoAdapter() }
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
-    private var awaitingDialog: AwaitingDialog? = null
 
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentOrderSettleBinding.inflate(inflater, container, false)
@@ -33,6 +36,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     override fun initOperation() {
         val directions: OrderSettleFragmentArgs by navArgs()
         orderForUI = directions.orderForUI
+        LogUtil.d(TAG, Gson().toJson(orderForUI))
         showPayResult(orderForUI)
 
         binding.dishListView.layoutManager = LinearLayoutManager(requireContext())
@@ -42,6 +46,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
 
         val person = dbHelper.queryPersonToCustId(orderForUI.custId)
         if (person != null) {
+            if (orderForUI.custName.isEmpty()) orderForUI.custName = person.personName
             binding.inputPhone.setText(person.phone)
             binding.inputAddress.setText("${person.grade}${person.userClass}")
         }
@@ -53,6 +58,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     }
 
     private fun initEvent() {
+        if (orderForUI.distribute != "0") binding.radioGroup.check(if (orderForUI.distribute == "1") R.id.btn_one else R.id.btn_two)
         binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkId ->
             when (checkId) {
                 R.id.btn_one -> orderForUI.distribute = "1"
@@ -66,16 +72,14 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
             orderMealVM.placeAnOrder(orderForUI) { type ->
                 handler.post {
                     when (type) {
-                        1 -> {
-                            if (awaitingDialog == null) awaitingDialog = AwaitingDialog(requireContext())
-                            awaitingDialog?.show()
-                            awaitingDialog?.updateText("订餐下单中")
-                        }
-                        2 -> awaitingDialog?.updateText("订餐支付中")
+                        1 -> orderMealVM.getAwaitStatus().value = "订餐下单中"
+                        2 -> orderMealVM.getAwaitStatus().value = "订餐支付中"
                         3 -> {
-                            awaitingDialog?.dismiss()
-                            if (orderForUI.result == "Y") showPayResult(orderForUI, "支付成功", "#82D582")
-                            else showPayResult(orderForUI, "支付失败", "#FF5252")
+                            orderMealVM.getAwaitStatus().value = ""
+                            if (orderForUI.result == "Y") {
+                                USBPrinterHelper.instance.printTicket("1", orderForUI)
+                                showPayResult(orderForUI, "支付成功", "#82D582")
+                            } else showPayResult(orderForUI, "支付失败", "#FF5252")
                         }
                     }
                 }
@@ -84,6 +88,8 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         //继续订餐
         binding.btnReorder.setOnClickListener {
             orderMealVM.getReorderStatus().value = true
+            orderForUI.result = "N"
+            orderForUI.orderId = ""
             if (findNavController().previousBackStackEntry != null) findNavController().popBackStack()
         }
         //取消订餐
@@ -131,6 +137,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         }
         if (flag != 0) {
             ToastShowUtil.show(tipsStr)
+            CommonAndDpToPxUtil.speakWork(tipsStr)
             return false
         } else return true
     }
@@ -147,10 +154,12 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
                 infoList.add(InfoBean("支付时间: ", orderForUI.payTime))
                 infoList.add(InfoBean("实付金额: ", orderForUI.actualPayment))
                 infoList.add(InfoBean("订单编号: ", orderForUI.orderId))
+                CommonAndDpToPxUtil.speakWork("${resultStr},${DecimalFormat("#0.##").format(orderForUI.actualPayment.toDouble())}元}")
             }
             else -> {
                 infoList.add(InfoBean("错误代码: ", orderForUI.errCode))
                 infoList.add(InfoBean("错误信息: ", orderForUI.errMsg))
+                CommonAndDpToPxUtil.speakWork(resultStr)
             }
         }
         infoAdapter.data = infoList
@@ -159,10 +168,5 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private fun isValidPhone(phone: String): Boolean {
         val regex = Regex("""^1[3-9]\d{9}$""", RegexOption.IGNORE_CASE)
         return regex.matches(phone)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        awaitingDialog?.cancel()
     }
 }

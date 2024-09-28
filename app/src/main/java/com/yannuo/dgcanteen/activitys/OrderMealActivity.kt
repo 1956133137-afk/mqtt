@@ -9,6 +9,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.databinding.ActivityOrderMealBinding
+import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
@@ -20,6 +21,7 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     private val kv = MMKV.defaultMMKV()
     private var mXService: MyService? = null
     private var passwordDialog: PasswordDialog? = null
+    private var awaitingDialog: AwaitingDialog? = null
     private var navigation = true
 
     override fun bindLayout() {
@@ -34,6 +36,13 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     private fun initObject() {
         mXService = MyService(this)
         orderMealVM.bindService()
+        orderMealVM.getAwaitStatus().observe(this) {
+            if (awaitingDialog == null) awaitingDialog = AwaitingDialog(this)
+            if (it.isNotEmpty()) {
+                if (awaitingDialog?.isShowing != true) awaitingDialog?.show()
+                awaitingDialog?.updateText(it)
+            } else awaitingDialog?.dismiss()
+        }
         orderMealVM.getUserName().observe(this) {
             binding.tipsUser.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
             binding.userName.text = it.toString()
@@ -85,6 +94,7 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     override fun onDestroy() {
         super.onDestroy()
         passwordDialog?.cancel()
+        awaitingDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
     }
 }

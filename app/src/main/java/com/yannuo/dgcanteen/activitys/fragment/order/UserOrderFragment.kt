@@ -14,7 +14,6 @@ import com.yannuo.dgcanteen.adapters.SelectDateAdapter
 import com.yannuo.dgcanteen.adapters.SelectDishAdapter
 import com.yannuo.dgcanteen.adapters.SelectMealAdapter
 import com.yannuo.dgcanteen.databinding.FragmentUserOrderBinding
-import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.OrderForUI
@@ -32,7 +31,6 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private var dateBean: SelectDateBean = SelectDateBean()
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
-    private var awaitingDialog: AwaitingDialog? = null
 
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentUserOrderBinding.inflate(inflater, container, false)
@@ -56,7 +54,6 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     }
 
     private fun initObject() {
-        if (awaitingDialog == null) awaitingDialog = AwaitingDialog(requireContext())
         // 菜品
         binding.dishView.layoutManager = GridLayoutManager(requireContext(), 3)
         binding.dishView.adapter = orderDishAdapter
@@ -74,11 +71,9 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         // 请求餐别信息
         downloadVM.synOrderMeal(orderForUI.ccbToken) { boolean ->
             handler.post {
-                if (!boolean) {
-                    awaitingDialog?.show()
-                    awaitingDialog?.updateText("同步餐别中")
-                } else {
-                    awaitingDialog?.dismiss()
+                if (!boolean) orderMealVM.getAwaitStatus().value = "同步餐别中"
+                else {
+                    orderMealVM.getAwaitStatus().value = ""
                     val dateList = downloadVM.getDateWeek()
                     dateBean = dateList[0]
                     selectDateAdapter.data = dateList
@@ -150,16 +145,15 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private fun showDish(date: String, orderMeal: OrderMeal?) {
         orderDishAdapter.clear()
         if (orderMeal == null) return
+        orderForUI.orderDate = date
         orderForUI.mealId = orderMeal.mealId
         orderForUI.mealName = orderMeal.mealName
         orderForUI.deliveryTime = "${dateBean.date} ${orderMeal.startTime}"
         downloadVM.synOrderDish(orderForUI.ccbToken, date, orderMeal.mealId) { boolean, dishList ->
             handler.post {
-                if (!boolean) {
-                    awaitingDialog?.show()
-                    awaitingDialog?.updateText("同步菜品中")
-                } else {
-                    awaitingDialog?.dismiss()
+                if (!boolean) orderMealVM.getAwaitStatus().value = "同步菜品中"
+                else {
+                    orderMealVM.getAwaitStatus().value = ""
                     orderDishAdapter.data = dishList
                 }
             }
@@ -184,10 +178,5 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
         selectDishAdapter.clear()
         updateTotalDish()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        awaitingDialog?.cancel()
     }
 }

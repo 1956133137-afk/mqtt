@@ -78,6 +78,7 @@ class DownloadVM : ViewModel() {
                         downloadImgUrl(it.imgUrl)
                     }
                 }
+                if (dishList.size < 1) withContext(Dispatchers.Main) { ToastShowUtil.show("未设置菜品信息") }
             } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步菜品失败") }
             res(true, dishList)
         }

@@ -13,7 +13,6 @@ import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.HintDialog
 import java.util.concurrent.TimeUnit
 
@@ -37,18 +36,24 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
             override fun onOrderResult(type: Int, any: Any) {
                 handler.post {
                     endLogin()
-                    val orderForUI = any as OrderForUI
-                    LogUtil.d(TAG, Gson().toJson(orderForUI))
                     when (type) {
-                        0 -> {
-                            onCountDownTimer(10L)
-                            binding.errCode.text = orderForUI.errCode
-                            binding.errMsg.text = orderForUI.errMsg
-                            binding.err.visibility = View.VISIBLE
-                        }
-                        1 -> {
-                            val skipPage = VerifyUserFragmentDirections.verifyUserToUserOrder(orderForUI)
-                            findNavController().navigate(skipPage)
+                        -1 -> orderMealVM.getAwaitStatus().value = "$any"
+                        else -> {
+                            orderMealVM.getAwaitStatus().value = ""
+                            val orderForUI = any as OrderForUI
+                            LogUtil.d(TAG, Gson().toJson(orderForUI))
+                            when (type) {
+                                0 -> {
+                                    onCountDownTimer(10L)
+                                    binding.errCode.text = orderForUI.errCode
+                                    binding.errMsg.text = orderForUI.errMsg
+                                    binding.err.visibility = View.VISIBLE
+                                }
+                                1 -> {
+                                    val skipPage = VerifyUserFragmentDirections.verifyUserToUserOrder(orderForUI)
+                                    findNavController().navigate(skipPage)
+                                }
+                            }
                         }
                     }
                 }
@@ -57,8 +62,8 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun initEvent() {
-        binding.btnFaceScan.setOnClickListener { startLogin("1") }
-        binding.btnQrCode.setOnClickListener { startLogin("2") }
+//        binding.btnFaceScan.setOnClickListener { startLogin("1") }
+//        binding.btnQrCode.setOnClickListener { startLogin("2") }
         binding.btnIcCard.setOnClickListener { startLogin("3") }
     }
 
@@ -78,8 +83,8 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun btnEnabled(boolean: Boolean) {
-        binding.btnFaceScan.isEnabled = boolean
-        binding.btnQrCode.isEnabled = boolean
+//        binding.btnFaceScan.isEnabled = boolean
+//        binding.btnQrCode.isEnabled = boolean
         binding.btnIcCard.isEnabled = boolean
     }
 

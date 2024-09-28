@@ -18,6 +18,9 @@ import com.yannuo.dgcanteen.common.NTScanHelp
 import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.AccListTable
+import com.yannuo.dgcanteen.greendao.entity.PayDishTable
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
@@ -37,6 +40,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private val TAG = javaClass.simpleName
     private val kv = MMKV.defaultMMKV()
     private val dbHelper = DishesDBHelper.getInstance()
+    private val awaitStatus: MutableLiveData<String> = MutableLiveData<String>("")
     private val userName: MutableLiveData<String> = MutableLiveData<String>("")
     private val reorderStatus: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
 
@@ -65,6 +69,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         AWAIT       //等待状态
     }
 
+    fun getAwaitStatus(): MutableLiveData<String> = awaitStatus
     fun getUserName(): MutableLiveData<String> = userName
     fun getReorderStatus(): MutableLiveData<Boolean> = reorderStatus
 
@@ -157,6 +162,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private fun loginHandler(type: String, content: String) {
         if (orderStatus != OrderStatus.AWAIT) return
         orderStatus = OrderStatus.INVALID
+        listener?.onOrderResult(-1, "验证用户信息")
         LogUtil.d(TAG, "type: $type content: $content")
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
@@ -279,6 +285,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     orderForUI.result = result.RESULT
                     orderForUI.actualPayment = result.ACTUAL_PAYMENT
                     orderForUI.accBal = result.REMAIN_BAL
+                    saveOrderRecord(orderForUI, result)
                     orderResult(3)
                 } else {
                     orderForUI.errCode = payRes.code
@@ -335,6 +342,40 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
         LogUtil.d(TAG, Gson().toJson(payBean))
         return DES3CBCUtil.encryption(Gson().toJson(payBean))
+    }
+
+    private fun saveOrderRecord(orderForUI: OrderForUI, payRes: ResponsePay) {
+        val payOrder = Gson().fromJson(Gson().toJson(orderForUI), PayOrderTable::class.java)
+        payOrder.apply {
+            tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            deviceId = CommonAndDpToPxUtil.getDeviceSerial() ?: ""
+            username = orderForUI.custName
+            accNo = payRes.ACC_NO
+            accBal = payRes.ACC_BAL
+            accType = payRes.ACC_TYPE
+            traceId = payRes.TRACEID
+            payType = orderForUI.orderType
+            payContent = orderForUI.orderContent
+            payDate = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+            flag = 1
+        }
+        dbHelper.insertPayOrder(payOrder)
+        val order = dbHelper.queryPayOrder(payOrder.orderId)
+        orderForUI.dishList.forEach {
+            val payDish = PayDishTable().apply {
+                dishesId = it.dishId
+                dishesName = it.dishName
+                dishesNumber = it.dishCount.toString()
+                dishesPrice = it.dishPrice
+                payOrderTable = order
+            }
+            dbHelper.insertPayDish(payDish)
+        }
+        payRes.ACC_LIST.forEach {
+            val acc = Gson().fromJson(Gson().toJson(it), AccListTable::class.java)
+            acc.payOrderTable = order
+            dbHelper.insertAccList(acc)
+        }
     }
 
     interface OrderMealListener {

@@ -474,7 +474,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         successBinding!!.payTotalMoney.text = "￥ ${payForUI.payment} 元"
 
         PrinterOperator.printerFoodsList(payForUI)
-        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket(payForUI)
+        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket("0", payForUI)
     }
 
 

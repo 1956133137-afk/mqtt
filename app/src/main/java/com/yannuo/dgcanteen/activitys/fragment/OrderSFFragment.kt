@@ -122,7 +122,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         binding.subS.tvBalance.text = payForUI.accBal
 
         PrinterOperator.printerFoodsList(payForUI)
-        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket(payForUI)
+        if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket("0", payForUI)
         startTime(payForUI)
     }
 

@@ -60,7 +60,12 @@ class PayOrderAdapter(context: Context) : BaseAdapter<PayOrderTable, ItemPayOrde
             val position = holder.adapterPosition
             val dishList: MutableList<Dish> = mutableListOf()
             mData?.get(position)?.paymentDishesList?.forEach {
-                val dish = Gson().fromJson(Gson().toJson(it), Dish::class.java)
+                val dish = Dish().apply {
+                    dishesId = it.dishesId
+                    dishesName = it.dishesName
+                    dishesNumber = it.dishesNumber
+                    dishesPrice = it.dishesPrice
+                }
                 dishList.add(dish)
             }
             showDishesDialog.showWithDishDetails(dishList)

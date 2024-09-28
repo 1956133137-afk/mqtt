@@ -23,6 +23,7 @@ class OrderForUI() : Parcelable {
     var orderTime: String = ""  //订餐时间
     var timestamp: String = ""  //时间戳
     var ccbToken: String = ""   //token信息
+    var orderDate: String = ""  //订餐日期
     var mealId: String = ""     //餐别id
     var mealName: String = ""   //餐别名称
     var distribute: String = "0"//配送方式 1-配送 2-自提
@@ -54,9 +55,11 @@ class OrderForUI() : Parcelable {
         orderTime = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         ccbToken = parcel.readString().toString()
+        orderDate = parcel.readString().toString()
         mealId = parcel.readString().toString()
         mealName = parcel.readString().toString()
         distribute = parcel.readString().toString()
+        deliveryTime = parcel.readString().toString()
         phone = parcel.readString().toString()
         address = parcel.readString().toString()
         remark = parcel.readString().toString()
@@ -84,9 +87,11 @@ class OrderForUI() : Parcelable {
         parcel.writeString(orderTime)
         parcel.writeString(timestamp)
         parcel.writeString(ccbToken)
+        parcel.writeString(orderDate)
         parcel.writeString(mealId)
         parcel.writeString(mealName)
         parcel.writeString(distribute)
+        parcel.writeString(deliveryTime)
         parcel.writeString(phone)
         parcel.writeString(address)
         parcel.writeString(remark)
