@@ -224,6 +224,8 @@ class ProductsVM : ViewModel() {
                             payForUI.custId = payResult.CUST_ID
                             if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
                             payForUI.accType = payResult.ACC_TYPE
+                            payForUI.accNo = payResult.ACC_NO
+                            payForUI.accBal = payResult.ACC_BAL
 //                            payForUI.accList = payResult.ACC_LIST
                             payResult.ACC_LIST.forEach {
                                 val acclist = ACCLIST().apply {
@@ -311,6 +313,8 @@ class ProductsVM : ViewModel() {
                             payForUI.custId = payResult.CUST_ID
                             if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
                             payForUI.accType = payResult.ACC_TYPE
+                            payForUI.accNo = payResult.ACC_NO
+                            payForUI.accBal = payResult.ACC_BAL
                             payResult.ACC_LIST.forEach {
                                 val acclist = ACCLIST().apply {
                                     ACC_NO = it.ACC_NO

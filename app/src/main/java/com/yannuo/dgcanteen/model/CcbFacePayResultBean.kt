@@ -25,6 +25,8 @@ package com.yannuo.dgcanteen.model
  * @constructor
  */
 class CcbFacePayResultBean {
+    var ACC_NO: String = ""
+    var ACC_BAL: String = ""
     var ACC_TYPE: String = ""
     var ACTUAL_PAYMENT: String = ""
     var BUSINESS_NAME: String = ""
