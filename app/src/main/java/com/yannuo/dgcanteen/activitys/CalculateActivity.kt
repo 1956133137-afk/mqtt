@@ -126,6 +126,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             else -> "刷卡扫码"
         }
         maps.remove(type)
+        if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+            binding.btnVerify.text = "刷脸核销"
+        }else binding.btnVerify.text = "订餐核销"
         initVerify()
     }
 
@@ -333,6 +336,18 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             lastTime = System.currentTimeMillis()
             maps[binding.btnThird.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
+            }
+        }
+
+        binding.btnVerify.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
+                faceVerification()
+            }else {
+                simpleDisplay.safeCancel()
+                val i = Intent(this, CardVerificationActivity::class.java)
+                startActivity(i)
             }
         }
     }

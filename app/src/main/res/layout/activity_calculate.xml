@@ -216,6 +216,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_verify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/verify_view"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="50dp"
+                    android:background="@drawable/click_button"
+                    android:padding="10dp"
+                    android:text="刷脸核销"
+                    android:textColor="#4F4F4F"
+                    android:textSize="45sp" />
             </RelativeLayout>
 
             <fragment

@@ -460,7 +460,8 @@ class ModeSettingFragment : Fragment() {
     override fun onDestroy() {
         if (this::confirmDialog.isInitialized) confirmDialog.cancel()
         if (this::awaitingDialog.isInitialized) awaitingDialog.cancel()
-        if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()) {
+        if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()
+            || (self_help == kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()) {
             val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
             startActivity(restartIntent)
             exitProcess(0)
