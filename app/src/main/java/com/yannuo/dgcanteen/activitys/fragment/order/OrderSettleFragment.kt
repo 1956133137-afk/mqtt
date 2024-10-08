@@ -113,19 +113,15 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     }
 
     private fun judgePayStatus(): Boolean {
+        orderForUI.phone = binding.inputPhone.text.toString()
+        if (orderForUI.distribute == "1") orderForUI.address = binding.inputAddress.text.toString()
+        orderForUI.remark = binding.inputRemark.text.toString()
+
         var flag = 0
         if (orderForUI.distribute == "0") flag = 1
-        if (orderForUI.distribute == "1") {
-            val inputPhone = binding.inputPhone.text.toString()
-            val inputAddress = binding.inputAddress.text.toString()
-            val inputRemark = binding.inputRemark.text.toString()
-            if (inputPhone.length != 11) flag = 2
-            if (flag == 0 && !isValidPhone(inputPhone)) flag = 3
-            if (flag == 0 && inputAddress.isEmpty()) flag = 4
-            orderForUI.phone = inputPhone
-            orderForUI.address = inputAddress
-            orderForUI.remark = inputRemark
-        }
+        if (flag == 0 && orderForUI.phone.length != 11) flag = 2
+        if (flag == 0 && !isValidPhone(orderForUI.phone)) flag = 3
+        if (flag == 0 && orderForUI.address.isEmpty() && orderForUI.distribute == "1") flag = 4
         if (flag == 0 && orderForUI.result == "Y") flag = 5
         val tipsStr = when (flag) {
             1 -> "请先选择配送方式"

@@ -259,8 +259,8 @@ class USBPrinterHelper {
         if (bean.distribute == "1") {
             printContentKey(bean.deliveryTime, printFormat("配送时间", bean.deliveryTime))
             printContentKey(bean.address, printFormat("配送地址", bean.address))
-            printContentKey(bean.phone, printFormat("联系电话", bean.phone))
         }
+        printContentKey(bean.phone, printFormat("联系电话", bean.phone))
         printContentKey(bean.remark, printFormat("备注", bean.remark))
         val dishes = bean.dishList
         if (dishes.size > 0) {
