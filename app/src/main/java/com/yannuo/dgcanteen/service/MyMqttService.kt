@@ -71,7 +71,9 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
             mqttStateListener = MqttConnectState()
             binder.registerListener(mqttStateListener)
             binder.connect()    //开启mqtt连接
-
+            // 数字键盘
+            KeyboardUtil.instance.closeKeyboard()
+            KeyboardUtil.instance.openKeyboard()
 
             //连接打印机
             USBPrinterHelper.instance.queryPrinter()

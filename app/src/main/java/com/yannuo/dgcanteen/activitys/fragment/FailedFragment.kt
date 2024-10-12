@@ -33,6 +33,10 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
         binding.btnBack.setOnClickListener {
             requireActivity().finish()
         }
+        binding.btnClose.setOnClickListener {
+            kv.encode(Constant.AUTO_VERIFY, false)
+            requireActivity().finish()
+        }
     }
     private fun startCountDown() {
         countDownTimer = object : CountDownTimer(kv.decodeInt(Constant.MEAL_TIME, 10) * 1000L, 1000) {

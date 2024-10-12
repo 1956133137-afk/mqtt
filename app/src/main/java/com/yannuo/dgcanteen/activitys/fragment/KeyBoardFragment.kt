@@ -2,21 +2,27 @@ package com.yannuo.dgcanteen.activitys.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
+import com.sunreedmaker.paykeyboard.PayCommand
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.HostActivity
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
+import com.yannuo.dgcanteen.interfaces.KeyboardListener
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.KeyboardUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import org.greenrobot.eventbus.EventBus
@@ -29,7 +35,7 @@ import java.util.Locale
  * Description: ***
  * Date: 2023/7/27 17:26
  **/
-class KeyBoardFragment : Fragment() {
+class KeyBoardFragment : Fragment(), KeyboardListener {
     private val TAG = javaClass.simpleName
 
     private lateinit var binding: FragmentInputKeyboardBinding
@@ -101,6 +107,7 @@ class KeyBoardFragment : Fragment() {
         super.onResume()
 //        mLock = true
         LogUtil.i(TAG,"键盘解锁...")
+        KeyboardUtil.instance.addObserver(this)
     }
 
 
@@ -253,10 +260,10 @@ class KeyBoardFragment : Fragment() {
     }
 
     private fun checkVerify(){
-        if (!judgePayCfg()) {
-            ToastShowUtil.show("商户信息不完整，请检查商户信息")
-            return
-        }
+//        if (!judgePayCfg()) {
+//            ToastShowUtil.show("商户信息不完整，请检查商户信息")
+//            return
+//        }
         if(tvText.isNullOrEmpty()){
             ToastShowUtil.show("请输入金额")
             CommonAndDpToPxUtil.speakWork("请输入金额")
@@ -277,10 +284,10 @@ class KeyBoardFragment : Fragment() {
 
     private fun collectMoney(ways: Int? = null){
         LogUtil.i(TAG,"${ways}")
-        if (!judgePayCfg()) {
-            ToastShowUtil.show("商户信息不完整，请检查商户信息")
-            return
-        }
+//        if (!judgePayCfg()) {
+//            ToastShowUtil.show("商户信息不完整，请检查商户信息")
+//            return
+//        }
         if(tvText.isNullOrEmpty()){
             ToastShowUtil.show("请输入金额")
             CommonAndDpToPxUtil.speakWork("请输入金额")
@@ -313,6 +320,49 @@ class KeyBoardFragment : Fragment() {
 
     override fun onDestroy() {
         EventBus.getDefault().unregister(this)
+        KeyboardUtil.instance.removeObserver(this)
         super.onDestroy()
+    }
+
+    override fun keyboardMode(keyCode: Int, keyName: String) {
+        Handler(Looper.getMainLooper()).post {
+            LogUtil.d(TAG, "keyCode:$keyCode keyName:$keyName")
+            when (keyCode) {
+                99 -> { inputFields(".") }
+                98 -> { inputFields("0") }
+                89 -> { inputFields("1") }
+                90 -> { inputFields("2")}
+                91 -> { inputFields("3")}
+                92 -> { inputFields("4")}
+                93 -> { inputFields("5")}
+                94 -> { inputFields("6")}
+                95 -> { inputFields("7")}
+                96 -> { inputFields("8")}
+                97 -> { inputFields("9")}
+                85 -> { inputFields("×")}
+                87 -> { inputFields("+")}
+                46 -> { totalValue()}
+                41 -> {
+                    tvText = StringBuilder()
+                    binding.inputAmount.text = null
+                }
+                42 -> {
+                    if (tvText.isNotEmpty()) {
+                        tvText.deleteCharAt(tvText.length - 1)
+                        binding.inputAmount.text = tvText
+                    }
+                }
+            }
+        }
+    }
+
+    override fun computerMode(value: Double) {
+        Handler(Looper.getMainLooper()).post {
+            Log.d(TAG, "value:$value")
+            val payMoney = String.format("%.02f", value)
+            KeyboardUtil.instance.sendPayCommand(PayCommand.SCREEN_CLEAR)
+            binding.inputAmount.text = payMoney
+            collectMoney()
+        }
     }
 }

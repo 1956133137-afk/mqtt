@@ -16,12 +16,14 @@ import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener
+import com.yannuo.dgcanteen.interfaces.KeyboardListener
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.model.SimpleForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.KeyboardUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-class ScanFragment : Fragment(), CallbackListener {
+class ScanFragment : Fragment(), CallbackListener,KeyboardListener {
     private val TAG = javaClass.simpleName
     private val kv: MMKV = MMKV.defaultMMKV()
     private lateinit var binding: FragmentScanBinding
@@ -75,6 +77,7 @@ class ScanFragment : Fragment(), CallbackListener {
         payViewModel.listener = this
         payViewModel.mDishes = ProductsDetail(mutableListOf(), data?.payment.toString())
         binding.animationView.playAnimation()
+        KeyboardUtil.instance.addObserver(this)
     }
 
     //刷卡返回数据
@@ -192,5 +195,19 @@ class ScanFragment : Fragment(), CallbackListener {
         payViewModel.closePayStatus()
         countDown?.cancel()
         countDown = null
+        KeyboardUtil.instance.removeObserver(this)
+    }
+    override fun keyboardMode(keyCode: Int, keyName: String) {
+        when (keyCode) {
+            42-> {
+                countDown?.cancel()
+                countDown = null
+                requireActivity().finish()
+            }
+        }
+    }
+
+    override fun computerMode(value: Double) {
+
     }
 }

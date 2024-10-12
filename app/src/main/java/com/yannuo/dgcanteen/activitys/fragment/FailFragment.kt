@@ -35,6 +35,10 @@ class FailFragment : Fragment() {
         binding.btnBack.setOnClickListener {
             requireActivity().finish()
         }
+        binding.btnClose.setOnClickListener {
+            kv.encode(Constant.AUTO_PAY, false)
+            requireActivity().finish()
+        }
     }
 
     private fun initData() {

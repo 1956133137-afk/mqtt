@@ -41,6 +41,10 @@ class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
         binding.btnBack.setOnClickListener {
             requireActivity().finish()
         }
+        binding.btnClose.setOnClickListener {
+            kv.encode(Constant.AUTO_VERIFY, false)
+            requireActivity().finish()
+        }
     }
 
     private fun startCountDown() {

@@ -81,6 +81,9 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             binder.registerListener(mqttStateListener)
             binder.connect()    //开启mqtt连接
 
+            KeyboardUtil.instance.closeKeyboard()
+            KeyboardUtil.instance.openKeyboard()
+
             checkNewAppAndKeepAlive()   //新版本检查任务
             NetworkStateManager.getInstance().registerObserver(this@CameraService) //网络状态监听
             getPayCfg()//获取配置

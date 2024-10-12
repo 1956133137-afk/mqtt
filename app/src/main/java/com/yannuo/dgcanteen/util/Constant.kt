@@ -86,6 +86,8 @@ object Constant {
     const val CODE_VERIFICATION_SET = "code_vts" //核销模式
     const val MEAL_TIME = "meal_time" //显示核销菜品倒计时
     const val QUERY_VERIFY = "query_verify" //核销查询
+    const val AUTO_VERIFY = "auto_verify"   //自动核销
+    const val AUTO_PAY = "auto_pay"   //自动收款
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐

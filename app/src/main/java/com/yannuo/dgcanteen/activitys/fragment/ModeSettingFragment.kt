@@ -135,6 +135,13 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, null))
         }
+        binding.autoVerify.setOnClickListener {
+            kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, null))
+        }
+        binding.autoPay.setOnClickListener {
+            kv.encode(Constant.AUTO_PAY, binding.autoPay.isChecked)
+        }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
             amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
@@ -314,7 +321,9 @@ class ModeSettingFragment : Fragment() {
         binding.cbBalance.isChecked = self_help
         saveCheck = kv.decodeBool(Constant.QUERY_VERIFY, false)
         binding.codeVerification.isChecked = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)
+        binding.autoVerify.isChecked = kv.decodeBool(Constant.AUTO_VERIFY, false)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
+        binding.autoPay.isChecked = kv.decodeBool(Constant.AUTO_PAY, false)
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))

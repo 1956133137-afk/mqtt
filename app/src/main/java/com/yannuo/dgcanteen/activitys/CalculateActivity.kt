@@ -38,8 +38,6 @@ import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.util.Utils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -195,7 +193,12 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 }
             }
         }
-
+        //自动核销
+        handler.post {
+            if (kv.decodeBool(Constant.AUTO_VERIFY, false)) {
+                faceVerification()
+            }
+        }
     }
 
     private fun initPresentation() {
@@ -421,9 +424,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         var offline = 0  //在线
         if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
         val mPayCfg = viewModel.getPayCfg()
-        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
+        val campusId = mPayCfg?.campusId ?: ""
+        val businessId = mPayCfg?.businessId ?: ""
         val sn = Utils.getSN()
+        mFacePayService?.setTimeOut(0)
         mFacePayService?.startFacePay(
             null,
             offline.toString(),
