@@ -37,8 +37,8 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('G:\\czx-workspace\\company_yannuo\\donggang_canteen\\private_key\\payment.jks')
-//            storeFile file('D:\\yannuo_min\\APK_key\\private_key\\payment.jks')
+//            storeFile file('G:\\czx-workspace\\company_yannuo\\donggang_canteen\\private_key\\payment.jks')
+            storeFile file('F:\\AndroidStudioProjects\\YunNuo\\APK_key\\private_key\\payment.jks')
             storePassword KEY_PASS
             keyAlias 'payment'
             keyPassword KEY_PASS

@@ -60,7 +60,7 @@ class DownloadVM : ViewModel() {
             if (payCfg.businessId.isEmpty()) return@launch
             dishList.clear()
             res(false, dishList)
-            val orderDish = mRepository.queryOrderDish(ccbToken, date, mealId, payCfg.businessId)
+            val orderDish = mRepository.queryOrderDish(ccbToken, date, mealId, payCfg.businessId, payCfg.campusId)
             if (orderDish.code == "200") {
                 val orderDishList = orderDish.data?.batchDishes
                 if (orderDishList != null && orderDishList.size > 0) {

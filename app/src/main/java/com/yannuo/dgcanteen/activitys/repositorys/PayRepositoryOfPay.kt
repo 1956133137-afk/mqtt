@@ -136,9 +136,9 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun queryOrderDish(token: String, date: String, mealId: String, businessId: String): CanteenResponse<OrderDishReceive> {
+    suspend fun queryOrderDish(token: String, date: String, mealId: String, businessId: String, campusId: String): CanteenResponse<OrderDishReceive> {
         return apiCall {
-            RetrofitClient.getApi().queryOrderDish(token, OrderDishBean(date, mealId, businessId))
+            RetrofitClient.getApi().queryOrderDish(token, OrderDishBean(date, mealId, businessId, campusId))
         }
     }
 

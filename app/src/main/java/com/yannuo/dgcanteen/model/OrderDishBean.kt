@@ -5,7 +5,7 @@ package com.yannuo.dgcanteen.model
  * Description: ***
  * Date: 2024/9/23 18:17
  **/
-data class OrderDishBean(var orderMealDate: String = "", var mealId: String = "", var businessId: String = "")
+data class OrderDishBean(var orderMealDate: String = "", var mealId: String = "", var businessId: String = "", var campusId: String = "")
 
 class OrderDishReceive {
     var batchPackage: MutableList<OrderSetMeal> = mutableListOf()
