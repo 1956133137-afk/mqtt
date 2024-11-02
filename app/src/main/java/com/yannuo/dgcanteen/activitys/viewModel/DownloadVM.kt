@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
@@ -16,9 +15,7 @@ import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 
 /**
@@ -33,10 +30,18 @@ class DownloadVM : ViewModel() {
     private val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
     private val mealList: MutableList<OrderMeal> = mutableListOf()
     private val dishList: MutableList<DishBean> = mutableListOf()
+    private val menuList: MutableList<DateMenu> = mutableListOf()
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
+    }
+
+    fun getMenuList(): MutableList<DateMenu> = menuList
+
+    fun setMenuList(list: MutableList<DateMenu>) {
+        menuList.clear()
+        menuList.addAll(list)
     }
 
     fun synOrderMeal(ccbToken: String, boolean: (Boolean) -> Unit) {
@@ -71,6 +76,7 @@ class DownloadVM : ViewModel() {
                                 dishName = it.dishesName
                                 dishPrice = it.price
                                 dishUnit = it.unit
+                                dishCount = queryDishNumber(date, mealId, dishId)
                                 imgUrl = it.imgUrl
                             }
                             dishList.add(bean)
@@ -82,6 +88,25 @@ class DownloadVM : ViewModel() {
             } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步菜品失败") }
             res(true, dishList)
         }
+    }
+
+    private fun queryDishNumber(date: String, mealId: String, dishId: String): Int {
+        val dateMenu1 = menuList.find { it.date == date }
+        if (dateMenu1 != null) {
+            val mealMenu1 = dateMenu1.mealList.find { it.mealId == mealId }
+            if (mealMenu1 != null) {
+                val dishMenu1 = mealMenu1.dishList.find { it.dishId == dishId }
+                if (dishMenu1 != null) return dishMenu1.dishCount
+            }
+        }
+//        menuList.forEach { dateMenu ->
+//            if (dateMenu.date == date) dateMenu.mealList.forEach { mealMenu ->
+//                if (mealMenu.mealId == mealId) mealMenu.dishList.forEach { dishMenu ->
+//                    if (dishMenu.dishId == dishId) return dishMenu.dishCount
+//                }
+//            }
+//        }
+        return 0
     }
 
     fun getDateWeek(): MutableList<SelectDateBean> {
@@ -173,5 +198,55 @@ class DownloadVM : ViewModel() {
                 }
             }
         }
+    }
+
+    fun selectDateMealDish(dateBean: SelectDateBean, mealBean: OrderMeal?, dishBean: DishBean): MutableList<DateMenu> {
+        if (mealBean == null) return menuList
+        var dateIndex = -1
+        menuList.forEachIndexed { index1, dateMenu ->
+            if (dateMenu.date == dateBean.date) {
+                dateIndex = index1
+                var mealIndex = -1
+                dateMenu.mealList.forEachIndexed { index2, mealMenu ->
+                    if (mealBean.mealId == mealMenu.mealId) {
+                        mealIndex = index2
+                        var dishIndex = -1
+                        mealMenu.dishList.forEachIndexed { index3, dishMenu ->
+                            if (dishBean.dishId == dishMenu.dishId) {
+                                dishIndex = index3
+                                dishMenu.dishCount = dishBean.dishCount
+                            }
+                        }
+                        if (dishIndex == -1) mealMenu.dishList.add(dishBean)
+                        if (dishIndex != -1 && mealMenu.dishList[dishIndex].dishCount == 0) mealMenu.dishList.removeAt(dishIndex)
+                    }
+                }
+                if (mealIndex == -1) dateMenu.mealList.add(addMealMenu(mealBean, dishBean))
+                if (mealIndex != -1 && dateMenu.mealList[mealIndex].dishList.size < 1) dateMenu.mealList.removeAt(mealIndex)
+            }
+        }
+        if (dateIndex == -1) {
+            val date = DateMenu()
+            date.date = dateBean.date
+            date.value = dateBean.value
+            date.mealList.add(addMealMenu(mealBean, dishBean))
+            menuList.add(date)
+        }
+        if (dateIndex != -1 && menuList[dateIndex].mealList.size < 1) menuList.removeAt(dateIndex)
+        // 排序
+        menuList.sortWith(compareBy { it.date })
+        menuList.forEach { dateMenu -> dateMenu.mealList.sortWith(compareBy { it.startTime }) }
+        return menuList
+    }
+
+    private fun addMealMenu(mealBean: OrderMeal, dishBean: DishBean): MealMenu {
+        val meal = MealMenu().apply {
+            mealId = mealBean.mealId
+            mealName = mealBean.mealName
+            startTime = mealBean.startTime
+            endTime = mealBean.endTime
+            dishList.add(dishBean)
+        }
+        return meal
     }
 }

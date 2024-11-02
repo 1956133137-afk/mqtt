@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.adapters
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemSelectMealBinding
 import com.yannuo.dgcanteen.model.OrderMeal
@@ -38,6 +39,7 @@ class SelectMealAdapter : BaseAdapter<OrderMeal, ItemSelectMealBinding>() {
     override fun addEventListener(holder: Holder) {
         holder.binding.tvMealName.setOnClickListener {
             val position = holder.adapterPosition
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
             selectPos = position
             listener?.onSelectMeal(getData(position))
             notifyDataSetChanged()

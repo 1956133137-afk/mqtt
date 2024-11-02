@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.yannuo.dgcanteen.R
@@ -51,12 +52,14 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
     override fun addEventListener(holder: Holder) {
         holder.binding.btnAdd.setOnClickListener {
             val position = holder.adapterPosition
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
             mData[position].dishCount++
             notifyItemChanged(position, "dishCount")
             listener?.onOrderDish(mData[position])
         }
         holder.binding.btnMinus.setOnClickListener {
             val position = holder.adapterPosition
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
             if (mData[position].dishCount > 0) {
                 mData[position].dishCount--
                 notifyItemChanged(position, "dishCount")
@@ -65,9 +68,12 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
         }
     }
 
-    fun updateDishCount(dishId: String) {
+    fun updateDishCount(dishBean: DishBean) {
         mData.forEachIndexed { position, dish ->
-            if (dish.dishId == dishId) notifyItemChanged(position, "dishCount")
+            if (dish.dishId == dishBean.dishId) {
+                dish.dishCount = dishBean.dishCount
+                notifyItemChanged(position, "dishCount")
+            }
         }
     }
 

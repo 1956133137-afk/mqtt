@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
+import com.yannuo.dgcanteen.adapters.DateMenuAdapter
 import com.yannuo.dgcanteen.adapters.OrderDishAdapter
 import com.yannuo.dgcanteen.adapters.SelectDateAdapter
-import com.yannuo.dgcanteen.adapters.SelectDishAdapter
 import com.yannuo.dgcanteen.adapters.SelectMealAdapter
 import com.yannuo.dgcanteen.databinding.FragmentUserOrderBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -27,8 +27,9 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private val selectDateAdapter by lazy { SelectDateAdapter() }
     private val selectMealAdapter by lazy { SelectMealAdapter() }
     private val orderDishAdapter by lazy { OrderDishAdapter(requireContext()) }
-    private val selectDishAdapter by lazy { SelectDishAdapter() }
-    private var dateBean: SelectDateBean = SelectDateBean()
+    private val dateMenuAdapter by lazy { DateMenuAdapter(requireContext()) }
+    private var currentDateBean: SelectDateBean = SelectDateBean()
+    private var currentMealBean: OrderMeal? = null
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
 
@@ -67,18 +68,20 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         binding.mealView.adapter = selectMealAdapter
         // 购物车
         binding.productView.layoutManager = LinearLayoutManager(requireContext())
-        binding.productView.adapter = selectDishAdapter
+        binding.productView.adapter = dateMenuAdapter
         // 请求餐别信息
         downloadVM.synOrderMeal(orderForUI.ccbToken) { boolean ->
             handler.post {
                 if (!boolean) orderMealVM.getAwaitStatus().value = "同步餐别中"
                 else {
+                    downloadVM.getMenuList().clear()
                     orderMealVM.getAwaitStatus().value = ""
                     val dateList = downloadVM.getDateWeek()
-                    dateBean = dateList[0]
                     selectDateAdapter.data = dateList
-                    selectMealAdapter.data = dateBean.mealList
-                    showDish(dateBean.date, if (dateBean.mealList.size > 0) dateBean.mealList[0] else null)
+                    selectMealAdapter.data = dateList[0].mealList
+                    currentDateBean = dateList[0]
+                    currentMealBean = if (currentDateBean.mealList.size > 0) currentDateBean.mealList[0] else null
+                    showDish(currentDateBean, currentMealBean)
                 }
             }
         }
@@ -90,11 +93,11 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         selectDateAdapter.setDateListener(object : SelectDateAdapter.SelectDateListener {
             override fun onSelectDate(bean: SelectDateBean) {
                 handler.post {
-                    dateBean = bean
                     selectMealAdapter.selectPos = 0
-                    selectMealAdapter.data = dateBean.mealList
-                    selectDishAdapter.clear()
-                    showDish(dateBean.date, if (dateBean.mealList.size > 0) dateBean.mealList[0] else null)
+                    selectMealAdapter.data = bean.mealList
+                    currentDateBean = bean
+                    currentMealBean = if (currentDateBean.mealList.size > 0) currentDateBean.mealList[0] else null
+                    showDish(currentDateBean, currentMealBean)
                 }
             }
         })
@@ -102,25 +105,29 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         selectMealAdapter.setMealListener(object : SelectMealAdapter.SelectMealListener {
             override fun onSelectMeal(bean: OrderMeal) {
                 handler.post {
-                    selectDishAdapter.clear()
-                    showDish(dateBean.date, bean)
+                    currentMealBean = bean
+                    showDish(currentDateBean, currentMealBean)
                 }
             }
         })
         //菜品回调
         orderDishAdapter.setDishListener(object : OrderDishAdapter.OrderDishListener {
-            override fun onOrderDish(bean: DishBean) {
+            override fun onOrderDish(dishBean: DishBean) {
                 handler.post {
-                    selectDishAdapter.insertedData(bean)
+                    val menuList = downloadVM.selectDateMealDish(currentDateBean, currentMealBean, dishBean)
+                    dateMenuAdapter.data = menuList
                     updateTotalDish()
                 }
             }
         })
         //已选回调
-        selectDishAdapter.setDishListener(object : SelectDishAdapter.SelectDishListener {
-            override fun onSelectDish(dishId: String) {
+        dateMenuAdapter.setDateListener(object : DateMenuAdapter.SelectDateListener {
+            override fun onSelectDate(date: String, mealId: String, dishBean: DishBean) {
                 handler.post {
-                    orderDishAdapter.updateDishCount(dishId)
+                    downloadVM.setMenuList(dateMenuAdapter.data)
+                    if (currentDateBean.date == date && currentMealBean != null && currentMealBean?.mealId == mealId) {
+                        orderDishAdapter.updateDishCount(dishBean)
+                    }
                     updateTotalDish()
                 }
             }
@@ -133,8 +140,6 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
         //确定订餐
         binding.btnConfirm.setOnClickListener {
-            orderForUI.dishList.clear()
-            selectDishAdapter.data.forEach { orderForUI.dishList.add(it) }
             if (orderForUI.dishList.size > 0) {
                 val toOrderSettle = UserOrderFragmentDirections.userOrderToOrderSettle(orderForUI)
                 findNavController().navigate(toOrderSettle)
@@ -142,14 +147,10 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
     }
 
-    private fun showDish(date: String, orderMeal: OrderMeal?) {
+    private fun showDish(dateBean: SelectDateBean, mealBean: OrderMeal?) {
         orderDishAdapter.clear()
-        if (orderMeal == null) return
-        orderForUI.orderDate = date
-        orderForUI.mealId = orderMeal.mealId
-        orderForUI.mealName = orderMeal.mealName
-        orderForUI.deliveryTime = "${dateBean.date} ${orderMeal.startTime}"
-        downloadVM.synOrderDish(orderForUI.ccbToken, date, orderMeal.mealId) { boolean, dishList ->
+        if (mealBean == null) return
+        downloadVM.synOrderDish(orderForUI.ccbToken, dateBean.date, mealBean.mealId) { boolean, dishList ->
             handler.post {
                 if (!boolean) orderMealVM.getAwaitStatus().value = "同步菜品中"
                 else {
@@ -163,20 +164,31 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private fun updateTotalDish() {
         var count: Int = 0
         var totalMoney: Double = 0.0
-        selectDishAdapter.data.forEach {
-            count += it.dishCount
-            totalMoney += it.dishPrice.toDouble() * it.dishCount
+        dateMenuAdapter.data.forEach { dateMenu ->
+            dateMenu.mealList.forEach { mealMenu ->
+                mealMenu.dishList.forEach { dish ->
+                    count += dish.dishCount
+                    totalMoney += dish.dishPrice.toDouble() * dish.dishCount
+                }
+            }
         }
         binding.tvTotalCount.text = "$count"
         binding.tvTotalMoney.text = String.format("%.02f元", totalMoney)
     }
 
     private fun clearSelectDish() {
-        selectDishAdapter.data.forEach {
-            it.dishCount = 0
-            orderDishAdapter.updateDishCount(it.dishId)
+        dateMenuAdapter.data.forEach { dateMenu ->
+            dateMenu.mealList.forEach { mealMenu ->
+                mealMenu.dishList.forEach {
+                    if (currentDateBean.date == dateMenu.date && currentMealBean != null && currentMealBean?.mealId == mealMenu.mealId) {
+                        it.dishCount = 0
+                        orderDishAdapter.updateDishCount(it)
+                    }
+                }
+            }
         }
-        selectDishAdapter.clear()
+        dateMenuAdapter.clear()
+        downloadVM.getMenuList().clear()
         updateTotalDish()
     }
 }

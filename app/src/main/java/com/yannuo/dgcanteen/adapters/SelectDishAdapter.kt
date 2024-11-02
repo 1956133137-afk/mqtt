@@ -15,7 +15,7 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     private val repeatMap: HashMap<String, Int> = hashMapOf()
     private var listener: SelectDishListener? = null
 
-    fun setDishListener(listener: SelectDishListener) {
+    fun setDishListener(listener: SelectDishListener?) {
         this.listener = listener
     }
 
@@ -38,22 +38,20 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     override fun addEventListener(holder: Holder) {
         holder.binding.ivBtnAdd.setOnClickListener {
             val position = holder.adapterPosition
-            val dishId = mData[position].dishId
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            val dishBean = mData[position]
             mData[position].dishCount++
             notifyItemChanged(position, "dishCount")
-            listener?.onSelectDish(dishId)
+            listener?.onSelectDish(dishBean)
         }
         holder.binding.ivBtnMinus.setOnClickListener {
             val position = holder.adapterPosition
             if (position == RecyclerView.NO_POSITION) return@setOnClickListener
-            val dishId = mData[position].dishId
+            val dishBean = mData[position]
             if (mData[position].dishCount > 0) {
                 mData[position].dishCount--
-                if (mData[position].dishCount == 0) {
-                    removeData(position)
-                    repeatMap.remove(dishId)
-                } else notifyItemChanged(position, "dishCount")
-                listener?.onSelectDish(dishId)
+                if (mData[position].dishCount == 0) removeData(position) else notifyItemChanged(position, "dishCount")
+                listener?.onSelectDish(dishBean)
             }
         }
     }
@@ -74,6 +72,6 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     }
 
     interface SelectDishListener {
-        fun onSelectDish(dishId: String)
+        fun onSelectDish(dishBean: DishBean)
     }
 }
