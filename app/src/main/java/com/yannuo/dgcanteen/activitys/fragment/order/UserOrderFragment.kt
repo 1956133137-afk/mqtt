@@ -140,7 +140,9 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
         //确定订餐
         binding.btnConfirm.setOnClickListener {
-            if (orderForUI.dishList.size > 0) {
+            orderForUI.menuList.clear()
+            orderForUI.menuList.addAll(dateMenuAdapter.data)
+            if (orderForUI.menuList.size > 0) {
                 val toOrderSettle = UserOrderFragmentDirections.userOrderToOrderSettle(orderForUI)
                 findNavController().navigate(toOrderSettle)
             } else ToastShowUtil.show("未选择菜品")

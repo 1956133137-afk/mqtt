@@ -143,6 +143,9 @@ interface ApiService {
 
     @Headers("content-type: application/json")
     @POST("dcCcb/dcOrderRecord/batchOrder")
-    suspend fun insertBatchOrder(@Header("dcccbauthorization") token: String, @Body bean: InsertOrderBean): CanteenResponse<InsertOrderReceive>
+    suspend fun insertBatchOrder(
+        @Header("dcccbauthorization") token: String,
+        @Body bean: InsertBatchOrderBean
+    ): CanteenResponse<InsertBatchOrderReceive>
 
 }

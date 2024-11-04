@@ -35,7 +35,7 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
         holder.binding.dishName.text = bean.dishName
         holder.binding.tvCount.text = bean.dishCount.toString()
         Glide.with(holder.binding.imgPic)
-            .load(PictureUtil.getPictureName(bean.imgUrl, context))
+            .load(if (bean.imgUrl.isNotEmpty()) PictureUtil.getPictureName(bean.imgUrl, context) else "")
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .fitCenter()

@@ -77,7 +77,7 @@ class DownloadVM : ViewModel() {
                                 dishPrice = it.price
                                 dishUnit = it.unit
                                 dishCount = queryDishNumber(date, mealId, dishId)
-                                imgUrl = it.imgUrl
+                                imgUrl = it.imgUrl ?: ""
                             }
                             dishList.add(bean)
                         }
@@ -160,7 +160,8 @@ class DownloadVM : ViewModel() {
         return regex.matches(dateFormat)
     }
 
-    private fun downloadImgUrl(imgUrl: String) {
+    private fun downloadImgUrl(imgUrl: String?) {
+        if (imgUrl == null || imgUrl.isEmpty()) return
         val fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1)
         val fileDir = File(MyApplication.applicationContext.filesDir.absolutePath, Constant.PIC_DIR)
         val filePath = File("${fileDir.path}/${fileName}")

@@ -281,12 +281,15 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderResult(1)
             //下单
-            val orderBean = getOrderMealData(orderForUI)
+//            val orderBean = getOrderMealData(orderForUI)
+            val orderBean = getBatchOrder(orderForUI)
             LogUtil.d(TAG, Gson().toJson(orderBean))
-            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
+//            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
+            val orderRes = mRepository.insertBatchOrder(orderForUI.ccbToken, orderBean)
             if (orderRes.code == "200") {
                 orderResult(2)
-                orderForUI.orderId = orderRes.data?.orderId ?: ""
+//                orderForUI.orderId = orderRes.data?.orderId ?: ""
+                orderForUI.orderId = orderRes.data?.pOderId ?: ""
                 //支付
                 val encryption = getOrderPayData(orderForUI)
                 val payRes = mRepository.payByIcCard(encryption)
@@ -341,6 +344,52 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             orderBean.dcOrderDishesList.add(insertDish)
         }
         return orderBean
+    }
+
+    private fun getBatchOrder(orderForUI: OrderForUI): InsertBatchOrderBean {
+        orderForUI.orderTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        val batchOrderBean = InsertBatchOrderBean().apply {
+            campusId = orderForUI.campusId
+            businessId = orderForUI.businessId
+            custId = orderForUI.custId
+            totalPackagingFee = "0.00"
+            totalPayment = orderForUI.payment
+            actualTotalPayment = orderForUI.payment
+        }
+        orderForUI.menuList.forEach { dateMenu ->
+            dateMenu.mealList.forEach { mealMenu ->
+                val orderDetail = OrderDetail().apply {
+                    personName = orderForUI.custName
+                    phone = orderForUI.phone
+                    mealId = mealMenu.mealId
+                    orderType = orderForUI.distribute
+                    isPackage = "2"
+                    packagingFee = "0.00"
+                    deliveryFee = "0.00"
+                    mealDate = dateMenu.date
+                    addressPersonName = orderForUI.custName
+                    addressTel = orderForUI.phone
+                    address = orderForUI.address
+                }
+                var totalMoney: Double = 0.0
+                mealMenu.dishList.forEach { dish ->
+                    val orderDishes = OrderDishes().apply {
+                        dishesId = dish.dishId
+                        dishesName = dish.dishName
+                        unit = dish.dishUnit
+                        dishesPrice = dish.dishPrice
+                        dishesNum = dish.dishCount.toString()
+                        imgUrl = dish.imgUrl
+                    }
+                    orderDetail.dcOrderDishesList.add(orderDishes)
+                    totalMoney += dish.dishCount * dish.dishPrice.toDouble()
+                }
+                orderDetail.payment = String.format("%.02f", totalMoney)
+                orderDetail.actualPayment = orderDetail.payment
+                batchOrderBean.orderDetail.add(orderDetail)
+            }
+        }
+        return batchOrderBean
     }
 
     private fun getOrderPayData(orderForUI: OrderForUI): String {

@@ -14,6 +14,7 @@ import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.ListDishAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderSettleBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
@@ -41,7 +42,6 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
 
         binding.dishListView.layoutManager = LinearLayoutManager(requireContext())
         binding.dishListView.adapter = listDishAdapter
-        listDishAdapter.data = orderForUI.dishList
         totalMoneyCompute()
 
         val person = dbHelper.queryPersonToCustId(orderForUI.custId)
@@ -102,14 +102,24 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private fun totalMoneyCompute() {
         var totalCount: Int = 0
         var totalMoney: Double = 0.0
-        orderForUI.dishList.forEach {
-            totalCount += it.dishCount
-            totalMoney += it.dishPrice.toDouble() * it.dishCount
+        orderForUI.dishList.clear()
+        orderForUI.menuList.forEach { dateMenu ->
+            dateMenu.mealList.forEach { mealMenu ->
+                mealMenu.dishList.forEach { dish ->
+                    val bean = Gson().fromJson(Gson().toJson(dish), DishBean::class.java)
+                    val dishBean = orderForUI.dishList.find { it.dishId == bean.dishId }
+                    if (dishBean != null) dishBean.dishCount = dishBean.dishCount + bean.dishCount
+                    else orderForUI.dishList.add(bean)
+                    totalCount += dish.dishCount
+                    totalMoney += dish.dishPrice.toDouble() * dish.dishCount
+                }
+            }
         }
         orderForUI.payment = String.format("%.02f", totalMoney)
         orderForUI.actualPayment = String.format("%.02f", totalMoney)
         binding.tvTotalCount.text = "$totalCount"
         binding.tvTotalMoney.text = String.format("%.02f元", totalMoney)
+        listDishAdapter.data = orderForUI.dishList
     }
 
     private fun judgePayStatus(): Boolean {
