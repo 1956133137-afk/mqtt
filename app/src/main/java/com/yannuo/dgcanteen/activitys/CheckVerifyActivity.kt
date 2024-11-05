@@ -100,6 +100,7 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
     private fun initEvent() {
         binding.ibtBack.setOnClickListener {
             mXService?.hideNavBar = false
+            mmkv.encode(Constant.QUERY_VERIFY, false)
             finish()
         }
 
@@ -186,7 +187,8 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
             binding.tvAccNo.text = spanWatcher
         }else {
             val dish = Gson().toJson(verify.dish).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
-            disposalData(spanWatcher, "待核销的菜品：\n${dish}")
+            val window = Gson().toJson(verify.windows).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
+            disposalData(spanWatcher, "待核销的菜品：\n${dish}\n待核销窗口：\n${window}")
             binding.tvAccNo.text = spanWatcher
         }
         mHandler.removeCallbacksAndMessages(null)

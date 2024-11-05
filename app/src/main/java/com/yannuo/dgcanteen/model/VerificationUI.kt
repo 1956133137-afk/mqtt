@@ -9,6 +9,7 @@ class VerificationUI() : Parcelable{
     var personName : String = ""
     var dish : Array<String>? = null
     var window :  Array<String>? = null
+    var windows : Array<String>? = null
     var time : String = ""
     var unDish : Array<String>? = null
 
@@ -17,6 +18,7 @@ class VerificationUI() : Parcelable{
         personName = parcel.readString().toString()
         dish = parcel.createStringArray()
         window = parcel.createStringArray()
+        windows = parcel.createStringArray()
         time = parcel.readString().toString()
         unDish = parcel.createStringArray()
     }
@@ -26,6 +28,7 @@ class VerificationUI() : Parcelable{
         parcel.writeString(personName)
         parcel.writeStringArray(dish)
         parcel.writeStringArray(window)
+        parcel.writeStringArray(windows)
         parcel.writeString(time)
         parcel.writeStringArray(unDish)
     }

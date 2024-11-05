@@ -106,11 +106,11 @@
         <service
             android:name=".service.UpdateServer"
             android:stopWithTask="true" />
-        <service
-            android:name=".service.KeepAliveJobService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+<!--        <service-->
+<!--            android:name=".service.KeepAliveJobService"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true"-->
+<!--            android:permission="android.permission.BIND_JOB_SERVICE" />-->
         <service
             android:name=".service.CameraService"
             android:stopWithTask="true" />

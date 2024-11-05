@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.yannuo.dgcanteen",
+  "variantName": "inputRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 42,
+      "versionName": "1.4.2",
+      "outputFile": "ccb_canteen-input-v1.4.2-2024110214.apk"
+    }
+  ],
+  "elementType": "File"
+}

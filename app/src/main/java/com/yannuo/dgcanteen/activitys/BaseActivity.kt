@@ -52,9 +52,9 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
             LogUtil.e(TAG, "Exception: ${e.message}")
         }
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
-        mScope.launch {
-            getPayCfg()
-        }
+//        mScope.launch {
+//            getPayCfg()
+//        }
 
         onInit()
 
@@ -87,9 +87,9 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
     abstract fun onInit()
     override fun onResume() {
         super.onResume()
-        mScope.launch {
-            getPayCfg()
-        }
+//        mScope.launch {
+//            getPayCfg()
+//        }
     }
 
     override fun onDestroy() {
@@ -97,14 +97,14 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         mScope.cancel()
     }
 
-    private suspend fun getPayCfg() {
-        val result = PayRepositoryOfPay().getPayCfg()
-        if (result.code == "200") {
-            val mv = MMKV.defaultMMKV()
-            mv.encode(Constant.PAY_CONFIG, result.data)
-            LogUtil.i(TAG, "已更新配置信息！")
-        } else {
-            LogUtil.w(TAG, "更新配置信息失败！")
-        }
-    }
+//    private suspend fun getPayCfg() {
+//        val result = PayRepositoryOfPay().getPayCfg()
+//        if (result.code == "200") {
+//            val mv = MMKV.defaultMMKV()
+//            mv.encode(Constant.PAY_CONFIG, result.data)
+//            LogUtil.i(TAG, "已更新配置信息！")
+//        } else {
+//            LogUtil.w(TAG, "更新配置信息失败！")
+//        }
+//    }
 }

@@ -41,6 +41,14 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
 
+    private val _verifyCount = MutableLiveData<VerificationCountResponse>()
+    val verifyCount: MutableLiveData<VerificationCountResponse>
+        get() = _verifyCount
+
+    private val _dishesCount = MutableLiveData<DishesCountResponse>()
+    val dishesCount: MutableLiveData<DishesCountResponse>
+        get() = _dishesCount
+
     enum class CodeStatus {
         INVALID, PAY
     }
@@ -159,16 +167,19 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                     dish = json.verifyDishes
                     window = json.unVerifyWindowName
                     unDish = json.unVerifyDishes
+                    this.windows = json.windowName
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
-                var verifyDishesBean = VerifyDishes().apply {
-                    this.personName = json.personName
-                    this.dish = dishes.toString()
-                    this.unDish = undish.toString()
-                    this.window = windows.toString()
-                    this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                if (flag == 0) {
+                    var verifyDishesBean = VerifyDishes().apply {
+                        this.personName = json.personName
+                        this.dish = dishes.toString()
+                        this.unDish = undish.toString()
+                        this.window = windows.toString()
+                        this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                    }
+                    DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
                 }
-                DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
                 LogUtil.w(TAG, "${ccbCodeVerification.msg}")
@@ -186,7 +197,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         this.callBackListener = listener
     }
 
-    fun getVerifyCount(response: (VerificationCountResponse) -> Unit) {
+    fun getVerifyCount() {
         viewModelScope.launch {
             val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
@@ -194,12 +205,12 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val res = mRespository.getCcbCountDCofDay(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), VerificationCountResponse::class.java)
-                response(json)
+                _verifyCount.value = json
             }
         }
     }
 
-    fun getDishesCount(response: (DishesCountResponse) -> Unit) {
+    fun getDishesCount() {
         viewModelScope.launch {
             val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
@@ -207,7 +218,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val res = mRespository.getDishesCount(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), DishesCountResponse::class.java)
-                response(json)
+                _dishesCount.value = json
             }
         }
     }

@@ -78,7 +78,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     private lateinit var mAdapter: ScreenSlidePagerAdapter
     private lateinit var displayManager: DisplayManager
-    private val viewModel by lazy { VerificationVM() }
+    private val viewModel by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             LogUtil.d(TAG, "onServiceConnected")
@@ -151,7 +151,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 if (loadingDialog == null) loadingDialog = LoadingDialog(this)
                 loadingDialog?.show()
             } else loadingDialog?.dismiss()
-//            LogUtil.d(TAG,"SHOW $it")
         }
 
         mProductsVM.tab.observe(this) {
@@ -232,7 +231,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-            viewModel.getVerifyCount { res ->
+            viewModel.verifyCount.observe(this) { res ->
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
@@ -292,7 +291,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
             }
 
             Constant.EVENT_CODE -> {
-//                mDishDisplay.cancel()
                 mDishDisplay.safeCancel()
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启二维码、刷卡核销事件")
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")

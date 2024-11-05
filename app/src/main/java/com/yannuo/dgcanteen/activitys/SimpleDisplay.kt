@@ -1,7 +1,6 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.annotation.SuppressLint
-import android.app.Presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,6 +17,8 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.view.size
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -25,8 +26,8 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.VerifyDishesAdapter
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.SimpleDisplayBinding
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
@@ -42,12 +43,14 @@ import java.io.File
 class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, display) {
     private val TAG = javaClass.simpleName
     private lateinit var binding: SimpleDisplayBinding
-    private lateinit var kv: MMKV
+    private val kv by lazy {
+        MMKV.defaultMMKV()
+    }
     private var lastTime = 0L  //上次触发时间
     private var havePic = false
     private var atv : AppCompatActivity ?= null
     private var verifyAdapter : VerifyDishesAdapter? = null
-    private val viewModel by lazy { VerificationVM() }
+    private var viewModel: VerificationVM? = null
     private var mealId = 0
 
 
@@ -88,7 +91,6 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
                     havePic = files.isNotEmpty()
                 }
             }
-                kv = MMKV.defaultMMKV()
                 if (kv.decodeString(Constant.TITLE_CONTENT) == null || kv.decodeString(Constant.TITLE_CONTENT) == "") {
                     when(havePic){
                         true ->{
@@ -146,7 +148,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             }else {
                 binding.tvCode.text = "订餐核销"
             }
-            initVerify()
+//            initVerify()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -154,10 +156,31 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
     private fun initVerify() {
+        binding = SimpleDisplayBinding.inflate(layoutInflater)
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-            viewModel.getVerifyCount { res ->
-                LogUtil.d(TAG, Gson().toJson(res))
+//            viewModel.getVerifyCount { res ->
+//                LogUtil.d(TAG, Gson().toJson(res))
+//                binding.tvTotalOrder.text = res.total.totalOrderNum
+//                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
+//                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
+//                res.mealList.forEach { meal ->
+//                    if (mealId == meal.mealId.toInt()) {
+//                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
+//                        binding.tvMealOrder.text = meal.mealOrderNum
+//                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
+//                        binding.tvMealVerify.text = meal.verifyMealOrderNum
+//                    }
+//                    if (mealId == 0) {
+//                        binding.tvOrderName.visibility = View.GONE
+//                        binding.tvMealOrder.visibility = View.GONE
+//                        binding.tvVerifyName.visibility = View.GONE
+//                        binding.tvMealVerify.visibility = View.GONE
+//                    }
+//                }
+//            }
+            viewModel?.verifyCount?.observe(atv!!) { res ->
+                LogUtil.d(TAG,"监听：" + Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
                 binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
@@ -180,7 +203,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
     fun enableBtn(money:String?){
-        binding?.also {
+        binding.also {
             if (it.llPay.isVisible.not()){
                 it.llPay.visibility = View.VISIBLE
             }
@@ -225,11 +248,18 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             //支付
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))
         }
+        binding.verifyView.setOnLongClickListener {
+            initVerify()
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+            true
+        }
     }
 
 
     fun setActivity(  atv : AppCompatActivity){
         this.atv = atv
+        viewModel = ViewModelProvider(atv)[VerificationVM::class.java]
+        initVerify()
     }
 
 

@@ -1,9 +1,12 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.ServiceConnection
 import android.graphics.Color
 import android.hardware.display.DisplayManager
@@ -12,6 +15,8 @@ import android.os.IBinder
 import android.view.Display
 import android.view.View
 import android.widget.Button
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.PayResultListener
 import com.ccb.smartcanteen.ZHSTFacePayService
@@ -22,6 +27,7 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.VerifyDishCountAdapter
+import com.yannuo.dgcanteen.common.PeriodicVerificationReceiver
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
@@ -68,11 +74,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         VerifyDishCountAdapter()
     }
     private val viewModel by lazy {
-        VerificationVM()
+        ViewModelProvider(this)[VerificationVM::class.java]
     }
     private val productsVM by lazy {
         ProductsVM()
     }
+    private val periodicVerificationReceiver = PeriodicVerificationReceiver()
+    private var isFaceVerification = false
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -91,7 +99,27 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         initObject()
         initView()
         initEvent()
+        registerVerificationReceiver()
+        scheduleVerification()
     }
+
+    //触发定时任务：每30分钟执行一次进行查询
+    private fun scheduleVerification() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent("com.yannuo.dgcanteen.PERIODIC_VERIFICATION")
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val intervalMillis = 10*1000L
+        val triggerAtMillis = System.currentTimeMillis() + intervalMillis
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,triggerAtMillis,intervalMillis,pendingIntent)
+    }
+
+    //注册查询核销的广播
+    private fun registerVerificationReceiver() {
+        val filter = IntentFilter("com.yannuo.dgcanteen.PERIODIC_VERIFICATION")
+        registerReceiver(periodicVerificationReceiver, filter)
+    }
+
+
 
     private fun initObject() {
         viewModel.setListener(this)
@@ -137,8 +165,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             displayManager.displays.also { secondDisplays = it[1] }
         }
         simpleDisplay = SimpleDisplay(this, secondDisplays)
-        simpleDisplay.setActivity(this)
         simpleDisplay.show()
+        simpleDisplay.setActivity(this)
         btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
@@ -155,18 +183,17 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         initPresentation()
         LogUtil.i(TAG,"onResume!")
         super.onResume()
-        productsVM.upDataDishes(true)
+//        productsVM.upDataDishes(true)
         var allMeals = DishesDBHelper.getInstance().queryAllMeals()
         allMeals.forEach {
             if (Date() >= it.startTime && Date() <= it.endTime) {
                 mealId = it.mealId
             }
         }
-        initVerify()
         mXService?.hideNavBar = true
-//        simpleDisplay.cancel()
         simpleDisplay.safeCancel()
         simpleDisplay = SimpleDisplay(this, secondDisplays)
+        simpleDisplay.setActivity(this)
         simpleDisplay.show()
         maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
             "刷卡" to Constant.PAY_IC_TYPE ,
@@ -195,8 +222,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
         //自动核销
         handler.post {
-            if (kv.decodeBool(Constant.AUTO_VERIFY, false)) {
+            if (!isFaceVerification && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
                 faceVerification()
+                isFaceVerification = true
             }
         }
     }
@@ -213,15 +241,15 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
     }
 
-    private fun initVerify() {
+    fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
-            viewModel.getVerifyCount { res ->
-                LogUtil.d(TAG, Gson().toJson(res))
-                binding.tvTotalOrder.text = res.total.totalOrderNum
-                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
-                res.mealList.forEach { meal ->
+            viewModel.getVerifyCount()
+            viewModel.verifyCount.observe(this) { value ->
+                binding.tvTotalOrder.text = value.total.totalOrderNum
+                binding.tvTotalVerify.text = value.total.verifyTotalOrderNum
+                binding.tvUnVerify.text = value.total.unVerifyTotalOrderNum
+                value.mealList.forEach {meal ->
                     when (mealId) {
                         0 -> {
                             binding.tvOrderName.visibility = View.GONE
@@ -238,9 +266,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     }
                 }
             }
-            viewModel.getDishesCount { res ->
-                LogUtil.d(TAG, Gson().toJson(res))
-                res.countDishes.forEach {
+            viewModel.getDishesCount()
+            viewModel.dishesCount.observe(this) {value->
+                value.countDishes.forEach {
                     when (mealId) {
                         it.mealId -> {
                             if (it.dishes.isNotEmpty()) {
@@ -260,6 +288,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     override fun onStop() {
+        isFaceVerification = false
         binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
         binding.btnConfirm.setTextColor(Color.BLACK)
         binding.btnConfirm.text = "确认金额"
@@ -407,8 +436,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 faceVerification()
             }
             Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
-                runOnUiThread { initVerify() }
+                LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI ${event.any}")
+                val o = event.any as Boolean
+                if (o) {
+                    runOnUiThread { initVerify() }
+                }
             }
             Constant.EVENT_SECOND -> handler.post {
                 val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
