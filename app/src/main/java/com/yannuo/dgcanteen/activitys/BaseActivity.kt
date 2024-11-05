@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DisplayUtils
 import com.yannuo.dgcanteen.util.LogUtil
@@ -22,6 +23,9 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
     protected var TAG = javaClass.simpleName
     private lateinit var mHandle: CoroutineExceptionHandler
     protected lateinit var mScope: CoroutineScope
+    private val kv by lazy {
+        MMKV.defaultMMKV()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -51,10 +55,13 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         mHandle = CoroutineExceptionHandler { coroutineContext, e ->
             LogUtil.e(TAG, "Exception: ${e.message}")
         }
+
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
-//        mScope.launch {
-//            getPayCfg()
-//        }
+        mScope.launch {
+            if (kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) == PayCfg()) {
+                getPayCfg()
+            }
+        }
 
         onInit()
 
@@ -87,9 +94,11 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
     abstract fun onInit()
     override fun onResume() {
         super.onResume()
-//        mScope.launch {
-//            getPayCfg()
-//        }
+        mScope.launch {
+            if (kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) == PayCfg()) {
+                getPayCfg()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -97,14 +106,14 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         mScope.cancel()
     }
 
-//    private suspend fun getPayCfg() {
-//        val result = PayRepositoryOfPay().getPayCfg()
-//        if (result.code == "200") {
-//            val mv = MMKV.defaultMMKV()
-//            mv.encode(Constant.PAY_CONFIG, result.data)
-//            LogUtil.i(TAG, "已更新配置信息！")
-//        } else {
-//            LogUtil.w(TAG, "更新配置信息失败！")
-//        }
-//    }
+    private suspend fun getPayCfg() {
+        val result = PayRepositoryOfPay().getPayCfg()
+        if (result.code == "200") {
+            val mv = MMKV.defaultMMKV()
+            mv.encode(Constant.PAY_CONFIG, result.data)
+            LogUtil.i(TAG, "已更新配置信息！")
+        } else {
+            LogUtil.w(TAG, "更新配置信息失败！")
+        }
+    }
 }

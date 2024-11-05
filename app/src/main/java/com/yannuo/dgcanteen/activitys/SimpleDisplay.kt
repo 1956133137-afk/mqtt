@@ -159,28 +159,8 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         binding = SimpleDisplayBinding.inflate(layoutInflater)
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-//            viewModel.getVerifyCount { res ->
-//                LogUtil.d(TAG, Gson().toJson(res))
-//                binding.tvTotalOrder.text = res.total.totalOrderNum
-//                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-//                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
-//                res.mealList.forEach { meal ->
-//                    if (mealId == meal.mealId.toInt()) {
-//                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
-//                        binding.tvMealOrder.text = meal.mealOrderNum
-//                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
-//                        binding.tvMealVerify.text = meal.verifyMealOrderNum
-//                    }
-//                    if (mealId == 0) {
-//                        binding.tvOrderName.visibility = View.GONE
-//                        binding.tvMealOrder.visibility = View.GONE
-//                        binding.tvVerifyName.visibility = View.GONE
-//                        binding.tvMealVerify.visibility = View.GONE
-//                    }
-//                }
-//            }
             viewModel?.verifyCount?.observe(atv!!) { res ->
-                LogUtil.d(TAG,"监听：" + Gson().toJson(res))
+//                LogUtil.d(TAG,"监听：" + Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
                 binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum

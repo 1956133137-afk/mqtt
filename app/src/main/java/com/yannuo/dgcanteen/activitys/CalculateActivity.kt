@@ -103,12 +103,12 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         scheduleVerification()
     }
 
-    //触发定时任务：每30分钟执行一次进行查询
+    //触发定时任务：每15分钟执行一次进行查询
     private fun scheduleVerification() {
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent("com.yannuo.dgcanteen.PERIODIC_VERIFICATION")
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val intervalMillis = 10*1000L
+        val intervalMillis = 15*60*1000L
         val triggerAtMillis = System.currentTimeMillis() + intervalMillis
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,triggerAtMillis,intervalMillis,pendingIntent)
     }
