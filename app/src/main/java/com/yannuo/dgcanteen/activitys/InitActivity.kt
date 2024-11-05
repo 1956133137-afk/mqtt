@@ -157,6 +157,11 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
             initMode()
         }
+        binding.orderTwo.setOnClickListener {
+            binding.orderTwo.isEnabled = false
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
+            initMode()
+        }
         binding.collection.setOnClickListener {
             binding.collection.isEnabled = false
             kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
@@ -164,7 +169,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         }
         binding.collectionTwo.setOnClickListener {
             binding.collectionTwo.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
+            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_TWO_MODE)
             initMode()
         }
         binding.orderMealMode.setOnClickListener {
@@ -188,11 +193,13 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.PROCEEDS_MODE, Constant.ORDERING_TWO_MODE, Constant.ORDERING_MEAL_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
-                    if (mode == Constant.PROCEEDS_MODE) startService(Intent(this@InitActivity, CameraService::class.java))
-                    else startService(Intent(this@InitActivity, MyMqttService::class.java))
+                    when (mode) {
+                        Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE -> startService(Intent(this@InitActivity, CameraService::class.java))
+                        else -> startService(Intent(this@InitActivity, MyMqttService::class.java))
+                    }
                     // 跳转界面
                     val intent = when {
                         kv.decodeBool(Constant.QUERY_VERIFY, false) -> Intent(this@InitActivity, CheckVerifyActivity::class.java)
@@ -200,8 +207,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         else -> {
                             when (mode) {
                                 Constant.ORDERING_FOOD_MODE -> Intent(this@InitActivity, CommodityActivity::class.java)
-                                Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
                                 Constant.ORDERING_TWO_MODE -> Intent(this@InitActivity, OrderMenuActivity::class.java)
+                                Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
+
                                 else -> Intent(this@InitActivity, OrderMealActivity::class.java)
                             }
                         }
