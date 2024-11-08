@@ -119,7 +119,6 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                                 time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                             }
                             val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                            EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
                             findNavController().navigate(toFail)
                         }, 300)
                     }
@@ -143,7 +142,6 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
 
                     val verificationUI = any as VerificationUI
                     val toSuccess = CardVerificationFragmentDirections.actionCardVerificationFragmentToShowDishFragment(verificationUI)
-                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
                     findNavController().navigate(toSuccess)
 
                 }
@@ -152,7 +150,6 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     LogUtil.d(TAG, "核销失败")
                     val verificationUI = any as VerificationUI
                     val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_ORDER_VERIFY, null))
                     findNavController().navigate(toFail)
                 }
             }

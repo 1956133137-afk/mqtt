@@ -303,11 +303,6 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 runOnUiThread { faceVerification() }
             }
-
-            Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI")
-                runOnUiThread { initVerify() }
-            }
         }
     }
 

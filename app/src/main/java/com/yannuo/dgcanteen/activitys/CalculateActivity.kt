@@ -435,7 +435,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 faceVerification()
             }
-            Constant.EVENT_ORDER_VERIFY, Constant.EVENT_VERIFY_CHANGE -> {
+            Constant.EVENT_VERIFY_CHANGE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI ${event.any}")
                 val o = event.any as Boolean
                 if (o) {

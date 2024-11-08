@@ -8,6 +8,7 @@ class VerificationUI() : Parcelable{
     var errorMsg : String = ""
     var personName : String = ""
     var dish : Array<String>? = null
+    var dishesList : Array<String>? = null
     var window :  Array<String>? = null
     var windows : Array<String>? = null
     var time : String = ""
@@ -17,6 +18,7 @@ class VerificationUI() : Parcelable{
         errorMsg = parcel.readString().toString()
         personName = parcel.readString().toString()
         dish = parcel.createStringArray()
+        dishesList = parcel.createStringArray()
         window = parcel.createStringArray()
         windows = parcel.createStringArray()
         time = parcel.readString().toString()
@@ -27,6 +29,7 @@ class VerificationUI() : Parcelable{
         parcel.writeString(errorMsg)
         parcel.writeString(personName)
         parcel.writeStringArray(dish)
+        parcel.writeStringArray(dishesList)
         parcel.writeStringArray(window)
         parcel.writeStringArray(windows)
         parcel.writeString(time)

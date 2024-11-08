@@ -89,6 +89,7 @@ object Constant {
     const val QUERY_VERIFY = "query_verify" //核销查询
     const val AUTO_VERIFY = "auto_verify"   //自动核销
     const val AUTO_PAY = "auto_pay"   //自动收款
+    const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
@@ -106,9 +107,9 @@ object Constant {
     const val EVENT_OFLINE_CHANGE = 26 //
     const val EVENT_FACE = 28 //刷脸核销
     const val EVENT_CODE = 29 //二维码核销
-    const val EVENT_ORDER_VERIFY = 30 //订单核销成功
-    const val EVENT_VERIFY_CHANGE = 31 //核销功能改变
+    const val EVENT_VERIFY_CHANGE = 30 //核销统计
     const val EVENT_TRAN_MODE = 32  //交易方式
+
 
 
     const val VERIFY_MODE = "verifyMode"//核销方式

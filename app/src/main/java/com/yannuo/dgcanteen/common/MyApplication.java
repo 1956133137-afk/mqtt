@@ -34,7 +34,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        create = true;
+//        create = true;
         applicationContext = this;
         LogManager.initLog();
         LogUtil.setLev(LogLevel.DEBUG);

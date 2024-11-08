@@ -22,6 +22,7 @@ import com.yannuo.dgcanteen.util.CanteenEncryptionUtil.getAnalysisCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     var showToastEvent: MutableLiveData<String>
@@ -40,6 +41,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private lateinit var ntHelp: NTScanHelp
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
+    private var mealName = ""
 
     private val _verifyCount = MutableLiveData<VerificationCountResponse>()
     val verifyCount: MutableLiveData<VerificationCountResponse>
@@ -88,7 +90,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         mCardDevice.openSerialPort("/dev/ttyS4", 9600)
         mCodeDevice.setCallbackListener(this)
         mCardDevice.readDataListener = this
-        ntHelp?.OpenScanCode(this, MyApplication.applicationContext)
+        ntHelp.OpenScanCode(this, MyApplication.applicationContext)
     }
 
     //修改支付状态
@@ -135,47 +137,29 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             LogUtil.d(TAG, Gson().toJson(ccbCodeVerification))
             if (ccbCodeVerification.code == "200") {
                 val toJson = Gson().toJson(ccbCodeVerification.data)
-                LogUtil.d(TAG, toJson)
                 val json = Gson().fromJson(toJson, VerificationResponse::class.java)
-                val verifyDishes = json.verifyDishes
-                val sb = StringBuilder()
-                val dishes = StringBuilder()
-                val undish = StringBuilder()
-                val windows = StringBuilder()
-                for (dish in verifyDishes) {
-                    sb.append("$dish,")
-                    dishes.append("$dish|")
-                }
-                LogUtil.i(TAG, "核销的菜品: $sb")
-                if (json.unVerifyWindowName.isNotEmpty()) {
-                    sb.append("未核销的菜品有:")
-                    for (unDish in json.unVerifyDishes) {
-                        sb.append("$unDish,")
-                        undish.append("$unDish|")
+                val allMeals = DishesDBHelper.getInstance().queryAllMeals()
+                allMeals.forEach {
+                    if (Date() >= it.startTime && Date() <= it.endTime) {
+                        mealName = it.mealName
                     }
-                    sb.append("请前往")
-                    for (unWindow in json.unVerifyWindowName) {
-                        sb.append("$unWindow,")
-                        windows.append("$unWindow|")
-                    }
-                    sb.append("进行核销")
                 }
-                CommonAndDpToPxUtil.speakWork(sb.toString())
                 val verificationUI = VerificationUI().apply {
-                    errorMsg = ccbCodeVerification.msg.toString()
+                    errorMsg = ccbCodeVerification.msg
                     personName = json.personName
                     dish = json.verifyDishes
+                    dishesList = json.verify[mealName]?.dishesList
                     window = json.unVerifyWindowName
+                    windows = json.verify[mealName]?.windowList
                     unDish = json.unVerifyDishes
-                    this.windows = json.windowName
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                 }
                 if (flag == 0) {
-                    var verifyDishesBean = VerifyDishes().apply {
+                    val verifyDishesBean = VerifyDishes().apply {
                         this.personName = json.personName
-                        this.dish = dishes.toString()
-                        this.unDish = undish.toString()
-                        this.window = windows.toString()
+                        this.dish = json.verifyDishes.toString()
+                        this.window = json.unVerifyWindowName.toString()
+                        this.unDish = json.unVerifyDishes.toString()
                         this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                     }
                     DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)

@@ -186,31 +186,33 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
             disposalData(spanWatcher, "查询失败：\n${verify.errorMsg}")
             binding.tvAccNo.text = spanWatcher
         }else {
-            val dish = Gson().toJson(verify.dish).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
+            val dish = Gson().toJson(verify.dishesList).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
             val window = Gson().toJson(verify.windows).replace("\\[|\\]|\"".toRegex(), "").replace(",","\n")
-            disposalData(spanWatcher, "待核销的菜品：\n${dish}\n待核销窗口：\n${window}")
+            disposalData(spanWatcher, "待核销的菜品：\n${dish}")
+            disposalData(spanWatcher, "\n待核销窗口：\n${window}")
             binding.tvAccNo.text = spanWatcher
         }
         mHandler.removeCallbacksAndMessages(null)
-        mHandler.postDelayed(Runnable {
+        mHandler.postDelayed({
             clearContent()
         },1000*10)
 
     }
 
 
-    private fun disposalData(span : SpannableStringBuilder ,content :String){
+    private fun disposalData(span: SpannableStringBuilder, content: String) {
         val style = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ForegroundColorSpan(resources.getColor(R.color.sky_color,null))
+            ForegroundColorSpan(resources.getColor(R.color.sky_color, null))
         } else {
             return
         }
-        val start = span.length + content.lastIndexOf("：") + 1
+        val start = span.length + content.indexOf("：") + 1
         span.append(content)
 //        LogUtil.d(TAG,"start:$start , span.length:${span.length}")
         span.setSpan(style,start,span.length,Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
 
     }
+
     private fun clearContent(){
         binding.tvName.text = "姓名："
         binding.tvStudentNumber.text = "工号/学号："

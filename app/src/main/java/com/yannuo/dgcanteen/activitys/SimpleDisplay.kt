@@ -134,9 +134,6 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             mealId = TimeUtil.CurrentTimeSection()
             verifyAdapter = VerifyDishesAdapter()
             val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
-            selectVerifyDishes.forEach {
-                LogUtil.d(TAG, "${Gson().toJson(it)}")
-            }
             if (selectVerifyDishes.size > 0) {
                 verifyAdapter!!.insertedData(selectVerifyDishes)
             }
@@ -149,6 +146,11 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
                 binding.tvCode.text = "订餐核销"
             }
 //            initVerify()
+            if (kv.decodeBool(Constant.SUPPORT_PAY, true)) {
+                binding.tvFace.visibility = View.VISIBLE
+            }else {
+                binding.tvFace.visibility = View.GONE
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
