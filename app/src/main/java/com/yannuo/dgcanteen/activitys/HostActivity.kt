@@ -1,8 +1,6 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
@@ -11,9 +9,7 @@ import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
-
 class HostActivity : BaseActivity<ActivityHostBinding>() {
-
 
     override fun bindLayout() {
         binding = ActivityHostBinding.inflate(layoutInflater)

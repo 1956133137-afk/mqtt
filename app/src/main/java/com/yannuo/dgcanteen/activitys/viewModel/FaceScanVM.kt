@@ -1,0 +1,231 @@
+package com.yannuo.dgcanteen.activitys.viewModel
+
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
+import com.ccb.smartcanteen.PayResultListener
+import com.ccb.smartcanteen.ZHSTFacePayService
+import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.PayDishTable
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
+import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
+import kotlinx.coroutines.*
+import java.util.*
+
+/**
+ * Author: filowl
+ * Description: ***
+ * Date: 2024/11/11 14:26
+ **/
+class FaceScanVM {
+    private val TAG = javaClass.simpleName
+    private val mContext = MyApplication.applicationContext
+    private val mmkv: MMKV = MMKV.defaultMMKV()
+    private var mPayCfg: PayCfg = PayCfg()
+    private val dbHelper = DishesDBHelper.getInstance()
+    private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
+    private var mFacePayService: ZHSTFacePayService? = null
+    private var listener: FaceResultListener? = null
+
+    // true:支付 false:查询
+    private var modeStatus: Boolean = false
+    private var currentOffline: String = ""
+
+    private var mHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, e ->
+        e.printStackTrace()
+        LogUtil.e(TAG, "Exception: ${e.message}")
+    }
+
+    private val mScope = CoroutineScope(Dispatchers.IO + mHandler)
+
+    companion object {
+        val instance: FaceScanVM by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+            synchronized(FaceScanVM::class.java) { FaceScanVM() }
+        }
+    }
+
+    fun setFaceListener(listener: FaceResultListener?) {
+        this.listener = listener
+    }
+
+    fun startFacePay(status: Boolean, offline: String = "", payment: String = "") {
+        mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+        modeStatus = status
+        currentOffline = offline
+        val bean = CcbFacePayBean().apply {
+            CAMPUS_ID = mPayCfg.campusId
+            CORP_ID = mPayCfg.corp_id        // "1046"
+            PAYMENT = payment
+            BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
+            VPOS_ID = mPayCfg.counterId      // "V00023523"
+            REMARK = ""
+            OFFLINE = offline
+        }
+        mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(bean), offline, OnPayResultListener())
+    }
+
+    fun bindService() {
+        if (mFacePayService != null) return
+        val serviceIntent = Intent()
+        serviceIntent.action = "com.ccb.smartcanteen.FacePayService"
+        serviceIntent.setPackage("com.ccb.smartcanteen")
+        mContext.bindService(serviceIntent, MyServiceConnection(), Context.BIND_AUTO_CREATE)
+    }
+
+    private inner class MyServiceConnection : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            LogUtil.d(TAG, "Service Connected Success!")
+            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            LogUtil.e(TAG, "Service Connected Failure!")
+            mFacePayService = null
+        }
+    }
+
+    private inner class OnPayResultListener : PayResultListener.Stub() {
+        override fun onResult(result: String) {
+            LogUtil.d(TAG, result)
+            val bean = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+            if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
+        }
+    }
+
+    private fun facePay(bean: CcbFacePayResultBean) {
+        val currentTime = System.currentTimeMillis()
+        val payForUI = PayForUI().apply {
+            businessId = mPayCfg.businessId
+            businessName = mPayCfg.businessName
+            campusId = mPayCfg.campusId
+            corpId = mPayCfg.corp_id
+            vposId = mPayCfg.counterId
+            deviceId = CommonAndDpToPxUtil.getDeviceSerial()
+            payType = "1"
+            payment = bean.PAYMENT
+            orderId = bean.ORDER_ID
+            payTime = bean.PAYTIME
+            payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
+            sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
+            signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+            offline = currentOffline
+        }
+        when (bean.RESULT) {
+            "Y" -> { //订单状态,成功
+                payForUI.username = bean.CUST_NAME
+                payForUI.custId = bean.CUST_ID
+                payForUI.actualPayment = bean.ACTUAL_PAYMENT  //非离线用实际支付值
+                payForUI.accType = bean.ACC_TYPE
+                payForUI.accNo = bean.ACC_NO
+                payForUI.accBal = bean.ACC_BAL
+                bean.ACC_LIST.forEach {
+                    val acclist = ACCLIST().apply {
+                        ACC_NO = it.ACC_NO
+                        ACC_BAL = it.ACC_BAL
+                        ACC_TYPE = it.ACC_TYPE
+                        TRAN_ID = it.TRAN_ID
+                        PAYMENT = it.PAYMENT
+                    }
+                    payForUI.accList.add(acclist)
+                }
+                //检查支付结果，
+                when (bean.TRAN_RESULT) {
+                    "3" -> {  //3支付成功
+                        payForUI.result = bean.RESULT
+                        payForUI.traceId = bean.TRACEID
+                        saveOrSynOrder(payForUI)
+                    }
+                    else -> { //1 -待支付、2-支付失败
+                        payForUI.result = bean.RESULT
+                        payForUI.errCode = bean.ERRCODE
+                        payForUI.errMsg = bean.ERRMSG
+                    }
+                }
+            }
+            else -> { //订单状态,失败
+                payForUI.result = bean.RESULT
+                payForUI.errCode = bean.ERRCODE
+                payForUI.errMsg = bean.ERRMSG
+            }
+        }
+        listener?.onFacePay(payForUI)
+    }
+
+    private fun saveOrSynOrder(payForUI: PayForUI) {
+        mScope.launch(Dispatchers.IO + mHandler) {
+            //保存记录
+            val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
+            payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            dbHelper.insertPayOrder(payOrder)
+            val order = dbHelper.queryPayOrder(payOrder.orderId)
+            payForUI.paymentDishes.forEach {
+                val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
+                dish.payOrderTable = order
+                dbHelper.insertPayDish(dish)
+            }
+            //上传记录
+            val bean = SynConsumeRecordBean().apply {
+                deviceSerialNumber = order.deviceId
+                businessId = order.businessId
+                campusId = order.campusId
+                counterId = order.vposId
+                consumptionType = order.payType
+                RESULT = order.result
+                CUST_ID = order.custId
+                PAYMENT = order.payment
+                ACTUAL_PAYMENT = order.actualPayment ?: "0.0"
+                ACC_NO = order.accNo
+                ACC_BAL = order.accBal
+                ACC_TYPE = order.accType
+                TRACEID = order.traceId
+                ORDER_ID = order.orderId
+                TRAN_RESULT = order.tranResult
+                OFFLINE = order.offline
+                ERRCODE = ""
+                ERRMSG = ""
+                order.accList.forEach {
+                    val acclist = ACCLIST().apply {
+                        ACC_NO = it.acC_NO
+                        ACC_BAL = it.acC_BAL
+                        ACC_TYPE = it.acC_TYPE
+                        TRAN_ID = it.traN_ID
+                        PAYMENT = it.payment
+                    }
+                    ACC_LIST.add(acclist)
+                }
+                PAYTIME = order.payTime
+                BUSINESS_NAME = order.businessName
+            }
+            payForUI.paymentDishes.forEach { bean.paymentDishesList.add(it) }
+            LogUtil.d(TAG, Gson().toJson(bean))
+            if (payForUI.offline == "0") {
+                val res = mRespository.synCsRecord(bean)
+                if (res.code == "200") {
+                    order.flag = 1
+                    dbHelper.updatePayOrder(order)
+                    LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
+                } else LogUtil.e(TAG, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+            }
+        }
+    }
+
+    fun clear() {
+        mFacePayService = null
+        mScope.cancel()
+    }
+
+    interface FaceResultListener {
+        fun onFacePay(payForUI: PayForUI)
+        fun onFaceQuery(bean: CcbFacePayResultBean)
+    }
+}
