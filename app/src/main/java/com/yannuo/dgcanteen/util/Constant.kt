@@ -108,6 +108,7 @@ object Constant {
     const val EVENT_CODE = 29 //二维码核销
     const val EVENT_ORDER_VERIFY = 30 //订单核销成功
     const val EVENT_VERIFY_CHANGE = 31 //核销功能改变
+    const val EVENT_TRAN_MODE = 32  //交易方式
 
 
     const val VERIFY_MODE = "verifyMode"//核销方式

@@ -29,6 +29,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CommodityPay">
         <activity
+            android:name=".activitys.CalculateTwoActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.OrderMealActivity"
             android:exported="false" />
         <activity

@@ -209,7 +209,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                                 Constant.ORDERING_FOOD_MODE -> Intent(this@InitActivity, CommodityActivity::class.java)
                                 Constant.ORDERING_TWO_MODE -> Intent(this@InitActivity, OrderMenuActivity::class.java)
                                 Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
-
+                                Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
                                 else -> Intent(this@InitActivity, OrderMealActivity::class.java)
                             }
                         }
