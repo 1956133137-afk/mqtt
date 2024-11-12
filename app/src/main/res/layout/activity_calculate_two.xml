@@ -66,7 +66,63 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/pay_record"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:text="收款记录"
+                    android:textColor="#4F4F4F"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pay_order_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/verify_record"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:text="核销记录"
+                    android:textColor="#4F4F4F"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/verify_order_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <fragment
             android:id="@+id/input_keyboard"
@@ -78,7 +134,6 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:padding="10dp">
@@ -94,10 +149,23 @@
                 android:textSize="40sp" />
 
             <Button
-                android:id="@+id/btn_setting"
+                android:id="@+id/btn_off"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tv_clock"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/bt_marg"
+                android:background="@drawable/click_button"
+                android:padding="10dp"
+                android:text="离线模式"
+                android:textColor="#4F4F4F"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/btn_setting"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_off"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/bt_marg"
                 android:background="@drawable/click_button"
@@ -117,7 +185,7 @@
                 android:padding="10dp"
                 android:text=""
                 android:textColor="#4F4F4F"
-                android:textSize="45sp"/>
+                android:textSize="45sp" />
 
             <Button
                 android:id="@+id/btn_first"

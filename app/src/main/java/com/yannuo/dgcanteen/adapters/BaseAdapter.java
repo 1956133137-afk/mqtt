@@ -72,6 +72,14 @@ public abstract class BaseAdapter<T,B extends ViewBinding> extends RecyclerView.
 
     }
 
+    public void insertDataTop(T data, Integer item) {
+        if (data == null) return;
+        mData.add(0, data);
+        while (item != 0 && getItemCount() > item) mData.remove(getItemCount() - 1);
+//        notifyItemInserted(0);
+        notifyDataSetChanged();
+    }
+
     public void removeData(String key){
         if (key == null || map == null)return;
         Integer position = map.get(key);

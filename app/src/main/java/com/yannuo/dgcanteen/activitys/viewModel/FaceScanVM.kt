@@ -58,10 +58,10 @@ class FaceScanVM {
         this.listener = listener
     }
 
-    fun startFacePay(status: Boolean, offline: String = "", payment: String = "") {
+    fun startFacePay(status: Boolean, payment: String = "") {
         mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         modeStatus = status
-        currentOffline = offline
+        currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
         val bean = CcbFacePayBean().apply {
             CAMPUS_ID = mPayCfg.campusId
             CORP_ID = mPayCfg.corp_id        // "1046"
@@ -69,9 +69,9 @@ class FaceScanVM {
             BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
             VPOS_ID = mPayCfg.counterId      // "V00023523"
             REMARK = ""
-            OFFLINE = offline
+            OFFLINE = currentOffline
         }
-        mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(bean), offline, OnPayResultListener())
+        mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(bean), currentOffline, OnPayResultListener())
     }
 
     fun bindService() {

@@ -511,6 +511,22 @@ public class DishesDBHelper {
                 .list();
     }
 
+    public VerifyDishes queryVerifyUser(String date) {
+        return mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Time.gt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.lt(date + " 23:59:59"))
+                .orderDesc(VerifyDishesDao.Properties.Id)
+                .limit(1)
+                .build().unique();
+    }
+
+    public List<VerifyDishes> queryVerifyUserToTen(String date) {
+        return mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Time.gt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.lt(date + " 23:59:59"))
+                .orderDesc(VerifyDishesDao.Properties.Id)
+                .limit(10)
+                .build().list();
+    }
+
     /*******************************  消费记录  *******************************/
     public void insertPayOrder(PayOrderTable payOrderTable) {
         payOrderTableDao.insertOrReplace(payOrderTable);
@@ -549,6 +565,22 @@ public class DishesDBHelper {
                 .build().list();
     }
 
+    public PayOrderTable queryPayOrderUser(String date) {
+        return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
+                .orderDesc(PayOrderTableDao.Properties.Id)
+                .limit(1)
+                .build().unique();
+    }
+
+    public List<PayOrderTable> queryPayOrderUserToTen(String date) {
+        return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
+                .orderDesc(PayOrderTableDao.Properties.Id)
+                .limit(10)
+                .build().list();
+    }
+
     public void deletePayOrder(PayOrderTable payOrder) {
         payOrderTableDao.delete(payOrder);
     }
@@ -577,6 +609,7 @@ public class DishesDBHelper {
 
     /**
      * 插入所有账户信息
+     *
      * @param accListTable
      */
     public void insertAccList(AccListTable accListTable) {

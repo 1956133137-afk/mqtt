@@ -20,6 +20,7 @@ open class RequestPayBase {
     var sessionId: String = ""
     var signTime: String = ""
     var offline: String = ""    //0在线 1离线
+    var verifyFlag: String = "" //订餐字段 1-需要核销 2-不需要核销
 }
 
 class Dish {
