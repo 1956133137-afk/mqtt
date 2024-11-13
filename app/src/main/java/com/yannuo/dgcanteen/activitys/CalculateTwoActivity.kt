@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), NetworkStateManager.NetWorkListener {
     private val handler = Handler(MyApplication.applicationContext.mainLooper)
@@ -48,6 +50,7 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
     )
     private var lastTime = 0L  //上次触发时间
     private var currentDate: String = ""
+    private var mealName = ""
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
@@ -249,47 +252,31 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                 }
                 val verifyRequest = VerificationRequest().apply {
                     dcEncryptParam = getCavEncryptParam(verifyOrderBean)
-                    flag = 0
+                    this.flag = 0
                 }
                 val verification = mRespository.getCcbCodeVerification(verifyRequest)
                 if (verification.code == "200") {
                     val verificationResponse = Gson().fromJson(Gson().toJson(verification.data), VerificationResponse::class.java)
                     LogUtil.d(TAG, Gson().toJson(verificationResponse))
-                    val sb = StringBuilder()
-                    val dishes = StringBuilder()
-                    val undish = StringBuilder()
-                    val windows = StringBuilder()
-                    for (dish in verificationResponse.verifyDishes) {
-                        sb.append("$dish,")
-                        dishes.append("$dish|")
+                    val allMeals = DishesDBHelper.getInstance().queryAllMeals()
+                    allMeals.forEach {
+                        if (Date() >= it.startTime && Date() <= it.endTime) mealName = it.mealName
                     }
-                    LogUtil.i(TAG, "核销的菜品: $sb")
-                    if (verificationResponse.unVerifyWindowName.isNotEmpty()) {
-                        sb.append("未核销的菜品有:")
-                        for (unDish in verificationResponse.unVerifyDishes) {
-                            sb.append("$unDish,")
-                            undish.append("$unDish|")
-                        }
-                        sb.append("请前往")
-                        for (unWindow in verificationResponse.unVerifyWindowName) {
-                            sb.append("$unWindow,")
-                            windows.append("$unWindow|")
-                        }
-                        sb.append("进行核销")
-                    }
-                    CommonAndDpToPxUtil.speakWork(sb.toString())
                     verificationUI.apply {
                         errorMsg = verification.msg
                         personName = verificationResponse.personName
                         dish = verificationResponse.verifyDishes
+                        dishesList = verificationResponse.verify[mealName]?.dishesList
                         window = verificationResponse.unVerifyWindowName
+                        windows = verificationResponse.verify[mealName]?.windowList
                         unDish = verificationResponse.unVerifyDishes
+                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                     }
                     val verifyDishesBean = VerifyDishes().apply {
                         this.personName = verificationResponse.personName
-                        this.dish = dishes.toString()
-                        this.unDish = undish.toString()
-                        this.window = windows.toString()
+                        this.dish = verificationResponse.verifyDishes.toString()
+                        this.window = verificationResponse.unVerifyWindowName.toString()
+                        this.unDish = verificationResponse.unVerifyDishes.toString()
                         this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                     }
                     DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
