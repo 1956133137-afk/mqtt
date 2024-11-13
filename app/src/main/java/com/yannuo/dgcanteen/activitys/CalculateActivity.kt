@@ -15,7 +15,6 @@ import android.os.IBinder
 import android.view.Display
 import android.view.View
 import android.widget.Button
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ccb.smartcanteen.PayResultListener
@@ -26,7 +25,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
-import com.yannuo.dgcanteen.adapters.VerifyDishCountAdapter
+import com.yannuo.dgcanteen.adapters.OrderDishCountAdapter
 import com.yannuo.dgcanteen.common.PeriodicVerificationReceiver
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
@@ -70,8 +69,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private lateinit var maps :MutableMap<String, Int >
     private var lastTime = 0L  //上次触发时间
     private var mealId = 0
-    private val dishCountAdapter by lazy {
-        VerifyDishCountAdapter()
+    private val orderCountAdapter by lazy {
+        OrderDishCountAdapter()
     }
     private val viewModel by lazy {
         ViewModelProvider(this)[VerificationVM::class.java]
@@ -244,45 +243,33 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
-            viewModel.getVerifyCount()
-            viewModel.verifyCount.observe(this) { value ->
-                binding.tvTotalOrder.text = value.total.totalOrderNum
-                binding.tvTotalVerify.text = value.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = value.total.unVerifyTotalOrderNum
-                value.mealList.forEach {meal ->
-                    when (mealId) {
-                        0 -> {
-                            binding.tvOrderName.visibility = View.GONE
-                            binding.tvMealOrder.visibility = View.GONE
-                            binding.tvVerifyName.visibility = View.GONE
-                            binding.tvMealVerify.visibility = View.GONE
-                        }
-                        meal.mealId.toInt() -> {
-                            binding.tvOrderName.text = "${meal.mealName}订餐数:"
-                            binding.tvMealOrder.text = meal.mealOrderNum
-                            binding.tvVerifyName.text = "${meal.mealName}核销数:"
-                            binding.tvMealVerify.text = meal.verifyMealOrderNum
-                        }
-                    }
+            viewModel.getDishesCountOfWindow()
+            viewModel.dishesCountOfWindow.observe(this) { value ->
+                var totalOrderNum = 0
+                var verifyTotalOrderNum = 0
+                var unVerifyTotalOrderNum = 0
+                value.needVerifyTotal.forEach {
+                    totalOrderNum += it.dishesNum
+                    it.flag = 0
                 }
-            }
-            viewModel.getDishesCount()
-            viewModel.dishesCount.observe(this) {value->
-                value.countDishes.forEach {
-                    when (mealId) {
-                        it.mealId -> {
-                            if (it.dishes.isNotEmpty()) {
-                                dishCountAdapter.data = it.dishes
-                                val linearLayoutManager = LinearLayoutManager(this)
-                                binding.rvDishVerify.layoutManager = linearLayoutManager
-                                binding.rvDishVerify.adapter = dishCountAdapter
-                            }
-                        }
-                        0 -> {
-                            binding.rvDishVerify.visibility = View.GONE
-                        }
-                    }
+                value.verifyTotal.forEach {
+                    verifyTotalOrderNum += it.dishesNum
+                    it.flag = 1
                 }
+                value.unVerifyTotal.forEach {
+                    unVerifyTotalOrderNum += it.dishesNum
+                    it.flag = 2
+                }
+                binding.tvTotalOrder.text = totalOrderNum.toString()
+                binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
+                binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
+
+                orderCountAdapter.data = value.needVerifyTotal
+                orderCountAdapter.addData(value.verifyTotal)
+                orderCountAdapter.addData(value.unVerifyTotal)
+                val linearManager = LinearLayoutManager(this)
+                binding.rvDishOrder.layoutManager = linearManager
+                binding.rvDishOrder.adapter = orderCountAdapter
             }
         } else binding.verifyShow.visibility = View.GONE
     }
@@ -381,6 +368,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
             }
+        }
+
+        binding.verifyView.setOnLongClickListener {
+            initVerify()
+            true
         }
     }
 

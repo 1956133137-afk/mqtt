@@ -5,15 +5,15 @@
     "kind": "Directory"
   },
   "applicationId": "com.yannuo.dgcanteen",
-  "variantName": "inputRelease",
+  "variantName": "inputDebug",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 44,
-      "versionName": "1.4.5",
-      "outputFile": "ccb_canteen-input-v1.4.5-2024111213.apk"
+      "versionCode": 45,
+      "versionName": "1.4.6",
+      "outputFile": "ccb_canteen-input-v1.4.6-debug.apk"
     }
   ],
   "elementType": "File"

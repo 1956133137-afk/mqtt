@@ -148,4 +148,11 @@ interface ApiService {
         @Body bean: InsertBatchOrderBean
     ): CanteenResponse<InsertBatchOrderReceive>
 
+    /**
+     * 订餐菜品统计
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/countDishesOfWindow")
+    suspend fun countDishesOfWindow(@Body bean: CountDishesOfWindowBean): CanteenResponse<CountDishesOfWindowResponse>
+
 }

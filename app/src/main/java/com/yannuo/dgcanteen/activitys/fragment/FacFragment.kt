@@ -33,6 +33,7 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
             binding.payTotalMoney.text = "￥${it.payment}"
             payMoney = it.payment
         }
+        FaceScanVM.instance.startFacePay(false, String.format("%.02f", payMoney))
         FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
             override fun onFacePay(payForUI: PayForUI) {
                 onFacePayResult(payForUI)
@@ -42,7 +43,6 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
 
             }
         })
-        FaceScanVM.instance.startFacePay(false, String.format("%.02f", payMoney))
     }
 
     private fun initEvent() {

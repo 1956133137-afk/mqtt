@@ -313,6 +313,11 @@ class ModeSettingFragment : Fragment() {
         }
         if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()) {
             val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+            restartIntent?.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            )
             startActivity(restartIntent)
             exitProcess(0)
         }

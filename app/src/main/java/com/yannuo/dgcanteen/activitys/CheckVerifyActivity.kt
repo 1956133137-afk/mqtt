@@ -145,7 +145,7 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
                     LogUtil.i(TAG, result)
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
-                        verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null, 0)
+                        verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null, 1)
                     }else {
                         val verificationUI = VerificationUI().apply {
                             errorMsg = res.ERRMSG

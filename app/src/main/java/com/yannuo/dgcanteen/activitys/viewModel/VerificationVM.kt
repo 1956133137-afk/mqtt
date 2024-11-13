@@ -51,6 +51,10 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     val dishesCount: MutableLiveData<DishesCountResponse>
         get() = _dishesCount
 
+    private val counts = MutableLiveData<CountDishesOfWindowResponse>()
+    val dishesCountOfWindow: MutableLiveData<CountDishesOfWindowResponse>
+        get() = counts
+
     enum class CodeStatus {
         INVALID, PAY
     }
@@ -185,6 +189,8 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         viewModelScope.launch {
             val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+            val mealId = TimeUtil.CurrentTimeSection()
+            val deviceId = Utils.getSN()
             val request = VerificationCountRequest(campusId.toString(), businessId.toString())
             val res = mRespository.getCcbCountDCofDay(request)
             if (res.code == "200") {
@@ -203,6 +209,26 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), DishesCountResponse::class.java)
                 _dishesCount.value = json
+            }
+        }
+    }
+
+    fun getDishesCountOfWindow() {
+        viewModelScope.launch {
+            val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
+            val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
+            val mealId = TimeUtil.CurrentTimeSection()
+            val deviceId = Utils.getSN()
+            val request = CountDishesOfWindowBean().apply {
+                this.campusId = campusId
+                this.businessId = businessId
+                this.mealId = mealId
+                this.deviceId = deviceId
+            }
+            val res = mRespository.getCountDishes(request)
+            if (res.code == "200") {
+                val json = Gson().fromJson(Gson().toJson(res.data), CountDishesOfWindowResponse::class.java)
+                counts.value = json
             }
         }
     }

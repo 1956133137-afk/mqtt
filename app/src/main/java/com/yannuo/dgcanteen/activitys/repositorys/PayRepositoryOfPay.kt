@@ -154,6 +154,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getCountDishes(bean: CountDishesOfWindowBean): CanteenResponse<CountDishesOfWindowResponse> {
+        return apiCall {
+            RetrofitClient.getApi().countDishesOfWindow(bean)
+        }
+    }
+
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {
             val res: CanteenResponse<T>

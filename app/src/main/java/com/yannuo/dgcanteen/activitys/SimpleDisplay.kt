@@ -161,25 +161,25 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         binding = SimpleDisplayBinding.inflate(layoutInflater)
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-            viewModel?.verifyCount?.observe(atv!!) { res ->
-//                LogUtil.d(TAG,"监听：" + Gson().toJson(res))
-                binding.tvTotalOrder.text = res.total.totalOrderNum
-                binding.tvTotalVerify.text = res.total.verifyTotalOrderNum
-                binding.tvUnVerify.text = res.total.unVerifyTotalOrderNum
-                res.mealList.forEach { meal ->
-                    if (mealId == meal.mealId.toInt()) {
-                        binding.tvOrderName.text = "${meal.mealName}订餐数:"
-                        binding.tvMealOrder.text = meal.mealOrderNum
-                        binding.tvVerifyName.text = "${meal.mealName}核销数:"
-                        binding.tvMealVerify.text = meal.verifyMealOrderNum
-                    }
-                    if (mealId == 0) {
-                        binding.tvOrderName.visibility = View.GONE
-                        binding.tvMealOrder.visibility = View.GONE
-                        binding.tvVerifyName.visibility = View.GONE
-                        binding.tvMealVerify.visibility = View.GONE
-                    }
+            viewModel?.dishesCountOfWindow?.observe(atv!!) { value ->
+                var totalOrderNum = 0
+                var verifyTotalOrderNum = 0
+                var unVerifyTotalOrderNum = 0
+                value.needVerifyTotal.forEach {
+                    totalOrderNum += it.dishesNum
+                    it.flag = 0
                 }
+                value.verifyTotal.forEach {
+                    verifyTotalOrderNum += it.dishesNum
+                    it.flag = 1
+                }
+                value.unVerifyTotal.forEach {
+                    unVerifyTotalOrderNum += it.dishesNum
+                    it.flag = 2
+                }
+                binding.tvTotalOrder.text = totalOrderNum.toString()
+                binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
+                binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
             }
         } else binding.verifyView.visibility = View.GONE
     }
