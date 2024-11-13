@@ -79,7 +79,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         ProductsVM()
     }
     private val periodicVerificationReceiver = PeriodicVerificationReceiver()
-    private var isFaceVerification = false
+
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -179,8 +179,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     override fun onResume() {
-        initPresentation()
-        LogUtil.i(TAG,"onResume!")
+//        initPresentation()
+//        LogUtil.i(TAG,"onResume!")
         super.onResume()
 //        productsVM.upDataDishes(true)
         var allMeals = DishesDBHelper.getInstance().queryAllMeals()
@@ -221,9 +221,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
         //自动核销
         handler.post {
-            if (!isFaceVerification && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
+            if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
                 faceVerification()
-                isFaceVerification = true
+                kv.encode(Constant.VERIFY_CHANGE, true)
             }
         }
     }
@@ -275,7 +275,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
     override fun onStop() {
-        isFaceVerification = false
         binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
         binding.btnConfirm.setTextColor(Color.BLACK)
         binding.btnConfirm.text = "确认金额"
@@ -539,7 +538,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
-            simpleDisplay.safeCancel()
             when (event) {
                 0 -> {
                     LogUtil.d(TAG, "核销成功")

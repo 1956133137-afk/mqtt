@@ -88,6 +88,7 @@ object Constant {
     const val MEAL_TIME = "meal_time" //显示核销菜品倒计时
     const val QUERY_VERIFY = "query_verify" //核销查询
     const val AUTO_VERIFY = "auto_verify"   //自动核销
+    const val VERIFY_CHANGE = "verify_change" //核销变量(防止二次刷脸)
     const val AUTO_PAY = "auto_pay"   //自动收款
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
 

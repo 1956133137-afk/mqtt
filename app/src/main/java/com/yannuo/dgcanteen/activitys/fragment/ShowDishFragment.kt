@@ -39,6 +39,7 @@ class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
         binding.tvTime.text = success.verification.time
         binding.personName.text = success.verification.personName
         binding.btnBack.setOnClickListener {
+            kv.encode(Constant.VERIFY_CHANGE, false)
             requireActivity().finish()
         }
         binding.btnClose.setOnClickListener {
@@ -54,6 +55,7 @@ class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
             }
 
             override fun onFinish() {
+                kv.encode(Constant.VERIFY_CHANGE, false)
                 requireActivity().finish()
             }
         }.start()

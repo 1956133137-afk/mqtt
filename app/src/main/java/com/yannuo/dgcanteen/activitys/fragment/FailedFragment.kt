@@ -31,6 +31,7 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
     }
     private fun initEvent() {
         binding.btnBack.setOnClickListener {
+            kv.encode(Constant.VERIFY_CHANGE, false)
             requireActivity().finish()
         }
         binding.btnClose.setOnClickListener {
@@ -45,6 +46,7 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
             }
 
             override fun onFinish() {
+                kv.encode(Constant.VERIFY_CHANGE, false)
                 requireActivity().finish()
             }
         }.start()

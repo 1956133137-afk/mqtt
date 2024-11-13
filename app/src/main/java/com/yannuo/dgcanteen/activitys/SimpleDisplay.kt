@@ -167,15 +167,12 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
                 var unVerifyTotalOrderNum = 0
                 value.needVerifyTotal.forEach {
                     totalOrderNum += it.dishesNum
-                    it.flag = 0
                 }
                 value.verifyTotal.forEach {
                     verifyTotalOrderNum += it.dishesNum
-                    it.flag = 1
                 }
                 value.unVerifyTotal.forEach {
                     unVerifyTotalOrderNum += it.dishesNum
-                    it.flag = 2
                 }
                 binding.tvTotalOrder.text = totalOrderNum.toString()
                 binding.tvTotalVerify.text = verifyTotalOrderNum.toString()

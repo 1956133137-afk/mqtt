@@ -136,6 +136,7 @@ class ModeSettingFragment : Fragment() {
         }
         binding.autoVerify.setOnClickListener {
             kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
+            kv.encode(Constant.VERIFY_CHANGE, false)
         }
         binding.supportPay.setOnClickListener {
             kv.encode(Constant.SUPPORT_PAY, binding.supportPay.isChecked)
