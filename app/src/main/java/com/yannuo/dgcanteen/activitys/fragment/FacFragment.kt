@@ -63,7 +63,7 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
 
             if (payForUI.result == "Y") {
                 bean.apply {
-                    payment = payForUI.payment.toFloat()
+                    payment = payForUI.actualPayment.ifEmpty { payForUI.payment }.toFloat()
                     custName = payForUI.username
                     accNo = payForUI.accNo
                     acc_bal = payForUI.accBal

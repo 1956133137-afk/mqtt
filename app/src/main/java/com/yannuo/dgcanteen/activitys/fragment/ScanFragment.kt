@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-class ScanFragment : Fragment(), CallbackListener,KeyboardListener {
+class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     private val TAG = javaClass.simpleName
     private val kv: MMKV = MMKV.defaultMMKV()
     private lateinit var binding: FragmentScanBinding
@@ -102,7 +102,7 @@ class ScanFragment : Fragment(), CallbackListener,KeyboardListener {
                         LogUtil.d(TAG, Gson().toJson(payForUI))
                         val bean = SimpleForUI().apply {
                             custName = payForUI.username
-                            payment = payForUI.payment.toFloat()
+                            payment = payForUI.actualPayment.ifEmpty { payForUI.payment }.toFloat()
                             accNo = payForUI.accNo
                             timestamp = payForUI.payTime
                             tranId = payForUI.traceId
@@ -197,9 +197,10 @@ class ScanFragment : Fragment(), CallbackListener,KeyboardListener {
         countDown = null
         KeyboardUtil.instance.removeObserver(this)
     }
+
     override fun keyboardMode(keyCode: Int, keyName: String) {
         when (keyCode) {
-            42-> {
+            42 -> {
                 countDown?.cancel()
                 countDown = null
                 requireActivity().finish()

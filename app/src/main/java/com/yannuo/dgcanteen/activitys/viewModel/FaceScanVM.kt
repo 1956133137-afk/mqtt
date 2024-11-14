@@ -36,8 +36,6 @@ class FaceScanVM {
     private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
     private var mFacePayService: ZHSTFacePayService? = null
     private var listener: FaceResultListener? = null
-
-    // true:支付 false:查询
     private var modeStatus: Boolean = false
     private var currentOffline: String = ""
 
@@ -97,7 +95,8 @@ class FaceScanVM {
     private inner class OnPayResultListener : PayResultListener.Stub() {
         override fun onResult(result: String) {
             LogUtil.d(TAG, result)
-            val bean = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+            val responseStr = if (modeStatus) result.replace("\"[]\"", "[]") else result
+            val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
             if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
         }
     }

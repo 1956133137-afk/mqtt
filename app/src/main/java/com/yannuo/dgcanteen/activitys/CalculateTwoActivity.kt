@@ -205,6 +205,7 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                         val value = event.any as Int
                         if (value == 0) {
                             buttonIsUsable(false)
+                            FaceScanVM.instance.startFacePay(true)
                             FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
                                 override fun onFacePay(payForUI: PayForUI) {
 
@@ -214,7 +215,6 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                                     verification(bean)
                                 }
                             })
-                            FaceScanVM.instance.startFacePay(true)
                         } else {
                             CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                             startActivity(Intent(this, CardVerificationActivity::class.java))

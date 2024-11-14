@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.OrderDishCountAdapter
@@ -121,6 +122,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
 
     private fun initObject() {
+        FaceScanVM.instance.bindService()
         viewModel.setListener(this)
         productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
