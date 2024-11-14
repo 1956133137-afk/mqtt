@@ -225,9 +225,11 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 this.mealId = mealId
                 this.deviceId = deviceId
             }
+            LogUtil.d(TAG, "订餐统计请求：${Gson().toJson(request)}")
             val res = mRespository.getCountDishes(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), CountDishesOfWindowResponse::class.java)
+                LogUtil.d(TAG, "getDishesCountOfWindow: ${Gson().toJson(json)}")
                 counts.value = json
             }
         }

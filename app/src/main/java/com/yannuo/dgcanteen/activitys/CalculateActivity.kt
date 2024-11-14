@@ -123,12 +123,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     private fun initObject() {
         viewModel.setListener(this)
         productsVM.upDataDishes(true)
-        var allMeals = DishesDBHelper.getInstance().queryAllMeals()
-        allMeals.forEach {
-            if (Date() >= it.startTime && Date() <= it.endTime) {
-                mealId = it.mealId
-            }
-        }
+        mealId = TimeUtil.CurrentTimeSection()
         LogUtil.d(TAG, "mealId:$mealId")
         EventBus.getDefault().register(this)
         NetworkStateManager.getInstance().registerObserver(this)
@@ -183,12 +178,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 //        LogUtil.i(TAG,"onResume!")
         super.onResume()
 //        productsVM.upDataDishes(true)
-        var allMeals = DishesDBHelper.getInstance().queryAllMeals()
-        allMeals.forEach {
-            if (Date() >= it.startTime && Date() <= it.endTime) {
-                mealId = it.mealId
-            }
-        }
+        mealId = TimeUtil.CurrentTimeSection()
         mXService?.hideNavBar = true
         simpleDisplay.safeCancel()
         simpleDisplay = SimpleDisplay(this, secondDisplays)
