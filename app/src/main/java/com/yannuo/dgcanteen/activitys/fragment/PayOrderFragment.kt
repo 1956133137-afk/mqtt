@@ -36,7 +36,7 @@ class PayOrderFragment : BaseFragment<FragmentPayOrderBinding>() {
         var notCount = 0
         payOrderList.forEach {
             tranCount++
-            tranAmount += it.actualPayment.toDouble()
+            tranAmount += it.actualPayment.ifEmpty { it.payment }.toDouble()
             if (it.flag == 1) uploadCount++ else notCount++
         }
         binding.dateMsg.text = "$date\n消费汇总统计"

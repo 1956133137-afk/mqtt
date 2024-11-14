@@ -95,7 +95,7 @@ class FaceScanVM {
     private inner class OnPayResultListener : PayResultListener.Stub() {
         override fun onResult(result: String) {
             LogUtil.d(TAG, result)
-            val responseStr = if (modeStatus) result.replace("\"[]\"", "[]") else result
+            val responseStr = result.replace("\"[", "[").replace("]\"", "]")
             val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
             if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
         }
