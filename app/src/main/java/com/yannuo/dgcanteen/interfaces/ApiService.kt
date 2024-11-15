@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.interfaces
 
+import com.google.gson.JsonObject
 import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
 import com.yannuo.dgcanteen.greendao.entity.Persons
@@ -147,6 +148,20 @@ interface ApiService {
         @Header("dcccbauthorization") token: String,
         @Body bean: InsertBatchOrderBean
     ): CanteenResponse<InsertBatchOrderReceive>
+
+    /**
+     * 查询订餐列表
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/list")
+    suspend fun getOrderList(@Header("dcccbauthorization") token: String, @Body bean: OrderListBean): CanteenResponse<JsonObject>
+
+    /**
+     * 退餐接口
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/directRefund")
+    suspend fun orderDirectRefund(@Header("dcccbauthorization") token: String, @Body bean: OrderRefundBean): CanteenResponse<JsonObject>
 
     /**
      * 订餐菜品统计

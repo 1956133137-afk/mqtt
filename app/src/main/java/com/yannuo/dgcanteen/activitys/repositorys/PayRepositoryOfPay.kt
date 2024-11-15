@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
+import com.google.gson.JsonObject
 import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
@@ -151,6 +152,18 @@ class PayRepositoryOfPay {
     suspend fun insertBatchOrder(token: String, bean: InsertBatchOrderBean): CanteenResponse<InsertBatchOrderReceive> {
         return apiCall {
             RetrofitClient.getApi().insertBatchOrder(token, bean)
+        }
+    }
+
+    suspend fun getOrderList(token: String, bean: OrderListBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().getOrderList(token, bean)
+        }
+    }
+
+    suspend fun orderDirectRefund(token: String, bean: OrderRefundBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().orderDirectRefund(token, bean)
         }
     }
 

@@ -44,6 +44,25 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btn_order_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="40dp"
+            android:layout_toStartOf="@+id/tv_title"
+            android:background="@drawable/select_btn_blue_press"
+            android:drawableStart="@drawable/ic_order_record"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:stateListAnimator="@null"
+            android:text="订餐记录"
+            android:textColor="#FFFFFF"
+            android:textSize="40sp"
+            android:visibility="invisible" />
+
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"

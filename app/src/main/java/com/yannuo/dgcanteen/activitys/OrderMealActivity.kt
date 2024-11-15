@@ -49,6 +49,7 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
         }
         orderMealVM.getUserName().observe(this) {
             binding.tipsUser.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+            binding.btnOrderRecord.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
             binding.userName.text = it.toString()
         }
         NetworkStateManager.getInstance().registerObserver(this)
@@ -60,6 +61,12 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
             mXService?.hideNavBar = navigation
             if (!navigation) ToastShowUtil.show("导航可用")
             true
+        }
+        binding.btnOrderRecord.setOnClickListener {
+            val intent = Intent(this, OrderRecordActivity::class.java)
+            intent.putExtra("custId", orderMealVM.getUserId())
+            intent.putExtra("ccbToken", orderMealVM.getCcbToken())
+            startActivity(intent)
         }
         binding.btnSetting.setOnClickListener {
             if (passwordDialog == null) passwordDialog = PasswordDialog(this)

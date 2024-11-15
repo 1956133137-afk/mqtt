@@ -1,0 +1,65 @@
+package com.yannuo.dgcanteen.activitys.viewModel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.model.Order
+import com.yannuo.dgcanteen.model.OrderListBean
+import com.yannuo.dgcanteen.model.OrderListReceive
+import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+/**
+ * Author: filowl
+ * Description: ***
+ * Date: 2024/11/15 10:16
+ **/
+class OrderRecordVM : ViewModel() {
+    private val TAG = javaClass.simpleName
+    private val kv = MMKV.defaultMMKV()
+    private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
+
+    private var currentCcbToken: String = ""
+    private var currentCustId: String = ""
+    private var payCfg = PayCfg()
+    private val orderList: MutableList<Order> = mutableListOf()
+
+    private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        LogUtil.e(TAG, "Exception: $throwable")
+        throwable.printStackTrace()
+    }
+
+    fun setUserId(ccbToken: String, custId: String) {
+        currentCcbToken = ccbToken
+        currentCustId = custId
+        payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+    }
+
+    fun queryOrderList(page: Int, pageSize: Int, callback: (Int, MutableList<Order>) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            orderList.clear()
+            val bean = OrderListBean().apply {
+                campusId = payCfg.campusId
+                custId = currentCustId
+                this.page = page.toString()
+                this.pageSize = pageSize.toString()
+                batchTranResult.addAll(mutableListOf("3"))
+                batchOrderStatus.addAll(mutableListOf("4", "7"))
+            }
+            LogUtil.d(TAG, Gson().toJson(bean))
+            val response = mRepository.getOrderList(currentCcbToken, bean)
+            if (response.code == "200") {
+                val receive = Gson().fromJson(response.data.toString(), OrderListReceive::class.java)
+                orderList.addAll(receive.list)
+                if (page >= receive.totalPage.toInt() || page * pageSize >= receive.totalRecord.toInt()) callback(1, orderList)
+                else queryOrderList(page + 1, pageSize) { type, orderList -> callback(1, orderList) }
+            } else callback(3, orderList)
+        }
+    }
+}

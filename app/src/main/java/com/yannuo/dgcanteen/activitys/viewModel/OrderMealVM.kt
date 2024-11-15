@@ -43,6 +43,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private val awaitStatus: MutableLiveData<String> = MutableLiveData<String>("")
     private val userName: MutableLiveData<String> = MutableLiveData<String>("")
     private val reorderStatus: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
+    private var currentCustId: String = ""
+    private var currentCcbToken: String = ""
 
     private var mFacePayService: ZHSTFacePayService? = null
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
@@ -71,6 +73,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     fun getAwaitStatus(): MutableLiveData<String> = awaitStatus
     fun getUserName(): MutableLiveData<String> = userName
+    fun getUserId(): String = currentCustId
+    fun getCcbToken(): String = currentCcbToken
     fun getReorderStatus(): MutableLiveData<Boolean> = reorderStatus
 
     fun setOrderStatus(status: OrderStatus) {
@@ -256,6 +260,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             val tokenRes = mRepository.getToken(orderForUI.campusId, encryptStr)
             if (tokenRes.code == "200") {
                 orderForUI.ccbToken = tokenRes.data?.dcccbToken ?: ""
+                currentCustId = orderForUI.custId
+                currentCcbToken = orderForUI.ccbToken
                 listener?.onOrderResult(1, orderForUI)
             } else {
                 orderForUI.errCode = tokenRes.code
