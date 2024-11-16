@@ -31,6 +31,10 @@ class ConfirmDialog(context: Context) : BaseDialog<DialogConfirmBinding>(context
         }
     }
 
+    fun setTextMsg(str: String) {
+        binding.tvText.text = str
+    }
+
     interface OnConfirmCallback {
         fun confirmCallback(flag: Boolean)
     }

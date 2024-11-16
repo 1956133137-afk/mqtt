@@ -47,18 +47,14 @@ abstract class BaseDialog<T : ViewBinding>(context: Context) : Dialog(context) {
         //隐藏背景
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         //弹出框大小
-        val layoutParams = window?.attributes
-        layoutParams?.apply {
-            gravity = Gravity.CENTER
-//            width = DeviceUtil.getScreenWidth()
-            width = WindowManager.LayoutParams.WRAP_CONTENT
-            height = WindowManager.LayoutParams.WRAP_CONTENT
-        }
-        window?.attributes = layoutParams
+        window?.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT)
+        window?.setGravity(Gravity.CENTER)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
     }
 
     //隐藏状态栏和底部导航栏
-    private fun fullScreenImmersive(view: View) {
+    private fun fullScreenImmersive() {
+//        window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val uiOptions: Int = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -66,17 +62,15 @@ abstract class BaseDialog<T : ViewBinding>(context: Context) : Dialog(context) {
                     or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                     or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            view.setSystemUiVisibility(uiOptions)
+            window?.decorView?.setSystemUiVisibility(uiOptions)
         }
     }
 
     override fun show() {
-        window?.setFlags(
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-        )
+        window?.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
         super.show()
-        window?.decorView?.let { fullScreenImmersive(it) }
+        fullScreenImmersive()
+//        window?.decorView?.setOnSystemUiVisibilityChangeListener { fullScreenImmersive() }
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
     }
 

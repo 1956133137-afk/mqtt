@@ -5,12 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.model.Order
-import com.yannuo.dgcanteen.model.OrderListBean
-import com.yannuo.dgcanteen.model.OrderListReceive
-import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +34,7 @@ class OrderRecordVM : ViewModel() {
     }
 
     fun setUserId(ccbToken: String, custId: String) {
+        orderList.clear()
         currentCcbToken = ccbToken
         currentCustId = custId
         payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
@@ -43,7 +42,6 @@ class OrderRecordVM : ViewModel() {
 
     fun queryOrderList(page: Int, pageSize: Int, callback: (Int, MutableList<Order>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
-            orderList.clear()
             val bean = OrderListBean().apply {
                 campusId = payCfg.campusId
                 custId = currentCustId
@@ -60,6 +58,27 @@ class OrderRecordVM : ViewModel() {
                 if (page >= receive.totalPage.toInt() || page * pageSize >= receive.totalRecord.toInt()) callback(1, orderList)
                 else queryOrderList(page + 1, pageSize) { type, orderList -> callback(1, orderList) }
             } else callback(3, orderList)
+        }
+    }
+
+    fun orderRefund(order: Order, result: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            val refundBean = OrderRefundBean().apply {
+                campusId = payCfg.campusId
+                businessId = payCfg.businessId
+                custId = currentCustId
+                pOrderId = order.pOrderId
+                orderId = order.orderId
+            }
+            val refundMoney = order.actualPayment.toDouble() - order.refundPayment.toDouble()
+            if (refundMoney >= 0) {
+                refundBean.money = String.format("%.02f", refundMoney)
+                val refundRes = mRepository.orderDirectRefund(currentCcbToken, refundBean)
+                result(refundRes.code == "200")
+            } else {
+                result(false)
+                LogUtil.e(TAG, "退款金额不能少于0")
+            }
         }
     }
 }

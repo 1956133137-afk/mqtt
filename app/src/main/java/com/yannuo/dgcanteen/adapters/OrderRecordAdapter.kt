@@ -3,8 +3,14 @@ package com.yannuo.dgcanteen.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.yannuo.dgcanteen.databinding.ItemOrderRecordBinding
+import com.yannuo.dgcanteen.dialogView.DishDetailsDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.Order
+import com.yannuo.dgcanteen.model.OrderForUI
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import java.util.*
 
 /**
@@ -13,6 +19,13 @@ import java.util.*
  * Date: 2024/11/15 16:52
  **/
 class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordBinding>() {
+    private val dishDetailsDialog by lazy { DishDetailsDialog(context) }
+    private var listener: OnItemClickListener? = null
+    private var currentTime: Long = 0
+
+    fun setItemListener(listener: OnItemClickListener?) {
+        this.listener = listener
+    }
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup?): ItemOrderRecordBinding {
         return ItemOrderRecordBinding.inflate(inflater, parent, false)
@@ -23,7 +36,7 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         holder.binding.businessName.text = bean.businessName
         holder.binding.mealDate.text = bean.mealDate
         holder.binding.weekName.text = getWeekDay(bean.mealDate)
-        holder.binding.mealName.text = bean.mealId
+        holder.binding.mealName.text = bean.mealName
         holder.binding.orderType.text = if (bean.orderType == "1") "配送" else "自提"
         holder.binding.timeName.text = if (bean.orderType == "1") "配送时间: " else "用餐时间: "
         holder.binding.useMealTime.text = "${bean.startTime} - ${bean.endTime}"
@@ -33,6 +46,59 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>?) {
         bindHolder(holder, position)
+    }
+
+    override fun addEventListener(holder: Holder) {
+        holder.binding.btnRefund.setOnClickListener {
+            val position = holder.adapterPosition
+            if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
+            listener?.onItemClick(position)
+        }
+        holder.binding.btnPrinter.setOnClickListener {
+            val position = holder.adapterPosition
+            if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
+            printer(getData(position))
+        }
+        holder.binding.btnDetails.setOnClickListener {
+            val position = holder.adapterPosition
+            if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (!dishDetailsDialog.isShowing) {
+                dishDetailsDialog.show()
+                dishDetailsDialog.setOrderDishDetails(getData(position).dcOrderDishesList)
+            }
+        }
+    }
+
+    private fun judgeReClick(): Boolean {
+        if (System.currentTimeMillis() - currentTime < 1000) return false
+        currentTime = System.currentTimeMillis()
+        return true
+    }
+
+    private fun printer(order: Order) {
+        val person = DishesDBHelper.getInstance().queryPersonToCustId(order.custId)
+        val orderForUI = OrderForUI().apply {
+            custName = if (person != null) person.personName else ""
+            orderId = order.orderId
+            payment = order.payment
+            orderTime = order.orderTime
+            orderDate = order.mealDate
+            mealName = order.mealName
+            distribute = order.orderType
+            address = order.address
+            phone = order.phone
+        }
+        order.dcOrderDishesList.forEach {
+            val dishBean = DishBean().apply {
+                dishId = it.dishesId
+                dishName = it.dishesName
+                dishPrice = it.dishesPrice
+                dishCount = it.dishesNum.toInt()
+                dishUnit = it.unit
+            }
+            orderForUI.dishList.add(dishBean)
+        }
+        USBPrinterHelper.instance.printTicket("2", orderForUI)
     }
 
     private fun getWeekDay(date: String?): String {
@@ -55,5 +121,13 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
     private fun isValidDate(dateFormat: String): Boolean {
         val regex = Regex("""^\d{4}-\d{2}-\d{2}$""", RegexOption.IGNORE_CASE)
         return regex.matches(dateFormat)
+    }
+
+    fun release() {
+        dishDetailsDialog.cancel()
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
     }
 }

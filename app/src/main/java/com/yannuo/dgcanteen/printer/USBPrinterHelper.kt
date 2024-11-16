@@ -38,6 +38,8 @@ class USBPrinterHelper {
     private val printQueue: ArrayBlockingQueue<Any> = ArrayBlockingQueue(5)
     private var connectStatus = false
     private var connectTimes = 0
+
+    // 0-点餐、收款打印 1-订餐按天打印 2-订餐餐别打印
     private var printType: String = "0"
 
     private lateinit var mScope: CoroutineScope
@@ -127,7 +129,10 @@ class USBPrinterHelper {
     }
 
     fun printTicket(type: String, data: Any) {
-        if (mPos?.GetIO()?.IsOpened() == false) return
+        if (mPos?.GetIO()?.IsOpened() == false) {
+            LogUtil.e(TAG, "外接打印机未连接！")
+            return
+        }
         val state = queryPrintState()
         if (state != 0) LogUtil.e(TAG, codeToResult(state))
         else {
@@ -166,7 +171,11 @@ class USBPrinterHelper {
                 while (printQueue.size > 0) {
                     if (queryPrintState() == 0) {
                         printQueue.peek()?.let {
-                            if (printType == "0") printContent(it) else printBatchOrderContent(it)
+                            when (printType) {
+                                "0" -> printContent(it)
+                                "1" -> printBatchOrderContent(it)
+                                "2" -> printOrderContent(it)
+                            }
                         }
                         var times = 3
                         while (times > 0) {

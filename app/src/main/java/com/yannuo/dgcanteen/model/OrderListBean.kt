@@ -45,8 +45,11 @@ class Order {
     var refundPayment: String = ""  //退款金额
     var mealDate: String = ""       //餐别日期
     var mealId: String = ""         //餐别id
+    var mealName: String = ""       //餐别名称
     var startTime: String = ""      //餐别开始时间
     var endTime: String = ""        //餐别结束时间
+    var phone: String = ""          //手机号
+    var address: String = ""        //配送地址
     var dcOrderDishesList: MutableList<DcOrderDishes> = mutableListOf()
 //    var dcOrderPackageList: MutableList<String> = mutableListOf()
     var updateTime: String = ""     //订单更新时间
