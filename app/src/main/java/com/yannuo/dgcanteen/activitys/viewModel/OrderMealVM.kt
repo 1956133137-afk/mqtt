@@ -408,6 +408,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             deviceId = deviceSerial
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+//            verifyFlag = "1"
         }
         LogUtil.d(TAG, Gson().toJson(payBean))
         return DES3CBCUtil.encryption(Gson().toJson(payBean))

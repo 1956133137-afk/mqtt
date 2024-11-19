@@ -26,14 +26,22 @@ class DishDetailsDialog(context: Context) : BaseDialog<DialogDishDetailsBinding>
         binding.btnClose.setOnClickListener { dismiss() }
     }
 
-    fun setOrderDishDetails(dishList: MutableList<DcOrderDishes>) {
-        dishDetailsAdapter.data = dishList
+    fun setOrderDishDetails(dishList: MutableList<DcOrderDishes>, packagingFee: String = "0.00", deliveryFee: String = "0.00") {
+        val list: MutableList<DcOrderDishes> = mutableListOf()
         var totalCount = 0
         var totalPayment = 0.0
         dishList.forEach {
-            totalCount += it.dishesNum.toInt()
-            totalPayment += it.dishesNum.toInt() * it.dishesPrice.toDouble()
+            val count = it.dishesNum.toInt() - it.dishesRefundNum.toInt()
+            if (count > 0) {
+                list.add(it)
+                totalCount += count
+                totalPayment += count * it.dishesPrice.toDouble()
+            }
         }
+        totalPayment += packagingFee.toDouble() + deliveryFee.toDouble()
+        dishDetailsAdapter.data = list
+        binding.tvPackageFee.text = String.format("%.02f", packagingFee.toDouble())
+        binding.tvDeliveryFee.text = String.format("%.02f", deliveryFee.toDouble())
         binding.totalCount.text = "$totalCount"
         binding.totalPayment.text = "${String.format("%.02f", totalPayment)}"
     }

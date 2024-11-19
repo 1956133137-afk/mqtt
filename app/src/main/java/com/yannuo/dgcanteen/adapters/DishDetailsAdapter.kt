@@ -25,11 +25,12 @@ class DishDetailsAdapter(val context: Context) : BaseAdapter<DcOrderDishes, Item
         val bean = getData(position)
         holder.binding.tvName.text = bean.dishesName
         holder.binding.tvPrice.text = "￥${String.format("%.02f", bean.dishesPrice.toDouble())}"
-        holder.binding.tvCount.text = bean.dishesNum
-        val totalPayment = bean.dishesNum.toInt() * bean.dishesPrice.toDouble()
+        val count = bean.dishesNum.toInt() - bean.dishesRefundNum.toInt()
+        val totalPayment = count * bean.dishesPrice.toDouble()
+        holder.binding.tvCount.text = count.toString()
         holder.binding.tvSubtotal.text = "${String.format("%.02f", totalPayment)}元"
         Glide.with(holder.binding.imgPic)
-            .load(if (bean.imgUrl.isNotEmpty()) PictureUtil.getPictureName(bean.imgUrl, context) else "")
+            .load(if (bean.imgUrl != null && bean.imgUrl.isNotEmpty()) PictureUtil.getPictureName(bean.imgUrl, context) else "")
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .fitCenter()

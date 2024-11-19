@@ -22,6 +22,7 @@ class OrderRecordVM : ViewModel() {
     private val TAG = javaClass.simpleName
     private val kv = MMKV.defaultMMKV()
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
+    private var listener: OnOrderListener? = null
 
     private var currentCcbToken: String = ""
     private var currentCustId: String = ""
@@ -31,6 +32,11 @@ class OrderRecordVM : ViewModel() {
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
+        listener?.onOrder(0, "")
+    }
+
+    fun setListener(listener: OnOrderListener?) {
+        this.listener = listener
     }
 
     fun setUserId(ccbToken: String, custId: String) {
@@ -47,8 +53,8 @@ class OrderRecordVM : ViewModel() {
                 custId = currentCustId
                 this.page = page.toString()
                 this.pageSize = pageSize.toString()
-                batchTranResult.addAll(mutableListOf("3"))
-                batchOrderStatus.addAll(mutableListOf("4", "7"))
+                batchTranResult.addAll(mutableListOf("3", "7"))
+                batchOrderStatus.addAll(mutableListOf("4", "7", "10"))
             }
             LogUtil.d(TAG, Gson().toJson(bean))
             val response = mRepository.getOrderList(currentCcbToken, bean)
@@ -67,18 +73,22 @@ class OrderRecordVM : ViewModel() {
                 campusId = payCfg.campusId
                 businessId = payCfg.businessId
                 custId = currentCustId
-                pOrderId = order.pOrderId
+                pOrderId = order.pOrderId ?: ""
                 orderId = order.orderId
             }
-            val refundMoney = order.actualPayment.toDouble() - order.refundPayment.toDouble()
+            var refundMoney = -1.0
+            if (order.actualPayment.isNotEmpty() && order.refundPayment.isNotEmpty()) {
+                refundMoney = order.actualPayment.toDouble() - order.refundPayment.toDouble()
+            }
             if (refundMoney >= 0) {
                 refundBean.money = String.format("%.02f", refundMoney)
                 val refundRes = mRepository.orderDirectRefund(currentCcbToken, refundBean)
                 result(refundRes.code == "200")
-            } else {
-                result(false)
-                LogUtil.e(TAG, "退款金额不能少于0")
-            }
+            } else result(false)
         }
+    }
+
+    interface OnOrderListener {
+        fun onOrder(type: Int, data: Any)
     }
 }

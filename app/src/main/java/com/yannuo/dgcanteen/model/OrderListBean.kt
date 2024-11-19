@@ -41,8 +41,10 @@ class Order {
     var orderStatus: String = ""    //订单状态
     var tranResult: String = ""     //支付结果
     var payment: String = ""        //订单金额
+    var packagingFee: String = "0.00"   //打包费用
+    var deliveryFee: String = "0.00"    //配送费用
     var actualPayment: String = ""  //实付金额
-    var refundPayment: String = ""  //退款金额
+    var refundPayment: String = "0.00"  //退款金额
     var mealDate: String = ""       //餐别日期
     var mealId: String = ""         //餐别id
     var mealName: String = ""       //餐别名称
@@ -63,5 +65,5 @@ class DcOrderDishes {
     var unit: String = ""           //菜品单位
     var imgUrl: String = ""         //菜品url
     var isVerification: String = "" //核销状态 1-未核销 2-已核销
-    var dishesRefundNum: String = ""    //退款数量
+    var dishesRefundNum: String = "0"   //退款数量
 }
