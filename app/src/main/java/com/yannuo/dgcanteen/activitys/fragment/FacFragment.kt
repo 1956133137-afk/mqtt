@@ -27,12 +27,12 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
     }
 
     private fun initObject() {
-        FaceScanVM.instance.bindService()
         var payMoney = 0.0f
         arguments?.getParcelable<OrderPayInfo>(Constant.PAY_DATE)?.also {
             binding.payTotalMoney.text = "￥${it.payment}"
             payMoney = it.payment
         }
+        FaceScanVM.instance.bindService()
         FaceScanVM.instance.startFacePay(false, String.format("%.02f", payMoney))
         FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
             override fun onFacePay(payForUI: PayForUI) {

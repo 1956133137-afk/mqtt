@@ -33,9 +33,12 @@ class FaceScanVM {
     private val mmkv: MMKV = MMKV.defaultMMKV()
     private var mPayCfg: PayCfg = PayCfg()
     private val dbHelper = DishesDBHelper.getInstance()
-    private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
+    private val mRespository by lazy { PayRepositoryOfPay() }
     private var mFacePayService: ZHSTFacePayService? = null
     private var listener: FaceResultListener? = null
+    private val serviceConnection by lazy { MyServiceConnection() }
+    private val resultListener by lazy { OnPayResultListener() }
+    private val ccbFacePayBean = CcbFacePayBean()
     private var modeStatus: Boolean = false
     private var currentOffline: String = ""
 
@@ -60,16 +63,15 @@ class FaceScanVM {
         mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         modeStatus = status
         currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
-        val bean = CcbFacePayBean().apply {
+        ccbFacePayBean.apply {
             CAMPUS_ID = mPayCfg.campusId
             CORP_ID = mPayCfg.corp_id        // "1046"
             PAYMENT = payment
             BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
             VPOS_ID = mPayCfg.counterId      // "V00023523"
-            REMARK = ""
             OFFLINE = currentOffline
         }
-        mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(bean), currentOffline, OnPayResultListener())
+        mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(ccbFacePayBean), currentOffline, resultListener)
     }
 
     fun bindService() {
@@ -77,7 +79,7 @@ class FaceScanVM {
         val serviceIntent = Intent()
         serviceIntent.action = "com.ccb.smartcanteen.FacePayService"
         serviceIntent.setPackage("com.ccb.smartcanteen")
-        mContext.bindService(serviceIntent, MyServiceConnection(), Context.BIND_AUTO_CREATE)
+        mContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private inner class MyServiceConnection : ServiceConnection {

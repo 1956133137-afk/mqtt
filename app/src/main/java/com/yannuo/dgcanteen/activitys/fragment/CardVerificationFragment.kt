@@ -1,33 +1,24 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.CountDownTimer
 import android.os.Handler
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
-import com.ccb.smartcanteen.PayResultListener
-import com.ccb.smartcanteen.ZHSTFacePayService
-import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.DisplayCardVerificationBinding
 import com.yannuo.dgcanteen.interfaces.CallbackListener
-import com.yannuo.dgcanteen.model.FaceResult
-import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.CcbFacePayResultBean
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.VerificationUI
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.Utils
-import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.TimeUnit
 
 class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(), CallbackListener {
@@ -37,17 +28,6 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
     }
     private var countDown: CountDownTimer? = null
     val handler = Handler(MyApplication.applicationContext.mainLooper)
-    private var mFacePayService: ZHSTFacePayService? = null
-    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            LogUtil.d(TAG, "onServiceConnected")
-            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
-        }
-
-        override fun onServiceDisconnected(name: ComponentName) {
-            LogUtil.d(TAG, " onServiceDisconnected")
-        }
-    }
 
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
         binding = DisplayCardVerificationBinding.inflate(inflater, container, false)
@@ -63,10 +43,6 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
         onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
         verificationVM.openQrCode()
         verificationVM.setListener(this)
-        val lIntent = Intent()
-        lIntent.action = "com.ccb.smartcanteen.FacePayService"
-        lIntent.setPackage("com.ccb.smartcanteen")
-        requireContext().bindService(lIntent, mServiceConnection, AppCompatActivity.BIND_AUTO_CREATE)
     }
 
     private fun initEvent() {
@@ -97,34 +73,29 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
      */
     private fun faceVerification() {
         LogUtil.d(TAG, "查询人脸信息~")
-        var offline = 0  //在线
-        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
-        val mPayCfg = verificationVM.getPayCfg()
-        val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
-        val businessId = if (mPayCfg == null) "" else mPayCfg.businessId
-        val sn = Utils.getSN()
-        mFacePayService?.startFacePay(
-            null,
-            offline.toString(),
-            object : PayResultListener.Stub() {
-                override fun onResult(result: String?) {
-                    LogUtil.i(TAG, result)
-                    val res = Gson().fromJson(result, FaceResult::class.java)
-                    if (res.RESULT == "Y") {
-                        verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null, 0)
-                    }else {
-                        handler.postDelayed({
-                            val verificationUI = VerificationUI().apply {
-                                errorMsg = res.ERRMSG
-                                time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-                            }
-                            val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                            findNavController().navigate(toFail)
-                        }, 300)
-                    }
+        FaceScanVM.instance.bindService()
+        FaceScanVM.instance.startFacePay(true)
+        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+            override fun onFacePay(payForUI: PayForUI) {
+
+            }
+
+            override fun onFaceQuery(bean: CcbFacePayResultBean) {
+                val payCfg = verificationVM.getPayCfg()
+                if (bean.RESULT == "Y") {
+                    verificationVM.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
+                }else {
+                    handler.postDelayed({
+                        val verificationUI = VerificationUI().apply {
+                            errorMsg = bean.ERRMSG
+                            time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                        }
+                        val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
+                        findNavController().navigate(toFail)
+                    }, 300)
                 }
             }
-        )
+        })
     }
 
     override fun onDestroy() {

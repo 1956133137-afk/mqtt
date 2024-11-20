@@ -30,10 +30,7 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
         binding.tvTime.text = fail.verification.time
     }
     private fun initEvent() {
-        binding.btnBack.setOnClickListener {
-            kv.encode(Constant.VERIFY_CHANGE, false)
-            requireActivity().finish()
-        }
+        binding.btnBack.setOnClickListener { requireActivity().finish() }
         binding.btnClose.setOnClickListener {
             kv.encode(Constant.AUTO_VERIFY, false)
             requireActivity().finish()
@@ -46,7 +43,6 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
             }
 
             override fun onFinish() {
-                kv.encode(Constant.VERIFY_CHANGE, false)
                 requireActivity().finish()
             }
         }.start()
@@ -62,6 +58,7 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
         if (countDownTimer == null) {
             startCountDown()
         }
+        kv.encode(Constant.VERIFY_CHANGE, false)
     }
 
     override fun onDestroy() {

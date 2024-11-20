@@ -3,22 +3,17 @@ package com.yannuo.dgcanteen.activitys
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.graphics.Color
 import android.hardware.display.DisplayManager
 import android.os.Handler
-import android.os.IBinder
 import android.view.Display
 import android.view.View
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ccb.smartcanteen.PayResultListener
-import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
@@ -28,22 +23,14 @@ import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.OrderDishCountAdapter
 import com.yannuo.dgcanteen.common.PeriodicVerificationReceiver
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
-import com.yannuo.dgcanteen.model.FaceResult
-import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.VerificationUI
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.TimeUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
-import com.yannuo.dgcanteen.util.Utils
+import com.yannuo.dgcanteen.util.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -54,20 +41,20 @@ import java.util.*
  * Description: ***
  * Date: 2023/7/27 15:46
  **/
-class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
-    NetworkStateManager.NetWorkListener, CallbackListener {
+class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkStateManager.NetWorkListener, CallbackListener {
 
     private var mXService: MyService? = null
     private var navigation = true
-    private var passwordDialog: PasswordDialog ?= null
-    private var confirmDialog: ConfirmDialog ?= null
+    private var passwordDialog: PasswordDialog? = null
+    private var confirmDialog: ConfirmDialog? = null
     private lateinit var kv: MMKV
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
+
     @Volatile
     private lateinit var simpleDisplay: SimpleDisplay
     private val handler = Handler()
-    private lateinit var maps :MutableMap<String, Int >
+    private lateinit var maps: MutableMap<String, Int>
     private var lastTime = 0L  //上次触发时间
     private var mealId = 0
     private val orderCountAdapter by lazy {
@@ -81,16 +68,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
     private val periodicVerificationReceiver = PeriodicVerificationReceiver()
 
-    private var mFacePayService: ZHSTFacePayService? = null
-    private val mServiceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            LogUtil.d(TAG, "onServiceConnected")
-            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
-        }
-        override fun onServiceDisconnected(name: ComponentName) {
-            LogUtil.d(TAG, " onServiceDisconnected")
-        }
-    }
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
     }
@@ -108,9 +85,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent("com.yannuo.dgcanteen.PERIODIC_VERIFICATION")
         val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val intervalMillis = 15*60*1000L
+        val intervalMillis = 15 * 60 * 1000L
         val triggerAtMillis = System.currentTimeMillis() + intervalMillis
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,triggerAtMillis,intervalMillis,pendingIntent)
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerAtMillis, intervalMillis, pendingIntent)
     }
 
     //注册查询核销的广播
@@ -120,9 +97,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
     }
 
 
-
     private fun initObject() {
-        FaceScanVM.instance.bindService()
         viewModel.setListener(this)
         productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
@@ -132,13 +107,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
-        val lIntent = Intent()
-        lIntent.action = "com.ccb.smartcanteen.FacePayService"
-        lIntent.setPackage("com.ccb.smartcanteen")
-        bindService(lIntent, mServiceConnection, BIND_AUTO_CREATE)
-        maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
-            "刷卡" to Constant.PAY_IC_TYPE ,
-            "扫码"  to Constant.PAY_CODE_TYPE,
+
+        maps = mutableMapOf(
+            "刷脸" to Constant.PAY_FACE_TYPE,
+            "刷卡" to Constant.PAY_IC_TYPE,
+            "扫码" to Constant.PAY_CODE_TYPE,
             "刷卡扫码" to Constant.PAY_CODE_IC_TYPE,
         )
         val type = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
@@ -150,8 +123,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         maps.remove(type)
         if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
             binding.btnVerify.text = "刷脸核销"
-        }else binding.btnVerify.text = "订餐核销"
+        } else binding.btnVerify.text = "订餐核销"
         initVerify()
+        kv.encode(Constant.VERIFY_CHANGE, false)
     }
 
     @SuppressLint("SetTextI18n")
@@ -167,7 +141,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
             binding.network.setImageResource(R.drawable.ic_wifi_no)
-        }else{
+        } else {
             netWorkStatus("0")
         }
         binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
@@ -186,9 +160,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         simpleDisplay = SimpleDisplay(this, secondDisplays)
         simpleDisplay.setActivity(this)
         simpleDisplay.show()
-        maps = mutableMapOf( "刷脸" to Constant.PAY_FACE_TYPE ,
-            "刷卡" to Constant.PAY_IC_TYPE ,
-            "扫码"  to Constant.PAY_CODE_TYPE,
+        maps = mutableMapOf(
+            "刷脸" to Constant.PAY_FACE_TYPE,
+            "刷卡" to Constant.PAY_IC_TYPE,
+            "扫码" to Constant.PAY_CODE_TYPE,
             "刷卡扫码" to Constant.PAY_CODE_IC_TYPE,
         )
         val type = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
@@ -199,24 +174,22 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
         maps.remove(type)
         maps.entries.forEachIndexed { index, it ->
-            when(index){
-                0->{
+            when (index) {
+                0 -> {
                     binding.btnFirst.text = it.key
                 }
-                1->{
+                1 -> {
                     binding.btnSecond.text = it.key
                 }
-                2->{
+                2 -> {
                     binding.btnThird.text = it.key
                 }
             }
         }
         //自动核销
-        handler.post {
-            if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
-                faceVerification()
-                kv.encode(Constant.VERIFY_CHANGE, true)
-            }
+        if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
+            kv.encode(Constant.VERIFY_CHANGE, true)
+            faceVerification()
         }
     }
 
@@ -272,7 +245,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         binding.btnConfirm.text = "确认金额"
 //        simpleDisplay.cancel()
         simpleDisplay.safeCancel()
-        LogUtil.i(TAG,"onstop!")
+        LogUtil.i(TAG, "onstop!")
         super.onStop()
     }
 
@@ -322,27 +295,27 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
             }
         }
         binding.btnConfirm.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 1000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY, null))
         }
 
         binding.btnFirst.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnFirst.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
         binding.btnSecond.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnSecond.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
         binding.btnThird.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnThird.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
@@ -350,11 +323,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
         }
 
         binding.btnVerify.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
                 faceVerification()
-            }else {
+            } else {
                 simpleDisplay.safeCancel()
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
@@ -398,7 +371,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
                     }
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
-                    binding.btnConfirm.text="确定金额￥${event.any as String}"
+                    binding.btnConfirm.text = "确定金额￥${event.any as String}"
                     simpleDisplay.enableBtn(event.any as String)
                 }
             }
@@ -435,37 +408,31 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(),
 
     //刷脸核销
     private fun faceVerification() {
-        LogUtil.d(TAG,"查询人脸信息~")
-        var offline = 0  //在线
-        if (kv.decodeBool(Constant.SWITCH)) offline = 1  //离线
-        val mPayCfg = viewModel.getPayCfg()
-        val campusId = mPayCfg?.campusId ?: ""
-        val businessId = mPayCfg?.businessId ?: ""
-        val sn = Utils.getSN()
-        mFacePayService?.setTimeOut(0)
-        mFacePayService?.startFacePay(
-            null,
-            offline.toString(),
-            object : PayResultListener.Stub() {
-                override fun onResult(result: String?) {
-                    LogUtil.i(TAG, result)
-                    val res = Gson().fromJson(result, FaceResult::class.java)
-                    if (res.RESULT == "Y") {
-                        viewModel.verification(campusId, businessId, res.CUST_ID, null, sn, null, 0)
-                    }else {
-                        simpleDisplay.safeCancel()
-                        val verificationUI = VerificationUI().apply {
-                            errorMsg = res.ERRMSG
-                            time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-                        }
-                        val i = Intent(applicationContext, FaceVerificationActivity::class.java)
-                        i.putExtra("id", 10)
-                        i.putExtra("verify", Gson().toJson(verificationUI))
-                        startActivity(i)
+        LogUtil.d(TAG, "查询人脸信息~")
+        FaceScanVM.instance.bindService()
+        FaceScanVM.instance.startFacePay(true)
+        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+            override fun onFacePay(payForUI: PayForUI) {
+
+            }
+
+            override fun onFaceQuery(bean: CcbFacePayResultBean) {
+                val payCfg = viewModel.getPayCfg()
+                if (bean.RESULT == "Y") {
+                    viewModel.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
+                } else {
+                    simpleDisplay.safeCancel()
+                    val verificationUI = VerificationUI().apply {
+                        errorMsg = bean.ERRMSG
+                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                     }
+                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+                    i.putExtra("id", 10)
+                    i.putExtra("verify", Gson().toJson(verificationUI))
+                    startActivity(i)
                 }
             }
-        )
+        })
     }
 
     private fun btnViewChange(button: Button, constant: String) {

@@ -80,7 +80,6 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
         mXService = MyService(this)
         EventBus.getDefault().register(this)
         NetworkStateManager.getInstance().registerObserver(this)
-        FaceScanVM.instance.bindService()
 
         currentDate = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
         binding.verifyOrderView.layoutManager = LinearLayoutManager(this)
@@ -205,6 +204,7 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                         val value = event.any as Int
                         if (value == 0) {
                             buttonIsUsable(false)
+                            FaceScanVM.instance.bindService()
                             FaceScanVM.instance.startFacePay(true)
                             FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
                                 override fun onFacePay(payForUI: PayForUI) {

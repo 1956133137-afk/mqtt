@@ -120,9 +120,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         }
     }
 
-    fun getPayCfg(): PayCfg? {
-        return mPayCfg
-    }
+    fun getPayCfg(): PayCfg = mPayCfg ?: PayCfg()
 
     /**
      * 订餐核销
@@ -251,7 +249,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 info["ORDER_ID"],
                 info["DEVICE_ID"],
                 info["CARD_ID"],
-                if (kv.decodeBool(Constant.QUERY_VERIFY,false)) 1 else 0
+                if (kv.decodeBool(Constant.QUERY_VERIFY, false)) 1 else 0
             )
         }
     }

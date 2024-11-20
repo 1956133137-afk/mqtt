@@ -13,6 +13,7 @@ import android.view.Display
 import android_serialport_api.SerialPort
 import androidx.annotation.RequiresApi
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
@@ -71,6 +72,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         loading = LoadingDialog(this)
         scope = CoroutineScope(Dispatchers.IO)
 
+        FaceScanVM.instance.bindService()
         initEvent()
     }
 
