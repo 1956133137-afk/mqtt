@@ -133,6 +133,7 @@ class ModeSettingFragment : Fragment() {
         }
         binding.codeVerification.setOnClickListener { //核销模式
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
         binding.autoVerify.setOnClickListener {
             kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)

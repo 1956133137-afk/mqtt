@@ -493,6 +493,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         confirmDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
+        unregisterReceiver(periodicVerificationReceiver)
     }
 
     override fun onOtherListener(event: Int, any: Any?) {
