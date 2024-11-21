@@ -59,7 +59,7 @@ class FaceScanVM {
         this.listener = listener
     }
 
-    fun startFacePay(status: Boolean, payment: String = "") {
+    fun startFacePay(status: Boolean, payment: String = "", orderId: String = "", verifyFlag: String = "") {
         mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         modeStatus = status
         currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
@@ -67,8 +67,10 @@ class FaceScanVM {
             CAMPUS_ID = mPayCfg.campusId
             CORP_ID = mPayCfg.corp_id        // "1046"
             PAYMENT = payment
+            ORDER_ID = orderId
             BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
             VPOS_ID = mPayCfg.counterId      // "V00023523"
+            REMARK = verifyFlag
             OFFLINE = currentOffline
         }
         mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(ccbFacePayBean), currentOffline, resultListener)

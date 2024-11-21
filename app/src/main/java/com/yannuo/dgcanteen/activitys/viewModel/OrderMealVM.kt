@@ -1,15 +1,8 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ccb.smartcanteen.PayResultListener
-import com.ccb.smartcanteen.ZHSTFacePayService
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
@@ -21,6 +14,7 @@ import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.AccListTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
+import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
@@ -45,8 +39,9 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private val reorderStatus: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
     private var currentCustId: String = ""
     private var currentCcbToken: String = ""
+    private var loginOrPayStatus: Boolean = true
+    private var orderForUI = OrderForUI()
 
-    private var mFacePayService: ZHSTFacePayService? = null
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
     private var listener: OrderMealListener? = null
 
@@ -81,22 +76,21 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         orderStatus = status
     }
 
-    fun bindService() {
-        val serviceIntent = Intent()
-        serviceIntent.action = "com.ccb.smartcanteen.FacePayService"
-        serviceIntent.setPackage("com.ccb.smartcanteen")
-        MyApplication.applicationContext.bindService(serviceIntent, MyServiceConnection(), Context.BIND_AUTO_CREATE)
+    fun setOrderForUI(order: OrderForUI) {
+        orderForUI = order
     }
 
     fun setOrderListener(listener: OrderMealListener) {
         this.listener = listener
     }
 
-    fun open(loginType: String) {
+    fun open(loginType: String, status: Boolean) {
+        loginOrPayStatus = status
         when (loginType) {
             "1" -> {
-                val offline = if (kv.decodeBool(Constant.SWITCH)) "1" else "0"
-                mFacePayService?.startFacePay("", offline, OnPayResultListener())
+                FaceScanVM.instance.bindService()
+                FaceScanVM.instance.startFacePay(true)
+                FaceScanVM.instance.setFaceListener(faceResultListener)
             }
             "2" -> { //打开扫码头
                 // 元捷
@@ -135,32 +129,24 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
     }
 
-    private inner class MyServiceConnection : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            LogUtil.d(TAG, "Service Connected Success!")
-            mFacePayService = ZHSTFacePayService.Stub.asInterface(service)
+    private val faceResultListener = object : FaceScanVM.FaceResultListener {
+        override fun onFacePay(payForUI: PayForUI) {
+            payHandler("1", Gson().toJson(payForUI))
         }
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            LogUtil.e(TAG, "Service Connected Failure!")
-            mFacePayService = null
-        }
-    }
-
-    private inner class OnPayResultListener : PayResultListener.Stub() {
-        override fun onResult(result: String) {
-            loginHandler("1", result)
+        override fun onFaceQuery(bean: CcbFacePayResultBean) {
+            loginHandler("1", Gson().toJson(bean))
         }
     }
 
     override fun onData(data: String) {
-        loginHandler("2", data)
+        if (loginOrPayStatus) loginHandler("2", data) else payHandler("2", data)
     }
 
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.trim().uppercase()
-        loginHandler("3", icCard)
+        if (loginOrPayStatus) loginHandler("3", icCard) else payHandler("3", icCard)
     }
 
     private fun loginHandler(type: String, content: String) {
@@ -206,24 +192,51 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     }
                 }
                 "2" -> {
-                    if (!orderForUI.orderContent.contains("CT0001")) {
-                        orderForUI.errCode = "ORDER0002"
-                        orderForUI.errMsg = ""
-                        return@launch
-                    }
-                    val analysisRes = runBlocking {
-                        val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(payCfg.campusId, "PAY002", payCfg.corp_id, content)
-                        val analysisResult = mRepository.getCcbData(qrCodeMap).body()?.string() ?: ""
-                        Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
-                    }
-                    if (analysisRes.RESULT == "Y") {
-                        orderForUI.custId = analysisRes.CUST_ID
-                        orderForUI.custName = analysisRes.CUST_NAME
-                        getOrderToken(orderForUI)
-                    } else {
-                        orderForUI.errCode = analysisRes.ERRCODE
-                        orderForUI.errMsg = analysisRes.ERRMSG
-                        listener?.onOrderResult(0, orderForUI)
+                    when {
+                        orderForUI.orderContent.contains("CT0001") -> {
+                            val analysisRes = runBlocking {
+                                val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(payCfg.campusId, "PAY002", payCfg.corp_id, content)
+                                val analysisResult = mRepository.getCcbData(qrCodeMap).body()?.string() ?: ""
+                                Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
+                            }
+                            if (analysisRes.RESULT == "Y") {
+                                orderForUI.custId = analysisRes.CUST_ID
+                                orderForUI.custName = analysisRes.CUST_NAME
+                                getOrderToken(orderForUI)
+                            } else {
+                                orderForUI.errCode = analysisRes.ERRCODE
+                                orderForUI.errMsg = analysisRes.ERRMSG
+                                listener?.onOrderResult(0, orderForUI)
+                            }
+                        }
+                        orderForUI.orderContent.contains("CCB") -> {
+                            val plainText = DES3CBCUtil.transDecryption(orderForUI.orderContent)
+                            val pastDueTime = DES3CBCUtil.getTimestamp(plainText)
+                            val minutes = TimeUtil.timestamp(pastDueTime)
+                            if (minutes > 1) {
+                                LogUtil.d(TAG, plainText)
+                                val cidNo = plainText.substring(0, plainText.indexOf("@"))
+                                val person = dbHelper.queryPersonToCidNo(cidNo)
+                                if (person != null) {
+                                    orderForUI.custId = person.custId
+                                    orderForUI.custName = person.personName
+                                    getOrderToken(orderForUI)
+                                } else {
+                                    orderForUI.errCode = "ORDER0004"
+                                    orderForUI.errMsg = "未查询到人员信息"
+                                    listener?.onOrderResult(0, orderForUI)
+                                }
+                            } else {
+                                orderForUI.errCode = "ORDER0005"
+                                orderForUI.errMsg = "二维码已过期"
+                                listener?.onOrderResult(0, orderForUI)
+                            }
+                        }
+                        else -> {
+                            orderForUI.errCode = "ORDER0006"
+                            orderForUI.errMsg = "暂不支持该类型二维码"
+                            listener?.onOrderResult(0, orderForUI)
+                        }
                     }
                 }
                 "3" -> {
@@ -283,7 +296,113 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         return CanteenEncryptionUtil.encryption(encryptStr.toString())
     }
 
-    fun placeAnOrder(orderForUI: OrderForUI, orderResult: (type: Int) -> Unit) {
+    fun placeAnOrder(order: OrderForUI, verifyStatus: Boolean) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            orderForUI = order
+
+            //下单
+//            val orderBean = getOrderMealData(orderForUI)
+            val orderBean = getBatchOrder(orderForUI)
+            LogUtil.d(TAG, Gson().toJson(orderBean))
+//            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
+            val orderRes = mRepository.insertBatchOrder(orderForUI.ccbToken, orderBean)
+            if (orderRes.code == "200") {
+
+//                orderForUI.orderId = orderRes.data?.orderId ?: ""
+                orderForUI.orderId = orderRes.data?.pOderId ?: ""
+                orderForUI.verifyFlag = if (verifyStatus) "1" else "2"
+                when (orderForUI.orderType) {
+                    "1" -> {
+                        FaceScanVM.instance.bindService()
+                        FaceScanVM.instance.startFacePay(false, orderForUI.payment, orderForUI.orderId, orderForUI.verifyFlag)
+                        FaceScanVM.instance.setFaceListener(faceResultListener)
+                    }
+                    "2" -> {
+
+                        open("2", false)
+                    }
+                    else -> payHandler(orderForUI.orderType, orderForUI.orderContent)
+                }
+            } else {
+                orderForUI.errCode = orderRes.code
+                orderForUI.errMsg = orderRes.msg
+
+            }
+        }
+    }
+
+    private fun payHandler(type: String, content: String) {
+        runBlocking(Dispatchers.IO + mHandler) {
+            when (type) {
+                "1" -> {
+                    LogUtil.d(TAG, content)
+                }
+                "2" -> {
+                    close("2")
+                    orderForUI.orderContent = content
+                    val payRes = mRepository.payByQrCode(getOrderPayData())
+                    if (payRes.code == "200") {
+                        val decryptStr = DES3CBCUtil.decryptRSA(payRes.data ?: "")
+                        val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                        LogUtil.d(TAG, Gson().toJson(result))
+                        orderForUI.result = result.RESULT
+                        orderForUI.errCode = result.ERRCODE
+                        orderForUI.errMsg = result.ERRMSG
+                        orderForUI.actualPayment = result.ACTUAL_PAYMENT
+                        orderForUI.accBal = result.REMAIN_BAL
+                        saveOrderRecord(orderForUI, result)
+
+                    } else {
+                        orderForUI.errCode = payRes.code
+                        orderForUI.errMsg = payRes.msg
+
+                    }
+                }
+                else -> {
+                    val payRes = mRepository.payByIcCard(getOrderPayData())
+                    if (payRes.code == "200") {
+                        val decryptStr = DES3CBCUtil.decryptRSA(payRes.data ?: "")
+                        val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                        LogUtil.d(TAG, Gson().toJson(result))
+                        orderForUI.result = result.RESULT
+                        orderForUI.errCode = result.ERRCODE
+                        orderForUI.errMsg = result.ERRMSG
+                        orderForUI.actualPayment = result.ACTUAL_PAYMENT
+                        orderForUI.accBal = result.REMAIN_BAL
+                        saveOrderRecord(orderForUI, result)
+
+                    } else {
+                        orderForUI.errCode = payRes.code
+                        orderForUI.errMsg = payRes.msg
+
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getOrderPayData(): String {
+        val payBean = Gson().fromJson(Gson().toJson(orderForUI), RequestPayBase::class.java)
+        val deviceSerial = CommonAndDpToPxUtil.getDeviceSerial() ?: ""
+        val currentTime = System.currentTimeMillis()
+        orderForUI.payTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime)
+        payBean.apply {
+            deviceId = deviceSerial
+            sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
+            signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+        }
+        return if (orderForUI.orderType == "2") {
+            val codePayBean = Gson().fromJson(Gson().toJson(orderForUI), CodePayBean::class.java)
+            codePayBean.qrCode = orderForUI.orderContent
+            DES3CBCUtil.encryption(Gson().toJson(codePayBean))
+        } else {
+            val cardPayBean = Gson().fromJson(Gson().toJson(orderForUI), CardPayBean::class.java)
+            cardPayBean.cardId = orderForUI.orderContent
+            DES3CBCUtil.encryption(Gson().toJson(cardPayBean))
+        }
+    }
+
+    fun placeAnOrder(orderForUI: OrderForUI, verifyStatus: Boolean, orderResult: (type: Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderResult(1)
             //下单
@@ -297,7 +416,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 //                orderForUI.orderId = orderRes.data?.orderId ?: ""
                 orderForUI.orderId = orderRes.data?.pOderId ?: ""
                 //支付
-                val encryption = getOrderPayData(orderForUI)
+                val encryption = getOrderPayData(orderForUI, verifyStatus)
                 val payRes = mRepository.payByIcCard(encryption)
                 if (payRes.code == "200") {
                     val decryptStr = DES3CBCUtil.decryptRSA(payRes.data ?: "")
@@ -398,7 +517,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         return batchOrderBean
     }
 
-    private fun getOrderPayData(orderForUI: OrderForUI): String {
+    private fun getOrderPayData(orderForUI: OrderForUI, verifyStatus: Boolean): String {
         val payBean = Gson().fromJson(Gson().toJson(orderForUI), CardPayBean::class.java)
         val deviceSerial = CommonAndDpToPxUtil.getDeviceSerial() ?: ""
         val currentTime = System.currentTimeMillis()
@@ -408,8 +527,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             deviceId = deviceSerial
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-//            verifyFlag = "1"
         }
+        if (orderForUI.distribute == "2") payBean.verifyFlag = if (verifyStatus) "1" else "2"
         LogUtil.d(TAG, Gson().toJson(payBean))
         return DES3CBCUtil.encryption(Gson().toJson(payBean))
     }

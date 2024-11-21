@@ -11,14 +11,15 @@ package com.yannuo.dgcanteen.model
  * @property REMARK String  备注
  * @property OFFLINE String  离线订单标识 0：联机支付，1：离线补扣
  */
- class CcbFacePayBean {
-    var CAMPUS_ID = ""  //园区ID
-    var CORP_ID = ""   //合作方ID
-    var PAYMENT = ""   //原始金额
-    var BUSINESS_ID = ""  //商家ID
-    var VPOS_ID = ""  //柜台号
-    var TXCODE = "ZF0001"  //支付交易传：ZF0001
-    var REMARK = ""  //备注
-    var OFFLINE = ""  //离线订单标识
+class CcbFacePayBean {
+    var CAMPUS_ID = ""      //园区ID
+    var CORP_ID = ""        //合作方ID
+    var PAYMENT = ""        //原始金额
+    var ORDER_ID = ""       //订单编号
+    var BUSINESS_ID = ""    //商家ID
+    var VPOS_ID = ""        //柜台号
+    var TXCODE = "ZF0001"   //支付交易传：ZF0001
+    var REMARK = ""         //备注
+    var OFFLINE = ""        //离线订单标识
 
 }

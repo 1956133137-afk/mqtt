@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys.fragment.order
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -14,6 +15,7 @@ import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.ListDishAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderSettleBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderForUI
@@ -21,6 +23,7 @@ import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.views.HintDialog
 import java.text.DecimalFormat
 
 class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
@@ -29,6 +32,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private val infoAdapter by lazy { InfoAdapter() }
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
+    private var hintDialog: HintDialog? = null
 
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentOrderSettleBinding.inflate(inflater, container, false)
@@ -54,36 +58,56 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         binding.payResView.layoutManager = LinearLayoutManager(requireContext())
         binding.payResView.adapter = infoAdapter
 
+        initObject()
         initEvent()
+    }
+
+    private fun initObject() {
+        orderMealVM.setOrderListener(object : OrderMealVM.OrderMealListener {
+            override fun onOrderResult(type: Int, any: Any) {
+                handler.post {
+
+                }
+            }
+        })
     }
 
     private fun initEvent() {
         if (orderForUI.distribute != "0") binding.radioGroup.check(if (orderForUI.distribute == "1") R.id.btn_one else R.id.btn_two)
+        if (binding.radioGroup.checkedRadioButtonId == R.id.btn_two) binding.verifyStatus.visibility = View.VISIBLE
         binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkId ->
             when (checkId) {
-                R.id.btn_one -> orderForUI.distribute = "1"
-                R.id.btn_two -> orderForUI.distribute = "2"
+                R.id.btn_one -> {
+                    orderForUI.distribute = "1"
+                    binding.verifyStatus.visibility = View.GONE
+                    binding.verifyValue.isChecked = false
+                }
+                R.id.btn_two -> {
+                    orderForUI.distribute = "2"
+                    binding.verifyStatus.visibility = View.VISIBLE
+                }
             }
         }
 
         //确定支付
         binding.btnConfirm.setOnClickListener {
             if (!judgePayStatus()) return@setOnClickListener
-            orderMealVM.placeAnOrder(orderForUI) { type ->
-                handler.post {
-                    when (type) {
-                        1 -> orderMealVM.getAwaitStatus().value = "订餐下单中"
-                        2 -> orderMealVM.getAwaitStatus().value = "订餐支付中"
-                        3 -> {
-                            orderMealVM.getAwaitStatus().value = ""
-                            if (orderForUI.result == "Y") {
-                                USBPrinterHelper.instance.printTicket("1", orderForUI)
-                                showPayResult(orderForUI, "支付成功", "#82D582")
-                            } else showPayResult(orderForUI, "支付失败", "#FF5252")
-                        }
-                    }
-                }
-            }
+            orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked)
+//            orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked) { type ->
+//                handler.post {
+//                    when (type) {
+//                        1 -> orderMealVM.getAwaitStatus().value = "订餐下单中"
+//                        2 -> orderMealVM.getAwaitStatus().value = "订餐支付中"
+//                        3 -> {
+//                            orderMealVM.getAwaitStatus().value = ""
+//                            if (orderForUI.result == "Y") {
+//                                USBPrinterHelper.instance.printTicket("1", orderForUI)
+//                                showPayResult(orderForUI, "支付成功", "#82D582")
+//                            } else showPayResult(orderForUI, "支付失败", "#FF5252")
+//                        }
+//                    }
+//                }
+//            }
         }
         //继续订餐
         binding.btnReorder.setOnClickListener {
@@ -97,6 +121,21 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
             orderMealVM.getUserName().value = ""
             findNavController().navigate(R.id.orderSettle_to_verifyUser)
         }
+    }
+
+    private fun tipsDialog(type: String) {
+        if (type != "2") return
+        if (hintDialog == null) hintDialog = HintDialog(requireContext())
+        hintDialog?.setListener(object : CloseEvent {
+            override fun onEvent(code: Int, msg: String?) {
+                handler.post {
+                    if (code == 0) hintDialog?.dismiss()
+                }
+            }
+        })
+        hintDialog?.show()
+        hintDialog?.setTipsText("请将二维码对准扫码器")
+        CommonAndDpToPxUtil.speakWork("请将二维码对准扫码器")
     }
 
     private fun totalMoneyCompute() {
@@ -174,5 +213,11 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private fun isValidPhone(phone: String): Boolean {
         val regex = Regex("""^1[3-9]\d{9}$""", RegexOption.IGNORE_CASE)
         return regex.matches(phone)
+    }
+
+    override fun onDestroy() {
+        orderMealVM.setOrderForUI(OrderForUI())
+        super.onDestroy()
+        hintDialog?.cancel()
     }
 }

@@ -35,6 +35,7 @@ class OrderForUI() : Parcelable {
     var actualPayment: String = ""  //实付金额
     var payTime: String = ""    //支付时间
     var orderId: String = ""    //订单Id
+    var verifyFlag: String = "" //核销状态
     var dishList: MutableList<DishBean> = mutableListOf()
     var menuList: MutableList<DateMenu> = mutableListOf()
     var offline: String = ""    //离线状态 0在线 1离线

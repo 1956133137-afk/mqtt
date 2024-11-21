@@ -62,8 +62,8 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun initEvent() {
-//        binding.btnFaceScan.setOnClickListener { startLogin("1") }
-//        binding.btnQrCode.setOnClickListener { startLogin("2") }
+        binding.btnFaceScan.setOnClickListener { startLogin("1") }
+        binding.btnQrCode.setOnClickListener { startLogin("2") }
         binding.btnIcCard.setOnClickListener { startLogin("3") }
     }
 
@@ -72,7 +72,7 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
         btnEnabled(false)
         tipsDialog(orderType)
         orderMealVM.setOrderStatus(OrderMealVM.OrderStatus.AWAIT)
-        orderMealVM.open(orderType)
+        orderMealVM.open(orderType, true)
     }
 
     private fun endLogin() {
@@ -83,8 +83,8 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun btnEnabled(boolean: Boolean) {
-//        binding.btnFaceScan.isEnabled = boolean
-//        binding.btnQrCode.isEnabled = boolean
+        binding.btnFaceScan.isEnabled = boolean
+        binding.btnQrCode.isEnabled = boolean
         binding.btnIcCard.isEnabled = boolean
     }
 
@@ -94,6 +94,7 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun tipsDialog(type: String) {
+        if (type == "1") return
         if (hintDialog == null) hintDialog = HintDialog(requireContext())
         hintDialog?.setListener(object : CloseEvent {
             override fun onEvent(code: Int, msg: String?) {

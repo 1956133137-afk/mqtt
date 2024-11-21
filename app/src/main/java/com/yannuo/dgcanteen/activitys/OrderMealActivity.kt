@@ -39,7 +39,6 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
 
     private fun initObject() {
         mXService = MyService(this)
-        orderMealVM.bindService()
         orderMealVM.getAwaitStatus().observe(this) {
             if (awaitingDialog == null) awaitingDialog = AwaitingDialog(this)
             if (it.isNotEmpty()) {
