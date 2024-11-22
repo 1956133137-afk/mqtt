@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_bg_blue_2"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/ccb_logo"
+            android:layout_width="358dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/img_ccb_logo" />
+
+        <TextClock
+            android:id="@+id/clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ccb_logo"
+            android:layout_centerHorizontal="true"
+            android:format24Hour="yyyy-MM-dd HH:mm:ss"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="35sp" />
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ccb_img_1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="智慧食堂"
+        android:textColor="#FFFFFF"
+        android:textSize="100sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

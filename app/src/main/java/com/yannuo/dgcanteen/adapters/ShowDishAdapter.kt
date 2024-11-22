@@ -26,7 +26,7 @@ class ShowDishAdapter : BaseAdapter<Dish, ItemShowDishBinding>() {
         getData(position).apply {
             holder.binding.dishName.text = dishesName
             holder.binding.dishCount.text = dishesNumber
-            holder.binding.dishPrice.text = dishesPrice
+            holder.binding.dishPrice.text = String.format("%.02f", dishesPrice.toDouble())
         }
     }
 }

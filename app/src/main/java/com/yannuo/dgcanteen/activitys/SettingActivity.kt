@@ -1,5 +1,8 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.content.Context
+import android.hardware.display.DisplayManager
+import android.view.Display
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
@@ -17,12 +20,17 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var deviceFragment: DeviceInfoFragment
     private lateinit var fragments: Array<Fragment>
 
+    private lateinit var displayManager: DisplayManager
+    private lateinit var secondDisplays: Display
+    private lateinit var settingDisplay: SettingDisplay
+
     override fun bindLayout() {
         binding = ActivitySettingBinding.inflate(layoutInflater)
     }
 
     override fun onInit() {
         initFragment()
+        initPresentation()
         initEvent()
     }
 
@@ -87,8 +95,17 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    private fun initPresentation() {
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
+        settingDisplay = SettingDisplay(this, secondDisplays)
+        settingDisplay.show()
     }
 
+    override fun onStop() {
+        super.onStop()
+        settingDisplay.safeCancel()
+    }
 }

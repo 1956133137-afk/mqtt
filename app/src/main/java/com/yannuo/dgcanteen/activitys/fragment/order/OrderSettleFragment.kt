@@ -66,7 +66,24 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         orderMealVM.setOrderListener(object : OrderMealVM.OrderMealListener {
             override fun onOrderResult(type: Int, any: Any) {
                 handler.post {
-
+                    when(type) {
+                        2 -> {
+                            hintDialog?.dismiss()
+                            orderMealVM.getAwaitStatus().value = "$any"
+                        }
+                        3 -> {
+                            orderMealVM.getAwaitStatus().value = ""
+                            tipsDialog("2")
+                        }
+                        4 -> {
+                            orderMealVM.getAwaitStatus().value = ""
+                            val order = any as OrderForUI
+                            if (orderForUI.result == "Y") {
+                                USBPrinterHelper.instance.printTicket("1", order)
+                                showPayResult(order, "支付成功", "#82D582")
+                            } else showPayResult(order, "支付失败", "#FF5252")
+                        }
+                    }
                 }
             }
         })

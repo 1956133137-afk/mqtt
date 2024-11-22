@@ -41,6 +41,7 @@ class FaceScanVM {
     private val ccbFacePayBean = CcbFacePayBean()
     private var modeStatus: Boolean = false
     private var currentOffline: String = ""
+    private val dishList: MutableList<Dish> = mutableListOf()
 
     private var mHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, e ->
         e.printStackTrace()
@@ -57,6 +58,19 @@ class FaceScanVM {
 
     fun setFaceListener(listener: FaceResultListener?) {
         this.listener = listener
+    }
+
+    fun setOrderDishList(beanList: MutableList<DishBean>) {
+        dishList.clear()
+        beanList.forEach {
+            val dish = Dish().apply {
+                dishesId = it.dishId
+                dishesName = it.dishName
+                dishesPrice = it.dishPrice
+                dishesNumber = it.dishCount.toString()
+            }
+            dishList.add(dish)
+        }
     }
 
     fun startFacePay(status: Boolean, payment: String = "", orderId: String = "", verifyFlag: String = "") {
@@ -122,7 +136,9 @@ class FaceScanVM {
             sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
             offline = currentOffline
+            paymentDishes.addAll(dishList)
         }
+        dishList.clear()
         when (bean.RESULT) {
             "Y" -> { //订单状态,成功
                 payForUI.username = bean.CUST_NAME

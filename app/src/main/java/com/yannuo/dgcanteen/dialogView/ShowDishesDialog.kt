@@ -22,10 +22,10 @@ class ShowDishesDialog(context: Context) : BaseDialog<DialogDishesBinding>(conte
 
     fun showWithDishDetails(dishList: MutableList<Dish>) {
         adapter.data = dishList
-        var totalPrice = 0.0F
-        dishList.forEach { totalPrice += String.format("%.2f", it.dishesPrice.toDouble() * it.dishesNumber.toDouble()).toFloat() }
+        var totalPrice = 0.0
+        dishList.forEach { totalPrice += String.format("%.2f", it.dishesPrice.toDouble() * it.dishesNumber.toDouble()).toDouble() }
         handler.post {
-            binding.dishesTotal.text = "￥${totalPrice}"
+            binding.dishesTotal.text = "￥${String.format("%.02f", totalPrice)}"
             binding.btnClose.setOnClickListener { cancel() }
         }
     }

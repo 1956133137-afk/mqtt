@@ -53,7 +53,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     private val kv = MMKV.defaultMMKV()
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
-    private lateinit var simpleDisplay: SimpleDisplay
+    private lateinit var settingDisplay: SettingDisplay
 
     private var mode: String? = null
     private var loading: LoadingDialog? = null
@@ -142,14 +142,13 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             displayManager.displays.also { secondDisplays = it[1] }
         }
-        simpleDisplay = SimpleDisplay(this, secondDisplays)
-        simpleDisplay.setActivity(this)
-        simpleDisplay.show()
+        settingDisplay = SettingDisplay(this, secondDisplays)
+        settingDisplay.show()
     }
 
     override fun onStop() {
 //        simpleDisplay.cancel()
-        simpleDisplay.safeCancel()
+        settingDisplay.safeCancel()
         super.onStop()
     }
 

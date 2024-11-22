@@ -41,7 +41,7 @@ import java.util.*
  * Description: ***
  * Date: 2023/7/27 15:46
  **/
-class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkStateManager.NetWorkListener, CallbackListener {
+class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkStateManager.NetWorkListener {
 
     private var mXService: MyService? = null
     private var navigation = true
@@ -98,7 +98,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 
 
     private fun initObject() {
-        viewModel.setListener(this)
+//        viewModel.setListener(this)
         productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
         LogUtil.d(TAG, "mealId:$mealId")
@@ -189,7 +189,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         //自动核销
         if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
             kv.encode(Constant.VERIFY_CHANGE, true)
-            faceVerification()
+//            faceVerification()
+            val i = Intent(this, FaceVerificationActivity::class.java)
+            startActivity(i)
         }
     }
 
@@ -326,7 +328,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-                faceVerification()
+//                faceVerification()
+                val i = Intent(this, FaceVerificationActivity::class.java)
+                startActivity(i)
             } else {
                 simpleDisplay.safeCancel()
                 val i = Intent(this, CardVerificationActivity::class.java)
@@ -389,7 +393,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             Constant.EVENT_FACE -> handler.post {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-                faceVerification()
+//                faceVerification()
+                val i = Intent(this, FaceVerificationActivity::class.java)
+                startActivity(i)
             }
             Constant.EVENT_VERIFY_CHANGE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI ${event.any}")
@@ -407,33 +413,33 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     }
 
     //刷脸核销
-    private fun faceVerification() {
-        LogUtil.d(TAG, "查询人脸信息~")
-        FaceScanVM.instance.bindService()
-        FaceScanVM.instance.startFacePay(true)
-        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
-            override fun onFacePay(payForUI: PayForUI) {
-
-            }
-
-            override fun onFaceQuery(bean: CcbFacePayResultBean) {
-                val payCfg = viewModel.getPayCfg()
-                if (bean.RESULT == "Y") {
-                    viewModel.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
-                } else {
-                    simpleDisplay.safeCancel()
-                    val verificationUI = VerificationUI().apply {
-                        errorMsg = bean.ERRMSG
-                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-                    }
-                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
-                    i.putExtra("id", 10)
-                    i.putExtra("verify", Gson().toJson(verificationUI))
-                    startActivity(i)
-                }
-            }
-        })
-    }
+//    private fun faceVerification() {
+//        LogUtil.d(TAG, "查询人脸信息~")
+//        FaceScanVM.instance.bindService()
+//        FaceScanVM.instance.startFacePay(true)
+//        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+//            override fun onFacePay(payForUI: PayForUI) {
+//
+//            }
+//
+//            override fun onFaceQuery(bean: CcbFacePayResultBean) {
+//                val payCfg = viewModel.getPayCfg()
+//                if (bean.RESULT == "Y") {
+//                    viewModel.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
+//                } else {
+//                    simpleDisplay.safeCancel()
+//                    val verificationUI = VerificationUI().apply {
+//                        errorMsg = bean.ERRMSG
+//                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+//                    }
+//                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
+//                    i.putExtra("id", 10)
+//                    i.putExtra("verify", Gson().toJson(verificationUI))
+//                    startActivity(i)
+//                }
+//            }
+//        })
+//    }
 
     private fun btnViewChange(button: Button, constant: String) {
         when (constant) {
@@ -496,28 +502,28 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         unregisterReceiver(periodicVerificationReceiver)
     }
 
-    override fun onOtherListener(event: Int, any: Any?) {
-        handler.post {
-            when (event) {
-                0 -> {
-                    LogUtil.d(TAG, "核销成功")
-                    val verificationUI = any as VerificationUI
-                    val i = Intent(this, FaceVerificationActivity::class.java)
-                    i.putExtra("id", 0)
-                    i.putExtra("verify", Gson().toJson(verificationUI))
-                    startActivity(i)
-                }
-
-                10 -> {
-                    LogUtil.d(TAG, "核销失败")
-                    val verificationUI = any as VerificationUI
-                    val i = Intent(this, FaceVerificationActivity::class.java)
-                    i.putExtra("id", 10)
-                    i.putExtra("verify", Gson().toJson(verificationUI))
-                    startActivity(i)
-                }
-            }
-        }
-    }
+//    override fun onOtherListener(event: Int, any: Any?) {
+//        handler.post {
+//            when (event) {
+//                0 -> {
+//                    LogUtil.d(TAG, "核销成功")
+//                    val verificationUI = any as VerificationUI
+//                    val i = Intent(this, FaceVerificationActivity::class.java)
+//                    i.putExtra("id", 0)
+//                    i.putExtra("verify", Gson().toJson(verificationUI))
+//                    startActivity(i)
+//                }
+//
+//                10 -> {
+//                    LogUtil.d(TAG, "核销失败")
+//                    val verificationUI = any as VerificationUI
+//                    val i = Intent(this, FaceVerificationActivity::class.java)
+//                    i.putExtra("id", 10)
+//                    i.putExtra("verify", Gson().toJson(verificationUI))
+//                    startActivity(i)
+//                }
+//            }
+//        }
+//    }
 
 }

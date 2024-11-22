@@ -299,7 +299,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     fun placeAnOrder(order: OrderForUI, verifyStatus: Boolean) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderForUI = order
-
+            listener?.onOrderResult(2, "订餐下单中")
             //下单
 //            val orderBean = getOrderMealData(orderForUI)
             val orderBean = getBatchOrder(orderForUI)
@@ -307,18 +307,18 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 //            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
             val orderRes = mRepository.insertBatchOrder(orderForUI.ccbToken, orderBean)
             if (orderRes.code == "200") {
-
 //                orderForUI.orderId = orderRes.data?.orderId ?: ""
                 orderForUI.orderId = orderRes.data?.pOderId ?: ""
                 orderForUI.verifyFlag = if (verifyStatus) "1" else "2"
                 when (orderForUI.orderType) {
                     "1" -> {
                         FaceScanVM.instance.bindService()
+                        FaceScanVM.instance.setOrderDishList(orderForUI.dishList)
                         FaceScanVM.instance.startFacePay(false, orderForUI.payment, orderForUI.orderId, orderForUI.verifyFlag)
                         FaceScanVM.instance.setFaceListener(faceResultListener)
                     }
                     "2" -> {
-
+                        listener?.onOrderResult(3, "")
                         open("2", false)
                     }
                     else -> payHandler(orderForUI.orderType, orderForUI.orderContent)
@@ -326,16 +326,24 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             } else {
                 orderForUI.errCode = orderRes.code
                 orderForUI.errMsg = orderRes.msg
-
+                listener?.onOrderResult(4, orderForUI)
             }
         }
     }
 
     private fun payHandler(type: String, content: String) {
-        runBlocking(Dispatchers.IO + mHandler) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            listener?.onOrderResult(2, "订餐支付中")
             when (type) {
                 "1" -> {
-                    LogUtil.d(TAG, content)
+                    val payForUI = Gson().fromJson(content, PayForUI::class.java)
+                    orderForUI.result = payForUI.result
+                    orderForUI.payTime = payForUI.payTime
+                    orderForUI.errCode = payForUI.errCode
+                    orderForUI.errMsg = payForUI.errMsg
+                    orderForUI.actualPayment = payForUI.actualPayment
+                    orderForUI.accBal = payForUI.accBal
+                    listener?.onOrderResult(4, orderForUI)
                 }
                 "2" -> {
                     close("2")
@@ -351,11 +359,11 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         orderForUI.actualPayment = result.ACTUAL_PAYMENT
                         orderForUI.accBal = result.REMAIN_BAL
                         saveOrderRecord(orderForUI, result)
-
+                        listener?.onOrderResult(4, orderForUI)
                     } else {
                         orderForUI.errCode = payRes.code
                         orderForUI.errMsg = payRes.msg
-
+                        listener?.onOrderResult(4, orderForUI)
                     }
                 }
                 else -> {
@@ -370,11 +378,11 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         orderForUI.actualPayment = result.ACTUAL_PAYMENT
                         orderForUI.accBal = result.REMAIN_BAL
                         saveOrderRecord(orderForUI, result)
-
+                        listener?.onOrderResult(4, orderForUI)
                     } else {
                         orderForUI.errCode = payRes.code
                         orderForUI.errMsg = payRes.msg
-
+                        listener?.onOrderResult(4, orderForUI)
                     }
                 }
             }
