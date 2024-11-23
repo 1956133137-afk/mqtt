@@ -3,11 +3,14 @@ package com.yannuo.dgcanteen.activitys
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.view.Display
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.*
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
 
 class SettingActivity : BaseActivity<ActivitySettingBinding>() {
@@ -102,6 +105,15 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         }
         settingDisplay = SettingDisplay(this, secondDisplays)
         settingDisplay.show()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val view = currentFocus
+            val inputMethodManager = MyApplication.applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            if (inputMethodManager != null && view != null) inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onStop() {
