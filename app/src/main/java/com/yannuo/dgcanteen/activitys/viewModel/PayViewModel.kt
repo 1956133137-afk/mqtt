@@ -169,7 +169,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 //                    payForUI.custId = analysisBean.CUST_ID
 //                    val person = dbHelper.queryPersonToCustId(payForUI.custId)
 //                    payForUI.username = person.personName
-                    onLinePay(payForUI)
+                onLinePay(payForUI)
 //                } else {
 //                    payForUI.errCode = analysisBean.ERRCODE
 //                    payForUI.errMsg = analysisBean.ERRMSG
@@ -244,6 +244,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     private fun onLinePay(payForUI: PayForUI) {
         runBlocking(mHandler) {
+            LogUtil.d(TAG, Gson().toJson(payForUI))
             val response = when (payForUI.payType) {
                 "2" -> {
                     val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)

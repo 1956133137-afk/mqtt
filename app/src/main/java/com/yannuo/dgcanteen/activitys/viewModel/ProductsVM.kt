@@ -131,10 +131,10 @@ class ProductsVM : ViewModel() {
                             dish.mealId = da.mealId
                             dish.price = bean.price.toDouble()
                             dish.unit = bean.unit
-                            dish.imgUrl = bean.imgUrl
+                            dish.imgUrl = bean.imgUrl ?: ""
                             dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
                             dishList.add(dish)
-                            picList.add(bean.imgUrl)
+                            picList.add(dish.imgUrl)
                         }
                     }
                     DishesDBHelper.getInstance().clearAllDishes()
@@ -424,6 +424,7 @@ class ProductsVM : ViewModel() {
             fi.delete()
         }
         for (path in picList) {
+            if (path == null || path.isEmpty()) continue
             val pic = Glide.with(MyApplication.applicationContext)
                 .load(path)
                 .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)

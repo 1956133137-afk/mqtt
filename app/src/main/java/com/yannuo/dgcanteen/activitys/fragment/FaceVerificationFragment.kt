@@ -92,4 +92,9 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
             }
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        FaceScanVM.instance.setFaceListener(null)
+    }
 }

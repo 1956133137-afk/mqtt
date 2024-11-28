@@ -20,10 +20,7 @@ class FailFragment : Fragment() {
     private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFailBinding.inflate(inflater, container, false)
         kv = MMKV.defaultMMKV()
         initEvent()

@@ -41,7 +41,7 @@ import java.util.List;
 
 import kotlinx.coroutines.CoroutineScope;
 
-public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.WorkListener,PayForAdapter.WorkListener{
+public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.WorkListener, PayForAdapter.WorkListener {
     private String TAG = getClass().getSimpleName();
 
     private DifferrentDialogBinding binding;
@@ -117,6 +117,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
         for (DishesTable u : list) {
+            String imgUrl = (u.getImgUrl() == null || u.getImgUrl().isEmpty()) ? "" : u.getImgUrl();
             dataList.add(new DishesInfo(
                     u.getDishesId(),
                     u.getDishesName(),
@@ -124,7 +125,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
                     null,
                     u.getPrice(),
                     u.getUnit(),
-                    u.getImgUrl(),
+                    imgUrl,
                     u.getStatus(),
                     0
             ));

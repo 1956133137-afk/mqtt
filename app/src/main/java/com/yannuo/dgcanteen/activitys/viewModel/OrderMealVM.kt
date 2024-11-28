@@ -14,7 +14,6 @@ import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.AccListTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
-import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
@@ -299,6 +298,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     fun placeAnOrder(order: OrderForUI, verifyStatus: Boolean) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderForUI = order
+            orderForUI.deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             listener?.onOrderResult(2, "订餐下单中")
             //下单
 //            val orderBean = getOrderMealData(orderForUI)
@@ -334,6 +334,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private fun payHandler(type: String, content: String) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             listener?.onOrderResult(2, "订餐支付中")
+            LogUtil.d(TAG, Gson().toJson(orderForUI))
             when (type) {
                 "1" -> {
                     val payForUI = Gson().fromJson(content, PayForUI::class.java)
@@ -573,6 +574,11 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             acc.payOrderTable = order
             dbHelper.insertAccList(acc)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        FaceScanVM.instance.setFaceListener(null)
     }
 
     interface OrderMealListener {

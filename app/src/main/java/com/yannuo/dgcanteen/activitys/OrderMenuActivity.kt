@@ -231,7 +231,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-            viewModel.verifyCount.observe(this) { res ->
+            viewModel.getVerifyCountForUI().observe(this) { res ->
                 LogUtil.d(TAG, Gson().toJson(res))
                 binding.tvTotalOrder.text = res.total.totalOrderNum
                 binding.tvTotalVerify.text = res.total.verifyTotalOrderNum

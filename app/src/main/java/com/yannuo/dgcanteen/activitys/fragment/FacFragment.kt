@@ -80,4 +80,9 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
             }
         }, 300)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        FaceScanVM.instance.setFaceListener(null)
+    }
 }

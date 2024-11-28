@@ -48,8 +48,8 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
     private var lastTime = 0L  //上次触发时间
     private var havePic = false
-    private var atv : AppCompatActivity ?= null
-    private var verifyAdapter : VerifyDishesAdapter? = null
+    private var atv: AppCompatActivity? = null
+    private var verifyAdapter: VerifyDishesAdapter? = null
     private var viewModel: VerificationVM? = null
     private var mealId = 0
 
@@ -61,10 +61,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         setContentView(binding.root)
         initView()
         initEvent()
-
     }
-
-
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
@@ -91,35 +88,35 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
                     havePic = files.isNotEmpty()
                 }
             }
-                if (kv.decodeString(Constant.TITLE_CONTENT) == null || kv.decodeString(Constant.TITLE_CONTENT) == "") {
-                    when(havePic){
-                        true ->{
-                            binding.tvFpTitle.visibility = View.VISIBLE
-                            binding.vfSlidesshow.visibility = View.VISIBLE
+            if (kv.decodeString(Constant.TITLE_CONTENT) == null || kv.decodeString(Constant.TITLE_CONTENT) == "") {
+                when (havePic) {
+                    true -> {
+                        binding.tvFpTitle.visibility = View.VISIBLE
+                        binding.vfSlidesshow.visibility = View.VISIBLE
 //                            binding.tvZ.visibility = View.GONE
-                            binding.tvFpTitle.text = "智慧食堂"
-                        }
-                        false ->{
-//                            binding.tvZ.text = "智慧食堂"
-                        }
+                        binding.tvFpTitle.text = "智慧食堂"
                     }
-                } else {
-                    var strText = kv.decodeString(Constant.TITLE_CONTENT, "")
-                    when(havePic){
-                        true ->{
-                            binding.tvFpTitle.visibility = View.VISIBLE
-                            binding.vfSlidesshow.visibility = View.VISIBLE
-//                            binding.tvZ.visibility = View.GONE
-                            binding.tvFpTitle.text = "$strText•智慧食堂"
-                        }
-                        false ->{
-                            strText = "${strText}\n智慧食堂"
-                            val str = SpannableString(strText)
-                            str.setSpan(AbsoluteSizeSpan(180), 0, strText.length - 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                            binding.tvZ.text = str
-                        }
+                    false -> {
+//                            binding.tvZ.text = "智慧食堂"
                     }
                 }
+            } else {
+                var strText = kv.decodeString(Constant.TITLE_CONTENT, "")
+                when (havePic) {
+                    true -> {
+                        binding.tvFpTitle.visibility = View.VISIBLE
+                        binding.vfSlidesshow.visibility = View.VISIBLE
+//                            binding.tvZ.visibility = View.GONE
+                        binding.tvFpTitle.text = "$strText•智慧食堂"
+                    }
+                    false -> {
+                        strText = "${strText}\n智慧食堂"
+                        val str = SpannableString(strText)
+                        str.setSpan(AbsoluteSizeSpan(180), 0, strText.length - 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                            binding.tvZ.text = str
+                    }
+                }
+            }
             if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
                 binding.tvCode.visibility = View.VISIBLE
             } else {
@@ -142,13 +139,13 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             binding.rvDishes.adapter = verifyAdapter
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
                 binding.tvCode.text = "刷脸核销"
-            }else {
+            } else {
                 binding.tvCode.text = "订餐核销"
             }
 //            initVerify()
             if (kv.decodeBool(Constant.SUPPORT_PAY, true)) {
                 binding.tvFace.visibility = View.VISIBLE
-            }else {
+            } else {
                 binding.tvFace.visibility = View.GONE
             }
         } catch (e: Exception) {
@@ -158,10 +155,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
     private fun initVerify() {
-        binding = SimpleDisplayBinding.inflate(layoutInflater)
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyView.visibility = View.VISIBLE
-            viewModel?.dishesCountOfWindow?.observe(atv!!) { value ->
+            viewModel?.getDishesCountForUI()?.observe(atv!!) { value ->
                 var totalOrderNum = 0
                 var verifyTotalOrderNum = 0
                 var unVerifyTotalOrderNum = 0
@@ -181,9 +177,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         } else binding.verifyView.visibility = View.GONE
     }
 
-    fun enableBtn(money:String?){
+    fun enableBtn(money: String?) {
         binding.also {
-            if (it.llPay.isVisible.not()){
+            if (it.llPay.isVisible.not()) {
                 it.llPay.visibility = View.VISIBLE
             }
             binding.tvAmount.text = "￥:$money 元"
@@ -193,16 +189,16 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
 
     private fun initEvent() {
         binding.btnFacePay.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY,  Constant.PAY_FACE_TYPE))
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, Constant.PAY_FACE_TYPE))
         }
         binding.btnIsPay.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000 )return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, Constant.PAY_CODE_IC_TYPE))
         }
-        binding.vSetting.setOnLongClickListener {iit ->
+        binding.vSetting.setOnLongClickListener { iit ->
             atv?.also {
                 val intent = Intent(it, SettingActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -213,16 +209,16 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             true
         }
         binding.tvCode.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 3000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
-            }else {
+            } else {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
             }
         }
         binding.tvFace.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 3000 ) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 3000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             //支付
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))
@@ -235,7 +231,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
 
-    fun setActivity(  atv : AppCompatActivity){
+    fun setActivity(atv: AppCompatActivity) {
         this.atv = atv
         viewModel = ViewModelProvider(atv)[VerificationVM::class.java]
         initVerify()

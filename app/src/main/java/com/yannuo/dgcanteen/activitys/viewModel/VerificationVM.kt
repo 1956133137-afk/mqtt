@@ -43,17 +43,12 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private var cardStatus = CardStatus.INVALID
     private var mealName = ""
 
-    private val _verifyCount = MutableLiveData<VerificationCountResponse>()
-    val verifyCount: MutableLiveData<VerificationCountResponse>
-        get() = _verifyCount
+    private val verifyCount: MutableLiveData<VerificationCountResponse> = MutableLiveData<VerificationCountResponse>()
+    private val dishesCount: MutableLiveData<DishesCountResponse> = MutableLiveData<DishesCountResponse>()
+    private val dishesCountOfWindow: MutableLiveData<CountDishesOfWindowResponse> = MutableLiveData<CountDishesOfWindowResponse>()
 
-    private val _dishesCount = MutableLiveData<DishesCountResponse>()
-    val dishesCount: MutableLiveData<DishesCountResponse>
-        get() = _dishesCount
-
-    private val counts = MutableLiveData<CountDishesOfWindowResponse>()
-    val dishesCountOfWindow: MutableLiveData<CountDishesOfWindowResponse>
-        get() = counts
+    fun getVerifyCountForUI(): MutableLiveData<VerificationCountResponse> = verifyCount
+    fun getDishesCountForUI(): MutableLiveData<CountDishesOfWindowResponse> = dishesCountOfWindow
 
     enum class CodeStatus {
         INVALID, PAY
@@ -127,6 +122,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
      */
     fun verification(campusId: String?, businessId: String?, custId: String?, orderId: String?, deviceId: String?, cardId: String?, flag: Int) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
+            callBackListener?.onOtherListener(-1, "")
             val data =
                 CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
             LogUtil.d(TAG, "加密数据: $data")
@@ -193,7 +189,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val res = mRespository.getCcbCountDCofDay(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), VerificationCountResponse::class.java)
-                _verifyCount.value = json
+                verifyCount.value = json
             }
         }
     }
@@ -206,7 +202,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val res = mRespository.getDishesCount(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), DishesCountResponse::class.java)
-                _dishesCount.value = json
+                dishesCount.value = json
             }
         }
     }
@@ -228,7 +224,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), CountDishesOfWindowResponse::class.java)
                 LogUtil.d(TAG, "getDishesCountOfWindow: ${Gson().toJson(json)}")
-                counts.value = json
+                dishesCountOfWindow.value = json
             }
         }
     }

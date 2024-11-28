@@ -13,6 +13,7 @@ class OrderForUI() : Parcelable {
     var campusId: String = ""
     var businessId: String = ""
     var businessName: String = ""
+    var deviceId: String = ""
     var vposId: String = ""
     var corpId: String = ""
     var custId: String = ""     //用户编号

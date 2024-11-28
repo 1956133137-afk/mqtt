@@ -23,9 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(), CallbackListener {
     private lateinit var verificationVM: VerificationVM
-    private val kv by lazy {
-        MMKV.defaultMMKV()
-    }
+    private val kv by lazy { MMKV.defaultMMKV() }
     private var countDown: CountDownTimer? = null
     val handler = Handler(MyApplication.applicationContext.mainLooper)
 
@@ -98,6 +96,11 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
         })
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        FaceScanVM.instance.setFaceListener(null)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         verificationVM.closeQrCode()
@@ -108,6 +111,7 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
             when (event) {
+                -1 -> countDown?.cancel()
                 0 -> {
                     LogUtil.d(TAG, "核销成功")
 

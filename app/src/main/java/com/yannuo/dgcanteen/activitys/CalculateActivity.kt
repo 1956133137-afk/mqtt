@@ -14,11 +14,9 @@ import android.view.View
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.OrderDishCountAdapter
@@ -26,7 +24,6 @@ import com.yannuo.dgcanteen.common.PeriodicVerificationReceiver
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
-import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
@@ -43,29 +40,23 @@ import java.util.*
  **/
 class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkStateManager.NetWorkListener {
 
-    private var mXService: MyService? = null
+    private val mXService by lazy { MyService(this) }
     private var navigation = true
-    private var passwordDialog: PasswordDialog? = null
-    private var confirmDialog: ConfirmDialog? = null
-    private lateinit var kv: MMKV
+    private val passwordDialog by lazy { PasswordDialog(this) }
+    private val confirmDialog by lazy { ConfirmDialog(this) }
+    private val kv: MMKV = MMKV.defaultMMKV()
+
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
+    private var simpleDisplay: SimpleDisplay? = null
 
-    @Volatile
-    private lateinit var simpleDisplay: SimpleDisplay
     private val handler = Handler()
     private lateinit var maps: MutableMap<String, Int>
     private var lastTime = 0L  //上次触发时间
     private var mealId = 0
-    private val orderCountAdapter by lazy {
-        OrderDishCountAdapter()
-    }
-    private val viewModel by lazy {
-        ViewModelProvider(this)[VerificationVM::class.java]
-    }
-    private val productsVM by lazy {
-        ProductsVM()
-    }
+    private val orderCountAdapter by lazy { OrderDishCountAdapter() }
+    private val viewModel by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
+    private val productsVM by lazy { ProductsVM() }
     private val periodicVerificationReceiver = PeriodicVerificationReceiver()
 
     override fun bindLayout() {
@@ -98,15 +89,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 
 
     private fun initObject() {
-//        viewModel.setListener(this)
         productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
         LogUtil.d(TAG, "mealId:$mealId")
         EventBus.getDefault().register(this)
         NetworkStateManager.getInstance().registerObserver(this)
-        if (!this::kv.isInitialized) kv = MMKV.defaultMMKV()
-        mXService = MyService(this)
-        passwordDialog = PasswordDialog(this)
 
         maps = mutableMapOf(
             "刷脸" to Constant.PAY_FACE_TYPE,
@@ -121,22 +108,14 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             else -> "刷卡扫码"
         }
         maps.remove(type)
-        if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-            binding.btnVerify.text = "刷脸核销"
-        } else binding.btnVerify.text = "订餐核销"
+        binding.btnVerify.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
         initVerify()
         kv.encode(Constant.VERIFY_CHANGE, false)
     }
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
-        if (!this::displayManager.isInitialized) {
-            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            displayManager.displays.also { secondDisplays = it[1] }
-        }
-        simpleDisplay = SimpleDisplay(this, secondDisplays)
-        simpleDisplay.show()
-        simpleDisplay.setActivity(this)
+        initPresentation()
         btnViewChange(binding.btnFixPay, Constant.QUOTA_SWITCH)
         btnViewChange(binding.btnOff, Constant.SWITCH)
         if (NetworkStateManager.getInstance().isOnline(this).not()) {
@@ -149,6 +128,18 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 
     }
 
+    private fun initPresentation() {
+        if (!this::displayManager.isInitialized) {
+            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            displayManager.displays.also { secondDisplays = it[1] }
+        }
+        if (simpleDisplay == null) {
+            simpleDisplay = SimpleDisplay(this, secondDisplays)
+            simpleDisplay?.show()
+            simpleDisplay?.setActivity(this)
+        }
+    }
+
     override fun onResume() {
 //        initPresentation()
 //        LogUtil.i(TAG,"onResume!")
@@ -156,10 +147,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 //        productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
         mXService?.hideNavBar = true
-        simpleDisplay.safeCancel()
-        simpleDisplay = SimpleDisplay(this, secondDisplays)
-        simpleDisplay.setActivity(this)
-        simpleDisplay.show()
+        if (simpleDisplay?.isShowing != true) simpleDisplay?.show()
         maps = mutableMapOf(
             "刷脸" to Constant.PAY_FACE_TYPE,
             "刷卡" to Constant.PAY_IC_TYPE,
@@ -175,15 +163,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         maps.remove(type)
         maps.entries.forEachIndexed { index, it ->
             when (index) {
-                0 -> {
-                    binding.btnFirst.text = it.key
-                }
-                1 -> {
-                    binding.btnSecond.text = it.key
-                }
-                2 -> {
-                    binding.btnThird.text = it.key
-                }
+                0 -> binding.btnFirst.text = it.key
+                1 -> binding.btnSecond.text = it.key
+                2 -> binding.btnThird.text = it.key
             }
         }
         //自动核销
@@ -195,23 +177,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
     }
 
-    private fun initPresentation() {
-        if (!this::displayManager.isInitialized) {
-            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            displayManager.displays.also { secondDisplays = it[1] }
-        }
-        if (!this::simpleDisplay.isInitialized && simpleDisplay.isShowing) {
-            simpleDisplay = SimpleDisplay(this, secondDisplays)
-            simpleDisplay.setActivity(this)
-            simpleDisplay.show()
-        }
-    }
-
     fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
             viewModel.getDishesCountOfWindow()
-            viewModel.dishesCountOfWindow.observe(this) { value ->
+            viewModel.getDishesCountForUI().observe(this) { value ->
                 var totalOrderNum = 0
                 var verifyTotalOrderNum = 0
                 var unVerifyTotalOrderNum = 0
@@ -245,8 +215,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
         binding.btnConfirm.setTextColor(Color.BLACK)
         binding.btnConfirm.text = "确认金额"
-//        simpleDisplay.cancel()
-        simpleDisplay.safeCancel()
+        simpleDisplay?.dismiss()
         LogUtil.i(TAG, "onstop!")
         super.onStop()
     }
@@ -265,9 +234,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
 
         binding.btnOff.setOnClickListener { //开启离线模式
-            if (confirmDialog == null) confirmDialog = ConfirmDialog(this)
             if (!kv.decodeBool(Constant.SWITCH, false)) {
-                confirmDialog?.apply {
+                confirmDialog.apply {
                     show()
                     binding.tvText.text = "您确定开启离线模式吗"
                     setListener(object : ConfirmDialog.OnConfirmCallback {
@@ -286,7 +254,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
 
         binding.btnSetting.setOnClickListener {//设置界面
-            passwordDialog?.apply {
+            passwordDialog.apply {
                 show()
                 binding.tvBack.text = "输入密码"
                 setListener(object : CloseEvent {
@@ -332,7 +300,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 val i = Intent(this, FaceVerificationActivity::class.java)
                 startActivity(i)
             } else {
-                simpleDisplay.safeCancel()
+                simpleDisplay?.dismiss()
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
             }
@@ -364,7 +332,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 }
             }
             Constant.EVENT_OPEN_BTN -> handler.post {
-                if (simpleDisplay.isShowing) {
+                if (simpleDisplay?.isShowing == true) {
                     val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
                     val limitAmount = String.format(Locale.CHINA, "%.02f", limitStr.toFloat()).toFloat()
                     val amount = event.any as String
@@ -376,7 +344,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
                     binding.btnConfirm.text = "确定金额￥${event.any as String}"
-                    simpleDisplay.enableBtn(event.any as String)
+                    simpleDisplay?.enableBtn(event.any as String)
                 }
             }
 
@@ -384,8 +352,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 btnViewChange(binding.btnOff, Constant.SWITCH)
             }
             Constant.EVENT_CODE -> handler.post {
-//                simpleDisplay.cancel()
-                simpleDisplay.safeCancel()
+                simpleDisplay?.dismiss()
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
@@ -411,35 +378,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             }
         }
     }
-
-    //刷脸核销
-//    private fun faceVerification() {
-//        LogUtil.d(TAG, "查询人脸信息~")
-//        FaceScanVM.instance.bindService()
-//        FaceScanVM.instance.startFacePay(true)
-//        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
-//            override fun onFacePay(payForUI: PayForUI) {
-//
-//            }
-//
-//            override fun onFaceQuery(bean: CcbFacePayResultBean) {
-//                val payCfg = viewModel.getPayCfg()
-//                if (bean.RESULT == "Y") {
-//                    viewModel.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
-//                } else {
-//                    simpleDisplay.safeCancel()
-//                    val verificationUI = VerificationUI().apply {
-//                        errorMsg = bean.ERRMSG
-//                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-//                    }
-//                    val i = Intent(applicationContext, FaceVerificationActivity::class.java)
-//                    i.putExtra("id", 10)
-//                    i.putExtra("verify", Gson().toJson(verificationUI))
-//                    startActivity(i)
-//                }
-//            }
-//        })
-//    }
 
     private fun btnViewChange(button: Button, constant: String) {
         when (constant) {
@@ -495,35 +433,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     }
 
     private fun release() {
-        passwordDialog?.cancel()
-        confirmDialog?.cancel()
+        passwordDialog.cancel()
+        confirmDialog.cancel()
+        simpleDisplay?.safeCancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
         unregisterReceiver(periodicVerificationReceiver)
     }
-
-//    override fun onOtherListener(event: Int, any: Any?) {
-//        handler.post {
-//            when (event) {
-//                0 -> {
-//                    LogUtil.d(TAG, "核销成功")
-//                    val verificationUI = any as VerificationUI
-//                    val i = Intent(this, FaceVerificationActivity::class.java)
-//                    i.putExtra("id", 0)
-//                    i.putExtra("verify", Gson().toJson(verificationUI))
-//                    startActivity(i)
-//                }
-//
-//                10 -> {
-//                    LogUtil.d(TAG, "核销失败")
-//                    val verificationUI = any as VerificationUI
-//                    val i = Intent(this, FaceVerificationActivity::class.java)
-//                    i.putExtra("id", 10)
-//                    i.putExtra("verify", Gson().toJson(verificationUI))
-//                    startActivity(i)
-//                }
-//            }
-//        }
-//    }
-
 }
