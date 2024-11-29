@@ -20,6 +20,7 @@ import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.OrderDishCountAdapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.PeriodicVerificationReceiver
 import com.yannuo.dgcanteen.databinding.ActivityCalculateBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
@@ -50,12 +51,12 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     private lateinit var secondDisplays: Display
     private var simpleDisplay: SimpleDisplay? = null
 
-    private val handler = Handler()
+    private val handler = Handler(MyApplication.applicationContext.mainLooper)
     private lateinit var maps: MutableMap<String, Int>
     private var lastTime = 0L  //上次触发时间
     private var mealId = 0
     private val orderCountAdapter by lazy { OrderDishCountAdapter() }
-    private val viewModel by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
+    private val verificationVM by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
     private val productsVM by lazy { ProductsVM() }
     private val periodicVerificationReceiver = PeriodicVerificationReceiver()
 
@@ -111,6 +112,33 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         binding.btnVerify.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
         initVerify()
         kv.encode(Constant.VERIFY_CHANGE, false)
+
+        binding.rvDishOrder.layoutManager = LinearLayoutManager(this)
+        binding.rvDishOrder.adapter = orderCountAdapter
+        verificationVM.getDishesCountForUI().observe(this) { value ->
+            var totalOrderNum = 0
+            var verifyTotalOrderNum = 0
+            var unVerifyTotalOrderNum = 0
+            value.needVerifyTotal.forEach {
+                totalOrderNum += it.dishesNum
+                it.flag = 0
+            }
+            value.verifyTotal.forEach {
+                verifyTotalOrderNum += it.dishesNum
+                it.flag = 1
+            }
+            value.unVerifyTotal.forEach {
+                unVerifyTotalOrderNum += it.dishesNum
+                it.flag = 2
+            }
+            binding.tvTotalOrder.text = totalOrderNum.toString()
+            binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
+            binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
+
+            orderCountAdapter.data = value.needVerifyTotal
+            orderCountAdapter.addData(value.verifyTotal)
+            orderCountAdapter.addData(value.unVerifyTotal)
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -123,8 +151,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         } else {
             netWorkStatus("0")
         }
-        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\n" +
-                "v${packageManager.getPackageInfo(packageName, 0).versionName}"
+        binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\nv${packageManager.getPackageInfo(packageName, 0).versionName}"
 
     }
 
@@ -148,6 +175,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         mealId = TimeUtil.CurrentTimeSection()
         mXService?.hideNavBar = true
         if (simpleDisplay?.isShowing != true) simpleDisplay?.show()
+        simpleDisplay?.verifyListView()
         maps = mutableMapOf(
             "刷脸" to Constant.PAY_FACE_TYPE,
             "刷卡" to Constant.PAY_IC_TYPE,
@@ -180,34 +208,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
-            viewModel.getDishesCountOfWindow()
-            viewModel.getDishesCountForUI().observe(this) { value ->
-                var totalOrderNum = 0
-                var verifyTotalOrderNum = 0
-                var unVerifyTotalOrderNum = 0
-                value.needVerifyTotal.forEach {
-                    totalOrderNum += it.dishesNum
-                    it.flag = 0
-                }
-                value.verifyTotal.forEach {
-                    verifyTotalOrderNum += it.dishesNum
-                    it.flag = 1
-                }
-                value.unVerifyTotal.forEach {
-                    unVerifyTotalOrderNum += it.dishesNum
-                    it.flag = 2
-                }
-                binding.tvTotalOrder.text = totalOrderNum.toString()
-                binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
-                binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
-
-                orderCountAdapter.data = value.needVerifyTotal
-                orderCountAdapter.addData(value.verifyTotal)
-                orderCountAdapter.addData(value.unVerifyTotal)
-                val linearManager = LinearLayoutManager(this)
-                binding.rvDishOrder.layoutManager = linearManager
-                binding.rvDishOrder.adapter = orderCountAdapter
-            }
+            verificationVM.getDishesCountOfWindow()
         } else binding.verifyShow.visibility = View.GONE
     }
 
@@ -366,9 +367,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             }
             Constant.EVENT_VERIFY_CHANGE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI ${event.any}")
-                val o = event.any as Boolean
-                if (o) {
-                    runOnUiThread { initVerify() }
+                if (event.any as Boolean) handler.post {
+                    initVerify()
+                    simpleDisplay?.verifyView()
                 }
             }
             Constant.EVENT_SECOND -> handler.post {

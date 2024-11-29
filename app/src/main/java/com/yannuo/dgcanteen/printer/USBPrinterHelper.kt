@@ -173,7 +173,7 @@ class USBPrinterHelper {
                         printQueue.peek()?.let {
                             when (printType) {
                                 "0" -> printContent(it)
-                                "1" -> printBatchOrderContent(it)
+                                "1" -> printerOrder(it)
                                 "2" -> printOrderContent(it)
                             }
                         }
@@ -235,7 +235,15 @@ class USBPrinterHelper {
             mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
             dishes.forEach {
                 sum += it.dishesNumber.toFloat() * it.dishesPrice.toFloat()
-                mPos?.POS_TextOut("${printFormatMenu(it.dishesName, it.dishesNumber, "${it.dishesNumber.toFloat() * it.dishesPrice.toFloat()}")}\r\n", 0, 0, 0, 0, 0, 0)
+                mPos?.POS_TextOut(
+                    "${printFormatMenu(it.dishesName, it.dishesNumber, "${it.dishesNumber.toFloat() * it.dishesPrice.toFloat()}")}\r\n",
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                )
             }
             mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
             mPos?.POS_TextOut("${printFormat("合计", String.format("%.02f元", sum))}\r\n", 0, 0, 0, 0, 0, 0)
@@ -245,6 +253,13 @@ class USBPrinterHelper {
         mPos?.POS_FeedLine()
         mPos?.POS_FeedLine()
         mPos?.POS_FullCutPaper()
+    }
+
+    private fun printerOrder(data: Any) {
+        when (kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)) {
+            0 -> printBatchOrderContent(data)
+            1 -> printAllOrderContent(data)
+        }
     }
 
     private fun printOrderContent(data: Any) {
@@ -305,7 +320,7 @@ class USBPrinterHelper {
             printContentKey(bean.custName, printFormat("用户姓名", bean.custName))
             printContentKey(bean.accBal, printFormat("用户余额", "${bean.accBal}元"))
             printContentKey(bean.orderId, printFormat("订单编号", bean.orderId))
-            printContentKey(bean.payment, printFormat("订单金额", String.format("%.02f元", bean.payment.toFloat())))
+//            printContentKey(bean.payment, printFormat("订单金额", String.format("%.02f元", bean.payment.toFloat())))
             printContentKey(bean.orderTime, printFormat("下单时间", bean.orderTime))
             printContentKey(dateMenu.date, printFormat("用餐日期", dateMenu.date))
             printContentKey(bean.distribute, printFormat("配送方式", if (bean.distribute == "1") "配送" else "自提"))
@@ -324,7 +339,8 @@ class USBPrinterHelper {
                     printContentKey(mealMenu.mealName, mealMenu.mealName)
                     mealMenu.dishList.forEach {
                         sum += it.dishCount * it.dishPrice.toDouble()
-                        printContentKey("-", printFormatMenu(it.dishName, it.dishCount.toString(), "${it.dishCount.toFloat() * it.dishPrice.toFloat()}"))
+                        val subtotal = String.format("%.02f", it.dishCount.toDouble() * it.dishPrice.toDouble())
+                        printContentKey("-", printFormatMenu(it.dishName, it.dishCount.toString(), subtotal))
                     }
                 }
                 printContentKey("-", "--------------------------------")
@@ -335,6 +351,54 @@ class USBPrinterHelper {
             mPos?.POS_FeedLine()
             if (bean.menuList.size != index + 1) kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
         }
+        mPos?.POS_FeedLine()
+        mPos?.POS_FullCutPaper()
+    }
+
+    private fun printAllOrderContent(data: Any) {
+        val bean = data as OrderForUI
+        mPos?.POS_Reset() //复位打印机
+        mPos?.POS_S_Align(1) //居中对齐
+        //按照一定的格式打印字符串
+        mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_FeedLine()
+        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_AMOUNT, 1))}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_S_Align(0) //左对齐
+        printContentKey("-", "================================")
+        printContentKey(bean.custName, printFormat("用户姓名", bean.custName))
+        printContentKey(bean.accBal, printFormat("用户余额", "${bean.accBal}元"))
+        printContentKey(bean.orderId, printFormat("订单编号", bean.orderId))
+        printContentKey(bean.payment, printFormat("订单金额", String.format("%.02f元", bean.payment.toFloat())))
+        printContentKey(bean.orderTime, printFormat("下单时间", bean.orderTime))
+        printContentKey(bean.distribute, printFormat("配送方式", if (bean.distribute == "1") "配送" else "自提"))
+        if (bean.distribute == "1") printContentKey(bean.address, printFormat("配送地址", bean.address))
+        printContentKey(bean.phone, printFormat("联系电话", bean.phone))
+        printContentKey(bean.remark, printFormat("备注", bean.remark))
+
+        mPos?.POS_FeedLine()
+        printContentKey("-", printFormatMenu("名称", "数量", "小计"))
+        var sum = 0.0
+        printContentKey("-", "--------------------------------")
+        bean.menuList.forEachIndexed { index, dateMenu ->
+            if (dateMenu.mealList.size > 0) {
+                mPos?.POS_S_Align(1) //居中对齐
+                mPos?.POS_TextOut("${dateMenu.date}\r\n", 0, 0, 0, 0, 0, 0)
+                mPos?.POS_S_Align(0) //左对齐
+                dateMenu.mealList.forEach { mealMenu ->
+                    printContentKey(mealMenu.mealName, mealMenu.mealName)
+                    mealMenu.dishList.forEach {
+                        sum += it.dishCount * it.dishPrice.toDouble()
+                        val subtotal = String.format("%.02f", it.dishCount.toDouble() * it.dishPrice.toDouble())
+                        printContentKey("-", printFormatMenu(it.dishName, it.dishCount.toString(), subtotal))
+                    }
+                }
+            }
+        }
+        printContentKey("-", "--------------------------------")
+        printContentKey("-", printFormat("合计", String.format("%.02f元", sum)))
+        printContentKey("-", "================================")
+        mPos?.POS_FeedLine()
+        mPos?.POS_FeedLine()
         mPos?.POS_FeedLine()
         mPos?.POS_FullCutPaper()
     }

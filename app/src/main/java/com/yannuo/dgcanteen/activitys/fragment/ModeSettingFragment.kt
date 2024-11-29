@@ -31,6 +31,7 @@ import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import org.greenrobot.eventbus.EventBus
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.system.exitProcess
 import kotlin.time.ExperimentalTime
 
@@ -46,9 +47,9 @@ class ModeSettingFragment : Fragment() {
     private lateinit var kv: MMKV
     private var popup: PopupWindow = PopupWindow()
     private var listView: ListView? = null
-    private val dataList: ArrayList<String> = arrayListOf<String>(
-        "刷脸支付模式", "刷卡支付模式", "扫码支付模式", "码卡支付模式"
-    )
+    private val dataList: ArrayList<String> = arrayListOf<String>("刷脸支付模式", "刷卡支付模式", "扫码支付模式", "码卡支付模式")
+    private val printerList: ArrayList<String> = arrayListOf<String>("按天打印", "全部打印")
+    private var printerListView: ListView? = null
     private lateinit var mScope: CoroutineScope
     private lateinit var mHandle: CoroutineExceptionHandler
     private lateinit var confirmDialog: ConfirmDialog
@@ -73,11 +74,7 @@ class ModeSettingFragment : Fragment() {
 //    }
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentModeSettingBinding.inflate(inflater, container, false)
         initObject()
         initEvent()
@@ -105,6 +102,26 @@ class ModeSettingFragment : Fragment() {
         listView?.divider = null
         listView?.isVerticalScrollBarEnabled = false
         listView?.adapter = SimpleDownAdapter(requireContext(), dataList)
+        listView?.setOnItemClickListener { adapterView, view, position, id -> //下拉框选择
+            binding.payMode.text = dataList[position]
+            popup.dismiss()
+            when (dataList[position]) {
+                "刷脸支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_FACE_TYPE)
+                "刷卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_IC_TYPE)
+                "扫码支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
+                "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+            }
+        }
+
+        printerListView = ListView(requireContext())
+        printerListView?.divider = null
+        printerListView?.isVerticalScrollBarEnabled = false
+        printerListView?.adapter = SimpleDownAdapter(requireContext(), printerList)
+        printerListView?.setOnItemClickListener { adapterView, view, position, id -> //下拉框选择
+            binding.orderPrinterFormat.text = printerList[position]
+            popup.dismiss()
+            kv.encode(Constant.ORDER_PRINTER_FORMAT, position)
+        }
     }
 
     private fun initEvent() {
@@ -120,16 +137,6 @@ class ModeSettingFragment : Fragment() {
             popup.contentView = listView
             popup.isOutsideTouchable = true
             popup.showAsDropDown(binding.payMode, 0, 0)
-        }
-        listView?.setOnItemClickListener { adapterView, view, position, id -> //下拉框选择
-            binding.payMode.text = dataList[position]
-            popup.dismiss()
-            when (dataList[position]) {
-                "刷脸支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_FACE_TYPE)
-                "刷卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_IC_TYPE)
-                "扫码支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
-                "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
-            }
         }
         binding.codeVerification.setOnClickListener { //核销模式
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
@@ -201,6 +208,14 @@ class ModeSettingFragment : Fragment() {
                     })
             }
         }
+        binding.orderPrinterFormat.setOnClickListener { //切换支付
+            popup.width = binding.orderPrinterFormat.width
+            popup.height = 400
+            popup.contentView = printerListView
+            popup.isOutsideTouchable = true
+            popup.showAsDropDown(binding.orderPrinterFormat, 0, 0)
+        }
+        binding.orderDefaultWay.setOnClickListener { kv.encode(Constant.ORDER_DEFAULT_WAY, binding.orderDefaultWay.isChecked) }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
 //            if (!this::awaitingDialog.isInitialized)
@@ -303,26 +318,19 @@ class ModeSettingFragment : Fragment() {
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
         }
         if (self_help.equals(kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()) {
-            val restartIntent =
-                mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-            restartIntent?.addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
-            )
+            val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+            restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(restartIntent)
             exitProcess(0)
         }
         if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()) {
             val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-            restartIntent?.addFlags(
-                Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
-            )
+            restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(restartIntent)
             exitProcess(0)
         }
+
+        kv.encode(Constant.ORDER_ADVANCE_DAY, binding.orderAdvanceDay.text.toString().trim().replace(" ", "").ifEmpty { "0" }.toInt())
     }
 
     private fun reload() {
@@ -340,10 +348,13 @@ class ModeSettingFragment : Fragment() {
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
-        if (kv.decodeString(Constant.APP_MODE) == null)
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+        if (kv.decodeString(Constant.APP_MODE) == null) kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
+
+        binding.orderPrinterFormat.text = printerList[kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)]
+        binding.orderAdvanceDay.setText(kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6).toString())
+        binding.orderDefaultWay.isChecked = kv.decodeBool(Constant.ORDER_DEFAULT_WAY, false)
 
         val verifyType = resources.getStringArray(R.array.spVerify)
         val spVerifyAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, verifyType)
@@ -380,10 +391,7 @@ class ModeSettingFragment : Fragment() {
     }
 
     private fun isFormJudgment(str: String): Boolean { //判断格式
-        val regex = Regex(
-            """^(0|[1-9]\d{0,5})(\.\d{0,2})?$""",
-            RegexOption.IGNORE_CASE
-        )
+        val regex = Regex("""^(0|[1-9]\d{0,5})(\.\d{0,2})?$""", RegexOption.IGNORE_CASE)
         return regex.matches(str)
     }
 
@@ -397,36 +405,18 @@ class ModeSettingFragment : Fragment() {
                 else -> "是否切换为  并且重启应用？"
             }
             val str = SpannableString(strText)
-            str.setSpan(
-                StyleSpan(Typeface.BOLD),
-                5,
-                strText.length - 7,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            str.setSpan(StyleSpan(Typeface.BOLD), 5, strText.length - 7, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             binding.tvText.text = str
 
             setListener(object : ConfirmDialog.OnConfirmCallback {
                 override fun confirmCallback(flag: Boolean) {
                     if (flag) {
                         when (kv.decodeString(Constant.APP_MODE)) {
-                            Constant.ORDERING_FOOD_MODE -> kv.encode(
-                                Constant.APP_MODE,
-                                Constant.PROCEEDS_MODE
-                            )
-
-                            Constant.PROCEEDS_MODE -> kv.encode(
-                                Constant.APP_MODE,
-                                Constant.ORDERING_FOOD_MODE
-                            )
-
+                            Constant.ORDERING_FOOD_MODE -> kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
+                            Constant.PROCEEDS_MODE -> kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
                         }
-                        val restartIntent =
-                            mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-                        restartIntent?.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        )
+                        val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                        restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         startActivity(restartIntent)
                         exitProcess(0)
                     }
@@ -480,8 +470,7 @@ class ModeSettingFragment : Fragment() {
     override fun onDestroy() {
         if (this::confirmDialog.isInitialized) confirmDialog.cancel()
         if (this::awaitingDialog.isInitialized) awaitingDialog.cancel()
-        if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not()
-            || (self_help == kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()) {
+        if ((saveCheck == kv.decodeBool(Constant.QUERY_VERIFY, false)).not() || (self_help == kv.decodeBool(Constant.BALANCE_SWITCH, false)).not()) {
             val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
             startActivity(restartIntent)
             exitProcess(0)

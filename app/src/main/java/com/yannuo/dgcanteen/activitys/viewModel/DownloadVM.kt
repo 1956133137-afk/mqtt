@@ -78,6 +78,7 @@ class DownloadVM : ViewModel() {
                                 dishUnit = it.unit
                                 dishCount = queryDishNumber(date, mealId, dishId)
                                 imgUrl = it.imgUrl ?: ""
+                                windowIdList = it.windowIdList
                             }
                             dishList.add(bean)
                         }
@@ -111,7 +112,7 @@ class DownloadVM : ViewModel() {
 
     fun getDateWeek(): MutableList<SelectDateBean> {
         val beanList = mutableListOf<SelectDateBean>()
-        for (i in 0..6) {
+        for (i in 0..kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6)) {
             val millis = System.currentTimeMillis() + i * 86400000
             val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", millis)
             val dateBean = SelectDateBean()

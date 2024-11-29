@@ -64,7 +64,14 @@ class PayRepositoryOfPay {
      */
     suspend fun downPerson(pageSize: Int, page: Int): CanteenResponse<String> {
         return apiCall {
-            val request = PersonRequest(CommonAndDpToPxUtil.getDeviceSerial(), page, pageSize)
+            val request = PersonRequest(page, pageSize, "", CommonAndDpToPxUtil.getDeviceSerial())
+            RetrofitClient.getApi().downPerson(request)
+        }
+    }
+
+    suspend fun downPerson2(campusId: String, pageSize: Int, page: Int): CanteenResponse<String> {
+        return apiCall {
+            val request = PersonRequest(page, pageSize, campusId, "")
             RetrofitClient.getApi().downPerson(request)
         }
     }

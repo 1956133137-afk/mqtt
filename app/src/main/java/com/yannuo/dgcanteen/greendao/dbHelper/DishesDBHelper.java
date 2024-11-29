@@ -195,6 +195,7 @@ public class DishesDBHelper {
     public void updateDishes(String dishId, int mealId, int status) {
         DishesTable dish = mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.DishesId.eq(dishId), DishesTableDao.Properties.MealId.eq(mealId))
+                .limit(1)
                 .build().unique();
         dish.setStatus(status);
         mDishesTableDao.update(dish);
@@ -524,6 +525,14 @@ public class DishesDBHelper {
                 .where(VerifyDishesDao.Properties.Time.gt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.lt(date + " 23:59:59"))
                 .orderDesc(VerifyDishesDao.Properties.Id)
                 .limit(10)
+                .build().list();
+    }
+
+    public List<VerifyDishes> queryVerifyUserToHundred(String date) {
+        return mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Time.gt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.lt(date + " 23:59:59"))
+                .orderDesc(VerifyDishesDao.Properties.Id)
+                .limit(100)
                 .build().list();
     }
 

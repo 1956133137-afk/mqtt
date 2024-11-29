@@ -17,12 +17,10 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.view.size
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.VerifyDishesAdapter
@@ -49,10 +47,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     private var lastTime = 0L  //上次触发时间
     private var havePic = false
     private var atv: AppCompatActivity? = null
-    private var verifyAdapter: VerifyDishesAdapter? = null
     private var viewModel: VerificationVM? = null
-    private var mealId = 0
-
+    private val verifyAdapter by lazy { VerifyDishesAdapter() }
+    private var currentDate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
@@ -65,6 +62,12 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
+        verifyView()
+        currentDate = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+        binding.rvDishes.layoutManager = LinearLayoutManager(context)
+        binding.rvDishes.adapter = verifyAdapter
+        val selectVerifyDishes = DishesDBHelper.getInstance().queryVerifyUserToHundred(currentDate)
+        if (selectVerifyDishes != null) verifyAdapter.data = selectVerifyDishes
         try {
             val file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             if (file.exists()) {
@@ -117,64 +120,33 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
                     }
                 }
             }
-            if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-                binding.tvCode.visibility = View.VISIBLE
-            } else {
-                binding.tvCode.visibility = View.GONE
-            }
-            binding.tvFace.text = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
-                Constant.PAY_CODE_TYPE -> "扫码支付"
-                Constant.PAY_IC_TYPE -> "刷卡支付"
-                Constant.PAY_CODE_IC_TYPE -> "码卡支付"
-                else -> "刷脸支付"
-            }
-            mealId = TimeUtil.CurrentTimeSection()
-            verifyAdapter = VerifyDishesAdapter()
-            val selectVerifyDishes = DishesDBHelper.getInstance(context).selectVerifyDishes()
-            if (selectVerifyDishes.size > 0) {
-                verifyAdapter!!.insertedData(selectVerifyDishes)
-            }
-            val linearLayoutManager = LinearLayoutManager(context)
-            binding.rvDishes.layoutManager = linearLayoutManager
-            binding.rvDishes.adapter = verifyAdapter
-            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-                binding.tvCode.text = "刷脸核销"
-            } else {
-                binding.tvCode.text = "订餐核销"
-            }
-//            initVerify()
-            if (kv.decodeBool(Constant.SUPPORT_PAY, true)) {
-                binding.tvFace.visibility = View.VISIBLE
-            } else {
-                binding.tvFace.visibility = View.GONE
-            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
-    private fun initVerify() {
-        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
-            binding.verifyView.visibility = View.VISIBLE
-            viewModel?.getDishesCountForUI()?.observe(atv!!) { value ->
-                var totalOrderNum = 0
-                var verifyTotalOrderNum = 0
-                var unVerifyTotalOrderNum = 0
-                value.needVerifyTotal.forEach {
-                    totalOrderNum += it.dishesNum
-                }
-                value.verifyTotal.forEach {
-                    verifyTotalOrderNum += it.dishesNum
-                }
-                value.unVerifyTotal.forEach {
-                    unVerifyTotalOrderNum += it.dishesNum
-                }
-                binding.tvTotalOrder.text = totalOrderNum.toString()
-                binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
-                binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
-            }
-        } else binding.verifyView.visibility = View.GONE
+    fun verifyView() {
+        binding.verifyView.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
+
+        binding.tvCode.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
+        binding.tvCode.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
+
+        binding.tvFace.visibility = if (kv.decodeBool(Constant.SUPPORT_PAY, true)) View.VISIBLE else View.GONE
+        binding.tvFace.text = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
+            Constant.PAY_CODE_TYPE -> "扫码支付"
+            Constant.PAY_IC_TYPE -> "刷卡支付"
+            Constant.PAY_CODE_IC_TYPE -> "码卡支付"
+            else -> "刷脸支付"
+        }
+    }
+
+    fun verifyListView() {
+        val verifyUser = DishesDBHelper.getInstance().queryVerifyUser(currentDate)
+        if (verifyUser == null) verifyAdapter.clear()
+        else if (!verifyAdapter.data.contains(verifyUser)) {
+            verifyAdapter.insertDataTop(verifyUser, 100)
+            binding.rvDishes.smoothScrollToPosition(0)
+        }
     }
 
     fun enableBtn(money: String?) {
@@ -224,17 +196,25 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))
         }
         binding.verifyView.setOnLongClickListener {
-            initVerify()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
-            true
+            return@setOnLongClickListener true
         }
     }
-
 
     fun setActivity(atv: AppCompatActivity) {
         this.atv = atv
         viewModel = ViewModelProvider(atv)[VerificationVM::class.java]
-        initVerify()
+        viewModel?.getDishesCountForUI()?.observe(atv) { value ->
+            var totalOrderNum = 0
+            var verifyTotalOrderNum = 0
+            var unVerifyTotalOrderNum = 0
+            value.needVerifyTotal.forEach { totalOrderNum += it.dishesNum }
+            value.verifyTotal.forEach { verifyTotalOrderNum += it.dishesNum }
+            value.unVerifyTotal.forEach { unVerifyTotalOrderNum += it.dishesNum }
+            binding.tvTotalOrder.text = totalOrderNum.toString()
+            binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
+            binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
+        }
     }
 
 

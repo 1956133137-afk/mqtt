@@ -74,7 +74,7 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
     }
 
     override fun onOtherListener(event: Int, any: Any?) {
-        handler.post {
+        handler.postDelayed({
             when (event) {
                 0 -> {
                     LogUtil.d(TAG, "核销成功")
@@ -90,7 +90,7 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
                     findNavController().navigate(toFailed)
                 }
             }
-        }
+        }, 200)
     }
 
     override fun onDestroyView() {

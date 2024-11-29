@@ -42,6 +42,9 @@ interface ApiService {
     @POST("deviceData/selectUserData")
     suspend fun downPerson(@Body request: PersonRequest): CanteenResponse<String>
 
+    @Headers("content-type: application/json")
+    @POST("deviceData/selectUserData2")
+    suspend fun downPerson2(@Body request: PersonRequest): CanteenResponse<String>
 
     // 获取菜品
     @Headers("content-type: application/json")

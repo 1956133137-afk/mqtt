@@ -1,6 +1,8 @@
 package com.yannuo.dgcanteen.model
 
-class PersonRequest(var deviceId : String ="",
-var page :Int,
-var pageSize :Int) {
-}
+class PersonRequest(
+    var page: Int,
+    var pageSize: Int,
+    var campusId: String = "",
+    var deviceId: String = ""
+)

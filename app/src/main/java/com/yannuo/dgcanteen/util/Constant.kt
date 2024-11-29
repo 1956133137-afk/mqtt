@@ -22,6 +22,7 @@ object Constant {
     //    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
     //服务器地址
     const val ADDRESS = "Address"
+    const val PERSON_ADDRESS = "personAddress"  //人员信息下载地址
 
     //是否离线
     const val SWITCH = "Switch"
@@ -92,6 +93,10 @@ object Constant {
     const val AUTO_PAY = "auto_pay"   //自动收款
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
 
+    const val ORDER_PRINTER_FORMAT = "OrderPrinterFormat"   //订餐打印格式 0-一天 1-全部
+    const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
+    const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
@@ -110,7 +115,6 @@ object Constant {
     const val EVENT_CODE = 29 //二维码核销
     const val EVENT_VERIFY_CHANGE = 30 //核销统计
     const val EVENT_TRAN_MODE = 32  //交易方式
-
 
 
     const val VERIFY_MODE = "verifyMode"//核销方式

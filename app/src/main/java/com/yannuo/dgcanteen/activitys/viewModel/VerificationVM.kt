@@ -22,6 +22,8 @@ import com.yannuo.dgcanteen.util.CanteenEncryptionUtil.getAnalysisCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.Date
 
 class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
@@ -42,6 +44,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
     private var mealName = ""
+
+    private val mutex = Mutex()
+    private var isStatus = false
 
     private val verifyCount: MutableLiveData<VerificationCountResponse> = MutableLiveData<VerificationCountResponse>()
     private val dishesCount: MutableLiveData<DishesCountResponse> = MutableLiveData<DishesCountResponse>()
@@ -123,8 +128,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     fun verification(campusId: String?, businessId: String?, custId: String?, orderId: String?, deviceId: String?, cardId: String?, flag: Int) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             callBackListener?.onOtherListener(-1, "")
-            val data =
-                CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
+            val data = CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
             LogUtil.d(TAG, "加密数据: $data")
             var verification = VerificationRequest().apply {
                 this.dcEncryptParam = data
@@ -164,7 +168,6 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 }
                 callBackListener?.onOtherListener(0, verificationUI)
             } else {
-                LogUtil.w(TAG, "${ccbCodeVerification.msg}")
                 val verificationUI = VerificationUI().apply {
                     errorMsg = ccbCodeVerification.msg.toString()
                     time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
@@ -208,7 +211,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     }
 
     fun getDishesCountOfWindow() {
+        if (isStatus) return
         viewModelScope.launch {
+            mutex.withLock { isStatus = true }
             val campusId = if (mPayCfg == null) "" else mPayCfg!!.campusId
             val businessId = if (mPayCfg == null) "" else mPayCfg!!.businessId
             val mealId = TimeUtil.CurrentTimeSection()
@@ -226,6 +231,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 LogUtil.d(TAG, "getDishesCountOfWindow: ${Gson().toJson(json)}")
                 dishesCountOfWindow.value = json
             }
+            mutex.withLock { isStatus = false }
         }
     }
 

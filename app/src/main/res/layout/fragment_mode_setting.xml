@@ -395,6 +395,109 @@
 
         </LinearLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="订餐打印格式"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/order_printer_format"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="30dp"
+                android:gravity="center"
+                android:text=""
+                android:textColor="#198AFA"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:text="订餐提前天数"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/order_advance_day"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="right"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textColor="#198AFA"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="45dp"
+                android:gravity="center"
+                android:text="天"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="订餐默认方式（自提+核销）"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/order_default_way"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"

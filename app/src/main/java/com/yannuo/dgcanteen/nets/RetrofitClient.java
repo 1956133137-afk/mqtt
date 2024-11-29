@@ -1,6 +1,5 @@
 package com.yannuo.dgcanteen.nets;
 
-
 import android.graphics.Typeface;
 
 import com.tencent.mmkv.MMKV;
@@ -12,13 +11,13 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-//        private final static  String BASE_URL ="http://192.168.2.82:9001/";
+    //        private final static  String BASE_URL ="http://192.168.2.82:9001/";
 //    private final  String BASE_URL ="https://test.yannuozhineng.com/ccb/canteen/api/";
-    private static ApiService mService ;
-    private static ApiService mCcbService ;
+    private static ApiService mService;
+    private static ApiService personService;
+    private static ApiService mCcbService;
 
-    private RetrofitClient(){
-
+    private RetrofitClient() {
         mService = new Retrofit.Builder()
                 .client(OkHttpUtils.Companion.getInstance())
                 .baseUrl(MMKV.defaultMMKV().decodeString(Constant.ADDRESS))
@@ -29,19 +28,36 @@ public class RetrofitClient {
                 .create(ApiService.class);
     }
 
-
     public static ApiService getApi() {
         if (mService == null) {
             synchronized (RetrofitClient.class) {
-                 new RetrofitClient();
+                new RetrofitClient();
             }
         }
         return mService;
-
     }
 
+    private static void setPersonService() {
+        personService = new Retrofit.Builder()
+                .client(OkHttpUtils.Companion.getInstance())
+                .baseUrl(MMKV.defaultMMKV().decodeString(Constant.PERSON_ADDRESS))
+//                .baseUrl(BASE_URL)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+    }
 
-    public static ApiService getApiCcb(){
+    public static ApiService getPersonApi() {
+        if (personService == null) {
+            synchronized (RetrofitClient.class) {
+                setPersonService();
+            }
+        }
+        return personService;
+    }
+
+    public static ApiService getApiCcb() {
         if (mCcbService == null) {
             synchronized (RetrofitClient.class) {
 //                String basePath = "https://dining.icenter.ccb.com/CCBIS/"; //生产
@@ -59,9 +75,7 @@ public class RetrofitClient {
         return mCcbService;
     }
 
-
-
-    public static void overLoad(){
+    public static void overLoad() {
         mService = null;
     }
 }

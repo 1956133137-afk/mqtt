@@ -26,4 +26,5 @@ class DishBean {
     var dishUnit: String = ""
     var dishCount: Int = 0
     var imgUrl: String = ""
+    var windowIdList: String = ""
 }

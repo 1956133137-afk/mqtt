@@ -514,6 +514,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         dishesPrice = dish.dishPrice
                         dishesNum = dish.dishCount.toString()
                         imgUrl = dish.imgUrl
+                        windowIdList = dish.windowIdList
                     }
                     orderDetail.dcOrderDishesList.add(orderDishes)
                     totalMoney += dish.dishCount * dish.dishPrice.toDouble()
