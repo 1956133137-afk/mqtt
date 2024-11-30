@@ -141,6 +141,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
     fun verifyListView() {
+        binding.tvCode.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false)
+        binding.tvFace.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false)
+
         val verifyUser = DishesDBHelper.getInstance().queryVerifyUser(currentDate)
         if (verifyUser == null) verifyAdapter.clear()
         else if (!verifyAdapter.data.contains(verifyUser)) {
