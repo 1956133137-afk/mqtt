@@ -99,7 +99,7 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun getCcbCodeVerification(data: VerificationRequest): CanteenResponse<VerificationResponse> {
+    suspend fun getCcbCodeVerification(data: VerificationRequest): CanteenResponse<JsonObject> {
         return apiCall {
             val ben = RetrofitClient.getApi().ccbCodeVerification(data)
             return@apiCall ben

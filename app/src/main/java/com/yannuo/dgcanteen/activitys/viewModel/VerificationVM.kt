@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
@@ -136,37 +138,14 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             }
             LogUtil.d(TAG, Gson().toJson(verification))
             val ccbCodeVerification = mRespository.getCcbCodeVerification(verification)
-            LogUtil.d(TAG, Gson().toJson(ccbCodeVerification))
             if (ccbCodeVerification.code == "200") {
-                val toJson = Gson().toJson(ccbCodeVerification.data)
-                val json = Gson().fromJson(toJson, VerificationResponse::class.java)
                 val allMeals = DishesDBHelper.getInstance().queryAllMeals()
                 allMeals.forEach {
                     if (Date() >= it.startTime && Date() <= it.endTime) {
                         mealName = it.mealName
                     }
                 }
-                val verificationUI = VerificationUI().apply {
-                    errorMsg = ccbCodeVerification.msg
-                    personName = json.personName
-                    dish = json.verifyDishes
-                    dishesList = json.verify[mealName]?.dishesList
-                    window = json.unVerifyWindowName
-                    windows = json.verify[mealName]?.windowList
-                    unDish = json.unVerifyDishes
-                    time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-                }
-                if (flag == 0) {
-                    val verifyDishesBean = VerifyDishes().apply {
-                        this.personName = json.personName
-                        this.dish = json.verifyDishes.toString()
-                        this.window = json.unVerifyWindowName.toString()
-                        this.unDish = json.unVerifyDishes.toString()
-                        this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-                    }
-                    DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
-                }
-                callBackListener?.onOtherListener(0, verificationUI)
+                if (flag == 0) verifyPay(ccbCodeVerification) else verifyQuery(ccbCodeVerification)
             } else {
                 val verificationUI = VerificationUI().apply {
                     errorMsg = ccbCodeVerification.msg.toString()
@@ -175,6 +154,51 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
                 callBackListener?.onOtherListener(10, verificationUI)
             }
         }
+    }
+
+    private fun verifyPay(ccbCodeVerification: CanteenResponse<JsonObject>) {
+        val json = Gson().fromJson(Gson().toJson(ccbCodeVerification.data), VerificationResponse::class.java)
+
+        val verificationUI = VerificationUI().apply {
+            errorMsg = ccbCodeVerification.msg
+            personName = json.personName
+            dish = json.verifyDishes
+            dishesList = json.verify[mealName]?.dishesList
+            window = json.unVerifyWindowName
+            windows = json.verify[mealName]?.windowList
+            unDish = json.unVerifyDishes
+            time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        }
+        val verifyDishesBean = VerifyDishes().apply {
+            this.personName = json.personName
+            this.dish = json.verifyDishes.toString()
+            this.window = { json.unVerifyWindowName ?: "" }.toString()
+            this.unDish = { json.unVerifyDishes ?: "" }.toString()
+            this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        }
+        DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
+        callBackListener?.onOtherListener(0, verificationUI)
+    }
+
+    private fun verifyQuery(ccbCodeVerification: CanteenResponse<JsonObject>) {
+        val queryReceive = Gson().fromJson(ccbCodeVerification.data, CavQueryReceive::class.java)
+
+        val verificationUI = VerificationUI()
+        verificationUI.errorMsg = ccbCodeVerification.msg
+        verificationUI.personName = queryReceive.personName
+        verificationUI.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+
+        val dishList = arrayListOf<String>()
+        val windowList = arrayListOf<String>()
+        val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(queryReceive.verify[mealName], object : TypeToken<MutableList<VerifyReceive>>() {}.type)
+        verifyReceive.forEach { receive ->
+            dishList.add(receive.dishes)
+            receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+        }
+        verificationUI.dishesList = dishList.toTypedArray()
+        verificationUI.windows = windowList.toTypedArray()
+
+        callBackListener?.onOtherListener(0, verificationUI)
     }
 
     //设置回调监听

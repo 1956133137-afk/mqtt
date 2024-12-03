@@ -90,7 +90,7 @@ class FaceVerificationFragment : BaseFragment<FragmentFaceVerificationBinding>()
                     findNavController().navigate(toFailed)
                 }
             }
-        }, 200)
+        }, 300)
     }
 
     override fun onDestroyView() {
