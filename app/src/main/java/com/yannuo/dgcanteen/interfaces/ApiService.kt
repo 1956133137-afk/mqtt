@@ -61,6 +61,11 @@ interface ApiService {
     @POST("deviceData/byCardIdSelectUser")
     suspend fun queryPersonByCardId(@Body bean: RequestPerson): CanteenResponse<Persons>
 
+    // 根据卡号或二维码查询余额
+    @Headers("content-type: application/json")
+    @POST("android/queryBalance")
+    suspend fun queryBalance(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
+
     //智慧食堂请求
     @Headers("content-type: application/x-www-form-urlencoded")
     @FormUrlEncoded
@@ -172,5 +177,40 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("dcCcb/dcOrderRecord/countDishesOfWindow")
     suspend fun countDishesOfWindow(@Body bean: CountDishesOfWindowBean): CanteenResponse<CountDishesOfWindowResponse>
+
+    /**
+     * 查询个人的剩余餐次(申万宏源)
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/qryAllowanceUser")
+    suspend fun queryPersonRestMealTime(@Body encryptedData: EncryptedDataRequest): CanteenResponse<MutableList<PersonRestMealTime>>
+
+    /**
+     * 查询餐别剩余被取餐次数(申万宏源)
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/getAllowanceUserCount")
+    suspend fun queryMealRestTime(@Body encryptedData: EncryptedDataRequest): CanteenResponse<MealRestTimeReceive>
+
+    /**
+     * 查询人员餐次规则(申万宏源)
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/selectMealAllowance")
+    suspend fun queryMealTimeRule(@Body encryptedData: EncryptedDataRequest): CanteenResponse<MutableList<MealTimeRuleReceive>>
+
+    /**
+     * 刷卡支付(申万宏源)
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/swCardPayment")
+    suspend fun swPayWithCard(@Body bean: RequestPay): CanteenResponse<String>
+
+    /**
+     * 扫码支付(申万宏源)
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/swQrCodePayment")
+    suspend fun swPayWithCode(@Body bean: RequestPay): CanteenResponse<String>
 
 }

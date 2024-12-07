@@ -1,9 +1,7 @@
 package com.yannuo.dgcanteen.model;
 
-import java.util.List
-
 data class BalanceResponse(
-    val ACC_DATA:List<ACCDATA>,
+    val ACC_DATA: List<ACCDATA>?,
     val CAMPUS_ID: String,
     val CID_NO: String,
     val CUST_ID: String,

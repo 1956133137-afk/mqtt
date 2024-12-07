@@ -33,4 +33,13 @@ class PayForUI {
     var paymentDishes: MutableList<Dish> = mutableListOf()
     var errCode = ""            //错误码
     var errMsg = ""             //错误信息
+
+    // sw
+    var swForUI: SwForUI = SwForUI()
+
+    override fun toString(): String {
+        return "PayForUI(result='$result', businessId='$businessId', businessName='$businessName', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', username='$username', accNo='$accNo', accBal='$accBal', accType='$accType', accList=$accList, orderId='$orderId', traceId='$traceId', payType='$payType', payContent='$payContent', payment='$payment', actualPayment='$actualPayment', payTime='$payTime', payDate='$payDate', sessionId='$sessionId', signTime='$signTime', offline='$offline', paymentDishes=$paymentDishes, errCode='$errCode', errMsg='$errMsg')"
+    }
+
+
 }

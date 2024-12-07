@@ -17,6 +17,7 @@ import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
+import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
 import com.yannuo.dgcanteen.greendao.entity.DishesTable;
@@ -29,6 +30,7 @@ import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable;
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.Persons;
+import com.yannuo.dgcanteen.greendao.entity.SwPayOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.VerifyDishes;
 import com.yannuo.dgcanteen.util.LogUtil;
 
@@ -74,6 +76,7 @@ public class DishesDBHelper {
     private OfflineDishTableDao olDishTableDao;
     private AccListTableDao accListDao;
     private OfflineAccListTableDao olAccListDao;
+    private SwPayOrderTableDao swPayOrderTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -121,6 +124,7 @@ public class DishesDBHelper {
         olDishTableDao = mDaoSession.getOfflineDishTableDao();
         accListDao = mDaoSession.getAccListTableDao();
         olAccListDao = mDaoSession.getOfflineAccListTableDao();
+        swPayOrderTableDao = mDaoSession.getSwPayOrderTableDao();
     }
 
     /**
@@ -715,5 +719,35 @@ public class DishesDBHelper {
                 .where(OfflineDishTableDao.Properties.OfflineOrderId.eq(offlineOrderId))
                 .buildDelete()
                 .executeDeleteWithoutDetachingEntities();
+    }
+
+    /*******************************  申万订单  *******************************/
+    public void insertSwPayOrder(SwPayOrderTable swPayOrderTable) {
+        LogUtil.d(TAG, "insertSwPayOrder：" + swPayOrderTable);
+        long l = swPayOrderTableDao.insertOrReplace(swPayOrderTable);
+        LogUtil.d(TAG, "insertSwPayOrder l: " + l);
+    }
+
+    public SwPayOrderTable querySwPayOrder(String orderId) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.OrderId.eq(orderId))
+                .build().unique();
+    }
+
+    public List<SwPayOrderTable> querySwPayOrderListByDate(String date, String actualMealName) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                        SwPayOrderTableDao.Properties.ActualMealName.eq(actualMealName))
+                .build().list();
+    }
+
+    public List<SwPayOrderTable> querySwPayOrderListByCustIdDate(String custId, String date, String actualMealName) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.CustId.eq(custId),
+                        SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                        SwPayOrderTableDao.Properties.ActualMealName.eq(actualMealName))
+                .build().list();
     }
 }

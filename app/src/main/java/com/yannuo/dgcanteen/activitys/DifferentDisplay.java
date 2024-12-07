@@ -54,7 +54,12 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
     private boolean flag = false;
 
     public void setFoodsCallback(FoodsCallback foodsCallback) {
-        this.foodsCallback = foodsCallback;
+        LogUtil.d(TAG, "原本 foodsCallback: " + foodsCallback);
+        if (this.foodsCallback == null) this.foodsCallback = foodsCallback;
+    }
+
+    public FoodsCallback getFoodsCallback() {
+        return foodsCallback;
     }
 
     private FoodsCallback foodsCallback = null;

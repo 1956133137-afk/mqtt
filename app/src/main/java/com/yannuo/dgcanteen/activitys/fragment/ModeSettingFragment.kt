@@ -152,6 +152,18 @@ class ModeSettingFragment : Fragment() {
         binding.autoPay.setOnClickListener {
             kv.encode(Constant.AUTO_PAY, binding.autoPay.isChecked)
         }
+        binding.switchUseMealLimitPay.setOnClickListener {
+            // 开餐后才能收款
+            val check = binding.switchUseMealLimitPay.isChecked
+            if (check) kv.encode(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 1)
+            else kv.encode(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0)
+        }
+//        binding.switchMealTimeMode.setOnClickListener {
+//            // 餐次消费模式
+//            val check = binding.switchMealTimeMode.isChecked
+//            if (check) kv.encode(Constant.MEAL_TIME_MODE, 1)
+//            else kv.encode(Constant.MEAL_TIME_MODE, 0)
+//        }
         binding.switchFixed.setOnClickListener { //定额模式
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
             amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
@@ -315,6 +327,7 @@ class ModeSettingFragment : Fragment() {
         if (!(flag && amountJudgment(binding.limitAmount, Constant.LIMIT_AMOUNT))) flag = false
         kv.encode(Constant.TITLE_CONTENT, binding.titleContent.text.toString())
         kv.encode(Constant.MEAL_TIME, binding.mealTime.text.toString().toInt())
+        kv.encode(Constant.PAY_RESULT_DIALOG_TIME, binding.mealTimeDialogTime.text.toString().toLong())
         if (flag) {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
@@ -337,6 +350,8 @@ class ModeSettingFragment : Fragment() {
 
     private fun reload() {
         self_help = kv.decodeBool(Constant.BALANCE_SWITCH, false)
+        binding.switchUseMealLimitPay.isChecked = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0) == 1
+//        binding.switchMealTimeMode.isChecked = kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help
         saveCheck = kv.decodeBool(Constant.QUERY_VERIFY, false)
@@ -348,6 +363,7 @@ class ModeSettingFragment : Fragment() {
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+        binding.mealTimeDialogTime.setText(kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L).toString())
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
         if (kv.decodeString(Constant.APP_MODE) == null) kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
@@ -439,7 +455,7 @@ class ModeSettingFragment : Fragment() {
             DishesDBHelper.getInstance().deleteAllPersons()
             LogUtil.d(TAG, "准备全量更新人员")
             do {
-                val res = repository.downPerson(200, currentPage)
+                val res = repository.downPerson(500, currentPage)
                 try {
                     if (res.code == "200") {
                         val result = DES3CBCUtil.decryptRSA(res.data)

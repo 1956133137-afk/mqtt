@@ -15,6 +15,7 @@ import org.greenrobot.greendao.query.Query;
 import org.greenrobot.greendao.query.QueryBuilder;
 
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable;
+import com.yannuo.dgcanteen.greendao.entity.SwPayOrderTable;
 
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
 
@@ -43,6 +44,7 @@ public class AccListTableDao extends AbstractDao<AccListTable, Long> {
     private DaoSession daoSession;
 
     private Query<AccListTable> payOrderTable_AccListQuery;
+    private Query<AccListTable> swPayOrderTable_AccListQuery;
 
     public AccListTableDao(DaoConfig config) {
         super(config);
@@ -227,6 +229,20 @@ public class AccListTableDao extends AbstractDao<AccListTable, Long> {
         return query.list();
     }
 
+    /** Internal query to resolve the "accList" to-many relationship of SwPayOrderTable. */
+    public List<AccListTable> _querySwPayOrderTable_AccList(Long accId) {
+        synchronized (this) {
+            if (swPayOrderTable_AccListQuery == null) {
+                QueryBuilder<AccListTable> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.AccId.eq(null));
+                swPayOrderTable_AccListQuery = queryBuilder.build();
+            }
+        }
+        Query<AccListTable> query = swPayOrderTable_AccListQuery.forCurrentThread();
+        query.setParameter(0, accId);
+        return query.list();
+    }
+
     private String selectDeep;
 
     protected String getSelectDeep() {
@@ -235,8 +251,11 @@ public class AccListTableDao extends AbstractDao<AccListTable, Long> {
             SqlUtils.appendColumns(builder, "T", getAllColumns());
             builder.append(',');
             SqlUtils.appendColumns(builder, "T0", daoSession.getPayOrderTableDao().getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T1", daoSession.getSwPayOrderTableDao().getAllColumns());
             builder.append(" FROM ACC_LIST_TABLE T");
             builder.append(" LEFT JOIN PAY_ORDER_TABLE T0 ON T.\"ACC_ID\"=T0.\"_id\"");
+            builder.append(" LEFT JOIN SW_PAY_ORDER_TABLE T1 ON T.\"ACC_ID\"=T1.\"_id\"");
             builder.append(' ');
             selectDeep = builder.toString();
         }
@@ -249,6 +268,10 @@ public class AccListTableDao extends AbstractDao<AccListTable, Long> {
 
         PayOrderTable payOrderTable = loadCurrentOther(daoSession.getPayOrderTableDao(), cursor, offset);
         entity.setPayOrderTable(payOrderTable);
+        offset += daoSession.getPayOrderTableDao().getAllColumns().length;
+
+        SwPayOrderTable swPayOrderTable = loadCurrentOther(daoSession.getSwPayOrderTableDao(), cursor, offset);
+        entity.setSwPayOrderTable(swPayOrderTable);
 
         return entity;    
     }

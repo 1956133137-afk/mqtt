@@ -37,6 +37,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
+/**
+ * 点餐模式2：左侧购物车栏
+ */
 open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
     PayForAdapter.WorkListener, CallbackListener, IProductsVM {
     private lateinit var mAdapter: ProductsAdapter

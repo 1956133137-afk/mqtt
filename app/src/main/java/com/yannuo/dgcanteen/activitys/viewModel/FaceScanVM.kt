@@ -66,6 +66,10 @@ class FaceScanVM {
         this.listener = listener
     }
 
+    fun setTimeOut(timeout: Int) {
+        mFacePayService?.setTimeOut(timeout)
+    }
+
     fun setOrderDishList(beanList: MutableList<DishBean>) {
         dishList.clear()
         beanList.forEach {

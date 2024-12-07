@@ -130,7 +130,7 @@ class BalanceActivity :BaseActivity<ActivityBalanceBinding>(), CallbackListener 
         var totalMoney = 0.0f
         spanWatcher.clear()
 
-        rs.ACC_DATA.forEachIndexed { idx, ad ->
+        rs.ACC_DATA?.forEachIndexed { idx, ad ->
             val type = when(ad.ACC_TYPE){
                 "01" ->"现金账户"
                 "02" ->"餐补账户1"

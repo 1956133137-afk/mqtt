@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -16,16 +17,15 @@ import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
-import com.yannuo.dgcanteen.model.OrderPayInfo
-import com.yannuo.dgcanteen.model.PayForUI
-import com.yannuo.dgcanteen.model.ProductsDetail
-import com.yannuo.dgcanteen.model.SimpleForUI
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.KeyboardUtil
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -58,6 +58,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initData() {
         val data = arguments?.getParcelable<OrderPayInfo>(Constant.PAY_DATE)
         onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
@@ -90,7 +91,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
         })
     }
 
-    //刷卡返回数据
+    //刷卡扫码返回数据
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
             try {

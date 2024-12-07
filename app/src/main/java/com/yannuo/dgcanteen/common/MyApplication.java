@@ -28,6 +28,8 @@ public class MyApplication extends Application {
     private MMKV kv;
     private volatile static boolean create = false;
 
+//    public static boolean openFacePay = false;
+    public static String actulMealName = "";
 
     @Override
     public void onCreate() {

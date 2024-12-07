@@ -99,6 +99,15 @@ object Constant {
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
 
+    const val USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH = "收款模式受开餐状态限制" // 开餐后才能收款  0：关闭   1：打开
+    const val IS_USE_MEAL = "是否开餐" // 0: 未开餐  1：开餐
+
+    const val MEAL_TIME_MODE = "餐次消费模式" // 0：关闭  1：打开  目前只有申万宏源使用，目前只做了在线模式的
+    const val QUERY_TIME_SWITCH = "查询余次开关" //查询余次开关  0：关闭  1：打开
+    const val PAY_RESULT_DIALOG_TIME = "支付结果dialog显示时间"
+
+    const val BTN_CONFIRM_STATE = "确认金额按钮状态" // 0：关闭  1：打开
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
@@ -118,7 +127,15 @@ object Constant {
     const val EVENT_VERIFY_CHANGE = 30 //核销统计
     const val EVENT_TRAN_MODE = 32  //交易方式
     const val EVENT_FACE_STATUS = 33    //刷脸状态改变
-
+    const val EVENT_MEAL_TIME_BULK_PAY = 34 //餐次模式，零点(键盘输入金额)支付
+    const val EVENT_SHOW_BULK_PAYMENT = 35 //显示零点支付的金额
+    const val EVENT_QUIT_CONFIRM = 36  // 取消确定金额
+    const val EVENT_KEYBOARD_CANCEL = 37 // 清空键盘的金额
+    const val EVENT_SHOW_CALCULATE_AWAIT_DIALOG = 38 //显示calculate activity的 await dialog
+    const val EVENT_DISMISS_CALCULATE_AWAIT_DIALOG = 39 //消失calculate activity的 await dialog
+    const val EVENT_SHOW_CALCULATE_PAY_DIALOG = 40     //显示calculate activity的 pay result dialog
+    const val EVENT_DISMISS_CALCULATE_PAY_DIALOG = 41   //消失calculate activity的 pay result dialog
+    const val EVENT_MEAL_TIME_MODE = 42 //餐次模式
 
     const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径
@@ -170,5 +187,9 @@ object Constant {
     const val VOICE_ENABLE_SET = "voice_en" //人脸识别语音播报
     const val VOICE_ENABLE_SET_V = true //人脸识别语音播报
 
+    //餐次消费方式
+    const val MEAL_TIME_FACE_TYPE = 4     //刷脸餐次
+    const val MEAL_TIME_IC_TYPE = 5       //刷卡餐次
+    const val MEAL_TIME_CODE_TYPE = 6     //扫码餐次
 
 }

@@ -16,6 +16,7 @@ import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +52,9 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
 
+/**
+ * 点餐模式
+ */
 class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
@@ -90,7 +94,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     //    private var timer: Timer? = null
     private var mMealId = 0
-    private var mealId = 0
+    private var mealId = -1
     private var successBinding: PaySuccessHostBinding? = null
     private var failBinding: PayFailureHostBinding? = null
     private var adapterDishes: FoodsAdapter? = null
@@ -115,6 +119,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onInit() {
         mXService = MyService(this)
         passwordDialog = PasswordDialog(this)
@@ -125,7 +130,6 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         if (havePermission()) {
             requestPermission()
         } else {
-
             initPresentation()
             initObj()
             initView()
@@ -146,6 +150,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             mProductsDisplay?.safeCancel()
             mProductsDisplay = DifferentDisplay(this, secondDisplays)
             mProductsDisplay?.setFoodsCallback(this)
+            LogUtil.i(TAG, "foodsCallback: ${mProductsDisplay?.foodsCallback}")
             clearFoods()
             mProductsDisplay?.show()
 //            mPayResultDisplay?.cancel()
@@ -168,6 +173,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun initView() {
 
         //吐司信息显示
@@ -206,8 +212,10 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mProductsDisplay?.safeCancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
         mProductsDisplay?.show()
+//        initPresentation()  这里含有回调，会显示
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun initEvent() {
 
         binding.tvTitle.setOnLongClickListener {
@@ -759,6 +767,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
     override fun onFoodsUpdate(foods: Any?) {
+        LogUtil.i(TAG, "$foods")
         val list = foods as? MutableList<DishesInfo>
         val foodsList = mutableListOf<DishesInfo>()
         if (list.isNullOrEmpty()) {

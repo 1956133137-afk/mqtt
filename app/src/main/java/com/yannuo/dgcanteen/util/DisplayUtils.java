@@ -12,6 +12,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import org.greenrobot.greendao.annotation.Id;
+
 import java.util.Objects;
 
 /**
@@ -25,8 +27,7 @@ public class DisplayUtils {
     private static float sNoncompatDensity;
     private static float sNoncompatScaledDensity;
     private static Utils utils;
-
-    public static void setCustomDensity(Presentation presentation, @NonNull Activity activity, @NonNull final Application application) {
+    public static void setCustomDensity(int width, Presentation presentation, @NonNull Activity activity, @NonNull final Application application) {
         DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
         if (sNoncompatDensity == 0) {
             sNoncompatDensity = appDisplayMetrics.density;
@@ -46,7 +47,7 @@ public class DisplayUtils {
                 }
             });
         }
-        float targetDensity = (float) appDisplayMetrics.widthPixels / 1920;
+        float targetDensity = (float) appDisplayMetrics.widthPixels / width;
         // 防止字体变小
         float targetScaleDensity = targetDensity * (sNoncompatScaledDensity / sNoncompatDensity);
         int targetDensityDpi = (int) (160 * targetDensity);

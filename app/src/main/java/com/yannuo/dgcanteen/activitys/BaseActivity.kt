@@ -31,7 +31,7 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
 
         super.onCreate(savedInstanceState)
 
-        DisplayUtils.setCustomDensity(null, this, application)
+        DisplayUtils.setCustomDensity(1920, null, this, application)
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -53,6 +53,7 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         bindLayout()
         setContentView(binding.root)
         mHandle = CoroutineExceptionHandler { coroutineContext, e ->
+            e.printStackTrace()
             LogUtil.e(TAG, "Exception: ${e.message}")
         }
 

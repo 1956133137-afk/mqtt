@@ -20,7 +20,7 @@ open class BaseDisplay(private val context: Context, display: Display): Presenta
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (context is Activity) {
-            DisplayUtils.setCustomDensity(this, context, context.application)
+            DisplayUtils.setCustomDensity(1920, this, context, context.application)
         } else {
             LogUtil.i(this::class.simpleName, "Display's context is not activity!!!")
         }

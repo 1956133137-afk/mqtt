@@ -16,15 +16,15 @@ import com.yannuo.dgcanteen.activitys.HostActivity
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
-import com.yannuo.dgcanteen.model.MessageEvent
-import com.yannuo.dgcanteen.model.OrderPayInfo
-import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.KeyboardUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -89,7 +89,16 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
-            collectMoney()
+            val limit = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0)
+            val isUseMeal = kv.decodeInt(Constant.IS_USE_MEAL)
+            if (limit == 1) {
+                if (isUseMeal == 1) {
+                    collectMoney()
+                } else {
+                    ToastShowUtil.show("餐别未开餐")
+                    CommonAndDpToPxUtil.speakWork("餐别未开餐")
+                }
+            } else collectMoney()
         }
         binding.backspace.setOnClickListener { //回退
             if (tvText.isNotEmpty()) {
@@ -135,6 +144,15 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
 
             Constant.EVENT_VERIFY ->{
                 checkVerify()
+            }
+
+            Constant.EVENT_MEAL_TIME_BULK_PAY -> {
+                checkVerify()
+            }
+
+            Constant.EVENT_KEYBOARD_CANCEL -> {
+                tvText = StringBuilder()
+                binding.inputAmount.text = null
             }
         }
     }
@@ -281,7 +299,14 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
                 return
             }
         }
-        EventBus.getDefault().post(MessageEvent(Constant.EVENT_OPEN_BTN, amount))
+        if (kv.decodeInt(Constant.BTN_CONFIRM_STATE, 0) == 0) {
+            kv.encode(Constant.BTN_CONFIRM_STATE, 1)
+            CommonAndDpToPxUtil.speakWork("请支付$amount 元")
+            // 核销模式
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_OPEN_BTN, amount))
+            // 餐次模式
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_SHOW_BULK_PAYMENT, amount))
+        }
     }
 
     private fun collectMoney(ways: Int? = null){

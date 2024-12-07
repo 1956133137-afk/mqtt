@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.dialogView
 
 import android.content.Context
+import android.view.WindowManager
 import com.yannuo.dgcanteen.databinding.DialogAwaitBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -18,6 +19,7 @@ class AwaitingDialog(context: Context) : BaseDialog<DialogAwaitBinding>(context)
     }
 
     override fun initOperation() {
+        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         binding.tvState.setOnLongClickListener {
             dismiss()
             return@setOnLongClickListener true

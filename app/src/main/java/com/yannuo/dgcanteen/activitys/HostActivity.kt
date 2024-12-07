@@ -4,14 +4,20 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityHostBinding
+import com.yannuo.dgcanteen.model.MealTimeRuleInfo
+import com.yannuo.dgcanteen.model.MealTimeRuleReceive
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
 
 class HostActivity : BaseActivity<ActivityHostBinding>() {
+
+    private val kv by lazy { MMKV.defaultMMKV() }
     private var navHostFragment: NavHostFragment? = null
 
     override fun bindLayout() {
@@ -28,13 +34,11 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         navHostFragment = supportFragmentManager.findFragmentById(binding.mainFragmentContainer.id) as NavHostFragment?
         val bundle = Bundle()
         bundle.putParcelable(Constant.PAY_DATE, payInfo)
-        LogUtil.d(TAG, "onInit")
         if (payInfo.type != Constant.PAY_FACE_TYPE) {
             navHostFragment?.navController!!.setGraph(R.navigation.ic_graph, bundle)
 //            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
-        } else {
-            navHostFragment?.navController!!.setGraph(R.navigation.nav_graph, bundle)
         }
+        LogUtil.d(TAG,"onInit")
     }
 
     override fun onResume() {

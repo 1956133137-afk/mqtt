@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#EFEFEF"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="#FFFFFF">
+
+        <ImageButton
+            android:id="@+id/ibt_back"
+            android:layout_width="85dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="44dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:visibility="gone"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/meal_time"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="130dp"
+            android:layout_toEndOf="@id/ibt_back"
+            android:background="@drawable/shape_tv_bg"
+            android:gravity="center"
+            android:minWidth="300dp"
+            android:text="@string/unOpen_meal"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:letterSpacing="0.1"
+            android:text="餐次模式"
+            android:textColor="#4095E5"
+            android:textSize="38sp"
+            android:textStyle="bold" />
+
+        <TextClock
+            android:id="@+id/tv_clock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="100dp"
+            android:layout_toEndOf="@id/tv_title"
+            android:format24Hour="HH:mm:ss  yyyy/MM/dd"
+            android:gravity="center"
+            android:textColor="#4F4F4F"
+            android:textSize="30sp" />
+
+        <ImageButton
+            android:id="@+id/network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="50dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_wifi" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_time_query_mode"
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="220dp"
+        android:layout_marginStart="30dp"
+        android:background="@drawable/click_button"
+        android:padding="10dp"
+        android:text="余次查询"
+        android:textColor="#4F4F4F"
+        android:textSize="40sp" />
+
+    <Button
+        android:id="@+id/btn_face_pay"
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="30dp"
+        android:background="@drawable/click_button"
+        android:padding="10dp"
+        android:text="刷脸消费"
+        android:layout_below="@id/btn_time_query_mode"
+        android:textColor="#4F4F4F"
+        android:textSize="40sp" />
+
+    <LinearLayout
+        android:id="@+id/ll_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/shape_btn_bg_white"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="380dp"
+                android:text="姓名："
+                android:textSize="45sp"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/tv_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="330dp"
+                android:text="余额："
+                android:textSize="45sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_breakfast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:minWidth="350dp"
+            android:text="早餐："
+            android:textSize="45sp" />
+
+        <TextView
+            android:id="@+id/tv_lunch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:minWidth="350dp"
+            android:text="午餐："
+            android:textSize="45sp" />
+
+        <TextView
+            android:id="@+id/tv_dinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:minWidth="350dp"
+            android:text="晚餐："
+            android:textSize="45sp" />
+
+        <TextView
+            android:id="@+id/tv_supper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:minWidth="350dp"
+            android:text="夜宵："
+            android:textSize="45sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/postpone_pay_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="220dp"
+        android:layout_toEndOf="@id/ll_info"
+        android:background="@drawable/shape_btn_bg_white"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/postpone_pay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="单价："
+            android:textColor="@color/red"
+            android:textSize="25sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bulk_pay_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="220dp"
+        android:layout_toEndOf="@id/ll_info"
+        android:background="@drawable/shape_btn_bg_white"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/bulk_pay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="零点："
+            android:textColor="@color/red"
+            android:textSize="25sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_rule_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="300dp"
+        android:layout_toEndOf="@id/ll_info"
+        android:background="@drawable/shape_btn_bg_white"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_meal_rule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="餐标："
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_rule_use"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="耗次："
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_rest_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="余次："
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_rule_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="单价："
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_rule_subsidy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="300dp"
+            android:text="补贴："
+            android:textSize="25sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:visibility="visible">
+
+        <TextView
+            android:id="@+id/tv_breakfast_bill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:minWidth="200dp"
+            android:text="早餐：0 单"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_lunch_bill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:minWidth="200dp"
+            android:text="午餐：0 单"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_dinner_bill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:minWidth="200dp"
+            android:text="晚餐：0 单"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/tv_supper_bill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="200dp"
+            android:text="夜宵：0 单"
+            android:textSize="25sp" />
+    </LinearLayout>
+    
+    <RelativeLayout
+        android:id="@+id/pay_success"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ll_info"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:visibility="gone">
+        <com.yannuo.dgcanteen.views.DrawHookView
+            android:id="@+id/draw_hook"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
+            android:onClick="redraw"/>
+        <TextView
+            android:id="@+id/tv_success_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="消费成功！"
+            android:layout_toEndOf="@id/draw_hook"
+            android:textSize="30sp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/pay_fail"
+        android:layout_width="600dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ll_info"
+        android:layout_marginTop="25dp"
+        android:visibility="gone"
+        android:gravity="center">
+        <com.yannuo.dgcanteen.views.DrawCrossView
+            android:id="@+id/draw_cross"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
+            android:onClick="redraw"/>
+        <TextView
+            android:id="@+id/tv_fail_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="消费失败！"
+            android:layout_toEndOf="@id/draw_cross"
+            android:textSize="30sp"/>
+    </RelativeLayout>
+
+</RelativeLayout>

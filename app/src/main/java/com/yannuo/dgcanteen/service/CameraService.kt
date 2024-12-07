@@ -501,7 +501,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 if (timeout) {
                     LogUtil.d(TAG, "准备全量更新人员")
                     do {
-                        val res = mRespository.downPerson(200, currentPage)
+                        val res = mRespository.downPerson(500, currentPage)
                         try {
                             if (res.code == "200") {
                                 val result = DES3CBCUtil.decryptRSA(res.data)

@@ -21,6 +21,11 @@ open class RequestPayBase {
     var signTime: String = ""
     var offline: String = ""    //0在线 1离线
     var verifyFlag: String = "" //订餐字段 1-需要核销 2-不需要核销
+    override fun toString(): String {
+        return "RequestPayBase(businessId='$businessId', businessName='$businessName', orderId='$orderId', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', payment='$payment', actualPayment='$actualPayment', paymentDishes=$paymentDishes, sessionId='$sessionId', signTime='$signTime', offline='$offline', verifyFlag='$verifyFlag')"
+    }
+
+
 }
 
 class Dish {
@@ -40,6 +45,10 @@ class CardPayBean : RequestPayBase() {
 
 data class RequestPay(
     var encryptedData: String = "",
-    var flag: Int = 1
+    var flag: Int = 1,
+    var orderFlag: String = "",
+    var isAllowance: String = "",
+    var mealId: Int? = null,
+    var userMealId: Int? = null
 )
 

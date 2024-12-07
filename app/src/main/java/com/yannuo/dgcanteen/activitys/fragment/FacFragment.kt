@@ -53,7 +53,7 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
     }
 
     private fun onFacePayResult(payForUI: PayForUI) {
-        LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
+        LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~：$payForUI")
         handler.postDelayed({
             val bean = SimpleForUI().apply {
                 way = payForUI.payType

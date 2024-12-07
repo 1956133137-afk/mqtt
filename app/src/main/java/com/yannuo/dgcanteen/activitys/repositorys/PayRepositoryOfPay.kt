@@ -6,6 +6,7 @@ import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.ApiException
+import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -86,6 +87,12 @@ class PayRepositoryOfPay {
     suspend fun queryPersonByCardId(bean: RequestPerson): CanteenResponse<Persons> {
         return apiCall {
             return@apiCall RetrofitClient.getApi().queryPersonByCardId(bean)
+        }
+    }
+
+    suspend fun queryBalance(encryptedData: EncryptedDataRequest): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().queryBalance(encryptedData)
         }
     }
 
@@ -180,12 +187,48 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun queryPersonRestMealTime(encryptedData: EncryptedDataRequest): CanteenResponse<MutableList<PersonRestMealTime>> {
+        return apiCall {
+            RetrofitClient.getApi().queryPersonRestMealTime(encryptedData)
+        }
+    }
+
+    suspend fun queryMealRestTime(encryptedData: EncryptedDataRequest): CanteenResponse<MealRestTimeReceive> {
+        return apiCall {
+            RetrofitClient.getApi().queryMealRestTime(encryptedData)
+        }
+    }
+
+    suspend fun queryMealTimeRule(encryptedData: EncryptedDataRequest): CanteenResponse<MutableList<MealTimeRuleReceive>> {
+        return apiCall {
+            RetrofitClient.getApi().queryMealTimeRule(encryptedData)
+        }
+    }
+
+    suspend fun swPayByIcCard(encryptedData: String, orderFlag: String, isAllowance: String, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
+        return apiCall {
+            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, mealId, userMealId)
+            LogUtil.i(TAG, "swPayByIcCard request: $request")
+            RetrofitClient.getApi().swPayWithCard(request)
+        }
+    }
+
+    suspend fun swPayByQrCode(encryptedData: String, orderFlag: String, isAllowance: String, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
+        return apiCall {
+            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, mealId, userMealId)
+            LogUtil.i(TAG, "swPayByQrCode request: $request")
+            RetrofitClient.getApi().swPayWithCode(request)
+        }
+    }
+
+
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {
             val res: CanteenResponse<T>
             try {
                 res = call()
             } catch (e: Throwable) {
+                e.printStackTrace()
                 return@withContext ApiException.build(e).toResponse<T>()
             }
             res

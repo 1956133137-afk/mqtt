@@ -13,7 +13,6 @@ import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
-import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
 
 /**

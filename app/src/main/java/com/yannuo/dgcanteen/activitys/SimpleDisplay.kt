@@ -152,11 +152,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         }
     }
 
-    fun enableBtn(money: String?) {
+    fun enableBtn(money:String?, isShow: Boolean){
         binding.also {
-            if (it.llPay.isVisible.not()) {
-                it.llPay.visibility = View.VISIBLE
-            }
+            it.llPay.visibility = if (isShow) View.VISIBLE else View.GONE
             binding.tvAmount.text = "￥:$money 元"
         }
 
@@ -203,6 +201,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             return@setOnLongClickListener true
         }
     }
+
 
     fun setActivity(atv: AppCompatActivity) {
         this.atv = atv
