@@ -191,7 +191,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         val dishList = arrayListOf<String>()
         val windowList = arrayListOf<String>()
         val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(queryReceive.verify[mealName], object : TypeToken<MutableList<VerifyReceive>>() {}.type)
-        verifyReceive.forEach { receive ->
+        verifyReceive?.forEach { receive ->
             dishList.add(receive.dishes)
             receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
         }

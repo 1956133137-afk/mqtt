@@ -20,6 +20,8 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
 
 /**
@@ -42,6 +44,10 @@ class FaceScanVM {
     private var modeStatus: Boolean = false
     private var currentOffline: String = ""
     private val dishList: MutableList<Dish> = mutableListOf()
+
+    // 放在重复调用
+    private val mutex = Mutex()
+    private var isFaceStatus = false
 
     private var mHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, e ->
         e.printStackTrace()
@@ -74,6 +80,8 @@ class FaceScanVM {
     }
 
     fun startFacePay(status: Boolean, payment: String = "", orderId: String = "", verifyFlag: String = "") {
+        if (isFaceStatus) return
+        runBlocking { mutex.withLock { isFaceStatus = true } }
         mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         modeStatus = status
         currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
@@ -112,6 +120,7 @@ class FaceScanVM {
 
     private inner class OnPayResultListener : PayResultListener.Stub() {
         override fun onResult(result: String) {
+            runBlocking { mutex.withLock { isFaceStatus = false } }
             LogUtil.d(TAG, result)
             val responseStr = result.replace("\"[", "[").replace("]\"", "]")
             val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)

@@ -267,6 +267,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
         if(tvText.isNullOrEmpty()){
             ToastShowUtil.show("请输入金额")
             CommonAndDpToPxUtil.speakWork("请输入金额")
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE_STATUS, ""))
             return
         }
         val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
@@ -276,6 +277,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
             if (amount.toFloat() > limitAmount) {
                 ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
                 CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE_STATUS, ""))
                 return
             }
         }
@@ -291,6 +293,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
         if(tvText.isNullOrEmpty()){
             ToastShowUtil.show("请输入金额")
             CommonAndDpToPxUtil.speakWork("请输入金额")
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE_STATUS, ""))
             return
         }
         val limitStr = kv.decodeString(Constant.LIMIT_AMOUNT, "30").toString()
@@ -300,6 +303,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
             if (amount.toFloat() > limitAmount) {
                 ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
                 CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE_STATUS, ""))
                 return
             }
             payPageJump(amount.toFloat(),ways)
@@ -309,6 +313,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
                 if (count > limitAmount) {
                     ToastShowUtil.show("单笔金额不得超过 $limitAmount 元")
                     CommonAndDpToPxUtil.speakWork("单笔金额不得超过 $limitAmount 元")
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE_STATUS, ""))
                     return
                 }
                 payPageJump(count,ways)

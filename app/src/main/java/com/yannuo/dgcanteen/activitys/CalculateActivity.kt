@@ -59,6 +59,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     private val verificationVM by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
     private val productsVM by lazy { ProductsVM() }
     private val periodicVerificationReceiver = PeriodicVerificationReceiver()
+    private var isPayStatus = false
 
     override fun bindLayout() {
         binding = ActivityCalculateBinding.inflate(layoutInflater)
@@ -171,6 +172,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 //        initPresentation()
 //        LogUtil.i(TAG,"onResume!")
         super.onResume()
+        isPayStatus = false
 //        productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
         mXService?.hideNavBar = true
@@ -198,10 +200,12 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
         //自动核销
         if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
-            kv.encode(Constant.VERIFY_CHANGE, true)
-//            faceVerification()
-            val i = Intent(this, FaceVerificationActivity::class.java)
-            startActivity(i)
+            if ((System.currentTimeMillis() - lastTime) > 1000 && judgePayStatus()) {
+                lastTime = System.currentTimeMillis()
+                kv.encode(Constant.VERIFY_CHANGE, true)
+                startActivity(Intent(this, FaceVerificationActivity::class.java))
+                simpleDisplay?.dismiss()
+            }
         }
     }
 
@@ -266,27 +270,27 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             }
         }
         binding.btnConfirm.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY, null))
         }
 
         binding.btnFirst.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnFirst.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
         binding.btnSecond.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnSecond.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
             }
         }
         binding.btnThird.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             maps[binding.btnThird.text.trim()].also {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, it))
@@ -294,17 +298,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
 
         binding.btnVerify.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
             lastTime = System.currentTimeMillis()
-            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-//                faceVerification()
-                val i = Intent(this, FaceVerificationActivity::class.java)
-                startActivity(i)
-            } else {
-                simpleDisplay?.dismiss()
-                val i = Intent(this, CardVerificationActivity::class.java)
-                startActivity(i)
-            }
+            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) startActivity(Intent(this, FaceVerificationActivity::class.java))
+            else startActivity(Intent(this, CardVerificationActivity::class.java))
+            handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
         }
 
         binding.verifyView.setOnLongClickListener {
@@ -359,11 +357,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 startActivity(i)
             }
             Constant.EVENT_FACE -> handler.post {
-                LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
-                CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
-//                faceVerification()
-                val i = Intent(this, FaceVerificationActivity::class.java)
-                startActivity(i)
+                if ((System.currentTimeMillis() - lastTime) > 1000 && judgePayStatus()) {
+                    lastTime = System.currentTimeMillis()
+                    LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
+                    CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
+                    startActivity(Intent(this, FaceVerificationActivity::class.java))
+                    handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
+                }
             }
             Constant.EVENT_VERIFY_CHANGE -> {
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收订餐核销更新UI ${event.any}")
@@ -373,11 +373,23 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 }
             }
             Constant.EVENT_SECOND -> handler.post {
-                val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
-                LogUtil.d(TAG, "支付方式：$type")
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, type))
+                if ((System.currentTimeMillis() - lastTime) > 1000 && judgePayStatus()) {
+                    lastTime = System.currentTimeMillis()
+                    val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
+                    LogUtil.d(TAG, "支付方式：$type")
+                    EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, type))
+                }
             }
+            Constant.EVENT_FACE_STATUS -> isPayStatus = false
         }
+    }
+
+    private fun judgePayStatus(): Boolean {
+        if (!isPayStatus) {
+            isPayStatus = true
+            return true
+        }
+        return false
     }
 
     private fun btnViewChange(button: Button, constant: String) {
