@@ -25,7 +25,6 @@ class PayResultDialog(context :Context) :BaseDialog(context, R.layout.dialog_pay
 
     override fun initViewAndEvent() {
         window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-        time = kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L)
         tv_close = findViewById(R.id.ib_close)
         tv_count = findViewById(R.id.tv_count_down)
         tvPayResult = findViewById(R.id.pay_result)
@@ -36,6 +35,7 @@ class PayResultDialog(context :Context) :BaseDialog(context, R.layout.dialog_pay
 
     fun show(isSuccess: Boolean, text: String) {
         super.show()
+        time = kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L)
         tvPayResult.text = text
         countDown?.cancel()
         countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time)+200,1000) {
