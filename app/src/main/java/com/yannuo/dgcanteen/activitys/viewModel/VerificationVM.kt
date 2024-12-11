@@ -158,7 +158,6 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
 
     private fun verifyPay(ccbCodeVerification: CanteenResponse<JsonObject>) {
         val json = Gson().fromJson(Gson().toJson(ccbCodeVerification.data), VerificationResponse::class.java)
-
         val verificationUI = VerificationUI().apply {
             errorMsg = ccbCodeVerification.msg
             personName = json.personName
@@ -169,12 +168,13 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             unDish = json.unVerifyDishes
             time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
         }
-        val verifyDishesBean = VerifyDishes().apply {
-            this.personName = json.personName
-            this.dish = json.verifyDishes.toString()
-            this.window = { json.unVerifyWindowName ?: "" }.toString()
-            this.unDish = { json.unVerifyDishes ?: "" }.toString()
-            this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+        val verifyDishesBean = VerifyDishes()
+        verifyDishesBean.personName = verificationUI.personName
+        verifyDishesBean.time = verificationUI.time
+        verifyDishesBean.apply {
+            this.dish = TextUtils.join("|@|", json.verifyDishes ?: arrayOf())
+            this.window = TextUtils.join("|@|", json.unVerifyWindowName ?: arrayOf())
+            this.unDish = TextUtils.join("|@|", json.unVerifyDishes ?: arrayOf())
         }
         DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
         callBackListener?.onOtherListener(0, verificationUI)
@@ -191,14 +191,18 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         val dishList = arrayListOf<String>()
         val windowList = arrayListOf<String>()
         val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(queryReceive.verify[mealName], object : TypeToken<MutableList<VerifyReceive>>() {}.type)
-        verifyReceive?.forEach { receive ->
-            dishList.add(receive.dishes)
-            receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+        if (verifyReceive != null) {
+            verifyReceive.forEach { receive ->
+                dishList.add(receive.dishes)
+                receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+            }
+            verificationUI.dishesList = dishList.toTypedArray()
+            verificationUI.windows = windowList.toTypedArray()
+            callBackListener?.onOtherListener(0, verificationUI)
+        } else {
+            verificationUI.errorMsg = "当前餐别您未订餐"
+            callBackListener?.onOtherListener(10, verificationUI)
         }
-        verificationUI.dishesList = dishList.toTypedArray()
-        verificationUI.windows = windowList.toTypedArray()
-
-        callBackListener?.onOtherListener(0, verificationUI)
     }
 
     //设置回调监听

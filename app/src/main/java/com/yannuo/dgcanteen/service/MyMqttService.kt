@@ -280,6 +280,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         DishesDBHelper.getInstance().deletePayOrderByPayDate(date)
         //离线订单
         DishesDBHelper.getInstance().deleteOfflineOrderByPayDate(date)
+        //核销记录
+        DishesDBHelper.getInstance().deleteVerifyUser(date)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

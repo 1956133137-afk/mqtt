@@ -536,6 +536,22 @@ public class DishesDBHelper {
                 .build().list();
     }
 
+    public List<VerifyDishes> queryVerifyUserToAll(String date, String username) {
+        return mVerifyDishesDao.queryBuilder()
+                .where(VerifyDishesDao.Properties.Time.gt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.lt(date + " 23:59:59"))
+                .where(VerifyDishesDao.Properties.PersonName.like("%" + username + "%"))
+                .orderDesc(VerifyDishesDao.Properties.Id)
+                .build().list();
+    }
+
+    public void deleteVerifyUser(String date) {
+        mVerifyDishesDao.queryBuilder()
+                .whereOr(VerifyDishesDao.Properties.Time.lt(date + " 00:00:00"), VerifyDishesDao.Properties.Time.gt(date + " 23:59:59"))
+                .buildDelete()
+                .executeDeleteWithoutDetachingEntities();
+
+    }
+
     /*******************************  消费记录  *******************************/
     public void insertPayOrder(PayOrderTable payOrderTable) {
         payOrderTableDao.insertOrReplace(payOrderTable);

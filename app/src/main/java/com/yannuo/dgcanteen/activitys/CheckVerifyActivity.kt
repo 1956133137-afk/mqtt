@@ -146,15 +146,14 @@ class CheckVerifyActivity: BaseActivity<ActivityCheckVerifyBinding>(),CallbackLi
                     val res = Gson().fromJson(result, FaceResult::class.java)
                     if (res.RESULT == "Y") {
                         verificationVM.verification(campusId, businessId, res.CUST_ID, null, sn, null, 1)
-                    }else {
-                        val verificationUI = VerificationUI().apply {
-                            errorMsg = res.ERRMSG
-                            time = TimeUtil.timeFormat(
-                                "yyyy-MM-dd HH:mm:ss",
-                                System.currentTimeMillis()
-                            )
-                        }
-                        updateData(verificationUI)
+                    } else {
+                        mHandler.postDelayed({
+                            val verificationUI = VerificationUI().apply {
+                                errorMsg = res.ERRMSG
+                                time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
+                            }
+                            updateData(verificationUI)
+                        }, 300)
                     }
                 }
             }

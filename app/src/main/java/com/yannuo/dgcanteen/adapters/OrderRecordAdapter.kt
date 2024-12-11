@@ -40,7 +40,8 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         holder.binding.orderType.text = if (bean.orderType == "1") "配送" else "自提"
         holder.binding.timeName.text = if (bean.orderType == "1") "配送时间: " else "用餐时间: "
         holder.binding.useMealTime.text = "${bean.startTime} - ${bean.endTime}"
-        holder.binding.orderPayment.text = "${String.format("%.02f", bean.actualPayment.ifEmpty { "0.00" }.toDouble() - bean.refundPayment.ifEmpty { "0.00" }.toDouble())}元"
+        holder.binding.orderPayment.text =
+            "${String.format("%.02f", bean.actualPayment.ifEmpty { "0.00" }.toDouble() - bean.refundPayment.ifEmpty { "0.00" }.toDouble())}元"
         holder.binding.orderTime.text = bean.orderTime
     }
 
@@ -86,8 +87,8 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
             orderDate = order.mealDate
             mealName = order.mealName
             distribute = order.orderType
-            address = order.address
-            phone = order.phone
+            address = order.address.ifEmpty { "" }
+            phone = order.phone.ifEmpty { "" }
         }
         order.dcOrderDishesList.forEach {
             val dishBean = DishBean().apply {

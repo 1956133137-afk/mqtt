@@ -20,6 +20,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var faceFragment: FaceSettingFragment
     private lateinit var payOrderFragment: PayOrderFragment
     private lateinit var olOrderFragment: OfflineOrderFragment
+    private lateinit var verifyOrderFragment: VerifyOrderFragment
     private lateinit var deviceFragment: DeviceInfoFragment
     private lateinit var fragments: Array<Fragment>
 
@@ -43,8 +44,9 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         faceFragment = FaceSettingFragment()
         payOrderFragment = PayOrderFragment()
         olOrderFragment = OfflineOrderFragment()
+        verifyOrderFragment = VerifyOrderFragment()
         deviceFragment = DeviceInfoFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, olOrderFragment, deviceFragment)
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment)
         binding.radioGroup.check(R.id.basic)
     }
 
@@ -78,7 +80,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                     2 -> binding.radioGroup.check(R.id.face)
                     3 -> binding.radioGroup.check(R.id.pay_order)
                     4 -> binding.radioGroup.check(R.id.offline_order)
-                    5 -> binding.radioGroup.check(R.id.device)
+                    5 -> binding.radioGroup.check(R.id.verify_order)
+                    6 -> binding.radioGroup.check(R.id.device)
                 }
             }
 
@@ -93,7 +96,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.face -> binding.viewPager.currentItem = 2
                 R.id.pay_order -> binding.viewPager.currentItem = 3
                 R.id.offline_order -> binding.viewPager.currentItem = 4
-                R.id.device -> binding.viewPager.currentItem = 5
+                R.id.verify_order -> binding.viewPager.currentItem = 5
+                R.id.device -> binding.viewPager.currentItem = 6
             }
         }
     }

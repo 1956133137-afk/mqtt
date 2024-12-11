@@ -75,6 +75,11 @@
                     android:text="离线记录" />
 
                 <RadioButton
+                    android:id="@+id/verify_order"
+                    style="@style/radiobutton"
+                    android:text="核销记录" />
+
+                <RadioButton
                     android:id="@+id/device"
                     style="@style/radiobutton"
                     android:text="设备信息" />
