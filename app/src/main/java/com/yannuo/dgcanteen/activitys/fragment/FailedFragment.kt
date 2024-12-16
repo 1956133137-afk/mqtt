@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys.fragment
 
 import android.os.CountDownTimer
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import com.tencent.mmkv.MMKV
@@ -9,13 +10,14 @@ import com.yannuo.dgcanteen.databinding.FragmentFailedBinding
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 
-class FailedFragment: BaseFragment<FragmentFailedBinding>() {
+class FailedFragment : BaseFragment<FragmentFailedBinding>() {
     private var countDownTimer: CountDownTimer? = null
-    private val kv by lazy {
-        MMKV.defaultMMKV()
-    }
+    private val kv by lazy { MMKV.defaultMMKV() }
+    private var clickStartTime = 0L
+    private var clickTimes = 0
+
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
-        binding = FragmentFailedBinding.inflate(inflater,container,false)
+        binding = FragmentFailedBinding.inflate(inflater, container, false)
     }
 
     override fun onInit() {
@@ -29,13 +31,25 @@ class FailedFragment: BaseFragment<FragmentFailedBinding>() {
         binding.tvMsg.text = fail.verification.errorMsg
         binding.tvTime.text = fail.verification.time
     }
+
     private fun initEvent() {
         binding.btnBack.setOnClickListener { requireActivity().finish() }
-        binding.btnClose.setOnClickListener {
-            kv.encode(Constant.AUTO_VERIFY, false)
-            requireActivity().finish()
+//        binding.btnClose.setOnClickListener {
+//            kv.encode(Constant.AUTO_VERIFY, false)
+//            requireActivity().finish()
+//        }
+        binding.backAutoVerify.setOnClickListener {
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+//                binding.btnClose.visibility = View.VISIBLE
+                kv.encode(Constant.AUTO_VERIFY, false)
+                requireActivity().finish()
+            }
         }
     }
+
     private fun startCountDown() {
         countDownTimer = object : CountDownTimer(kv.decodeInt(Constant.MEAL_TIME, 10) * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {

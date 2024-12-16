@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys.fragment
 
 import android.os.CountDownTimer
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
@@ -10,11 +11,12 @@ import com.yannuo.dgcanteen.databinding.DialogShowDishBinding
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
-class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
+class ShowDishFragment : BaseFragment<DialogShowDishBinding>() {
     private var countDownTimer: CountDownTimer? = null
-    private val kv by lazy {
-        MMKV.defaultMMKV()
-    }
+    private val kv by lazy { MMKV.defaultMMKV() }
+    private var clickStartTime = 0L
+    private var clickTimes = 0
+
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
         binding = DialogShowDishBinding.inflate(inflater, container, false)
     }
@@ -39,9 +41,19 @@ class ShowDishFragment: BaseFragment<DialogShowDishBinding>() {
         binding.tvTime.text = success.verification.time
         binding.personName.text = success.verification.personName
         binding.btnBack.setOnClickListener { requireActivity().finish() }
-        binding.btnClose.setOnClickListener {
-            kv.encode(Constant.AUTO_VERIFY, false)
-            requireActivity().finish()
+//        binding.btnClose.setOnClickListener {
+//            kv.encode(Constant.AUTO_VERIFY, false)
+//            requireActivity().finish()
+//        }
+        binding.backAutoVerify.setOnClickListener {
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+//                binding.btnClose.visibility = View.VISIBLE
+                kv.encode(Constant.AUTO_VERIFY, false)
+                requireActivity().finish()
+            }
         }
     }
 

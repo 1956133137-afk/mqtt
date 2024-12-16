@@ -95,6 +95,9 @@ class FaceScanVM {
             REMARK = verifyFlag
             OFFLINE = currentOffline
         }
+        if (mmkv.decodeBool(Constant.CODE_VERIFICATION_SET, false) && mmkv.decodeBool(Constant.AUTO_VERIFY, false)) {
+            mFacePayService?.setTimeOut(0)
+        } else mFacePayService?.setTimeOut(30000)
         mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(ccbFacePayBean), currentOffline, resultListener)
     }
 

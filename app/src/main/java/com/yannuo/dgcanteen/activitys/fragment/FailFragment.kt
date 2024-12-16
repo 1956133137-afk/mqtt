@@ -19,6 +19,8 @@ class FailFragment : Fragment() {
     private lateinit var binding: FragmentFailBinding
     private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
+    private var clickStartTime = 0L
+    private var clickTimes = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentFailBinding.inflate(inflater, container, false)
@@ -32,9 +34,19 @@ class FailFragment : Fragment() {
         binding.btnBack.setOnClickListener {
             requireActivity().finish()
         }
-        binding.btnClose.setOnClickListener {
-            kv.encode(Constant.AUTO_PAY, false)
-            requireActivity().finish()
+//        binding.btnClose.setOnClickListener {
+//            kv.encode(Constant.AUTO_PAY, false)
+//            requireActivity().finish()
+//        }
+        binding.backAutoPay.setOnClickListener {
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+//                binding.btnClose.visibility = View.VISIBLE
+                kv.encode(Constant.AUTO_PAY, false)
+                requireActivity().finish()
+            }
         }
     }
 

@@ -20,6 +20,8 @@ class SuccessFragment : Fragment() {
     private lateinit var binding: FragmentSuccessBinding
     private lateinit var kv: MMKV
     private var countDown: CountDownTimer? = null
+    private var clickStartTime = 0L
+    private var clickTimes = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,29 +39,39 @@ class SuccessFragment : Fragment() {
             countDown?.cancel()
             requireActivity().finish()
         }
-        binding.btnClose.setOnClickListener {
-            kv.encode(Constant.AUTO_PAY, false)
-            requireActivity().finish()
+//        binding.btnClose.setOnClickListener {
+//            kv.encode(Constant.AUTO_PAY, false)
+//            requireActivity().finish()
+//        }
+        binding.backAutoPay.setOnClickListener {
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+//                binding.btnClose.visibility = View.VISIBLE
+                kv.encode(Constant.AUTO_PAY, false)
+                requireActivity().finish()
+            }
         }
     }
 
     private fun initData() {
         val data: SuccessFragmentArgs by navArgs()
         data.simpleForUI.apply {
-            when(way!!.toInt()){
-                20,21->{
+            when (way!!.toInt()) {
+                20, 21 -> {
                     binding.payTotalMoney.text = "￥$payment"
                     binding.tradTime.text = timestamp
                     binding.tradNumber.text = tranId
                 }
-                else->{
+                else -> {
                     binding.tvName.text = custName
                     binding.payTotalMoney.text = "￥$payment"
                     binding.tvAccount.text = accNo
                     binding.tradTime.text = timestamp
                     binding.tradNumber.text = tranId
                     binding.orderNumber.text = orderId
-                    binding.orderBalance.text = (acc_bal ?: "")+" 元"
+                    binding.orderBalance.text = (acc_bal ?: "") + " 元"
                 }
             }
 
