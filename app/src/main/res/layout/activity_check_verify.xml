@@ -97,8 +97,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:textColor="@color/gray"
         android:gravity="center"
+        android:textColor="@color/gray"
         android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="@+id/iv_dh"
         app:layout_constraintStart_toStartOf="@+id/iv_dh"
@@ -109,8 +109,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:format24Hour="MM-dd HH:mm:ss"
         android:layout_marginTop="40dp"
+        android:format24Hour="MM-dd HH:mm:ss"
         android:gravity="center"
         android:textColor="@color/gray"
         android:textSize="50sp"
@@ -123,9 +123,9 @@
         android:id="@+id/tv_person_info"
         android:layout_width="0dp"
         android:layout_height="200dp"
-        android:layout_marginEnd="50dp"
         android:layout_marginStart="50dp"
         android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
         android:background="@drawable/shape_btn_bg_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_dh"
@@ -139,8 +139,8 @@
             android:layout_marginTop="30dp"
 
             android:drawableLeft="@mipmap/name"
-            android:gravity="center_vertical"
             android:drawablePadding="15dp"
+            android:gravity="center_vertical"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -153,8 +153,8 @@
             android:layout_marginEnd="100dp"
 
             android:drawableLeft="@mipmap/student_number"
-            android:gravity="center_vertical"
             android:drawablePadding="15dp"
+            android:gravity="center_vertical"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -166,8 +166,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:drawableLeft="@mipmap/glass"
-            android:gravity="center_vertical"
             android:drawablePadding="15dp"
+            android:gravity="center_vertical"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -178,8 +178,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawableLeft="@mipmap/card_nb"
-            android:gravity="center_vertical"
             android:drawablePadding="15dp"
+            android:gravity="center_vertical"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/tv_glass"
@@ -187,34 +187,57 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="30dp"
         android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         android:background="@drawable/shape_btn_bg_white"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/tv_person_info"
         app:layout_constraintStart_toStartOf="@+id/tv_person_info"
-        app:layout_constraintTop_toBottomOf="@+id/tv_person_info"
-
-        >
+        app:layout_constraintTop_toBottomOf="@+id/tv_person_info">
 
         <TextView
             android:id="@+id/tv_acc_no"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:lineSpacingMultiplier="1.2"
+            android:layout_height="wrap_content"
             android:drawablePadding="20dp"
+            android:lineSpacingMultiplier="1.2"
             android:minLines="3"
             android:padding="20dp"
             android:textSize="60sp"
-            />
+            android:visibility="gone" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/verify_dish_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
 
+    <!--    <androidx.core.widget.NestedScrollView-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_marginTop="30dp"-->
+    <!--        android:layout_marginBottom="30dp"-->
+    <!--        android:background="@drawable/shape_btn_bg_white"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="@+id/tv_person_info"-->
+    <!--        app:layout_constraintStart_toStartOf="@+id/tv_person_info"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/tv_person_info">-->
 
+    <!--        <TextView-->
+    <!--            android:id="@+id/tv_acc_no"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:drawablePadding="20dp"-->
+    <!--            android:lineSpacingMultiplier="1.2"-->
+    <!--            android:minLines="3"-->
+    <!--            android:padding="20dp"-->
+    <!--            android:textSize="60sp" />-->
+
+    <!--    </androidx.core.widget.NestedScrollView>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

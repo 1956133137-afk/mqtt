@@ -45,7 +45,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
     private lateinit var ntHelp: NTScanHelp
     private var codeStatus = CodeStatus.INVALID
     private var cardStatus = CardStatus.INVALID
-    private var mealName = ""
+//    private var mealName = ""
 
     private val mutex = Mutex()
     private var isStatus = false
@@ -138,13 +138,16 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             }
             LogUtil.d(TAG, Gson().toJson(verification))
             val ccbCodeVerification = mRespository.getCcbCodeVerification(verification)
+            LogUtil.d(TAG, Gson().toJson(ccbCodeVerification))
             if (ccbCodeVerification.code == "200") {
-                val allMeals = DishesDBHelper.getInstance().queryAllMeals()
-                allMeals.forEach {
-                    if (Date() >= it.startTime && Date() <= it.endTime) {
-                        mealName = it.mealName
-                    }
-                }
+//                val allMeals = DishesDBHelper.getInstance().queryAllMeals()
+//                allMeals.forEach {
+//                    if (Date() >= it.startTime && Date() <= it.endTime) {
+//                        mealName = it.mealName
+//                        LogUtil.d(TAG, "当前餐别: $mealName")
+//                    }
+//                }
+//                LogUtil.d(TAG, Gson().toJson(allMeals))
                 if (flag == 0) verifyPay(ccbCodeVerification) else verifyQuery(ccbCodeVerification)
             } else {
                 val verificationUI = VerificationUI().apply {
@@ -162,9 +165,9 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             errorMsg = ccbCodeVerification.msg
             personName = json.personName
             dish = json.verifyDishes
-            dishesList = json.verify[mealName]?.dishesList
+//            dishesList = json.verify[mealName]?.dishesList
             window = json.unVerifyWindowName
-            windows = json.verify[mealName]?.windowList
+//            windows = json.verify[mealName]?.windowList
             unDish = json.unVerifyDishes
             time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
         }
@@ -188,21 +191,42 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         verificationUI.personName = queryReceive.personName
         verificationUI.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
 
-        val dishList = arrayListOf<String>()
-        val windowList = arrayListOf<String>()
-        val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(queryReceive.verify[mealName], object : TypeToken<MutableList<VerifyReceive>>() {}.type)
-        if (verifyReceive != null) {
-            verifyReceive.forEach { receive ->
-                dishList.add(receive.dishes)
-                receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+        if (queryReceive.verify != null && queryReceive.verify.size > 0) {
+            val dishList = arrayListOf<String>()
+            val windowList = arrayListOf<String>()
+            queryReceive.verify.forEach { (key, value) ->
+                val verify = Verify()
+                verify.mealName = key
+                dishList.clear()
+                val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(value, object : TypeToken<MutableList<VerifyReceive>>() {}.type)
+                verifyReceive.forEach { receive ->
+                    windowList.clear()
+                    receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+                    dishList.add("${receive.dishes}  →  ${Gson().toJson(windowList).replace("(\\[|\\]|\")".toRegex(), "")}")
+                }
+                verify.dishesList = dishList
+                verificationUI.verify.add(verify)
             }
-            verificationUI.dishesList = dishList.toTypedArray()
-            verificationUI.windows = windowList.toTypedArray()
             callBackListener?.onOtherListener(0, verificationUI)
         } else {
             verificationUI.errorMsg = "当前餐别您未订餐"
             callBackListener?.onOtherListener(10, verificationUI)
         }
+//        val dishList = arrayListOf<String>()
+//        val windowList = arrayListOf<String>()
+//        val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(queryReceive.verify[mealName], object : TypeToken<MutableList<VerifyReceive>>() {}.type)
+//        if (verifyReceive != null) {
+//            verifyReceive.forEach { receive ->
+//                dishList.add(receive.dishes)
+//                receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
+//            }
+//            verificationUI.dishesList = dishList.toTypedArray()
+//            verificationUI.windows = windowList.toTypedArray()
+//            callBackListener?.onOtherListener(0, verificationUI)
+//        } else {
+//            verificationUI.errorMsg = "当前餐别您未订餐"
+//            callBackListener?.onOtherListener(10, verificationUI)
+//        }
     }
 
     //设置回调监听

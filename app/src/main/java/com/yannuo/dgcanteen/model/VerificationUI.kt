@@ -4,23 +4,24 @@ import android.os.Parcel
 import android.os.Parcelable
 
 //核销界面UI
-class VerificationUI() : Parcelable{
-    var errorMsg : String = ""
-    var personName : String = ""
-    var dish : Array<String>? = null
-    var dishesList : Array<String>? = null
-    var window :  Array<String>? = null
-    var windows : Array<String>? = null
-    var time : String = ""
-    var unDish : Array<String>? = null
+class VerificationUI() : Parcelable {
+    var errorMsg: String = ""
+    var personName: String = ""
+    var dish: Array<String>? = null
+//    var dishesList: Array<String>? = null
+    var window: Array<String>? = null
+//    var windows: Array<String>? = null
+    var time: String = ""
+    var unDish: Array<String>? = null
+    var verify: MutableList<Verify> = mutableListOf()
 
     constructor(parcel: Parcel) : this() {
         errorMsg = parcel.readString().toString()
         personName = parcel.readString().toString()
         dish = parcel.createStringArray()
-        dishesList = parcel.createStringArray()
+//        dishesList = parcel.createStringArray()
         window = parcel.createStringArray()
-        windows = parcel.createStringArray()
+//        windows = parcel.createStringArray()
         time = parcel.readString().toString()
         unDish = parcel.createStringArray()
     }
@@ -29,9 +30,9 @@ class VerificationUI() : Parcelable{
         parcel.writeString(errorMsg)
         parcel.writeString(personName)
         parcel.writeStringArray(dish)
-        parcel.writeStringArray(dishesList)
+//        parcel.writeStringArray(dishesList)
         parcel.writeStringArray(window)
-        parcel.writeStringArray(windows)
+//        parcel.writeStringArray(windows)
         parcel.writeString(time)
         parcel.writeStringArray(unDish)
     }
@@ -50,4 +51,9 @@ class VerificationUI() : Parcelable{
         }
     }
 
+}
+
+class Verify {
+    var mealName: String = ""
+    var dishesList: ArrayList<String> = arrayListOf()
 }
