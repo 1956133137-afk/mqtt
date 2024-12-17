@@ -194,6 +194,7 @@
         android:layout_marginBottom="30dp"
         android:background="@drawable/shape_btn_bg_white"
         android:orientation="vertical"
+        android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/tv_person_info"
         app:layout_constraintStart_toStartOf="@+id/tv_person_info"
