@@ -215,8 +215,8 @@ class CheckVerifyActivity : BaseActivity<ActivityCheckVerifyBinding>(), Callback
     }
 
     private fun clearContent() {
-        binding.tvName.text = "姓名："
-        binding.tvStudentNumber.text = "工号/学号："
+        binding.tvName.text = "用户姓名："
+        binding.tvStudentNumber.text = "用户编号："
         binding.tvGlass.text = "年级："
         binding.tvCardNumber.text = "卡号："
         binding.tvAccNo.text = ""

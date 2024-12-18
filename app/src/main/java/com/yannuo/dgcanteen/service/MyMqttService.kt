@@ -143,6 +143,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                     val bean = SynConsumeRecordBean().apply {
                         deviceSerialNumber = order.deviceId
                         businessId = order.businessId
+                        campusId = order.campusId
                         counterId = order.vposId
                         consumptionType = order.payType
                         RESULT = order.result
