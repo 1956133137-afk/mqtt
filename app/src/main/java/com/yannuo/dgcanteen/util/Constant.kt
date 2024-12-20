@@ -93,6 +93,8 @@ object Constant {
     const val AUTO_PAY = "auto_pay"   //自动收款
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
 
+    const val REPEAT_PAY_JUDGE = "repeatPayJudge"   //是否判断重复支付 默认开启
+
     const val ORDER_PRINTER_FORMAT = "OrderPrinterFormat"   //订餐打印格式 0-一天 1-全部
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）

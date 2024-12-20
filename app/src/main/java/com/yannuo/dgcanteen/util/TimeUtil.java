@@ -15,16 +15,16 @@ public class TimeUtil {
 
     public static int CurrentTimeSection() {
         int result = 0;
-        if (mealTables != null && mealTables.size() > 0) {
+//        if (mealTables != null && mealTables.size() > 0) {
+            mealTables = DishesDBHelper.getInstance().queryAllMeals();
             for (MealTable u : mealTables) {
                 if (isCurrentInTimeScope(u)) {
                     result = u.getMealId();
                     break;
                 }
             }
-        } else {
-            mealTables = DishesDBHelper.getInstance().queryAllMeals();
-        }
+//        } else {
+//        }
         return result;
     }
 

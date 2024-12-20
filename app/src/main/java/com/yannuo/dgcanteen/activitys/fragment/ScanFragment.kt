@@ -15,6 +15,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
 import com.yannuo.dgcanteen.model.OrderPayInfo
@@ -39,6 +40,8 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     private lateinit var awaitPayDialog: AwaitingDialog
     private var countDown: CountDownTimer? = null
     private val handler = Handler()
+    private val confirmDialog by lazy { ConfirmDialog(requireContext()) }
+    private var payData: PayForUI = PayForUI()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentScanBinding.inflate(inflater, container, false)
@@ -78,13 +81,20 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
         payViewModel.mDishes = ProductsDetail(mutableListOf(), data?.payment.toString())
         binding.animationView.playAnimation()
         KeyboardUtil.instance.addObserver(this)
+
+        confirmDialog.setListener(object : ConfirmDialog.OnConfirmCallback {
+            override fun confirmCallback(flag: Boolean) {
+                if (flag) payViewModel.confirmPay(payData)
+                if (confirmDialog.isShowing) confirmDialog.dismiss()
+            }
+        })
     }
 
     //刷卡返回数据
     override fun onOtherListener(event: Int, any: Any?) {
         handler.post {
             try {
-
+                payData = PayForUI()
                 if (this::awaitPayDialog.isInitialized && awaitPayDialog.isShowing) awaitPayDialog.dismiss()
                 when (event) {
                     1 -> { //开始支付
@@ -158,6 +168,11 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                             findNavController().navigate(action)
                             CommonAndDpToPxUtil.speakWork("${str}支付失败了")
                         }
+                    }
+                    8 -> {
+                        payData = any as PayForUI
+                        if (!confirmDialog.isShowing) confirmDialog.show()
+                        confirmDialog.setTextMsg("重复支付，您是否确定继续支付？")
                     }
                 }
             } catch (e: Exception) {

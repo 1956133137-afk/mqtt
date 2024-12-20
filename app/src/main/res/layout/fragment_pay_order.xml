@@ -84,6 +84,18 @@
             android:textColor="#FFFFFF"
             android:textSize="35sp" />
 
+        <Button
+            android:id="@+id/btn_update_order"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/select_btn_bg_blue_press"
+            android:outlineProvider="none"
+            android:padding="5dp"
+            android:text="上传记录"
+            android:textColor="#FFFFFF"
+            android:textSize="35sp" />
+
     </LinearLayout>
 
     <LinearLayout

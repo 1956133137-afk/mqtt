@@ -563,6 +563,13 @@ public class DishesDBHelper {
                 .build().unique();
     }
 
+    public PayOrderTable queryPayOrderRecord(String custId, String payContent) {
+        return payOrderTableDao.queryBuilder()
+                .whereOr(PayOrderTableDao.Properties.CustId.like(custId), PayOrderTableDao.Properties.PayContent.like(payContent))
+                .orderDesc(PayOrderTableDao.Properties.Id)
+                .limit(1).build().unique();
+    }
+
     public void updatePayOrder(PayOrderTable payOrder) {
         PayOrderTable order = queryPayOrder(payOrder.getOrderId());
         if (order != null) {

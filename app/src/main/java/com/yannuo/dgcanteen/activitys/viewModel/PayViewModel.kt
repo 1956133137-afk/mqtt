@@ -114,6 +114,52 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val currentTime = System.currentTimeMillis()
             val payForUI = initData(type, content, currentTime)
+            if (kv.decodeBool(Constant.REPEAT_PAY_JUDGE, true)) {
+                var custId = ""
+                when (payForUI.payType) {
+                    "2" -> {
+                        when {
+                            payForUI.payContent.contains("CCB") -> {
+                                val plainText = DES3CBCUtil.transDecryption(payForUI.payContent)
+                                val cidNo = plainText.substring(0, plainText.indexOf("@"))
+                                val person = dbHelper.queryPersonToCidNo(cidNo)
+                                if (person != null) custId = person.custId
+                            }
+                            payForUI.payContent.contains("CT0001") -> {
+                                val res = runBlocking(Dispatchers.IO + mHandler) {
+                                    val map = CanteenEncryptionUtil.getAnalysisQr(payForUI.campusId, "PAY002", payForUI.corpId, payForUI.payContent)
+                                    val analysisResult = mRespository.getCcbData(map).body()?.string() ?: ""
+                                    Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
+                                }
+                                if (res != null) {
+                                    val person = dbHelper.queryPersonToCustId(res.CUST_ID)
+                                    if (person != null) custId = person.custId
+                                }
+                            }
+                        }
+                    }
+                    "3" -> {
+                        val person = dbHelper.queryPersonToCardId(payForUI.payContent)
+                        if (person != null) custId = person.custId
+                    }
+                }
+                val record = dbHelper.queryPayOrderRecord(custId, payForUI.payContent)
+                if (record != null) {
+//                    LogUtil.d(TAG, Gson().toJson(record))
+                    val timeStr = if (record.payTime == null || record.payTime.isEmpty()) "2000/01/01 00:00:00" else record.payTime.replace("-", "/")
+                    if (System.currentTimeMillis() - Date(timeStr).time < 30000 && record.payment == payForUI.payment) {
+                        LogUtil.d(TAG, "重复支付")
+                        listener?.onOtherListener(8, payForUI)
+                        return@launch
+                    }
+                }
+            }
+            confirmPay(payForUI)
+        }
+    }
+
+    fun confirmPay(payForUI: PayForUI) {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
             listener?.onOtherListener(1)
             when (payForUI.payType) {
                 "2" -> qrCodeHandler(payForUI)
