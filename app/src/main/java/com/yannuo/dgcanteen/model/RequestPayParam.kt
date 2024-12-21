@@ -48,6 +48,7 @@ data class RequestPay(
     var flag: Int = 1,
     var orderFlag: String = "",
     var isAllowance: String = "",
+    var actualMealId: Int? = null,
     var mealId: Int? = null,
     var userMealId: Int? = null
 )

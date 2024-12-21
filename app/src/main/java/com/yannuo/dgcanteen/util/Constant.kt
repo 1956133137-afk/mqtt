@@ -105,8 +105,11 @@ object Constant {
     const val MEAL_TIME_MODE = "餐次消费模式" // 0：关闭  1：打开  目前只有申万宏源使用，目前只做了在线模式的
     const val QUERY_TIME_SWITCH = "查询余次开关" //查询余次开关  0：关闭  1：打开
     const val PAY_RESULT_DIALOG_TIME = "支付结果dialog显示时间"
+    const val MEAL_TIME_PAY_RESULT_TIME = "餐次模式消费结果展示时间"
+    const val MEAL_TIME_QUERY_BALANCE_TIME = "餐次模式查询余次结果展示时间"
 
     const val BTN_CONFIRM_STATE = "确认金额按钮状态" // 0：关闭  1：打开
+
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
@@ -136,6 +139,7 @@ object Constant {
     const val EVENT_SHOW_CALCULATE_PAY_DIALOG = 40     //显示calculate activity的 pay result dialog
     const val EVENT_DISMISS_CALCULATE_PAY_DIALOG = 41   //消失calculate activity的 pay result dialog
     const val EVENT_MEAL_TIME_MODE = 42 //餐次模式
+    const val UPDATE_MEAL_TIME_BILL = 43 // 更新calculate activity的订单量信息
 
     const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径

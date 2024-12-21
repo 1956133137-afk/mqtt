@@ -19,6 +19,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var modeFragment: ModeSettingFragment
     private lateinit var faceFragment: FaceSettingFragment
     private lateinit var payOrderFragment: PayOrderFragment
+    private lateinit var mealTimePayOrderFragment: MealTimePayOrderFragment
     private lateinit var olOrderFragment: OfflineOrderFragment
     private lateinit var verifyOrderFragment: VerifyOrderFragment
     private lateinit var deviceFragment: DeviceInfoFragment
@@ -43,10 +44,11 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         modeFragment = ModeSettingFragment()
         faceFragment = FaceSettingFragment()
         payOrderFragment = PayOrderFragment()
+        mealTimePayOrderFragment = MealTimePayOrderFragment()
         olOrderFragment = OfflineOrderFragment()
         verifyOrderFragment = VerifyOrderFragment()
         deviceFragment = DeviceInfoFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment)
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, mealTimePayOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment)
         binding.radioGroup.check(R.id.basic)
     }
 
@@ -79,9 +81,10 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                     1 -> binding.radioGroup.check(R.id.mode)
                     2 -> binding.radioGroup.check(R.id.face)
                     3 -> binding.radioGroup.check(R.id.pay_order)
-                    4 -> binding.radioGroup.check(R.id.offline_order)
-                    5 -> binding.radioGroup.check(R.id.verify_order)
-                    6 -> binding.radioGroup.check(R.id.device)
+                    4 -> binding.radioGroup.check(R.id.meal_time_pay_order)
+                    5 -> binding.radioGroup.check(R.id.offline_order)
+                    6 -> binding.radioGroup.check(R.id.verify_order)
+                    7 -> binding.radioGroup.check(R.id.device)
                 }
             }
 
@@ -95,9 +98,10 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.mode -> binding.viewPager.currentItem = 1
                 R.id.face -> binding.viewPager.currentItem = 2
                 R.id.pay_order -> binding.viewPager.currentItem = 3
-                R.id.offline_order -> binding.viewPager.currentItem = 4
-                R.id.verify_order -> binding.viewPager.currentItem = 5
-                R.id.device -> binding.viewPager.currentItem = 6
+                R.id.meal_time_pay_order -> binding.viewPager.currentItem = 4
+                R.id.offline_order -> binding.viewPager.currentItem = 5
+                R.id.verify_order -> binding.viewPager.currentItem = 6
+                R.id.device -> binding.viewPager.currentItem = 7
             }
         }
     }

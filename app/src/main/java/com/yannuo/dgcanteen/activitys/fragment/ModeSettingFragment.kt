@@ -327,7 +327,9 @@ class ModeSettingFragment : Fragment() {
         if (!(flag && amountJudgment(binding.limitAmount, Constant.LIMIT_AMOUNT))) flag = false
         kv.encode(Constant.TITLE_CONTENT, binding.titleContent.text.toString())
         kv.encode(Constant.MEAL_TIME, binding.mealTime.text.toString().toInt())
-        kv.encode(Constant.PAY_RESULT_DIALOG_TIME, binding.mealTimeDialogTime.text.toString().toLong())
+        kv.encode(Constant.PAY_RESULT_DIALOG_TIME, binding.mealTimeDialogTime.text.toString().toLong())  //主屏
+        kv.encode(Constant.MEAL_TIME_PAY_RESULT_TIME, binding.mealTimePayResultTime.text.toString().toLong())  //副屏
+        kv.encode(Constant.MEAL_TIME_QUERY_BALANCE_TIME, binding.mealTimeQueryBalTime.text.toString().toLong()) //副屏
         if (flag) {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
             ToastShowUtil.show("保存成功: ${mContext.filesDir.absolutePath}/mmkv")
@@ -363,7 +365,9 @@ class ModeSettingFragment : Fragment() {
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
         binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
-        binding.mealTimeDialogTime.setText(kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L).toString())
+        binding.mealTimeDialogTime.setText(kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L).toString())  //主屏
+        binding.mealTimePayResultTime.setText(kv.decodeLong(Constant.MEAL_TIME_PAY_RESULT_TIME, 10L).toString())  //副屏
+        binding.mealTimeQueryBalTime.setText(kv.decodeLong(Constant.MEAL_TIME_QUERY_BALANCE_TIME, 10L).toString()) //副屏
         binding.limitAmount.setText(kv.decodeString(Constant.LIMIT_AMOUNT, "30.00"))
         binding.titleContent.setText(kv.decodeString(Constant.TITLE_CONTENT, ""))
         if (kv.decodeString(Constant.APP_MODE) == null) kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)

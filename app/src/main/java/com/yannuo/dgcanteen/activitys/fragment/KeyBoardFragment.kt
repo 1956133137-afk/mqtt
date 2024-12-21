@@ -89,8 +89,12 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
         binding.addition.setOnClickListener { inputFields("+") } //+
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
-            val limit = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0)
-            val isUseMeal = kv.decodeInt(Constant.IS_USE_MEAL)
+            if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_BULK_PAY, null))
+                return@setOnClickListener
+            }
+            val limit = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0) // 受餐别时间限制
+            val isUseMeal = kv.decodeInt(Constant.IS_USE_MEAL) // 当前时间是否开餐
             if (limit == 1) {
                 if (isUseMeal == 1) {
                     collectMoney()

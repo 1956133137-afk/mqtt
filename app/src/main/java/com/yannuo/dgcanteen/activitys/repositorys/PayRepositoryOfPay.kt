@@ -205,19 +205,25 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun swPayByIcCard(encryptedData: String, orderFlag: String, isAllowance: String, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
+    suspend fun swPayByIcCard(encryptedData: String, orderFlag: String, isAllowance: String, actualMealId: Int?, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
         return apiCall {
-            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, mealId, userMealId)
+            val request = RequestPay(encryptedData,1, orderFlag, isAllowance,actualMealId, mealId, userMealId)
             LogUtil.i(TAG, "swPayByIcCard request: $request")
             RetrofitClient.getApi().swPayWithCard(request)
         }
     }
 
-    suspend fun swPayByQrCode(encryptedData: String, orderFlag: String, isAllowance: String, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
+    suspend fun swPayByQrCode(encryptedData: String, orderFlag: String, isAllowance: String, actualMealId: Int?, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
         return apiCall {
-            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, mealId, userMealId)
+            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, actualMealId, mealId, userMealId)
             LogUtil.i(TAG, "swPayByQrCode request: $request")
             RetrofitClient.getApi().swPayWithCode(request)
+        }
+    }
+
+    suspend fun swQueryAllowance(encryptedData: EncryptedDataRequest): CanteenResponse<QueryAllowanceResponse> {
+        return apiCall {
+            RetrofitClient.getApi().swQueryAllowance(encryptedData)
         }
     }
 

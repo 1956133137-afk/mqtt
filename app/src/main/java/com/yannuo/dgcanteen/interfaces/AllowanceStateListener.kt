@@ -9,6 +9,9 @@ import com.yannuo.dgcanteen.model.PayForUI
  * @Version 1.0
  */
 interface AllowanceStateListener {
-    fun hasAllowance()
+    /**
+     * 餐别未配置餐标，但有餐标使用
+     */
+    fun hasAllowance(paymentMap: HashMap<String, String>?, payForUI: PayForUI)
     fun withoutAllowance(paymentMap: HashMap<String, String>?, payForUI: PayForUI)
 }

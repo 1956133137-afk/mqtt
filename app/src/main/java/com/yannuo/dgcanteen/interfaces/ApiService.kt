@@ -213,4 +213,10 @@ interface ApiService {
     @POST("swAndroid/swQrCodePayment")
     suspend fun swPayWithCode(@Body bean: RequestPay): CanteenResponse<String>
 
+    /**
+     * 根据订单号获取对应扣减餐次详情
+     */
+    @Headers("content-type: application/json")
+    @POST("swAndroid/qryAllowanceByTradeOrderId")
+    suspend fun swQueryAllowance(@Body encryptedData: EncryptedDataRequest): CanteenResponse<QueryAllowanceResponse>
 }

@@ -104,6 +104,7 @@ class ProductsVM : ViewModel() {
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
+                        if (da.mealName == null) continue
 
                         da.startTime?.also {
                             val split = it.split(":")
@@ -137,6 +138,7 @@ class ProductsVM : ViewModel() {
                             picList.add(dish.imgUrl)
                         }
                     }
+                    LogUtil.i(TAG, "mealList: $mealList")
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
                     DishesDBHelper.getInstance().insertDishes(dishList)

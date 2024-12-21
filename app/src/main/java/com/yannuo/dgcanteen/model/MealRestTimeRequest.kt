@@ -16,5 +16,13 @@ data class MealRestTimeRequest(
 }
 
 data class MealRestTimeReceive(
+    var leftOverTimes: Int,
+    var subsidyMoney: Float,
+    var actualMealId: Int,
+    var mealId: Int,
+    var flag: Int,
+    var standardNum: Int,
+    var price: Float,
+    var id: Int,
     var useTimes: Int
 ){}

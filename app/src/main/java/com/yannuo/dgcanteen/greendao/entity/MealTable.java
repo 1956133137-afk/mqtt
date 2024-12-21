@@ -79,4 +79,15 @@ public class MealTable {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+
+    @Override
+    public String toString() {
+        return "MealTable{" +
+                "id=" + id +
+                ", mealId=" + mealId +
+                ", mealName='" + mealName + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
 }

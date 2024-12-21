@@ -48,17 +48,20 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
         public final static Property PayDate = new Property(21, String.class, "payDate", false, "PAY_DATE");
         public final static Property Offline = new Property(22, String.class, "offline", false, "OFFLINE");
         public final static Property Flag = new Property(23, Integer.class, "flag", false, "FLAG");
-        public final static Property ActualMealName = new Property(24, String.class, "actualMealName", false, "ACTUAL_MEAL_NAME");
-        public final static Property BreakfastTime = new Property(25, int.class, "breakfastTime", false, "BREAKFAST_TIME");
-        public final static Property LunchTime = new Property(26, int.class, "lunchTime", false, "LUNCH_TIME");
-        public final static Property DinnerTime = new Property(27, int.class, "dinnerTime", false, "DINNER_TIME");
-        public final static Property SupperTime = new Property(28, int.class, "supperTime", false, "SUPPER_TIME");
-        public final static Property StandardMealName = new Property(29, String.class, "standardMealName", false, "STANDARD_MEAL_NAME");
-        public final static Property StandardName = new Property(30, String.class, "standardName", false, "STANDARD_NAME");
-        public final static Property StandardNum = new Property(31, String.class, "standardNum", false, "STANDARD_NUM");
-        public final static Property RuleRestTime = new Property(32, int.class, "ruleRestTime", false, "RULE_REST_TIME");
-        public final static Property RulePrice = new Property(33, float.class, "rulePrice", false, "RULE_PRICE");
-        public final static Property SubsidyMoney = new Property(34, String.class, "subsidyMoney", false, "SUBSIDY_MONEY");
+        public final static Property ActualMealId = new Property(24, String.class, "actualMealId", false, "ACTUAL_MEAL_ID");
+        public final static Property ActualMealName = new Property(25, String.class, "actualMealName", false, "ACTUAL_MEAL_NAME");
+        public final static Property Meal01Time = new Property(26, int.class, "meal01Time", false, "MEAL01_TIME");
+        public final static Property Meal02Time = new Property(27, int.class, "meal02Time", false, "MEAL02_TIME");
+        public final static Property Meal03Time = new Property(28, int.class, "meal03Time", false, "MEAL03_TIME");
+        public final static Property Meal04Time = new Property(29, int.class, "meal04Time", false, "MEAL04_TIME");
+        public final static Property StandardMealId = new Property(30, String.class, "standardMealId", false, "STANDARD_MEAL_ID");
+        public final static Property StandardMealName = new Property(31, String.class, "standardMealName", false, "STANDARD_MEAL_NAME");
+        public final static Property StandardId = new Property(32, String.class, "standardId", false, "STANDARD_ID");
+        public final static Property StandardName = new Property(33, String.class, "standardName", false, "STANDARD_NAME");
+        public final static Property StandardNum = new Property(34, String.class, "standardNum", false, "STANDARD_NUM");
+        public final static Property RuleRestTime = new Property(35, int.class, "ruleRestTime", false, "RULE_REST_TIME");
+        public final static Property RulePrice = new Property(36, float.class, "rulePrice", false, "RULE_PRICE");
+        public final static Property SubsidyMoney = new Property(37, String.class, "subsidyMoney", false, "SUBSIDY_MONEY");
     }
 
     private DaoSession daoSession;
@@ -101,17 +104,20 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
                 "\"PAY_DATE\" TEXT," + // 21: payDate
                 "\"OFFLINE\" TEXT," + // 22: offline
                 "\"FLAG\" INTEGER," + // 23: flag
-                "\"ACTUAL_MEAL_NAME\" TEXT," + // 24: actualMealName
-                "\"BREAKFAST_TIME\" INTEGER NOT NULL ," + // 25: breakfastTime
-                "\"LUNCH_TIME\" INTEGER NOT NULL ," + // 26: lunchTime
-                "\"DINNER_TIME\" INTEGER NOT NULL ," + // 27: dinnerTime
-                "\"SUPPER_TIME\" INTEGER NOT NULL ," + // 28: supperTime
-                "\"STANDARD_MEAL_NAME\" TEXT," + // 29: standardMealName
-                "\"STANDARD_NAME\" TEXT," + // 30: standardName
-                "\"STANDARD_NUM\" TEXT," + // 31: standardNum
-                "\"RULE_REST_TIME\" INTEGER NOT NULL ," + // 32: ruleRestTime
-                "\"RULE_PRICE\" REAL NOT NULL ," + // 33: rulePrice
-                "\"SUBSIDY_MONEY\" TEXT);"); // 34: subsidyMoney
+                "\"ACTUAL_MEAL_ID\" TEXT," + // 24: actualMealId
+                "\"ACTUAL_MEAL_NAME\" TEXT," + // 25: actualMealName
+                "\"MEAL01_TIME\" INTEGER NOT NULL ," + // 26: meal01Time
+                "\"MEAL02_TIME\" INTEGER NOT NULL ," + // 27: meal02Time
+                "\"MEAL03_TIME\" INTEGER NOT NULL ," + // 28: meal03Time
+                "\"MEAL04_TIME\" INTEGER NOT NULL ," + // 29: meal04Time
+                "\"STANDARD_MEAL_ID\" TEXT," + // 30: standardMealId
+                "\"STANDARD_MEAL_NAME\" TEXT," + // 31: standardMealName
+                "\"STANDARD_ID\" TEXT," + // 32: standardId
+                "\"STANDARD_NAME\" TEXT," + // 33: standardName
+                "\"STANDARD_NUM\" TEXT," + // 34: standardNum
+                "\"RULE_REST_TIME\" INTEGER NOT NULL ," + // 35: ruleRestTime
+                "\"RULE_PRICE\" REAL NOT NULL ," + // 36: rulePrice
+                "\"SUBSIDY_MONEY\" TEXT);"); // 37: subsidyMoney
     }
 
     /** Drops the underlying database table. */
@@ -244,35 +250,50 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
             stmt.bindLong(24, flag);
         }
  
+        String actualMealId = entity.getActualMealId();
+        if (actualMealId != null) {
+            stmt.bindString(25, actualMealId);
+        }
+ 
         String actualMealName = entity.getActualMealName();
         if (actualMealName != null) {
-            stmt.bindString(25, actualMealName);
+            stmt.bindString(26, actualMealName);
         }
-        stmt.bindLong(26, entity.getBreakfastTime());
-        stmt.bindLong(27, entity.getLunchTime());
-        stmt.bindLong(28, entity.getDinnerTime());
-        stmt.bindLong(29, entity.getSupperTime());
+        stmt.bindLong(27, entity.getMeal01Time());
+        stmt.bindLong(28, entity.getMeal02Time());
+        stmt.bindLong(29, entity.getMeal03Time());
+        stmt.bindLong(30, entity.getMeal04Time());
+ 
+        String standardMealId = entity.getStandardMealId();
+        if (standardMealId != null) {
+            stmt.bindString(31, standardMealId);
+        }
  
         String standardMealName = entity.getStandardMealName();
         if (standardMealName != null) {
-            stmt.bindString(30, standardMealName);
+            stmt.bindString(32, standardMealName);
+        }
+ 
+        String standardId = entity.getStandardId();
+        if (standardId != null) {
+            stmt.bindString(33, standardId);
         }
  
         String standardName = entity.getStandardName();
         if (standardName != null) {
-            stmt.bindString(31, standardName);
+            stmt.bindString(34, standardName);
         }
  
         String standardNum = entity.getStandardNum();
         if (standardNum != null) {
-            stmt.bindString(32, standardNum);
+            stmt.bindString(35, standardNum);
         }
-        stmt.bindLong(33, entity.getRuleRestTime());
-        stmt.bindDouble(34, entity.getRulePrice());
+        stmt.bindLong(36, entity.getRuleRestTime());
+        stmt.bindDouble(37, entity.getRulePrice());
  
         String subsidyMoney = entity.getSubsidyMoney();
         if (subsidyMoney != null) {
-            stmt.bindString(35, subsidyMoney);
+            stmt.bindString(38, subsidyMoney);
         }
     }
 
@@ -400,35 +421,50 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
             stmt.bindLong(24, flag);
         }
  
+        String actualMealId = entity.getActualMealId();
+        if (actualMealId != null) {
+            stmt.bindString(25, actualMealId);
+        }
+ 
         String actualMealName = entity.getActualMealName();
         if (actualMealName != null) {
-            stmt.bindString(25, actualMealName);
+            stmt.bindString(26, actualMealName);
         }
-        stmt.bindLong(26, entity.getBreakfastTime());
-        stmt.bindLong(27, entity.getLunchTime());
-        stmt.bindLong(28, entity.getDinnerTime());
-        stmt.bindLong(29, entity.getSupperTime());
+        stmt.bindLong(27, entity.getMeal01Time());
+        stmt.bindLong(28, entity.getMeal02Time());
+        stmt.bindLong(29, entity.getMeal03Time());
+        stmt.bindLong(30, entity.getMeal04Time());
+ 
+        String standardMealId = entity.getStandardMealId();
+        if (standardMealId != null) {
+            stmt.bindString(31, standardMealId);
+        }
  
         String standardMealName = entity.getStandardMealName();
         if (standardMealName != null) {
-            stmt.bindString(30, standardMealName);
+            stmt.bindString(32, standardMealName);
+        }
+ 
+        String standardId = entity.getStandardId();
+        if (standardId != null) {
+            stmt.bindString(33, standardId);
         }
  
         String standardName = entity.getStandardName();
         if (standardName != null) {
-            stmt.bindString(31, standardName);
+            stmt.bindString(34, standardName);
         }
  
         String standardNum = entity.getStandardNum();
         if (standardNum != null) {
-            stmt.bindString(32, standardNum);
+            stmt.bindString(35, standardNum);
         }
-        stmt.bindLong(33, entity.getRuleRestTime());
-        stmt.bindDouble(34, entity.getRulePrice());
+        stmt.bindLong(36, entity.getRuleRestTime());
+        stmt.bindDouble(37, entity.getRulePrice());
  
         String subsidyMoney = entity.getSubsidyMoney();
         if (subsidyMoney != null) {
-            stmt.bindString(35, subsidyMoney);
+            stmt.bindString(38, subsidyMoney);
         }
     }
 
@@ -470,17 +506,20 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
             cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // payDate
             cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // offline
             cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23), // flag
-            cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24), // actualMealName
-            cursor.getInt(offset + 25), // breakfastTime
-            cursor.getInt(offset + 26), // lunchTime
-            cursor.getInt(offset + 27), // dinnerTime
-            cursor.getInt(offset + 28), // supperTime
-            cursor.isNull(offset + 29) ? null : cursor.getString(offset + 29), // standardMealName
-            cursor.isNull(offset + 30) ? null : cursor.getString(offset + 30), // standardName
-            cursor.isNull(offset + 31) ? null : cursor.getString(offset + 31), // standardNum
-            cursor.getInt(offset + 32), // ruleRestTime
-            cursor.getFloat(offset + 33), // rulePrice
-            cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34) // subsidyMoney
+            cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24), // actualMealId
+            cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25), // actualMealName
+            cursor.getInt(offset + 26), // meal01Time
+            cursor.getInt(offset + 27), // meal02Time
+            cursor.getInt(offset + 28), // meal03Time
+            cursor.getInt(offset + 29), // meal04Time
+            cursor.isNull(offset + 30) ? null : cursor.getString(offset + 30), // standardMealId
+            cursor.isNull(offset + 31) ? null : cursor.getString(offset + 31), // standardMealName
+            cursor.isNull(offset + 32) ? null : cursor.getString(offset + 32), // standardId
+            cursor.isNull(offset + 33) ? null : cursor.getString(offset + 33), // standardName
+            cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34), // standardNum
+            cursor.getInt(offset + 35), // ruleRestTime
+            cursor.getFloat(offset + 36), // rulePrice
+            cursor.isNull(offset + 37) ? null : cursor.getString(offset + 37) // subsidyMoney
         );
         return entity;
     }
@@ -511,17 +550,20 @@ public class SwPayOrderTableDao extends AbstractDao<SwPayOrderTable, Long> {
         entity.setPayDate(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
         entity.setOffline(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
         entity.setFlag(cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23));
-        entity.setActualMealName(cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24));
-        entity.setBreakfastTime(cursor.getInt(offset + 25));
-        entity.setLunchTime(cursor.getInt(offset + 26));
-        entity.setDinnerTime(cursor.getInt(offset + 27));
-        entity.setSupperTime(cursor.getInt(offset + 28));
-        entity.setStandardMealName(cursor.isNull(offset + 29) ? null : cursor.getString(offset + 29));
-        entity.setStandardName(cursor.isNull(offset + 30) ? null : cursor.getString(offset + 30));
-        entity.setStandardNum(cursor.isNull(offset + 31) ? null : cursor.getString(offset + 31));
-        entity.setRuleRestTime(cursor.getInt(offset + 32));
-        entity.setRulePrice(cursor.getFloat(offset + 33));
-        entity.setSubsidyMoney(cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34));
+        entity.setActualMealId(cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24));
+        entity.setActualMealName(cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25));
+        entity.setMeal01Time(cursor.getInt(offset + 26));
+        entity.setMeal02Time(cursor.getInt(offset + 27));
+        entity.setMeal03Time(cursor.getInt(offset + 28));
+        entity.setMeal04Time(cursor.getInt(offset + 29));
+        entity.setStandardMealId(cursor.isNull(offset + 30) ? null : cursor.getString(offset + 30));
+        entity.setStandardMealName(cursor.isNull(offset + 31) ? null : cursor.getString(offset + 31));
+        entity.setStandardId(cursor.isNull(offset + 32) ? null : cursor.getString(offset + 32));
+        entity.setStandardName(cursor.isNull(offset + 33) ? null : cursor.getString(offset + 33));
+        entity.setStandardNum(cursor.isNull(offset + 34) ? null : cursor.getString(offset + 34));
+        entity.setRuleRestTime(cursor.getInt(offset + 35));
+        entity.setRulePrice(cursor.getFloat(offset + 36));
+        entity.setSubsidyMoney(cursor.isNull(offset + 37) ? null : cursor.getString(offset + 37));
      }
     
     @Override

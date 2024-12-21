@@ -6,9 +6,9 @@ import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
-import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 
 @Entity
 public class AccListTable {

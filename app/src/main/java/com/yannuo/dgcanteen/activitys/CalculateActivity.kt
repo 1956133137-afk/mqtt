@@ -255,6 +255,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 simpleDisplay?.dismiss()
             }
         }
+        //更新餐次订单量信息
+        if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
+            binding.mealTimeBill.visibility = View.VISIBLE
+            updateMealTimeBill()
+        } else binding.mealTimeBill.visibility = View.GONE
     }
 
     fun initVerify() {
@@ -270,7 +275,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         binding.btnConfirm.text = "确认金额"
         kv.encode(Constant.BTN_CONFIRM_STATE, 0)
         simpleDisplay?.dismiss()
-        mealTimeDisplay?.safeCancel()
+        mealTimeDisplay?.dismiss()
         LogUtil.i(TAG, "onstop!")
         super.onStop()
     }
@@ -284,11 +289,19 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
 
         binding.btnFixPay.setOnClickListener { //固定金额
+            if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
+                ToastShowUtil.show("餐次模式下不能使用该功能")
+                return@setOnClickListener
+            }
             kv.encode(Constant.QUOTA_SWITCH, !kv.decodeBool(Constant.QUOTA_SWITCH, false))
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
 
         binding.btnOff.setOnClickListener { //开启离线模式
+            if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
+                ToastShowUtil.show("餐次模式下不能使用该功能")
+                return@setOnClickListener
+            }
             if (!kv.decodeBool(Constant.SWITCH, false)) {
                 confirmDialog.apply {
                     show()
@@ -382,9 +395,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                             if (flag) {
                                 kv.encode(Constant.MEAL_TIME_MODE, 1)
                                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_MODE, null))
+
                                 simpleDisplay?.dismiss()
-                                mealTimeDisplay?.safeCancel()
-                                mealTimeDisplay = MealTimeDisplay(this@CalculateActivity, secondDisplays)
+                                mealTimeDisplay?.dismiss()
                                 mealTimeDisplay?.show()
                             }
                         }
@@ -393,7 +406,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             } else {
                 kv.encode(Constant.MEAL_TIME_MODE, 0)
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_MODE, null))
-                mealTimeDisplay?.safeCancel()
+                mealTimeDisplay?.dismiss()
 //                simpleDisplay?.dismiss()
 //                simpleDisplay = SimpleDisplay(this, secondDisplays)
 //                simpleDisplay.setActivity(this)
@@ -497,6 +510,36 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
     }
 
+    private fun updateMealTimeBill() {
+        val date = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
+        val queryAllMeals = DishesDBHelper.getInstance().queryAllMeals()
+        if (queryAllMeals.size >= 1) {
+            binding.tvMeal01Bill.visibility = View.VISIBLE
+            val meal01Bill = DishesDBHelper.getInstance().querySwPayOrderListByDate(date, queryAllMeals[0].mealName)
+            val text = "${queryAllMeals[0].mealName}：${meal01Bill.size} 单"
+//            val spannableString = SpannableString(text).apply {
+//                setSpan(UnderlineSpan(), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//            }
+            binding.tvMeal01Bill.text = text
+        } else binding.tvMeal01Bill.visibility = View.GONE
+        if (queryAllMeals.size >= 2) {
+            binding.tvMeal02Bill.visibility = View.VISIBLE
+            val meal02Bill = DishesDBHelper.getInstance().querySwPayOrderListByDate(date, queryAllMeals[1].mealName)
+            binding.tvMeal02Bill.text = "${queryAllMeals[1].mealName}：${meal02Bill.size} 单"
+        } else binding.tvMeal02Bill.visibility = View.GONE
+        if (queryAllMeals.size >= 3) {
+            binding.tvMeal03Bill.visibility = View.VISIBLE
+            val meal03Bill = DishesDBHelper.getInstance().querySwPayOrderListByDate(date, queryAllMeals[2].mealName)
+            binding.tvMeal03Bill.text = "${queryAllMeals[2].mealName}：${meal03Bill.size} 单"
+        } else binding.tvMeal03Bill.visibility = View.GONE
+        if (queryAllMeals.size >= 4) {
+            binding.tvMeal04Bill.visibility = View.VISIBLE
+            val meal04Bill = DishesDBHelper.getInstance().querySwPayOrderListByDate(date, queryAllMeals[3].mealName)
+            binding.tvMeal04Bill.text = "${queryAllMeals[3].mealName}：${meal04Bill.size} 单"
+        } else binding.tvMeal04Bill.visibility = View.GONE
+
+    }
+
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun eventCalculate(event: MessageEvent) {
@@ -548,7 +591,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
                     binding.btnConfirm.text="确定金额￥${event.any as String}"
-                    mealTimeDisplay?.setBulkPayAmount(event.any as String, true)
+                    mealTimeDisplay?.setBulkPayAmount("${event.any}元", true)
                 }
             }
             Constant.EVENT_QUIT_CONFIRM -> handler.post {
@@ -617,6 +660,12 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             Constant.EVENT_DISMISS_CALCULATE_PAY_DIALOG -> handler.post {
                 payResultDialog?.dismiss()
             }
+            Constant.UPDATE_MEAL_TIME_BILL -> handler.post{
+                updateMealTimeBill()
+            }
+            Constant.EVENT_FIFTH -> handler.post {
+                mealTimeDisplay?.displayMealName()
+            }
         }
     }
 
@@ -661,9 +710,25 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
                         setBackgroundResource(R.drawable.click_button_blue)
                         setTextColor(Color.parseColor("#FFFFFF"))
+
+                        binding.btnFirst.visibility = View.GONE
+                        binding.btnSecond.visibility = View.GONE
+                        binding.btnThird.visibility = View.GONE
+
+                        // 显示单量
+                        binding.mealTimeBill.visibility = View.VISIBLE
+                        updateMealTimeBill()
+
                     } else {
                         setBackgroundResource(R.drawable.click_button)
                         setTextColor(Color.parseColor("#4F4F4F"))
+
+                        binding.btnFirst.visibility = View.VISIBLE
+                        binding.btnSecond.visibility = View.VISIBLE
+                        binding.btnThird.visibility = View.VISIBLE
+
+                        // 消失单量
+                        binding.mealTimeBill.visibility = View.GONE
                     }
                 }
             }
@@ -696,6 +761,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         passwordDialog.cancel()
         confirmDialog.cancel()
         simpleDisplay?.safeCancel()
+        mealTimeDisplay?.safeCancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)
         EventBus.getDefault().unregister(this)
         unregisterReceiver(periodicVerificationReceiver)

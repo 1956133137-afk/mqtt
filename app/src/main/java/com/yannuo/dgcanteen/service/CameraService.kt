@@ -729,6 +729,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         LogUtil.d(TAG, "删除非今日记录...$date")
         //消费订单
         DishesDBHelper.getInstance().deletePayOrderByPayDate(date)
+        DishesDBHelper.getInstance().deleteSwPayOrderByPayDate(date)
         //离线订单
         DishesDBHelper.getInstance().deleteOfflineOrderByPayDate(date)
         //核销记录

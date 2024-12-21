@@ -70,6 +70,11 @@
                     android:text="消费记录" />
 
                 <RadioButton
+                    android:id="@+id/meal_time_pay_order"
+                    style="@style/radiobutton"
+                    android:text="消费记录(餐次)" />
+
+                <RadioButton
                     android:id="@+id/offline_order"
                     style="@style/radiobutton"
                     android:text="离线记录" />

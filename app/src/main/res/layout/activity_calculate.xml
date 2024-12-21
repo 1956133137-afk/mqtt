@@ -355,6 +355,65 @@
 <!--                    android:textStyle="bold"-->
 <!--                    android:visibility="visible" />-->
 
+                <LinearLayout
+                    android:id="@+id/meal_time_bill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/layout_setting"
+                    android:layout_marginTop="50dp"
+                    android:padding="20dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tv_meal01_bill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15dp"
+                        android:minWidth="200dp"
+                        android:text="早餐：0 单"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textSize="30sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_meal02_bill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:minWidth="200dp"
+                        android:text="午餐：0 单"
+                        android:textSize="30sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_meal03_bill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15dp"
+                        android:minWidth="200dp"
+                        android:text="晚餐：0 单"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textSize="30sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_meal04_bill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="200dp"
+                        android:text="夜宵：0 单"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textSize="30sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/serial_number"
                     android:layout_width="wrap_content"

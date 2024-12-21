@@ -38,6 +38,7 @@ class FaceScanVM {
     private val mRespository by lazy { PayRepositoryOfPay() }
     private var mFacePayService: ZHSTFacePayService? = null
     private var listener: FaceResultListener? = null
+    private var swListener: SwFaceResultListener? = null
     private val serviceConnection by lazy { MyServiceConnection() }
     private val resultListener by lazy { OnPayResultListener() }
     private val ccbFacePayBean = CcbFacePayBean()
@@ -64,6 +65,10 @@ class FaceScanVM {
 
     fun setFaceListener(listener: FaceResultListener?) {
         this.listener = listener
+    }
+
+    fun setSwFaceListener(swListener: SwFaceResultListener?) {
+        this.swListener = swListener
     }
 
     fun setTimeOut(timeout: Int) {
@@ -247,9 +252,18 @@ class FaceScanVM {
                 val res = mRespository.synCsRecord(bean)
                 if (res.code == "200") {
                     order.flag = 1
-                    dbHelper.updatePayOrder(order)
+                    if (payForUI.isSw == 1) {
+                        // 回调sw餐次界面
+                        swListener?.swOnFacePay(payForUI, "订单${bean.ORDER_ID} 上传成功!")
+                    }else dbHelper.updatePayOrder(order)
                     LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
-                } else LogUtil.e(TAG, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                } else {
+                    if (payForUI.isSw == 1) {
+                        // 回调sw餐次界面
+                        swListener?.swOnFacePay(payForUI, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                    }
+                    LogUtil.e(TAG, "上传消费${bean.ORDER_ID} 订单失败==\n${res.data}")
+                }
             }
         }
     }
@@ -262,5 +276,10 @@ class FaceScanVM {
     interface FaceResultListener {
         fun onFacePay(payForUI: PayForUI)
         fun onFaceQuery(bean: CcbFacePayResultBean)
+    }
+
+    interface SwFaceResultListener {
+        fun swOnFacePay(payForUI: PayForUI, msg: String)
+//        fun swOnFaceQuery(bean: CcbFacePayResultBean)
     }
 }

@@ -55,13 +55,14 @@ class MealTimeVM: ViewModel() {
             }
             val rule = mealTimeRule.data ?: throw ResponseException("", "queryMealTimeRule response data == null")
             // 获取到餐次消费规则
+            val queryAllMeals = dbHelper.queryAllMeals()
             for (r in rule) {
                 var no = -1
-                when (r.mealName) {
-                    "早餐" -> no = 1
-                    "午餐" -> no = 2
-                    "晚餐" -> no = 3
-                    "夜宵" -> no = 4
+                for ((i,v) in queryAllMeals.withIndex()) {
+                    if (v.mealName == r.mealName) {
+                        no = i + 1
+                        break
+                    }
                 }
                 val item = MealTimeRuleInfo().apply {
                     id = r.id
@@ -113,12 +114,11 @@ class MealTimeVM: ViewModel() {
             if (restTime.data == null) throw ResponseException("", "queryMealTimeRule response data == null")
             restTime.data?.forEach {
                 var no = -1
-                if (it.mealName != null) {
-                    when (it.mealName) {
-                        "早餐" -> no = 1
-                        "午餐" -> no = 2
-                        "晚餐" -> no = 3
-                        "夜宵" -> no = 4
+                val queryAllMeals = dbHelper.queryAllMeals()
+                for ((i,v) in queryAllMeals.withIndex()) {
+                    if (v.mealId == it.mealId) {
+                        no = i + 1
+                        break
                     }
                 }
                 if (no != -1) personRestMealTime[no] = it
@@ -135,7 +135,7 @@ class MealTimeVM: ViewModel() {
         }
     }
 
-    suspend fun requestMealRestTime(custId: String, mealId: Int): String {
+    suspend fun requestMealRestTime(custId: String, mealId: Int): Pair<String, MealRestTimeReceive?> {
         try {
             val gson = Gson()
             val request = MealRestTimeRequest(
@@ -153,14 +153,42 @@ class MealTimeVM: ViewModel() {
                 throw ResponseException(mealRestTime.code, mealRestTime.msg)
             }
             if (mealRestTime.data == null) throw ResponseException("", "queryMealTimeRule response data == null")
-            return mealRestTime.data?.useTimes.toString()
+            return "" to mealRestTime.data!!
         } catch (e: Exception) {
             e.printStackTrace()
             LogUtil.e(TAG, e.message)
             if (e is ResponseException) {
                 showErrorToast.postValue("错误： $e")
             } else showErrorToast.postValue("错误： ${e.message}")
-            return e.message ?: "错误"
+            return (e.message ?: "错误") to null
+        }
+    }
+
+    suspend fun queryAllowance(orderId: String): Pair<String, QueryAllowanceResponse?> {
+        try {
+            val gson = Gson()
+            val request = QueryAllowanceRequest().apply {
+                businessId = mPayCfg.businessId
+                campusId = mPayCfg.campusId
+                this.orderId = orderId
+            }
+            LogUtil.i(TAG, "queryAllowance 加密前：${gson.toJson(request)}")
+            val encryption1 = DES3CBCUtil.encryption(gson.toJson(request))
+            val queryAllowance = mRespository.swQueryAllowance(EncryptedDataRequest(encryption1))
+            LogUtil.i(TAG, "queryAllowance 响应结果：${queryAllowance}")
+            if (queryAllowance.code != "200") {
+                LogUtil.e(TAG, "queryAllowance error: $queryAllowance")
+                throw ResponseException(queryAllowance.code, queryAllowance.msg)
+            }
+//            if (queryAllowance.data == null) throw ResponseException("", "queryAllowance response data == null")
+            return "" to queryAllowance.data
+        } catch (e: Exception) {
+            e.printStackTrace()
+            LogUtil.e(TAG, e.message)
+            if (e is ResponseException) {
+                showErrorToast.postValue("错误： $e")
+            } else showErrorToast.postValue("错误： ${e.message}")
+            return (e.message ?: "错误") to null
         }
     }
 }

@@ -9,8 +9,8 @@ import java.util.List;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.DaoException;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
-import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 
 /**
  * @dsc 简介
@@ -54,14 +54,17 @@ public class SwPayOrderTable {
     private List<AccListTable> accList;
 
     //sw
+    private String actualMealId; // 实际支付餐别id
     private String actualMealName;      //实际支付餐别
 
-    private int breakfastTime;    //早餐次数
-    private int lunchTime;        //午餐次数
-    private int dinnerTime;       //晚餐次数
-    private int supperTime;       //夜宵次数
+    private int meal01Time;    //meal01次数
+    private int meal02Time;        //meal02次数
+    private int meal03Time;       //meal03次数
+    private int meal04Time;       //meal04次数
 
+    private String standardMealId;   //使用餐标的餐别id
     private String standardMealName;      //使用餐标的餐别
+    private String standardId;   //使用的餐标id
     private String standardName; //使用的餐标名称
     private String standardNum;  //每次使用餐标耗次
     private int ruleRestTime; //剩余使用次数
@@ -75,15 +78,15 @@ public class SwPayOrderTable {
     /** Used for active entity operations. */
     @Generated(hash = 17827381)
     private transient SwPayOrderTableDao myDao;
-    @Generated(hash = 2071516297)
+    @Generated(hash = 324440409)
     public SwPayOrderTable(Long id, String result, String tranResult, String businessId,
             String businessName, String campusId, String corpId, String vposId, String deviceId,
             String custId, String username, String accNo, String accBal, String accType, String orderId,
             String traceId, String payType, String payContent, String payment, String actualPayment,
-            String payTime, String payDate, String offline, Integer flag, String actualMealName,
-            int breakfastTime, int lunchTime, int dinnerTime, int supperTime, String standardMealName,
-            String standardName, String standardNum, int ruleRestTime, float rulePrice,
-            String subsidyMoney) {
+            String payTime, String payDate, String offline, Integer flag, String actualMealId,
+            String actualMealName, int meal01Time, int meal02Time, int meal03Time, int meal04Time,
+            String standardMealId, String standardMealName, String standardId, String standardName,
+            String standardNum, int ruleRestTime, float rulePrice, String subsidyMoney) {
         this.id = id;
         this.result = result;
         this.tranResult = tranResult;
@@ -108,12 +111,15 @@ public class SwPayOrderTable {
         this.payDate = payDate;
         this.offline = offline;
         this.flag = flag;
+        this.actualMealId = actualMealId;
         this.actualMealName = actualMealName;
-        this.breakfastTime = breakfastTime;
-        this.lunchTime = lunchTime;
-        this.dinnerTime = dinnerTime;
-        this.supperTime = supperTime;
+        this.meal01Time = meal01Time;
+        this.meal02Time = meal02Time;
+        this.meal03Time = meal03Time;
+        this.meal04Time = meal04Time;
+        this.standardMealId = standardMealId;
         this.standardMealName = standardMealName;
+        this.standardId = standardId;
         this.standardName = standardName;
         this.standardNum = standardNum;
         this.ruleRestTime = ruleRestTime;
@@ -267,41 +273,59 @@ public class SwPayOrderTable {
     public void setFlag(Integer flag) {
         this.flag = flag;
     }
+    public String getActualMealId() {
+        return this.actualMealId;
+    }
+    public void setActualMealId(String actualMealId) {
+        this.actualMealId = actualMealId;
+    }
     public String getActualMealName() {
         return this.actualMealName;
     }
     public void setActualMealName(String actualMealName) {
         this.actualMealName = actualMealName;
     }
-    public int getBreakfastTime() {
-        return this.breakfastTime;
+    public int getMeal01Time() {
+        return this.meal01Time;
     }
-    public void setBreakfastTime(int breakfastTime) {
-        this.breakfastTime = breakfastTime;
+    public void setMeal01Time(int meal01Time) {
+        this.meal01Time = meal01Time;
     }
-    public int getLunchTime() {
-        return this.lunchTime;
+    public int getMeal02Time() {
+        return this.meal02Time;
     }
-    public void setLunchTime(int lunchTime) {
-        this.lunchTime = lunchTime;
+    public void setMeal02Time(int meal02Time) {
+        this.meal02Time = meal02Time;
     }
-    public int getDinnerTime() {
-        return this.dinnerTime;
+    public int getMeal03Time() {
+        return this.meal03Time;
     }
-    public void setDinnerTime(int dinnerTime) {
-        this.dinnerTime = dinnerTime;
+    public void setMeal03Time(int meal03Time) {
+        this.meal03Time = meal03Time;
     }
-    public int getSupperTime() {
-        return this.supperTime;
+    public int getMeal04Time() {
+        return this.meal04Time;
     }
-    public void setSupperTime(int supperTime) {
-        this.supperTime = supperTime;
+    public void setMeal04Time(int meal04Time) {
+        this.meal04Time = meal04Time;
+    }
+    public String getStandardMealId() {
+        return this.standardMealId;
+    }
+    public void setStandardMealId(String standardMealId) {
+        this.standardMealId = standardMealId;
     }
     public String getStandardMealName() {
         return this.standardMealName;
     }
     public void setStandardMealName(String standardMealName) {
         this.standardMealName = standardMealName;
+    }
+    public String getStandardId() {
+        return this.standardId;
+    }
+    public void setStandardId(String standardId) {
+        this.standardId = standardId;
     }
     public String getStandardName() {
         return this.standardName;
@@ -427,12 +451,15 @@ public class SwPayOrderTable {
                 ", offline='" + offline + '\'' +
                 ", flag=" + flag +
                 ", accList=" + accList +
+                ", actualMealId='" + actualMealId + '\'' +
                 ", actualMealName='" + actualMealName + '\'' +
-                ", breakfastTime=" + breakfastTime +
-                ", lunchTime=" + lunchTime +
-                ", dinnerTime=" + dinnerTime +
-                ", supperTime=" + supperTime +
+                ", meal01Time=" + meal01Time +
+                ", meal02Time=" + meal02Time +
+                ", meal03Time=" + meal03Time +
+                ", meal04Time=" + meal04Time +
+                ", standardMealId='" + standardMealId + '\'' +
                 ", standardMealName='" + standardMealName + '\'' +
+                ", standardId='" + standardId + '\'' +
                 ", standardName='" + standardName + '\'' +
                 ", standardNum='" + standardNum + '\'' +
                 ", ruleRestTime=" + ruleRestTime +

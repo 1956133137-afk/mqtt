@@ -243,6 +243,7 @@ public class DishesDBHelper {
 
     public List<MealTable> queryAllMeals() {
         return mMealTableDao.queryBuilder()
+                .orderAsc(MealTableDao.Properties.EndTime)
                 .build()
                 .list();
     }
@@ -749,5 +750,48 @@ public class DishesDBHelper {
                         SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
                         SwPayOrderTableDao.Properties.ActualMealName.eq(actualMealName))
                 .build().list();
+    }
+
+    public List<SwPayOrderTable> querySwPayOrder(String username, String orderId, String date) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.Username.like("%" + username + "%"),
+                        SwPayOrderTableDao.Properties.OrderId.like("%" + orderId + "%"),
+                        SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"))
+                .orderDesc(SwPayOrderTableDao.Properties.PayTime)
+                .build().list();
+    }
+
+    public List<SwPayOrderTable> querySwPayOrderByStandardMealId(int standardMealId, String date) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                        SwPayOrderTableDao.Properties.StandardMealId.eq(standardMealId))
+                .orderDesc(SwPayOrderTableDao.Properties.PayTime)
+                .build().list();
+    }
+
+    public List<SwPayOrderTable> querySwPayOrderByActualMealId(int actualMealId, String date) {
+        return swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                        SwPayOrderTableDao.Properties.ActualMealId.eq(actualMealId))
+                .orderDesc(SwPayOrderTableDao.Properties.PayTime)
+                .build().list();
+    }
+
+    public void deleteSwPayOrder(SwPayOrderTable payOrder) {
+        swPayOrderTableDao.delete(payOrder);
+    }
+
+    public void deleteSwPayOrderByPayDate(String payDate) {
+        List<SwPayOrderTable> orderList = swPayOrderTableDao.queryBuilder()
+                .where(SwPayOrderTableDao.Properties.PayDate.notEq(payDate))
+                .where(SwPayOrderTableDao.Properties.Flag.eq(1))
+                .build().list();
+        for (SwPayOrderTable order : orderList) {
+            deletePayDish(order.getId());
+            deleteSwPayOrder(order);
+        }
     }
 }

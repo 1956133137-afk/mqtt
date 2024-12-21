@@ -35,10 +35,11 @@ class PayForUI {
     var errMsg = ""             //错误信息
 
     // sw
+    var isSw = 0    // 0: 不是    1: 是
     var swForUI: SwForUI = SwForUI()
 
     override fun toString(): String {
-        return "PayForUI(result='$result', businessId='$businessId', businessName='$businessName', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', username='$username', accNo='$accNo', accBal='$accBal', accType='$accType', accList=$accList, orderId='$orderId', traceId='$traceId', payType='$payType', payContent='$payContent', payment='$payment', actualPayment='$actualPayment', payTime='$payTime', payDate='$payDate', sessionId='$sessionId', signTime='$signTime', offline='$offline', paymentDishes=$paymentDishes, errCode='$errCode', errMsg='$errMsg')"
+        return "PayForUI(result='$result', businessId='$businessId', businessName='$businessName', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', username='$username', accNo='$accNo', accBal='$accBal', accType='$accType', accList=$accList, orderId='$orderId', traceId='$traceId', payType='$payType', payContent='$payContent', payment='$payment', actualPayment='$actualPayment', payTime='$payTime', payDate='$payDate', sessionId='$sessionId', signTime='$signTime', offline='$offline', paymentDishes=$paymentDishes, errCode='$errCode', errMsg='$errMsg', isSw=$isSw, swForUI=$swForUI)"
     }
 
 

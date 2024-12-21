@@ -27,7 +27,9 @@ import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
+import java.math.BigDecimal
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
@@ -56,7 +58,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private var isSw = 0 // 0：不是   1：是
     private var isAllowance = 2
     private var mealId: Int? = null
-    private var userMealId: Int? = null
+    private var actualMealId: Int? = null
+    private var useRuleId: Int? = null
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
@@ -255,6 +258,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         payForUI.payType = type
         payForUI.custId = custId ?: ""
         payForUI.payContent = content
+        payForUI.isSw = isSw
         // 可以在这里计算实际金额
         val paymentMap = getPayment(custId ?: "", payForUI)
         LogUtil.i(TAG, "paymentMap: $paymentMap")
@@ -304,7 +308,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 // 扫码
                 if (!(content.startsWith("CCB") || content.startsWith("CT0001"))) {
                     LogUtil.e(TAG, "无效二维码！")
-                    listener?.onOtherListener(4, "无效二维码！")
+                    if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) listener?.onOtherListener(9, "无效二维码！")
+                    else listener?.onOtherListener(4, "无效二维码！")
                     return null
                 }
                 if (content.startsWith("CCB")) {
@@ -313,7 +318,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val minutes = TimeUtil.timestamp(pastDueTime)
                     if (minutes <= 1) {
                         LogUtil.e(TAG, "二维码已过期！")
-                        listener?.onOtherListener(4, "二维码已过期！")
+                        if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) listener?.onOtherListener(9, "二维码已过期！")
+                        else listener?.onOtherListener(4, "二维码已过期！")
                         return null
                     }
                     // 学号/工号
@@ -335,7 +341,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     }
                     if (analysisRes.RESULT != "Y") {
                         LogUtil.e(TAG, "在线二维码解析失败！")
-                        listener?.onOtherListener(4, analysisRes.ERRMSG)
+                        if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) listener?.onOtherListener(9, analysisRes.ERRMSG)
+                        else listener?.onOtherListener(4, analysisRes.ERRMSG)
                         return null
                     }
                     return analysisRes.CUST_ID
@@ -362,7 +369,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     if (response.code == "200") {
                         person = response.data
                     } else {
-                        listener?.onOtherListener(4, response.msg)
+                        if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) listener?.onOtherListener(9, response.msg)
+                        else listener?.onOtherListener(4, response.msg)
                         return null
                     }
                     LogUtil.i(TAG, "request person: $response")
@@ -379,12 +387,13 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     private suspend fun getPayment(custId: String, payForUI: PayForUI): HashMap<String, String>? {
-        val res = hashMapOf<String, String>()
+       val res = hashMapOf<String, String>()
         //原价
         res["payment"] = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
         res["actualPayment"] = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
 
-        val mealTable = dbHelper.queryToMeals(TimeUtil.CurrentTimeSection())
+        val queryAllMeals = dbHelper.queryAllMeals()
+        val currentMeal = dbHelper.queryToMeals(TimeUtil.CurrentTimeSection())
         val person = dbHelper.queryPersonToCustId(custId)
         // 支付金额 to 实际支付金额
         when (isSw) {
@@ -400,14 +409,15 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         return null
                     }
                     LogUtil.i(TAG, "剩余餐次：$restTimeMap")
-                    val no = when (mealTable.mealName) {
-                        "早餐" -> 1
-                        "午餐" -> 2
-                        "晚餐" -> 3
-                        "夜宵" -> 4
-                        else -> -1
+                    var no = -1  // 计算当前餐别的序号
+                    for ((i,v) in queryAllMeals.withIndex()) {
+                        if (v.mealId == TimeUtil.CurrentTimeSection()) {
+                            no = i + 1
+                            break
+                        }
                     }
-
+                    LogUtil.i(TAG, "currentMeal: $currentMeal")
+                    LogUtil.i(TAG, "mealTimeRuleMap: ${mealTimeRuleMap}")
                     try {
                         if (mealTimeRuleMap[no] == null) {
                             // todo 是否使用零点支付
@@ -415,12 +425,11 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                                 listener?.onOtherListener(4, "无可用餐标，价格未知")
                                 return null
                             }
-                            return calculateMealTimePayment(
-                                false, custId, person, mealTable, mealTimeRuleMap, restTimeMap, no, payForUI
-                            )
-                        } else return calculateMealTimePayment(
-                            true, custId, person, mealTable, mealTimeRuleMap, restTimeMap, no, payForUI
-                        )
+                            return substractAllowance(false, payForUI, person, currentMeal, restTimeMap, mealTimeRuleMap, no)
+                        } else {
+                            // 有当前餐别餐标
+                            return substractAllowance(true, payForUI, person, currentMeal, restTimeMap, mealTimeRuleMap, no)
+                        }
 //                        LogUtil.i(TAG, "paymentMap: $res")
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -439,6 +448,123 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
     }
 
+    private suspend fun substractAllowance(
+        hasExclusiveRule: Boolean,
+        payForUI: PayForUI,
+        person: Persons,
+        currentMeal: MealTable,
+        restTimeMap: HashMap<Int, PersonRestMealTime>,
+        mealTimeRuleMap: HashMap<Int, MealTimeRuleInfo>,
+        no: Int
+    ): HashMap<String, String>? {
+        val res = hashMapOf<String, String>()
+        val queryAllMeals = dbHelper.queryAllMeals()
+
+        val actualMealTimeRule = getActualMealTimeRule(person.custId, currentMeal.mealId)
+        LogUtil.i(TAG, "actualMealTimeRule: $actualMealTimeRule")
+        if (actualMealTimeRule == null) {
+            // 无补贴，用当前餐别餐标单价，以原价
+            isAllowance = 2
+            if (!bulkPayAmount.value.isNullOrBlank()) {
+                res["payment"] = String.format("%.02f", (bulkPayAmount.value ?: "0.00").toFloat())
+                res["actualPayment"] = String.format("%.02f", (bulkPayAmount.value?: "0.00").toFloat())
+            } else {
+                if (hasExclusiveRule) {
+                    res["payment"] = String.format("%.02f", (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat())
+                    res["actualPayment"] = String.format("%.02f", (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat())
+//                payForUI.swForUI.rulePrice = (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat()
+                    payForUI.swForUI.actualPrice = String.format("%.02f", (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat())
+                } else return null
+            }
+
+            payForUI.payment = res["payment"] ?: "0.00"
+            payForUI.actualPayment = res["actualPayment"] ?: "0.00"
+
+            payForUI.swForUI.apply {
+                username = person.personName
+                meal01Time = restTimeMap[1]?.updateCount ?: 0
+                meal02Time = restTimeMap[2]?.updateCount ?: 0
+                meal03Time = restTimeMap[3]?.updateCount ?: 0
+                meal04Time = restTimeMap[4]?.updateCount ?: 0
+
+                this.actualMealId = currentMeal.mealId.toString()
+                actualMealName = currentMeal.mealName
+                useMealRuleName = "无补贴"
+                if (hasExclusiveRule) {
+                    useRuleId = mealTimeRuleMap[no]?.id
+                    useMealRuleName = "无补贴(${mealTimeRuleMap[no]?.standardName})"
+                    rulePrice = mealTimeRuleMap[no]?.price ?: 0.00f
+//                    everyUseTime = mealTimeRuleMap[no]?.standardNum.toString()
+                }
+                restTime = 0
+            }
+            if (hasExclusiveRule) {
+                allowanceStateListener?.withoutAllowance(res, payForUI)
+                return null
+            }
+            return res
+        } else {
+            // 有补贴，用当前餐别餐标单价 - 补贴
+            isAllowance = 1
+            if (!bulkPayAmount.value.isNullOrBlank()) {
+                val payment = (bulkPayAmount.value ?: "0.00").toFloat()
+                val actualPayment = (bulkPayAmount.value?: "0.00").toFloat() - actualMealTimeRule.subsidyMoney
+                res["payment"] = String.format("%.02f", payment)
+                res["actualPayment"] = String.format("%.02f", if (actualPayment < 0) 0.00f else actualPayment)
+            } else {
+                if (hasExclusiveRule) {
+                    res["payment"] = String.format("%.02f", (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat())
+                    res["actualPayment"] = String.format("%.02f", (mealTimeRuleMap[no]?.price ?: 0.00f).toFloat() - actualMealTimeRule.subsidyMoney)
+                } else return null
+            }
+            payForUI.payment = res["payment"] ?: "0.00"
+            payForUI.actualPayment = res["actualPayment"] ?: "0.00"
+
+            actualMealId = actualMealTimeRule.actualMealId
+            mealId = actualMealTimeRule.mealId
+            useRuleId = actualMealTimeRule.id
+
+            payForUI.swForUI.apply {
+                username = person.personName
+                meal01Time = restTimeMap[1]?.updateCount ?: 0
+                meal02Time = restTimeMap[2]?.updateCount ?: 0
+                meal03Time = restTimeMap[3]?.updateCount ?: 0
+                meal04Time = restTimeMap[4]?.updateCount ?: 0
+
+                this.actualMealId = currentMeal.mealId.toString()
+                actualMealName = currentMeal.mealName
+                if (hasExclusiveRule) actualPrice = mealTimeRuleMap[no]?.price.toString()
+                for (v in queryAllMeals) {
+                    if (v.mealId == actualMealTimeRule.mealId) {
+                        this.standardMealId = v.mealId.toString()
+                        standardMealName = v.mealName ?: ""
+                        break
+                    }
+                }
+                for (v in mealTimeRuleMap.values) {
+                    if (v.id == actualMealTimeRule.id) {
+                        this.useMealRuleId = v.id.toString()
+                        useMealRuleName = v.standardName
+                        break
+                    }
+                }
+                everyUseTime = actualMealTimeRule.standardNum.toString()
+                restTime = actualMealTimeRule.leftOverTimes
+                rulePrice = actualMealTimeRule.price
+                subsidy = actualMealTimeRule.subsidyMoney.toString()
+            }
+
+            if (!bulkPayAmount.value.isNullOrBlank() && !hasExclusiveRule) {
+                if (payForUI.actualPayment.trim().toFloat() >= 1e-6f ) {
+                    // 大于 0
+                    allowanceStateListener?.hasAllowance(res, payForUI)
+                    return null
+                }
+            }
+            return res
+        }
+    }
+
     fun showFacePayResult(payForUI: PayForUI) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             // 查询餐次
@@ -451,18 +577,40 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         ToastShowUtil.show("查询餐次失败：${restMealTime[-1]}")
                         LogUtil.e(TAG, "showFacePayResult 查询餐次失败：${restMealTime[-1]}")
                     }
-                    breakfastTime = -1
-                    lunchTime = -1
-                    dinnerTime = -1
-                    supperTime = -1
+                    meal01Time = -1
+                    meal02Time = -1
+                    meal03Time = -1
+                    meal04Time = -1
                 } else{
                     restMealTime.forEach {
-                        when (it.value.mealName) {
-                            "早餐" -> breakfastTime = it.value.updateCount
-                            "午餐" -> lunchTime = it.value.updateCount
-                            "晚餐" -> dinnerTime = it.value.updateCount
-                            "夜宵" -> supperTime = it.value.updateCount
+                        when (it.key) {
+                            1 -> meal01Time = it.value.updateCount
+                            2 -> meal02Time = it.value.updateCount
+                            3 -> meal03Time = it.value.updateCount
+                            4 -> meal04Time = it.value.updateCount
                             else -> {}
+                        }
+                    }
+                }
+                // 查询餐标
+                val queryAllowance = mealTimeVM.queryAllowance(payForUI.orderId)
+                LogUtil.i(TAG, "queryAllowance: $queryAllowance")
+                if (!queryAllowance.first.isNullOrBlank()) {
+                    // 有错误
+                    withContext(Dispatchers.Main + mHandler) {
+                        ToastShowUtil.show("查询餐标失败：${queryAllowance.first}")
+                        LogUtil.e(TAG, "showFacePayResult 查询餐标失败：${queryAllowance.first}")
+                    }
+                } else {
+                    val queryAllowanceData = queryAllowance.second
+                    if (queryAllowanceData != null && queryAllowanceData.isAllowance == "1") {
+                        payForUI.swForUI.apply {
+                            standardMealName = queryAllowanceData.mealName
+                            useMealRuleName = queryAllowanceData.standardName
+                            subsidy = queryAllowanceData.subsidyMoney
+                            rulePrice = BigDecimal(queryAllowanceData.price).setScale(2, BigDecimal.ROUND_HALF_UP).toString().toFloat()
+                            restTime = queryAllowanceData.leftOfTimes
+                            everyUseTime = queryAllowanceData.leftOfTimes.toString()
                         }
                     }
                 }
@@ -512,6 +660,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     bal = queryBalance.REMAIN_BAL
                 }
             }
+            LogUtil.i(TAG, "queryRestTimeAndBalance: $restMealTime")
             val payForUI = PayForUI().apply {
                 this.result = "Y"
                 username = name
@@ -521,11 +670,11 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     this.username = name
                     this.balance = bal
                     restMealTime.forEach {
-                        when (it.value.mealName) {
-                            "早餐" -> breakfastTime = it.value.updateCount
-                            "午餐" -> lunchTime = it.value.updateCount
-                            "晚餐" -> dinnerTime = it.value.updateCount
-                            "夜宵" -> supperTime = it.value.updateCount
+                        when (it.key) {
+                            1 -> meal01Time = it.value.updateCount
+                            2 -> meal02Time = it.value.updateCount
+                            3 -> meal03Time = it.value.updateCount
+                            4 -> meal04Time = it.value.updateCount
                             else -> {}
                         }
                     }
@@ -609,96 +758,6 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
     }
 
-    private suspend fun calculateMealTimePayment(
-        hasCurrentMealRule: Boolean,
-        custId: String,
-        person: Persons,
-        mealTable: MealTable,
-        mealTimeRuleMap: HashMap<Int, MealTimeRuleInfo>,
-        restTimeMap: HashMap<Int, PersonRestMealTime>,
-        no: Int,
-        payForUI: PayForUI
-    ): HashMap<String, String>? {
-        val res = hashMapOf<String, String>()
-        //原价
-        res["payment"] = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
-        res["actualPayment"] = String.format("%.02f", (mDishes?.totalMoney ?: "0.00").toFloat())
-
-        // first: mealId   second: rule
-        val actualMealTimeRule = getActualMealTimeRule(custId, mealTimeRuleMap, restTimeMap, no)
-        LogUtil.i(TAG, "actualMealTimeRule: $actualMealTimeRule")
-        // 为null 则原价
-        val nowRule = mealTimeRuleMap[no]  //当前餐别的餐标
-        if (actualMealTimeRule == null) {
-            // 优先零点
-            val payment = if (!hasCurrentMealRule || !bulkPayAmount.value.isNullOrBlank()) {
-                (bulkPayAmount.value ?: "0.00").toFloat()
-            } else {
-                (nowRule?.price.toString() ?: "0.00").toFloat()
-            }
-            val actualPayment = payment
-            res["payment"] = String.format("%.02f", payment)
-            res["actualPayment"] = String.format("%.02f", actualPayment)
-            isAllowance = 2
-            payForUI.swForUI.apply {
-                username = person.personName
-                breakfastTime = restTimeMap[1]?.updateCount ?: 0
-                lunchTime = restTimeMap[2]?.updateCount ?: 0
-                dinnerTime = restTimeMap[3]?.updateCount ?: 0
-                supperTime = restTimeMap[4]?.updateCount ?: 0
-
-                actualMealName = mealTable.mealName
-                standardMealName = ""
-                restTime = 0
-                if (hasCurrentMealRule) {
-                    useMealRuleName = nowRule?.standardName ?: ""
-                    everyUseTime = nowRule?.standardNum ?: ""
-                    rulePrice = nowRule?.price ?: 0.0f
-                    subsidy = nowRule?.subsidyMoney ?: "0"
-                }
-            }
-            // todo 接口回调display，显示dialog
-            allowanceStateListener?.withoutAllowance(res, payForUI)
-            return null
-        }
-        val mealRestTime = actualMealTimeRule.second.first
-        val ruleContent = actualMealTimeRule.second.second
-        payForUI.swForUI.apply {
-            username = person.personName
-            breakfastTime = restTimeMap[1]?.updateCount ?: 0
-            lunchTime = restTimeMap[2]?.updateCount ?: 0
-            dinnerTime = restTimeMap[3]?.updateCount ?: 0
-            supperTime = restTimeMap[4]?.updateCount ?: 0
-
-            actualMealName = mealTable.mealName
-            actualPrice = nowRule?.price.toString()
-            standardMealName = ruleContent.mealName ?: ""
-            useMealRuleName = ruleContent.standardName
-            everyUseTime = ruleContent.standardNum
-            restTime = mealRestTime
-            rulePrice = ruleContent.price
-            subsidy = ruleContent.subsidyMoney
-        }
-        // 计算金额支付
-        var payment =
-            (nowRule?.price?.toString() ?: "0.00").toFloat()
-        // 优先零点支付
-        if (!bulkPayAmount.value.isNullOrBlank()) {
-            payment = (bulkPayAmount.value ?: "0.00").toFloat()
-        }
-        val actualPayment =
-            payment - (ruleContent.subsidyMoney ?: "0.00").toFloat()
-        /** 只能这样子写才能正确扣款，后台没有做 payment actualPayment的处理 **/
-        res["payment"] = String.format("%.02f", if (actualPayment <= 0) 0.00f else actualPayment)
-        res["actualPayment"] = String.format("%.02f", if (actualPayment <= 0) 0.00f else actualPayment)
-//                        res["mealId"] = actualMealTimeRule.first.toString()
-//                        res["userMealId"] = actualMealTimeRule.second.id.toString()
-        mealId = actualMealTimeRule.first
-        userMealId = ruleContent.id
-        isAllowance = 1
-        return res
-    }
-
     /**
      * TODO
      *
@@ -707,29 +766,18 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
      * @param no 餐别编号，用于排序、获取
      * @return first: mealId  second: (restTime, rule)
      */
-    private suspend fun getActualMealTimeRule(custId: String, mealTimeMap: HashMap<Int, MealTimeRuleInfo>, restTimeMap: HashMap<Int, PersonRestMealTime>, no: Int): Pair<Int, Pair<Int, MealTimeRuleInfo>>? {
-        if (no == -1) throw Exception("错误：不支持该餐别名称，以原价支付")
-        if (no == 0) return null
-        // 没有当前餐别的餐次规则，继续寻找
-        val currentMealTimeRule = mealTimeMap[no] ?: return getActualMealTimeRule(custId, mealTimeMap, restTimeMap, no - 1)
-        if (currentMealTimeRule.flag == 1) {
-            // 可以延顺，但没有次数了，继续寻找
-            val currentRestTime = restTimeMap[no] ?: return getActualMealTimeRule(custId, mealTimeMap, restTimeMap, no - 1)
-            // 有餐次次数
-            if (currentRestTime.updateCount >= currentMealTimeRule.standardNum.trim().toInt()) {
-                val mealRestTime = runBlocking(Dispatchers.IO + mHandler) {
-                    mealTimeVM.requestMealRestTime(custId, currentRestTime.mealId)
-                }
-                LogUtil.i(TAG, "个人餐别可使用次数：$mealRestTime")
-                if (!mealRestTime.isDigitsOnly()) throw Exception(mealRestTime)  //如果不是数字，那么就是错误
-                if (mealRestTime.trim().toInt() <= 0 || mealRestTime.trim().toInt() - currentMealTimeRule.standardNum.trim().toInt() < 0) return getActualMealTimeRule(custId, mealTimeMap, restTimeMap, no - 1)
-                return Pair(currentRestTime.mealId, Pair(mealRestTime.trim().toInt(), currentMealTimeRule))
-            }
-            // 餐次次数不足，继续寻找
-            return getActualMealTimeRule(custId, mealTimeMap, restTimeMap, no - 1)
+    private suspend fun getActualMealTimeRule(custId: String, currentMealId: Int): MealRestTimeReceive? {
+        val mealRestTime = runBlocking(Dispatchers.IO + mHandler) {
+            mealTimeVM.requestMealRestTime(custId, currentMealId)
         }
-        // 当前餐别不支持顺延，继续寻找
-        return getActualMealTimeRule(custId, mealTimeMap, restTimeMap, no - 1)
+        val error = mealRestTime.first
+        val data = mealRestTime.second
+        LogUtil.i(TAG, "实际使用餐标规则：$mealRestTime")
+        if (!error.isNullOrBlank() || data == null) throw Exception(error)
+        return if (!(data.leftOverTimes == 0 && data.subsidyMoney == 0.0f && data.mealId == 0 && data.flag == 0 && data.standardNum == 0 && data.price == 0.0f && data.id == 0 && data.useTimes == 0)
+            && data.useTimes != 0 && (data.useTimes - data.standardNum >= 0)
+        ) data
+        else null
     }
 
     private fun qrCodeHandler(payForUI: PayForUI) {
@@ -846,21 +894,28 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     private fun swOnLinePay(payForUI: PayForUI) {
+        LogUtil.i(TAG, "swOnLinePay payForUI: $payForUI")
+
         runBlocking(mHandler) {
             val mealTable = DishesDBHelper.getInstance().queryToMeals(TimeUtil.CurrentTimeSection())
             val response = when (payForUI.payType) {
                 "2" -> {
-                    val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
+                    val payDetail = Gson().fromJson(Gson().toJson(payForUI), PayForUI::class.java)
+                    payDetail.payment = payForUI.actualPayment
+                    val request = Gson().fromJson(Gson().toJson(payDetail), CodePayBean::class.java)
                     request.qrCode = payForUI.payContent
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), mealId ?: mealTable.mealId, userMealId)
+                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,mealId ?: mealTable.mealId, useRuleId)
                 }
                 "3" -> {
-                    val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
+                    val payDetail = Gson().fromJson(Gson().toJson(payForUI), PayForUI::class.java)
+                    payDetail.payment = payForUI.actualPayment
+                    val request = Gson().fromJson(Gson().toJson(payDetail), CardPayBean::class.java)
                     request.cardId = payForUI.payContent
                     LogUtil.i(TAG, "request: $request")
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), mealId ?: mealTable.mealId, userMealId)
+                    LogUtil.i(TAG, "刷卡餐次：mealId --> ${mealId ?: mealTable.mealId}, useRuleId --> $useRuleId")
+                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,mealId ?: mealTable.mealId, useRuleId)
                 }
                 else -> CanteenResponse<String>()
             }
@@ -871,7 +926,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 payForUI.result = result.RESULT
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
-                payForUI.accBal = result.ACC_BAL
+                payForUI.accBal = result.REMAIN_BAL
                 result.ACC_LIST.forEach {
                     val acclist = ACCLIST().apply {
                         ACC_NO = it.ACC_NO
@@ -890,7 +945,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
                 //sw
                 payForUI.swForUI.result = result.RESULT
-                payForUI.swForUI.balance = result.ACC_BAL
+                payForUI.swForUI.balance = result.REMAIN_BAL
 
             } else {
                 payForUI.errCode = response.code
@@ -991,23 +1046,26 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     public fun saveSwOrderRecord(payForUI: PayForUI, flag: Int) {
+        LogUtil.i(TAG, "saveSwOrderRecord payOrder: $payForUI")
         val payOrder = Gson().fromJson(Gson().toJson(payForUI), SwPayOrderTable::class.java)
         val swForUI = payForUI.swForUI
         payOrder.apply {
             tranResult = "3" //1：待支付，2：支付失败，3：支付成功
             this.flag = flag
             //sw
+            actualMealId = swForUI.actualMealId
             actualMealName = swForUI.actualMealName
 
-            breakfastTime = swForUI.breakfastTime
-            lunchTime = swForUI.lunchTime
-            dinnerTime = swForUI.dinnerTime
-            supperTime = swForUI.supperTime
+            meal01Time = swForUI.meal01Time
+            meal02Time = swForUI.meal02Time
+            meal03Time = swForUI.meal03Time
+            meal04Time = swForUI.meal04Time
 
+            standardMealId = swForUI.standardMealId
             standardMealName = swForUI.standardMealName
             standardName = swForUI.useMealRuleName
             standardNum = swForUI.everyUseTime
-            ruleRestTime = swForUI.restTime
+            ruleRestTime = swForUI.restTime - swForUI.everyUseTime.trim().toInt()
             rulePrice = swForUI.rulePrice
             subsidyMoney = swForUI.subsidy
         }
@@ -1019,5 +1077,6 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             acc.swPayOrderTable = order
             dbHelper.insertAccList(acc)
         }
+//        saveOrderRecord(payForUI, 1)
     }
 }
