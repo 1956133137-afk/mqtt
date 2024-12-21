@@ -169,7 +169,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 
     testImplementation 'junit:junit:4.13.2'
@@ -180,7 +179,7 @@ dependencies {
 
 }
 greendao {
-    schemaVersion 20 //指定数据库schema版本号，迁移等操作会用到;
+    schemaVersion 24 //指定数据库schema版本号，迁移等操作会用到;
     daoPackage 'com.yannuo.dgcanteen.greendao.dao' //dao的包名，包名默认是entity所在的包；
     targetGenDir 'src/main/java'//生成数据库文件的目录;
 }
