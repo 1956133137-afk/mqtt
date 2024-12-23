@@ -90,7 +90,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
         binding.equal.setOnClickListener { totalValue() } //=
         binding.payment.setOnClickListener { //收款
             if (kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1) {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_BULK_PAY, null))
+                EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_BULK_PAY, true))
                 return@setOnClickListener
             }
             val limit = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0) // 受餐别时间限制

@@ -655,6 +655,7 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
     }
 
     fun displayMealName() {
+        if (!this::binding.isInitialized) return
         val queryAllMeals = DishesDBHelper.getInstance().queryAllMeals()
         LogUtil.i(TAG, "queryAllMeals: $queryAllMeals")
         val size = queryAllMeals.size

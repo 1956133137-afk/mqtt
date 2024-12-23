@@ -480,6 +480,9 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             payForUI.payment = res["payment"] ?: "0.00"
             payForUI.actualPayment = res["actualPayment"] ?: "0.00"
 
+            actualMealId = currentMeal.mealId
+            mealId = currentMeal.mealId
+
             payForUI.swForUI.apply {
                 username = person.personName
                 meal01Time = restTimeMap[1]?.updateCount ?: 0
@@ -905,7 +908,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val request = Gson().fromJson(Gson().toJson(payDetail), CodePayBean::class.java)
                     request.qrCode = payForUI.payContent
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,mealId ?: mealTable.mealId, useRuleId)
+                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,(mealId ?: actualMealId) ?: mealTable.mealId, useRuleId)
                 }
                 "3" -> {
                     val payDetail = Gson().fromJson(Gson().toJson(payForUI), PayForUI::class.java)
@@ -915,7 +918,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     LogUtil.i(TAG, "request: $request")
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
                     LogUtil.i(TAG, "刷卡餐次：mealId --> ${mealId ?: mealTable.mealId}, useRuleId --> $useRuleId")
-                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,mealId ?: mealTable.mealId, useRuleId)
+                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,(mealId ?: actualMealId) ?: mealTable.mealId, useRuleId)
                 }
                 else -> CanteenResponse<String>()
             }

@@ -334,7 +334,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
         binding.btnConfirm.setOnClickListener {
             // 确定金额
-            if ((System.currentTimeMillis() - lastTime) < 1000 || !judgePayStatus()) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.BTN_CONFIRM_STATE, 0) == 1) {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUIT_CONFIRM, null))
