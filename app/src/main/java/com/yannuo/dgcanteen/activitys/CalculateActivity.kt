@@ -574,7 +574,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     }
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
-                    binding.btnConfirm.text="确定金额￥${event.any as String}"
+                    binding.btnConfirm.text="取消收款￥${event.any as String}"
                     simpleDisplay?.enableBtn(event.any as String, true)
                 }
             }
@@ -590,7 +590,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     }
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
-                    binding.btnConfirm.text="确定金额￥${event.any as String}"
+                    binding.btnConfirm.text="取消收款￥${event.any as String}"
                     mealTimeDisplay?.setBulkPayAmount("${event.any}元", true)
                 }
             }
