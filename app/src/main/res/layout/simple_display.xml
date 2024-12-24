@@ -210,12 +210,12 @@
         android:visibility="gone"
         tools:ignore="MissingConstraints" />
 
-    <View
-        android:id="@+id/v_setting"
-        android:layout_width="150dp"
-        android:layout_height="100dp"
-        android:layout_alignParentRight="true"
-        tools:ignore="MissingConstraints" />
+<!--    <View-->
+<!--        android:id="@+id/v_setting"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        tools:ignore="MissingConstraints" />-->
 
     <LinearLayout
         android:id="@+id/ll_pay"

@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.yannuo.dgcanteen.databinding.ItemOrderRecordBinding
 import com.yannuo.dgcanteen.dialogView.DishDetailsDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -79,17 +80,10 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
 
     private fun printer(order: Order) {
         val person = DishesDBHelper.getInstance().queryPersonToCustId(order.custId)
-        val orderForUI = OrderForUI().apply {
-            custName = if (person != null) person.personName else ""
-            orderId = order.orderId
-            payment = order.payment
-            orderTime = order.orderTime
-            orderDate = order.mealDate
-            mealName = order.mealName
-            distribute = order.orderType
-            address = order.address.ifEmpty { "" }
-            phone = order.phone.ifEmpty { "" }
-        }
+        val orderForUI = Gson().fromJson(Gson().toJson(order), OrderForUI::class.java)
+        orderForUI.custName = if (person != null) person.personName else ""
+        orderForUI.orderDate = order.mealDate
+        orderForUI.distribute = order.orderType
         order.dcOrderDishesList.forEach {
             val dishBean = DishBean().apply {
                 dishId = it.dishesId

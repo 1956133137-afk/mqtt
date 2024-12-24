@@ -150,9 +150,11 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             verifyAdapter.insertDataTop(verifyUser, 100)
             binding.rvDishes.smoothScrollToPosition(0)
         }
+        // 更新确定金额UI
+        enableBtn("", false)
     }
 
-    fun enableBtn(money:String?, isShow: Boolean){
+    fun enableBtn(money: String?, isShow: Boolean) {
         binding.also {
             it.llPay.visibility = if (isShow) View.VISIBLE else View.GONE
             binding.tvAmount.text = "￥:$money 元"
@@ -162,15 +164,16 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
 
     private fun initEvent() {
         binding.btnFacePay.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, Constant.PAY_FACE_TYPE))
         }
         binding.btnIsPay.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 2000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, Constant.PAY_CODE_IC_TYPE))
         }
+        /*// 取消副屏进入设置
         binding.vSetting.setOnLongClickListener { iit ->
             atv?.also {
                 val intent = Intent(it, SettingActivity::class.java)
@@ -180,9 +183,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
 //                cancel()
             }
             true
-        }
+        }*/
         binding.tvCode.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 3000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
@@ -191,7 +194,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             }
         }
         binding.tvFace.setOnClickListener {
-            if ((System.currentTimeMillis() - lastTime) < 3000) return@setOnClickListener
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
             //支付
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))

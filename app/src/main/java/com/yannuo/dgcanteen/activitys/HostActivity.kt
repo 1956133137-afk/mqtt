@@ -37,6 +37,8 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         if (payInfo.type != Constant.PAY_FACE_TYPE) {
             navHostFragment?.navController!!.setGraph(R.navigation.ic_graph, bundle)
 //            navHostFragment!!.navController.navigate(R.id.scanFragment, bundle)
+        } else {
+            navHostFragment?.navController!!.setGraph(R.navigation.nav_graph, bundle)
         }
         LogUtil.d(TAG,"onInit")
     }

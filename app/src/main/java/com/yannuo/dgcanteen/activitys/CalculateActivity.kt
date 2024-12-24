@@ -478,7 +478,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         mScope.launch {
             while (isActive) {
                 val mMealId = TimeUtil.CurrentTimeSection()
-                LogUtil.i(TAG, "checkTime mealId: $mMealId")
+//                LogUtil.i(TAG, "checkTime mealId: $mMealId")
                 mealId = mMealId
                 val str = StringBuilder()
                 when (mealId) {
