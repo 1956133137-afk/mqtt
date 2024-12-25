@@ -218,6 +218,65 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/discount_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical"
+                android:minHeight="60dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="优惠抵扣: "
+                    android:textColor="#4F4F4F"
+                    android:textSize="40sp" />
+
+                <EditText
+                    android:id="@+id/discount_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:hint="请输入抵扣金额"
+                    android:inputType="number|numberDecimal"
+                    android:maxLength="11"
+                    android:singleLine="true"
+                    android:textColor="#4F4F4F"
+                    android:textSize="40sp" />
+
+                <LinearLayout
+                    android:id="@+id/discount_click"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="130dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="60dp">
+
+                    <CheckBox
+                        android:id="@+id/discount_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/select_btn_checkbox_check"
+                        android:button="@null"
+                        android:checked="false"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="抵扣"
+                        android:textColor="#4F4F4F"
+                        android:textSize="40sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

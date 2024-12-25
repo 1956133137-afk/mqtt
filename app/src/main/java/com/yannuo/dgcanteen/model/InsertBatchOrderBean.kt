@@ -12,6 +12,7 @@ class InsertBatchOrderBean {
     var totalPackagingFee: String = ""  //打包费用 0.00
     var totalPayment: String = ""       //总订单金额 0.00
     var actualTotalPayment: String = "" //实际总订单金额 0.00
+    var totalDiscountPayment: String = ""   //总优惠金额 0.00
     var orderDetail: MutableList<OrderDetail> = mutableListOf()
 }
 
@@ -25,6 +26,7 @@ class OrderDetail {
     var deliveryFee: String = ""        //配送费用 0.00
     var payment: String = ""            //订单金额 0.00
     var actualPayment: String = ""      //实际订单金额 0.00
+    var discountPayment: String = ""    //优惠金额 0.00
     var orderType: String = ""          //订单类型(1-配送，2-自提)
     var addressPersonName: String = ""  //自定义姓名
     var addressTel: String = ""         //配送电话

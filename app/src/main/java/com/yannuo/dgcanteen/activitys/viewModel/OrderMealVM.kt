@@ -139,12 +139,13 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     override fun onData(data: String) {
-        if (loginOrPayStatus) loginHandler("2", data) else payHandler("2", data)
+        val icCard = data.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim()
+        if (loginOrPayStatus) loginHandler("2", icCard) else payHandler("2", icCard)
     }
 
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
-        val icCard = number.trim().uppercase()
+        val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
         if (loginOrPayStatus) loginHandler("3", icCard) else payHandler("3", icCard)
     }
 
@@ -312,9 +313,10 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 orderForUI.verifyFlag = if (verifyStatus) "1" else "2"
                 when (orderForUI.orderType) {
                     "1" -> {
+                        listener?.onOrderResult(5, "")
                         FaceScanVM.instance.bindService()
                         FaceScanVM.instance.setOrderDishList(orderForUI.dishList)
-                        FaceScanVM.instance.startFacePay(false, orderForUI.payment, orderForUI.orderId, orderForUI.verifyFlag)
+                        FaceScanVM.instance.startFacePay(false, orderBean.actualTotalPayment, orderForUI.orderId, orderForUI.verifyFlag)
                         FaceScanVM.instance.setFaceListener(faceResultListener)
                     }
                     "2" -> {
@@ -396,17 +398,20 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         val currentTime = System.currentTimeMillis()
         orderForUI.payTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime)
         payBean.apply {
+            actualPayment = String.format("%.02f", orderForUI.payment.toDouble() - orderForUI.discountPayment.toDouble())
             deviceId = deviceSerial
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
         }
         return if (orderForUI.orderType == "2") {
-            val codePayBean = Gson().fromJson(Gson().toJson(orderForUI), CodePayBean::class.java)
+            val codePayBean = Gson().fromJson(Gson().toJson(payBean), CodePayBean::class.java)
             codePayBean.qrCode = orderForUI.orderContent
+            LogUtil.d(TAG, Gson().toJson(codePayBean))
             DES3CBCUtil.encryption(Gson().toJson(codePayBean))
         } else {
-            val cardPayBean = Gson().fromJson(Gson().toJson(orderForUI), CardPayBean::class.java)
+            val cardPayBean = Gson().fromJson(Gson().toJson(payBean), CardPayBean::class.java)
             cardPayBean.cardId = orderForUI.orderContent
+            LogUtil.d(TAG, Gson().toJson(cardPayBean))
             DES3CBCUtil.encryption(Gson().toJson(cardPayBean))
         }
     }
@@ -488,9 +493,11 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             custId = orderForUI.custId
             totalPackagingFee = "0.00"
             totalPayment = orderForUI.payment
-            actualTotalPayment = orderForUI.payment
+            actualTotalPayment = String.format("%.02f", orderForUI.payment.toDouble() - orderForUI.discountPayment.toDouble())
+            totalDiscountPayment = orderForUI.discountPayment
         }
         orderForUI.menuList.forEach { dateMenu ->
+            val discountMoney = orderForUI.discountPayment.toDouble() / orderForUI.menuList.size
             dateMenu.mealList.forEach { mealMenu ->
                 val orderDetail = OrderDetail().apply {
                     personName = orderForUI.custName
@@ -521,6 +528,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 }
                 orderDetail.payment = String.format("%.02f", totalMoney)
                 orderDetail.actualPayment = orderDetail.payment
+                orderDetail.discountPayment = String.format("%.02f", discountMoney / dateMenu.mealList.size)
                 batchOrderBean.orderDetail.add(orderDetail)
             }
         }

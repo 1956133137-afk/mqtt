@@ -158,6 +158,11 @@ class ModeSettingFragment : Fragment() {
             if (check) kv.encode(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 1)
             else kv.encode(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0)
         }
+        binding.mealTimeSwitch.setOnClickListener {
+            val switchValue = if (binding.mealTimeSwitch.isChecked) 1 else 0
+            kv.encode(Constant.MEAL_TIME_SWITCH, switchValue)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_SWITCH, null))
+        }
 //        binding.switchMealTimeMode.setOnClickListener {
 //            // 餐次消费模式
 //            val check = binding.switchMealTimeMode.isChecked
@@ -228,6 +233,7 @@ class ModeSettingFragment : Fragment() {
             popup.showAsDropDown(binding.orderPrinterFormat, 0, 0)
         }
         binding.orderDefaultWay.setOnClickListener { kv.encode(Constant.ORDER_DEFAULT_WAY, binding.orderDefaultWay.isChecked) }
+        binding.orderDiscountSwitch.setOnClickListener { kv.encode(Constant.ORDER_DISCOUNT_SWITCH, binding.orderDiscountSwitch.isChecked) }
         // 重复支付判断
         binding.repeatPayJudge.setOnClickListener { kv.encode(Constant.REPEAT_PAY_JUDGE, binding.repeatPayJudge.isChecked) }
 
@@ -353,6 +359,7 @@ class ModeSettingFragment : Fragment() {
     private fun reload() {
         self_help = kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchUseMealLimitPay.isChecked = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0) == 1
+        binding.mealTimeSwitch.isChecked = kv.decodeInt(Constant.MEAL_TIME_SWITCH, 0) == 1
 //        binding.switchMealTimeMode.isChecked = kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help
@@ -377,6 +384,7 @@ class ModeSettingFragment : Fragment() {
         binding.orderPrinterFormat.text = printerList[kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)]
         binding.orderAdvanceDay.setText(kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6).toString())
         binding.orderDefaultWay.isChecked = kv.decodeBool(Constant.ORDER_DEFAULT_WAY, false)
+        binding.orderDiscountSwitch.isChecked = kv.decodeBool(Constant.ORDER_DISCOUNT_SWITCH, false)
 
         val verifyType = resources.getStringArray(R.array.spVerify)
         val spVerifyAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, verifyType)

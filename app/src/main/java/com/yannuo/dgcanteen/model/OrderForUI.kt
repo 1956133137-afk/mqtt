@@ -34,6 +34,8 @@ class OrderForUI() : Parcelable {
     var remark: String = ""     //备注信息
     var payment: String = ""    //订单金额
     var actualPayment: String = ""  //实付金额
+    var discountPayment: String = ""//优惠金额
+    var isDeviceDiscount: String = "0"  //优惠规则 0-后台计算优惠 1-设备端计算优惠
     var payTime: String = ""    //支付时间
     var orderId: String = ""    //订单Id
     var verifyFlag: String = "" //核销状态

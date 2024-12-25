@@ -98,10 +98,12 @@ object Constant {
     const val ORDER_PRINTER_FORMAT = "OrderPrinterFormat"   //订餐打印格式 0-一天 1-全部
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
+    const val ORDER_DISCOUNT_SWITCH = "orderDiscountSwitch" //订餐优惠开关
 
     const val USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH = "收款模式受开餐状态限制" // 开餐后才能收款  0：关闭   1：打开
     const val IS_USE_MEAL = "是否开餐" // 0: 未开餐  1：开餐
 
+    const val MEAL_TIME_SWITCH = "mealTimeSwitch" //餐次按钮是否显示 0:不显示 1:显示
     const val MEAL_TIME_MODE = "餐次消费模式" // 0：关闭  1：打开  目前只有申万宏源使用，目前只做了在线模式的
     const val QUERY_TIME_SWITCH = "查询余次开关" //查询余次开关  0：关闭  1：打开
     const val PAY_RESULT_DIALOG_TIME = "支付结果dialog显示时间"
@@ -140,6 +142,7 @@ object Constant {
     const val EVENT_DISMISS_CALCULATE_PAY_DIALOG = 41   //消失calculate activity的 pay result dialog
     const val EVENT_MEAL_TIME_MODE = 42 //餐次模式
     const val UPDATE_MEAL_TIME_BILL = 43 // 更新calculate activity的订单量信息
+    const val EVENT_MEAL_TIME_SWITCH = 44   //餐次按钮状态
 
     const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径

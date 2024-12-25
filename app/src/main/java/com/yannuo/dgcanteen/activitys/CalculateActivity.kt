@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.text.format.DateFormat
 import android.view.Display
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
@@ -182,6 +183,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
         binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\nv${packageManager.getPackageInfo(packageName, 0).versionName}"
 
+        val boolean = kv.decodeInt(Constant.MEAL_TIME_SWITCH, 0) == 1
+        binding.btnMealTimeMode.visibility = if (boolean) View.VISIBLE else View.GONE
+        binding.btnSetting.width = if (boolean) WindowManager.LayoutParams.WRAP_CONTENT else WindowManager.LayoutParams.MATCH_PARENT
     }
 
     private fun initPresentation() {
@@ -667,6 +671,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 mealTimeDisplay?.displayMealName()
                 mealTimeDisplay?.updateOrderCount()
                 btnViewChange(binding.btnMealTimeMode, Constant.MEAL_TIME_MODE)
+            }
+            Constant.EVENT_MEAL_TIME_SWITCH -> handler.post {
+                val boolean = kv.decodeInt(Constant.MEAL_TIME_SWITCH, 0) == 1
+                binding.btnMealTimeMode.visibility = if (boolean) View.VISIBLE else View.GONE
+                binding.btnSetting.width = if (boolean) WindowManager.LayoutParams.WRAP_CONTENT else WindowManager.LayoutParams.MATCH_PARENT
             }
         }
     }

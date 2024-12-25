@@ -1,6 +1,8 @@
 package com.yannuo.dgcanteen.activitys.fragment.order
 
 import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,6 +61,8 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         binding.payResView.layoutManager = LinearLayoutManager(requireContext())
         binding.payResView.adapter = infoAdapter
 
+        binding.discountStatus.visibility = if (kv.decodeBool(Constant.ORDER_DISCOUNT_SWITCH, false)) View.VISIBLE else View.GONE
+
         initObject()
         initEvent()
     }
@@ -84,6 +88,7 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
                                 showPayResult(order, "支付成功", "#82D582")
                             } else showPayResult(order, "支付失败", "#FF5252")
                         }
+                        5 -> orderMealVM.getAwaitStatus().value = ""
                     }
                 }
             }
@@ -111,10 +116,49 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
                 }
             }
         }
+        binding.verifyStatus.setOnClickListener { binding.verifyValue.isChecked = !binding.verifyValue.isChecked }
+        binding.discountInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(charSequence: CharSequence, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(editable: Editable) {
+                if (!isValidMoney(editable.toString())) {
+                    LogUtil.d(TAG, "输入格式异常：${editable}")
+                    ToastShowUtil.show("设定金额格式有误")
+                    binding.discountSwitch.isChecked = false
+                }
+            }
+        })
+        binding.discountClick.setOnClickListener {
+            binding.discountSwitch.isChecked = !binding.discountSwitch.isChecked
+            if (binding.discountSwitch.isChecked) {
+                val discountMoney = binding.discountInput.text.toString()
+                // 判断不大于订单金额
+                if (!isValidMoney(discountMoney)) {
+                    binding.discountSwitch.isChecked = false
+                    ToastShowUtil.show("设定金额格式有误")
+                } else if (discountMoney.toDouble() > orderForUI.payment.toDouble()) {
+                    binding.discountSwitch.isChecked = false
+                    ToastShowUtil.show("优惠金额不能大于订单金额")
+                } else {
+                    binding.discountInput.setText(String.format("%.02f", discountMoney.toDouble()))
+                    binding.discountInput.setSelection(binding.discountInput.text.length)
+                }
+            }
+        }
 
         //确定支付
         binding.btnConfirm.setOnClickListener {
             if (!judgePayStatus()) return@setOnClickListener
+            // 判断优惠规则
+            orderForUI.discountPayment = "0.00"
+            orderForUI.isDeviceDiscount = "0"
+            if (kv.decodeBool(Constant.ORDER_DISCOUNT_SWITCH, false) && binding.discountSwitch.isChecked) {
+                val discountMoney = binding.discountInput.text.toString()
+                orderForUI.discountPayment = String.format("%.02f", discountMoney.toDouble())
+                orderForUI.isDeviceDiscount = "1"
+            }
             orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked)
 //            orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked) { type ->
 //                handler.post {
@@ -236,6 +280,11 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private fun isValidPhone(phone: String): Boolean {
         val regex = Regex("""^1[3-9]\d{9}$""", RegexOption.IGNORE_CASE)
         return regex.matches(phone)
+    }
+
+    private fun isValidMoney(money: String): Boolean {
+        val regex = Regex("""^(0|[1-9]\d{0,5})(\.\d{0,2})?$""", RegexOption.IGNORE_CASE)
+        return regex.matches(money)
     }
 
     override fun onDestroy() {

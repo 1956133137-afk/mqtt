@@ -21,8 +21,9 @@ open class RequestPayBase {
     var signTime: String = ""
     var offline: String = ""    //0在线 1离线
     var verifyFlag: String = "" //订餐字段 1-需要核销 2-不需要核销
+    var isDeviceDiscount: String = "0"  //优惠规则 0-后台计算优惠 1-设备端计算优惠
     override fun toString(): String {
-        return "RequestPayBase(businessId='$businessId', businessName='$businessName', orderId='$orderId', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', payment='$payment', actualPayment='$actualPayment', paymentDishes=$paymentDishes, sessionId='$sessionId', signTime='$signTime', offline='$offline', verifyFlag='$verifyFlag')"
+        return "RequestPayBase(businessId='$businessId', businessName='$businessName', orderId='$orderId', campusId='$campusId', corpId='$corpId', vposId='$vposId', deviceId='$deviceId', custId='$custId', payment='$payment', actualPayment='$actualPayment', paymentDishes=$paymentDishes, sessionId='$sessionId', signTime='$signTime', offline='$offline', verifyFlag='$verifyFlag', isDeviceDiscount='$isDeviceDiscount')"
     }
 
 

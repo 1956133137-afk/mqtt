@@ -178,21 +178,52 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
+                android:layout_centerVertical="true"
                 android:layout_marginStart="45dp"
                 android:text="开餐后才能收款(收款模式)"
-                android:layout_centerVertical="true"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
-
 
             <CheckBox
                 android:id="@+id/switch_use_meal_limit_pay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="45dp"
                 android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
                 android:layout_centerVertical="true"
+                android:layout_marginStart="45dp"
+                android:text="显示餐次模式按钮"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/meal_time_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
                 android:button="@null"
                 android:checked="false" />
         </RelativeLayout>
@@ -212,9 +243,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
+                android:layout_centerVertical="true"
                 android:layout_marginStart="45dp"
                 android:text="餐次消费模式"
-                android:layout_centerVertical="true"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
@@ -223,10 +254,10 @@
                 android:id="@+id/switch_meal_time_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="45dp"
                 android:background="@drawable/select_switch"
-                android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
                 android:button="@null"
                 android:checked="false" />
         </RelativeLayout>
@@ -688,6 +719,35 @@
 
             <CheckBox
                 android:id="@+id/order_default_way"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="订餐优惠抵扣"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/order_discount_switch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="45dp"
