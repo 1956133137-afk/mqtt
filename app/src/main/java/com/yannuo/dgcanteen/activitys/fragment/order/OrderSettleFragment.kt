@@ -132,21 +132,9 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         })
         binding.discountClick.setOnClickListener {
             binding.discountSwitch.isChecked = !binding.discountSwitch.isChecked
-            if (binding.discountSwitch.isChecked) {
-                val discountMoney = binding.discountInput.text.toString()
-                // 判断不大于订单金额
-                if (!isValidMoney(discountMoney)) {
-                    binding.discountSwitch.isChecked = false
-                    ToastShowUtil.show("设定金额格式有误")
-                } else if (discountMoney.toDouble() > orderForUI.payment.toDouble()) {
-                    binding.discountSwitch.isChecked = false
-                    ToastShowUtil.show("优惠金额不能大于订单金额")
-                } else {
-                    binding.discountInput.setText(String.format("%.02f", discountMoney.toDouble()))
-                    binding.discountInput.setSelection(binding.discountInput.text.length)
-                }
-            }
+            judgeDisCountPayment()
         }
+        binding.discountSwitch.setOnClickListener { judgeDisCountPayment() }
 
         //确定支付
         binding.btnConfirm.setOnClickListener {
@@ -187,6 +175,23 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
         binding.btnCancel.setOnClickListener {
             orderMealVM.getUserName().value = ""
             findNavController().navigate(R.id.orderSettle_to_verifyUser)
+        }
+    }
+
+    private fun judgeDisCountPayment() {
+        if (binding.discountSwitch.isChecked) {
+            val discountMoney = binding.discountInput.text.toString()
+            // 判断不大于订单金额
+            if (!isValidMoney(discountMoney)) {
+                binding.discountSwitch.isChecked = false
+                ToastShowUtil.show("设定金额格式有误")
+            } else if (discountMoney.toDouble() > orderForUI.payment.toDouble()) {
+                binding.discountSwitch.isChecked = false
+                ToastShowUtil.show("优惠金额不能大于订单金额")
+            } else {
+                binding.discountInput.setText(String.format("%.02f", discountMoney.toDouble()))
+                binding.discountInput.setSelection(binding.discountInput.text.length)
+            }
         }
     }
 

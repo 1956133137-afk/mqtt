@@ -527,8 +527,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     totalMoney += dish.dishCount * dish.dishPrice.toDouble()
                 }
                 orderDetail.payment = String.format("%.02f", totalMoney)
-                orderDetail.actualPayment = orderDetail.payment
                 orderDetail.discountPayment = String.format("%.02f", discountMoney / dateMenu.mealList.size)
+                orderDetail.actualPayment = String.format("%.02f", orderDetail.payment.toDouble() - orderDetail.discountPayment.toDouble())
                 batchOrderBean.orderDetail.add(orderDetail)
             }
         }

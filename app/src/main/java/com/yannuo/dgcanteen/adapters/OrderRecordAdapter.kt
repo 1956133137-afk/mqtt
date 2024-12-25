@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.adapters
 
 import android.content.Context
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -41,8 +42,9 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         holder.binding.orderType.text = if (bean.orderType == "1") "配送" else "自提"
         holder.binding.timeName.text = if (bean.orderType == "1") "配送时间: " else "用餐时间: "
         holder.binding.useMealTime.text = "${bean.startTime} - ${bean.endTime}"
-        holder.binding.orderPayment.text =
-            "${String.format("%.02f", bean.actualPayment.ifEmpty { "0.00" }.toDouble() - bean.refundPayment.ifEmpty { "0.00" }.toDouble())}元"
+        val money = String.format("%.02f", bean.actualPayment.ifEmpty { "0.00" }.toDouble() - bean.refundPayment.ifEmpty { "0.00" }.toDouble())
+        val fromHtml = Html.fromHtml("<s>${String.format("%.02f", bean.payment.toDouble())}元</s> <font color='#FF0000'>${money}元</font>")
+        holder.binding.orderPayment.text = if (money.toDouble() != bean.payment.toDouble()) fromHtml else "${money}元"
         holder.binding.orderTime.text = bean.orderTime
     }
 
