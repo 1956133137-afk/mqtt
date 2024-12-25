@@ -514,7 +514,7 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
     }
 
     @SuppressLint("SetTextI18n")
-    private fun updateOrderCount() {
+    fun updateOrderCount() {
         val date = TimeUtil.timeFormat("yyyy-MM-dd", System.currentTimeMillis())
         val queryAllMeals = DishesDBHelper.getInstance().queryAllMeals()
         if (queryAllMeals.size >= 1) {

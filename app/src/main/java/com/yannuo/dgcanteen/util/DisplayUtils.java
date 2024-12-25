@@ -59,23 +59,23 @@ public class DisplayUtils {
         final DisplayMetrics activityDisplayMetrics = activity.getResources().getDisplayMetrics();
         activityDisplayMetrics.density = targetDensity;
         activityDisplayMetrics.scaledDensity = targetScaleDensity;
-        activityDisplayMetrics.densityDpi = targetDensityDpi;
+        activityDisplayMetrics.densityDpi = 160;
 
         utils = new Utils();
         if (Objects.equals(utils.getDeviceName(), "rk3288")) {
             if (presentation != null) {
                 final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
                 float value = presentationDisplayMetrics.scaledDensity / appDisplayMetrics.scaledDensity;
-                presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
+                presentationDisplayMetrics.densityDpi = 160; // 160
                 presentationDisplayMetrics.density = targetDensity;  // 1.0
                 presentationDisplayMetrics.scaledDensity = targetScaleDensity * value; // 1.0
             }
         } else {
             if (presentation != null) {
                 final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
-                presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
-                presentationDisplayMetrics.density = targetDensity;  // 1.0
-                presentationDisplayMetrics.scaledDensity = targetScaleDensity; // 1.0
+                presentationDisplayMetrics.densityDpi = 160; // 160
+                presentationDisplayMetrics.density = 1.0f;  // 1.0
+                presentationDisplayMetrics.scaledDensity = 1.0f; // 1.0
             }
         }
     }

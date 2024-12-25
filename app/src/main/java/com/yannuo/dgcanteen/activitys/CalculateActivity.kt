@@ -665,6 +665,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             }
             Constant.EVENT_FIFTH -> handler.post {
                 mealTimeDisplay?.displayMealName()
+                mealTimeDisplay?.updateOrderCount()
+                btnViewChange(binding.btnMealTimeMode, Constant.MEAL_TIME_MODE)
             }
         }
     }

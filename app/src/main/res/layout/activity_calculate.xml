@@ -293,7 +293,7 @@
                         android:layout_height="80dp"
                         android:layout_marginTop="@dimen/bt_marg"
                         android:background="@drawable/click_button"
-                        android:padding="10dp"
+                        android:padding="5dp"
                         android:text="餐次模式"
                         android:layout_marginStart="5dp"
                         android:textColor="#4F4F4F"
