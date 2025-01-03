@@ -193,8 +193,9 @@ class ProductsVM : ViewModel() {
             service!!.startFacePay(Gson().toJson(bean), bean.OFFLINE, object : PayResultListener.Stub() {
                 override fun onResult(result: String) {
                     LogUtil.d(TAG, result)
+                    val responseStr = result.replace("\"[", "[").replace("]\"", "]")
                     val currentTime = System.currentTimeMillis()
-                    val payResult = Gson().fromJson(result, CcbFacePayResultBean::class.java)
+                    val payResult = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
                     val payForUI = PayForUI().apply {
                         businessId = mPayCfg.businessId
                         businessName = mPayCfg.businessName

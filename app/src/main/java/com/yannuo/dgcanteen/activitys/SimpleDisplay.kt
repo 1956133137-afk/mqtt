@@ -128,8 +128,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     fun verifyView() {
         binding.verifyView.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
 
-        binding.tvCode.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
-        binding.tvCode.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
+        binding.tvVerifyFace.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
+        binding.tvVerifyCardCode.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
+//        binding.tvVerifyFace.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
 
         binding.tvFace.visibility = if (kv.decodeBool(Constant.SUPPORT_PAY, true)) View.VISIBLE else View.GONE
         binding.tvFace.text = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
@@ -141,8 +142,9 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
     fun verifyListView() {
-        binding.tvCode.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false)
-        binding.tvFace.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false)
+        binding.tvVerifyFace.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false) && !kv.decodeBool(Constant.AUTO_PAY, false)
+        binding.tvVerifyCardCode.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false) && !kv.decodeBool(Constant.AUTO_PAY, false)
+        binding.tvFace.isEnabled = !kv.decodeBool(Constant.AUTO_VERIFY, false) && !kv.decodeBool(Constant.AUTO_PAY, false)
 
         val verifyUser = DishesDBHelper.getInstance().queryVerifyUser(currentDate)
         if (verifyUser == null) verifyAdapter.clear()
@@ -184,14 +186,15 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
             }
             true
         }*/
-        binding.tvCode.setOnClickListener {
+        binding.tvVerifyFace.setOnClickListener {
             if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
             lastTime = System.currentTimeMillis()
-            if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
-            } else {
-                EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
-            }
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
+        }
+        binding.tvVerifyCardCode.setOnClickListener {
+            if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener
+            lastTime = System.currentTimeMillis()
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
         }
         binding.tvFace.setOnClickListener {
             if ((System.currentTimeMillis() - lastTime) < 1000) return@setOnClickListener

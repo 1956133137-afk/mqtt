@@ -104,9 +104,16 @@ class FaceScanVM {
             REMARK = verifyFlag
             OFFLINE = currentOffline
         }
-        if (mmkv.decodeBool(Constant.CODE_VERIFICATION_SET, false) && mmkv.decodeBool(Constant.AUTO_VERIFY, false)) {
-            mFacePayService?.setTimeOut(0)
-        } else mFacePayService?.setTimeOut(30000)
+        // 常亮模式
+        when {
+            mmkv.decodeString(Constant.APP_MODE) == Constant.PROCEEDS_MODE && mmkv.decodeBool(Constant.AUTO_VERIFY, false) -> {
+                mFacePayService?.setTimeOut(0)  // 常亮核销
+            }
+            mmkv.decodeString(Constant.APP_MODE) == Constant.PROCEEDS_MODE && mmkv.decodeBool(Constant.AUTO_PAY, false) -> {
+                mFacePayService?.setTimeOut(0)  // 常亮收款
+            }
+            else -> mFacePayService?.setTimeOut(30000)
+        }
         mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(ccbFacePayBean), currentOffline, resultListener)
     }
 
@@ -255,7 +262,7 @@ class FaceScanVM {
                     if (payForUI.isSw == 1) {
                         // 回调sw餐次界面
                         swListener?.swOnFacePay(payForUI, "订单${bean.ORDER_ID} 上传成功!")
-                    }else dbHelper.updatePayOrder(order)
+                    } else dbHelper.updatePayOrder(order)
                     LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
                 } else {
                     if (payForUI.isSw == 1) {

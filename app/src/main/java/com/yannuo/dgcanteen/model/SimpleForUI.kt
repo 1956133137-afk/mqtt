@@ -9,7 +9,7 @@ import android.os.Parcelable
  */
 class SimpleForUI() :Parcelable {
     var custName  :String ?= ""  //姓名
-    var payment = 0.0F  //支付金额
+    var payment = ""  //支付金额
     var accNo = ""      //支付账户
     var timestamp = ""  //支付时间
     var tranId = ""     //流水号
@@ -21,7 +21,7 @@ class SimpleForUI() :Parcelable {
 
     constructor(parcel: Parcel) : this() {
         custName = parcel.readString()
-        payment = parcel.readFloat()
+        payment = parcel.readString().toString()
         state = parcel.readInt()
         accNo = parcel.readString().toString()
         timestamp = parcel.readString().toString()
@@ -34,7 +34,7 @@ class SimpleForUI() :Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(custName)
-        parcel.writeFloat(payment)
+        parcel.writeString(payment)
         parcel.writeInt(state)
         parcel.writeString(accNo)
         parcel.writeString(timestamp)

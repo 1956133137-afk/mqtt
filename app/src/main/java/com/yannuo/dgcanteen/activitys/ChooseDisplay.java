@@ -116,7 +116,7 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
             waitForPayDialog.show();
 
             payViewModel.setListener(this);
-            payViewModel.openPayStatus();
+            payViewModel.openPayStatus(Constant.PAY_CODE_IC_TYPE);
         });
 
     }

@@ -96,19 +96,23 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     fun getIsAllowance() = isAllowance
 
-    fun openPayStatus() {
+    fun openPayStatus(payType: Int) {
         payState = PayStatus.PAY
         //打卡读卡器
-        mCardHandle = SerialPortHelper()
-        mCardHandle?.readDataListener = mReadCardListener
-        mCardHandle?.openSerialPort("/dev/ttyS4")
-//        mCardHandle?.openSerialPort("/dev/ttyXRUSB0")
+        if (payType == Constant.PAY_IC_TYPE || payType == Constant.PAY_CODE_IC_TYPE) {
+            mCardHandle = SerialPortHelper()
+            mCardHandle?.readDataListener = mReadCardListener
+            mCardHandle?.openSerialPort("/dev/ttyS4")
+//            mCardHandle?.openSerialPort("/dev/ttyXRUSB0")
+        }
         //打开扫码头
-        mScanDevice = ScanDevice()
-        mScanDevice?.setCallbackListener(mScanCodeListener)
-        mScanDevice?.openScan()
-        ntHelp = NTScanHelp()
-        ntHelp?.OpenScanCode(mScanCodeListener, MyApplication.applicationContext)
+        if (payType == Constant.PAY_CODE_TYPE || payType == Constant.PAY_CODE_IC_TYPE) {
+            mScanDevice = ScanDevice()
+            mScanDevice?.setCallbackListener(mScanCodeListener)
+            mScanDevice?.openScan()
+            ntHelp = NTScanHelp()
+            ntHelp?.OpenScanCode(mScanCodeListener, MyApplication.applicationContext)
+        }
     }
 
     fun closePayStatus() {
@@ -983,6 +987,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             if (response.code == "200") {
                 val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
                 val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                LogUtil.d(TAG, "支付结果:${Gson().toJson(result)}")
                 payForUI.result = result.RESULT
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO

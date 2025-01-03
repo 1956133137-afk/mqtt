@@ -111,6 +111,7 @@ class ModeSettingFragment : Fragment() {
                 "扫码支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
                 "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
             }
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
 
         printerListView = ListView(requireContext())
@@ -143,6 +144,20 @@ class ModeSettingFragment : Fragment() {
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
         binding.autoVerify.setOnClickListener {
+            var flag = -1
+            when {
+                binding.autoVerify.isChecked && !binding.codeVerification.isChecked -> flag = 0
+                binding.autoVerify.isChecked && binding.autoPay.isChecked -> flag = 1
+            }
+            val strMsg = when (flag) {
+                -1 -> ""
+                0 -> "请先开启核销模式"
+                else -> "请先关闭自动定额收款"
+            }
+            if (flag != -1) {
+                ToastShowUtil.show(strMsg)
+                binding.autoVerify.isChecked = false
+            }
             kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
             kv.encode(Constant.VERIFY_CHANGE, false)
         }
@@ -150,6 +165,22 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.SUPPORT_PAY, binding.supportPay.isChecked)
         }
         binding.autoPay.setOnClickListener {
+            var flag = -1
+            when {
+                binding.autoPay.isChecked && binding.autoVerify.isChecked -> flag = 0
+                binding.autoPay.isChecked && !binding.switchFixed.isChecked -> flag = 1
+                binding.autoPay.isChecked && kv.decodeString(Constant.QUOTA_AMOUNT, "0.00")!!.toDouble() <= 0.0 -> flag = 2
+            }
+            val strMsg = when (flag) {
+                -1 -> ""
+                0 -> "请先关闭自动核销"
+                1 -> "请先开启定额收款模式"
+                else -> "定额收款金额不能为0元"
+            }
+            if (flag != -1) {
+                ToastShowUtil.show(strMsg)
+                binding.autoPay.isChecked = false
+            }
             kv.encode(Constant.AUTO_PAY, binding.autoPay.isChecked)
         }
         binding.switchUseMealLimitPay.setOnClickListener {
@@ -170,8 +201,14 @@ class ModeSettingFragment : Fragment() {
 //            else kv.encode(Constant.MEAL_TIME_MODE, 0)
 //        }
         binding.switchFixed.setOnClickListener { //定额模式
+            if (binding.switchFixed.isChecked && !amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)) {
+                binding.switchFixed.isChecked = false
+            }
+            if (!binding.switchFixed.isChecked && binding.autoPay.isChecked) {
+                binding.autoPay.isChecked = false
+                kv.encode(Constant.AUTO_PAY, false)
+            }
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
-            amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
         binding.queryVerify.setOnClickListener {
@@ -401,21 +438,16 @@ class ModeSettingFragment : Fragment() {
     }
 
     private fun amountJudgment(view: EditText, name: String): Boolean {
-        if (view.text.isEmpty()) {
-            ToastShowUtil.show("输入金额不可为空")
-            return false
-        }
-        val amount = String.format(Locale.CHINA, "%.02f", view.text.toString().toFloat())
-        if (isFormJudgment(amount)) {
-            kv.encode(name, amount)
-            mScope.launch {
-                withContext(Dispatchers.Main) {
-                    view.setText(kv.decodeString(name))
-                }
-            }
+        val amountStr = view.text.toString()
+        if (isFormJudgment(amountStr)) {
+            kv.encode(name, String.format("%.02f", amountStr.toDouble()))
+            mScope.launch { withContext(Dispatchers.Main) { view.setText(kv.decodeString(name)) } }
             return true
         } else {
-            if (view.id == binding.fixedSum.id) binding.switchFixed.isChecked = false
+            if (view.id == binding.fixedSum.id) {
+                binding.switchFixed.isChecked = false
+                binding.autoPay.isChecked = false
+            }
             ToastShowUtil.show("输入金额有误")
             return false
         }

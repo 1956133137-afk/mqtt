@@ -13,20 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
 import com.yannuo.dgcanteen.model.*
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.KeyboardUtil
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.TimeUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -42,11 +37,15 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     private val handler = Handler()
     private val confirmDialog by lazy { ConfirmDialog(requireContext()) }
     private var payData: PayForUI = PayForUI()
+    private var clickStartTime = 0L
+    private var clickTimes = 0
+    private var payMoney = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentScanBinding.inflate(inflater, container, false)
         initEvent()
         initData()
+        LogUtil.d(TAG, "开始 onCreateView")
         return binding.root
     }
 
@@ -56,13 +55,26 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
             payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
             requireActivity().finish()
         }
+        binding.backAutoPay.setOnClickListener {
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+//                binding.btnClose.visibility = View.VISIBLE
+                kv.encode(Constant.AUTO_PAY, false)
+                payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
+                requireActivity().finish()
+            }
+        }
+        binding.btnFacePay.setOnClickListener { facePay() }
     }
 
     @SuppressLint("SetTextI18n")
     private fun initData() {
         val data = arguments?.getParcelable<OrderPayInfo>(Constant.PAY_DATE)
-        onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
-        binding.payTotalMoney.text = "￥${String.format(Locale.CHINA, "%.02f", data?.payment)}"
+        if (!kv.decodeBool(Constant.AUTO_PAY, false)) onCountDownTimer(binding.btnBack, kv.decodeInt(Constant.AWAIT_PAY_TIME, 30).toLong())
+        payMoney = String.format(Locale.CHINA, "%.02f", data?.payment)
+        binding.payTotalMoney.text = "￥$payMoney"
         when (data?.type) {
             Constant.PAY_IC_TYPE -> {
                 CommonAndDpToPxUtil.speakWork("请刷卡支付")
@@ -77,7 +89,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                 binding.payTitle.text = "请出示二维码或刷卡支付"
             }
         }
-        payViewModel.openPayStatus()
+        payViewModel.openPayStatus(data?.type ?: Constant.PAY_CODE_IC_TYPE)
         payViewModel.listener = this
         payViewModel.mDishes = ProductsDetail(mutableListOf(), data?.payment.toString())
         binding.animationView.playAnimation()
@@ -85,8 +97,45 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
 
         confirmDialog.setListener(object : ConfirmDialog.OnConfirmCallback {
             override fun confirmCallback(flag: Boolean) {
-                if (flag) payViewModel.confirmPay(payData)
+                if (flag) payViewModel.confirmPay(payData) else payViewModel.setPayState(PayViewModel.PayStatus.PAY)
                 if (confirmDialog.isShowing) confirmDialog.dismiss()
+            }
+        })
+    }
+
+    private fun facePay() {
+        LogUtil.d(TAG, "刷脸支付~")
+        countDown?.cancel()
+        FaceScanVM.instance.bindService()
+        FaceScanVM.instance.startFacePay(false, payMoney)
+        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+            override fun onFacePay(payForUI: PayForUI) {
+                LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~：$payForUI")
+                handler.postDelayed({
+                    val bean = SimpleForUI().apply {
+                        custName = payForUI.username
+                        payment = payForUI.actualPayment.ifEmpty { payForUI.payment }
+                        accNo = payForUI.accNo
+                        timestamp = payForUI.payTime
+                        tranId = payForUI.traceId
+                        orderId = payForUI.orderId
+                        errorMsg = payForUI.errMsg
+                        acc_bal = payForUI.accBal
+                    }
+                    if (payForUI.result == "Y") {
+                        CommonAndDpToPxUtil.speakWork("支付成功")
+                        val action = ScanFragmentDirections.actionScanToSuccess(bean)
+                        findNavController().navigate(action)
+                    } else {
+                        val action = ScanFragmentDirections.actionScanToFail(bean)
+                        findNavController().navigate(action)
+                        CommonAndDpToPxUtil.speakWork("支付失败")
+                    }
+                }, 300)
+            }
+
+            override fun onFaceQuery(bean: CcbFacePayResultBean) {
+
             }
         })
     }
@@ -113,7 +162,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                         LogUtil.d(TAG, Gson().toJson(payForUI))
                         val bean = SimpleForUI().apply {
                             custName = payForUI.username
-                            payment = payForUI.actualPayment.ifEmpty { payForUI.payment }.toFloat()
+                            payment = payForUI.actualPayment.ifEmpty { payForUI.payment }
                             accNo = payForUI.accNo
                             timestamp = payForUI.payTime
                             tranId = payForUI.traceId
@@ -192,21 +241,27 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
             override fun onFinish() {
 //                countDown?.cancel()
                 CommonAndDpToPxUtil.speakWork("支付超时")
+                payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
                 requireActivity().finish()
             }
         }
         countDown?.start()
     }
 
-    override fun onDestroy() {
+    override fun onPause() {
+        super.onPause()
+        LogUtil.d(TAG, "停止 onPause")
         release()
-        super.onDestroy()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        FaceScanVM.instance.setFaceListener(null)
     }
 
     private fun release() {
         binding.animationView.pauseAnimation();
         binding.animationView.cancelAnimation()
-        LogUtil.d(TAG, "release")
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
         payViewModel.closePayStatus()
         countDown?.cancel()

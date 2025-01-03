@@ -6,13 +6,18 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+    <TextView
+        android:id="@+id/back_auto_pay"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
     <Button
         android:id="@+id/btn_back"
         android:layout_width="220dp"
         android:layout_height="80dp"
         android:layout_alignParentRight="true"
         android:layout_marginTop="60dp"
-        android:layout_marginEnd="100dp"
+        android:layout_marginEnd="60dp"
         android:background="@drawable/click_button_blue"
         android:gravity="center"
         android:text="@string/btn_back"
@@ -37,16 +42,15 @@
             android:id="@+id/animation_view"
             android:layout_width="600dp"
             android:layout_height="600dp"
-            app:lottie_fileName="pay.json"
-            app:lottie_loop="true"
             android:layout_margin="20dp"
-            />
+            app:lottie_fileName="pay.json"
+            app:lottie_loop="true" />
 
         <TextView
             android:id="@+id/pay_total_money"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-30dp"
+            android:layout_marginTop="-100dp"
             android:gravity="center"
             android:text="￥5.00"
             android:textColor="#BD3434"
@@ -57,13 +61,23 @@
             android:id="@+id/pay_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="请出示付款码或者刷卡"
             android:textColor="#4F4F4F"
             android:textSize="60sp"
             android:textStyle="bold" />
-    </LinearLayout>
 
+        <Button
+            android:id="@+id/btn_face_pay"
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/click_button_blue"
+            android:gravity="center"
+            android:text="刷脸支付"
+            android:textColor="#FFFFFF"
+            android:textSize="54sp" />
+    </LinearLayout>
 
 </RelativeLayout>

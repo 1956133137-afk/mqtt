@@ -29,6 +29,7 @@ import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.HintDialog
@@ -106,7 +107,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     }
 
     private fun openIcQr() {
-        payViewModel.openPayStatus()
+        payViewModel.openPayStatus(Constant.PAY_CODE_IC_TYPE)
         if (state_opened) return
         state_opened = true
         payViewModel.listener = this

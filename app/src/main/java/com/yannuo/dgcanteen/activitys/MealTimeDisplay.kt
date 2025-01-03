@@ -198,7 +198,7 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
         LogUtil.i(TAG, "MealTimeDisplay onStart...")
         payViewModel.mReadCardListener = this
         payViewModel.mScanCodeListener = this
-        payViewModel.openPayStatus()
+        payViewModel.openPayStatus(Constant.PAY_CODE_IC_TYPE)
         payViewModel.listener = this
         payViewModel.allowanceStateListener = this
 
