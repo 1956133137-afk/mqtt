@@ -14,35 +14,36 @@
         android:background="@color/white"
         android:gravity="center"
         android:orientation="horizontal">
+
         <ImageView
             android:id="@+id/ccb_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="20dp"
             android:layout_centerVertical="true"
-            android:src="@mipmap/ccb_logo"/>
+            android:layout_marginLeft="20dp"
+            android:src="@mipmap/ccb_logo" />
 
         <TextView
             android:id="@+id/meal_time"
             android:layout_width="wrap_content"
-            android:minWidth="350dp"
             android:layout_height="80dp"
-            android:layout_toEndOf="@id/ccb_logo"
-            android:gravity="center"
-            android:text="@string/unOpen_meal"
             android:layout_centerVertical="true"
-            android:textSize="35sp"
             android:layout_marginStart="130dp"
-            android:background="@drawable/shape_tv_bg"/>
+            android:layout_toEndOf="@id/ccb_logo"
+            android:background="@drawable/shape_tv_bg"
+            android:gravity="center"
+            android:minWidth="350dp"
+            android:text="@string/unOpen_meal"
+            android:textSize="35sp" />
 
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:background="@color/white"
             android:gravity="center"
-            android:layout_centerInParent="true"
             android:paddingLeft="20dp"
             android:text="@string/dg_canteen"
             android:textColor="#4095E5"
@@ -53,8 +54,8 @@
             android:id="@+id/select_stopper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/server"
             android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/server"
             android:padding="5dp"
             android:textColor="#4F4F4F"
             android:textSize="24sp" />
@@ -63,10 +64,10 @@
             android:id="@+id/server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginStart="30dp"
             android:layout_toStartOf="@+id/network"
             android:background="@color/transparency"
-            android:layout_centerVertical="true"
             android:src="@drawable/ic_server" />
 
         <ImageButton
@@ -74,9 +75,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="50dp"
-            android:layout_centerVertical="true"
             android:background="@color/transparency"
             android:src="@drawable/ic_wifi" />
 
@@ -96,12 +97,13 @@
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <RelativeLayout
                 android:id="@+id/verify_show"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginTop="0dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:gravity="center_horizontal"
                 android:padding="10dp">
 
@@ -126,7 +128,76 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="总订餐数:"
+                            android:text="总订餐人数:"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                        <TextView
+                            android:id="@+id/tv_verify_total_person_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="已核销人数:"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                        <TextView
+                            android:id="@+id/tv_verify_already_person_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="未核销人数:"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                        <TextView
+                            android:id="@+id/tv_verify_not_person_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:textColor="#4F4F4F"
+                            android:textSize="32sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="总订餐菜品数:"
                             android:textColor="#4F4F4F"
                             android:textSize="32sp" />
 
@@ -148,7 +219,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="总核销数:"
+                            android:text="总核销菜品数:"
                             android:textColor="#4F4F4F"
                             android:textSize="32sp" />
 
@@ -161,6 +232,7 @@
                             android:textColor="#4F4F4F"
                             android:textSize="32sp" />
                     </LinearLayout>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -169,7 +241,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="未核销数:"
+                            android:text="未核销菜品数:"
                             android:textColor="#4F4F4F"
                             android:textSize="32sp" />
 
@@ -182,6 +254,7 @@
                             android:textColor="#4F4F4F"
                             android:textSize="32sp" />
                     </LinearLayout>
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_dish_order"
                         android:layout_width="match_parent"
@@ -192,9 +265,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginTop="20dp"
                         android:background="@drawable/click_button"
                         android:padding="10dp"
-                        android:layout_marginTop="20dp"
                         android:text="刷脸核销"
                         android:textColor="#4F4F4F"
                         android:textSize="45sp" />
@@ -208,7 +281,7 @@
                 android:name="com.yannuo.dgcanteen.activitys.fragment.KeyBoardFragment"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="3">
+                android:layout_weight="5">
 
             </fragment>
 
@@ -216,7 +289,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginTop="0dp"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:gravity="center_horizontal"
                 android:padding="10dp">
 
@@ -345,29 +418,29 @@
                     android:textSize="45sp"
                     android:textStyle="bold" />
 
-<!--                <Button-->
-<!--                    android:id="@+id/btn_balance"-->
-<!--                    android:layout_width="300dp"-->
-<!--                    android:layout_height="80dp"-->
-<!--                    android:layout_below="@+id/btn_third"-->
-<!--                    android:layout_centerHorizontal="true"-->
-<!--                    android:layout_marginTop="@dimen/bt_marg"-->
-<!--                    android:background="@drawable/click_button"-->
-<!--                    android:padding="10dp"-->
-<!--                    android:text="余额查询"-->
-<!--                    android:textColor="@color/purple_200"-->
-<!--                    android:textSize="45sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:visibility="visible" />-->
+                <!--                <Button-->
+                <!--                    android:id="@+id/btn_balance"-->
+                <!--                    android:layout_width="300dp"-->
+                <!--                    android:layout_height="80dp"-->
+                <!--                    android:layout_below="@+id/btn_third"-->
+                <!--                    android:layout_centerHorizontal="true"-->
+                <!--                    android:layout_marginTop="@dimen/bt_marg"-->
+                <!--                    android:background="@drawable/click_button"-->
+                <!--                    android:padding="10dp"-->
+                <!--                    android:text="余额查询"-->
+                <!--                    android:textColor="@color/purple_200"-->
+                <!--                    android:textSize="45sp"-->
+                <!--                    android:textStyle="bold"-->
+                <!--                    android:visibility="visible" />-->
 
                 <LinearLayout
                     android:id="@+id/meal_time_bill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@+id/layout_setting"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="50dp"
+                    android:orientation="vertical"
                     android:padding="20dp"
                     android:visibility="gone">
 
@@ -376,10 +449,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="15dp"
-                        android:minWidth="200dp"
-                        android:text="早餐：0 单"
                         android:clickable="true"
                         android:focusable="true"
+                        android:minWidth="200dp"
+                        android:text="早餐：0 单"
                         android:textSize="30sp"
                         android:visibility="gone" />
 
@@ -400,10 +473,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="15dp"
-                        android:minWidth="200dp"
-                        android:text="晚餐：0 单"
                         android:clickable="true"
                         android:focusable="true"
+                        android:minWidth="200dp"
+                        android:text="晚餐：0 单"
                         android:textSize="30sp"
                         android:visibility="gone" />
 
@@ -411,10 +484,10 @@
                         android:id="@+id/tv_meal04_bill"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:minWidth="200dp"
-                        android:text="夜宵：0 单"
                         android:clickable="true"
                         android:focusable="true"
+                        android:minWidth="200dp"
+                        android:text="夜宵：0 单"
                         android:textSize="30sp"
                         android:visibility="gone" />
                 </LinearLayout>

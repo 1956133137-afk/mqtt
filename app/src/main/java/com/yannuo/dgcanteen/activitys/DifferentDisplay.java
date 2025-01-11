@@ -123,6 +123,8 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
         List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
         for (DishesTable u : list) {
             String imgUrl = (u.getImgUrl() == null || u.getImgUrl().isEmpty()) ? "" : u.getImgUrl();
+            Integer status = u.getStatus();
+            if (status == null) status = 1;
             dataList.add(new DishesInfo(
                     u.getDishesId(),
                     u.getDishesName(),
@@ -131,7 +133,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
                     u.getPrice(),
                     u.getUnit(),
                     imgUrl,
-                    u.getStatus(),
+                    status,
                     0
             ));
         }

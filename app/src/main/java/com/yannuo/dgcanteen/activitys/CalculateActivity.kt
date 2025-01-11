@@ -160,6 +160,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 unVerifyTotalOrderNum += it.dishesNum
                 it.flag = 2
             }
+
+            binding.tvVerifyTotalPersonCount.text = value.dcTotalPersonNum.ifEmpty { "0" }
+            binding.tvVerifyAlreadyPersonCount.text = value.dcVerifyPersonNum.ifEmpty { "0" }
+            binding.tvVerifyNotPersonCount.text = value.dcUnverifyPersonNum.ifEmpty { "0" }
             binding.tvTotalOrder.text = totalOrderNum.toString()
             binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
             binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()

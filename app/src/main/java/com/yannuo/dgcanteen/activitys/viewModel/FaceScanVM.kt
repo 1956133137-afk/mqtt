@@ -125,6 +125,10 @@ class FaceScanVM {
         mContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
+    fun stopScanFace() {
+        mFacePayService?.stopFacePay()
+    }
+
     private inner class MyServiceConnection : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             LogUtil.d(TAG, "Service Connected Success!")

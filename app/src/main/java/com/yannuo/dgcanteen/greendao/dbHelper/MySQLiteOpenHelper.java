@@ -14,6 +14,7 @@ import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
+import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 
@@ -49,7 +50,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 PayDishTableDao.class,
                 OfflineOrderTableDao.class,
                 OfflineDishTableDao.class,
-                SwPayOrderTableDao.class
+                SwPayOrderTableDao.class,
+                QuotaTimeTableDao.class
         );
     }
 }

@@ -22,6 +22,9 @@ import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -50,6 +53,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     }
 
     private fun initEvent() {
+        EventBus.getDefault().register(this)
         binding.btnBack.setOnClickListener {
             CommonAndDpToPxUtil.speakWork("取消支付")
             payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
@@ -138,6 +142,18 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
 
             }
         })
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun eventCalculate(event: MessageEvent) {
+        handler.post {
+            when (event.code) {
+                Constant.EVENT_QUOTA_CHANGE -> {
+                    payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
+                    requireActivity().finish()
+                }
+            }
+        }
     }
 
     //刷卡扫码返回数据
@@ -260,6 +276,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     }
 
     private fun release() {
+        EventBus.getDefault().unregister(this)
         binding.animationView.pauseAnimation();
         binding.animationView.cancelAnimation()
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()

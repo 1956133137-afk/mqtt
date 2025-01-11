@@ -1002,6 +1002,11 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     }
                     payForUI.accList.add(acclist)
                 }
+                // 查询人员姓名
+                if (result.CUST_ID.isNotEmpty() && payForUI.username.isEmpty()) {
+                    val persons = dbHelper.queryPersonToCustId(result.CUST_ID)
+                    if (persons != null) payForUI.username = persons.personName
+                }
                 payForUI.actualPayment = result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID

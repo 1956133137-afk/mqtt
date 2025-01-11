@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.QuotaTimeActivity
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
@@ -81,6 +82,15 @@ class ModeSettingFragment : Fragment() {
         initData()
         verifyType()
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 分时段金额
+//        val currentQuotaAmount = kv.decodeString(Constant.QUOTA_TIME_DEFAULT_AMOUNT, "0.00")
+//        kv.encode(Constant.QUOTA_AMOUNT, currentQuotaAmount)
+//        binding.fixedSum.setText(currentQuotaAmount)
+        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
     }
 
     private fun initObject() {
@@ -174,7 +184,7 @@ class ModeSettingFragment : Fragment() {
             val strMsg = when (flag) {
                 -1 -> ""
                 0 -> "请先关闭自动核销"
-                1 -> "请先开启定额收款模式"
+                1 -> "请先开启定额模式"
                 else -> "定额收款金额不能为0元"
             }
             if (flag != -1) {
@@ -200,6 +210,7 @@ class ModeSettingFragment : Fragment() {
 //            if (check) kv.encode(Constant.MEAL_TIME_MODE, 1)
 //            else kv.encode(Constant.MEAL_TIME_MODE, 0)
 //        }
+        binding.tvQuotaTime.setOnClickListener { startActivity(Intent(requireContext(), QuotaTimeActivity::class.java)) }
         binding.switchFixed.setOnClickListener { //定额模式
             if (binding.switchFixed.isChecked && !amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)) {
                 binding.switchFixed.isChecked = false
@@ -244,22 +255,22 @@ class ModeSettingFragment : Fragment() {
             }
             CoroutineScope(Dispatchers.IO).launch {
                 EmailSender.sendEmail(
-                    "zhangzhanmian@yannuozhineng.com",
-                    "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
-                    "序列号：${serial}", object : EmailSender.CallbackListener {
-                        override fun onStare(code: Int, msg: String?) {
-                            requireActivity().runOnUiThread(Runnable {
-                                when (code) {
-                                    0 -> {
-                                        awaitingDialog.cancel()
-                                        ToastShowUtil.show("上送成功")
-                                    }
-                                    10 -> awaitingDialog.show()
-                                    else -> awaitingDialog.cancel()
+                        "zhangzhanmian@yannuozhineng.com",
+                        "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
+                        "序列号：${serial}", object : EmailSender.CallbackListener {
+                    override fun onStare(code: Int, msg: String?) {
+                        requireActivity().runOnUiThread(Runnable {
+                            when (code) {
+                                0 -> {
+                                    awaitingDialog.cancel()
+                                    ToastShowUtil.show("上送成功")
                                 }
-                            })
-                        }
-                    })
+                                10 -> awaitingDialog.show()
+                                else -> awaitingDialog.cancel()
+                            }
+                        })
+                    }
+                })
             }
         }
         binding.orderPrinterFormat.setOnClickListener { //切换支付
@@ -319,11 +330,11 @@ class ModeSettingFragment : Fragment() {
 
     private fun changeConsumeMode() {
         val array = arrayOf(
-            Constant.ORDERING_FOOD_MODE,
-            Constant.ORDERING_TWO_MODE,
-            Constant.PROCEEDS_MODE,
-            Constant.PROCEEDS_TWO_MODE,
-            Constant.ORDERING_MEAL_MODE
+                Constant.ORDERING_FOOD_MODE,
+                Constant.ORDERING_TWO_MODE,
+                Constant.PROCEEDS_MODE,
+                Constant.PROCEEDS_TWO_MODE,
+                Constant.ORDERING_MEAL_MODE
         )
         val position = byteArrayOf(0)
         val oldPosition = when (kv.decodeString(Constant.APP_MODE)) {
@@ -335,28 +346,28 @@ class ModeSettingFragment : Fragment() {
         }
         val builder = AlertDialog.Builder(requireContext())
         builder.setCancelable(false)
-            .setIcon(R.mipmap.ic_app)
-            .setTitle("消费模式切换")
-            .setSingleChoiceItems(array, oldPosition) { dialog, which ->
-                position[0] = which.toByte()
-                LogUtil.i(TAG, "which $which")
-            }
-            .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
-            .setPositiveButton("确定") { dialog, which ->
-                ToastShowUtil.show(array[position[0].toInt()])
-                kv.encode(Constant.APP_MODE, array[position[0].toInt()])
+                .setIcon(R.mipmap.ic_app)
+                .setTitle("消费模式切换")
+                .setSingleChoiceItems(array, oldPosition) { dialog, which ->
+                    position[0] = which.toByte()
+                    LogUtil.i(TAG, "which $which")
+                }
+                .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
+                .setPositiveButton("确定") { dialog, which ->
+                    ToastShowUtil.show(array[position[0].toInt()])
+                    kv.encode(Constant.APP_MODE, array[position[0].toInt()])
 
-                val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-                restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(restartIntent)
-                exitProcess(0)
-            }
+                    val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                    restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(restartIntent)
+                    exitProcess(0)
+                }
         builder.create()
-            .apply {
-                show()
-                getButton(DialogInterface.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-                getButton(DialogInterface.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-            }
+                .apply {
+                    show()
+                    getButton(DialogInterface.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                    getButton(DialogInterface.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                }
 
     }
 
@@ -408,7 +419,7 @@ class ModeSettingFragment : Fragment() {
         binding.autoPay.isChecked = kv.decodeBool(Constant.AUTO_PAY, false)
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
-        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+//        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.mealTimeDialogTime.setText(kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L).toString())  //主屏
         binding.mealTimePayResultTime.setText(kv.decodeLong(Constant.MEAL_TIME_PAY_RESULT_TIME, 10L).toString())  //副屏
         binding.mealTimeQueryBalTime.setText(kv.decodeLong(Constant.MEAL_TIME_QUERY_BALANCE_TIME, 10L).toString()) //副屏
@@ -440,7 +451,9 @@ class ModeSettingFragment : Fragment() {
     private fun amountJudgment(view: EditText, name: String): Boolean {
         val amountStr = view.text.toString()
         if (isFormJudgment(amountStr)) {
-            kv.encode(name, String.format("%.02f", amountStr.toDouble()))
+            val payMoney = String.format("%.02f", amountStr.toDouble())
+            kv.encode(name, payMoney)
+            if (name == Constant.QUOTA_AMOUNT) kv.encode(Constant.QUOTA_TIME_DEFAULT_AMOUNT, payMoney)
             mScope.launch { withContext(Dispatchers.Main) { view.setText(kv.decodeString(name)) } }
             return true
         } else {
@@ -525,7 +538,7 @@ class ModeSettingFragment : Fragment() {
                 awaitingDialog.dismiss()
                 if (failTime != 0) ToastShowUtil.show("同步失败，请重试！")
                 binding.tvPeopleCount.text =
-                    "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
+                        "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
             }
         }
     }

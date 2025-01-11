@@ -82,6 +82,7 @@ object Constant {
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
     const val BALANCE_SWITCH = "balance_Switch" //余额查询
     const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额
+    const val QUOTA_TIME_DEFAULT_AMOUNT = "quotaTimeDefaultAmount"  //分时段默认定额收款金额
 
     const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款
     const val TITLE_CONTENT = "titleContent"//副屏标题设置
