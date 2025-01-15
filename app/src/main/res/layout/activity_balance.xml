@@ -17,15 +17,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-
-        <ImageButton
+        <TextView
             android:id="@+id/ibt_back"
-            android:layout_width="115dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:src="@drawable/ic_back" />
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical" />
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/ibt_back"-->
+<!--            android:layout_width="115dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_gravity="center_vertical"-->
+<!--            android:layout_marginStart="20dp"-->
+<!--            android:background="@drawable/shape_btn_bg_white"-->
+<!--            android:src="@drawable/ic_back" />-->
 
         <TextView
             android:layout_width="0dp"
