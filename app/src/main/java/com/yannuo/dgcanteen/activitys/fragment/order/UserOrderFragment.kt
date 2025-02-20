@@ -19,6 +19,7 @@ import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.model.OrderMeal
 import com.yannuo.dgcanteen.model.SelectDateBean
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
 
 class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
@@ -119,6 +120,10 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                     updateTotalDish()
                 }
             }
+
+            override fun onOrderDishDescription(description: String) {
+                handler.post { binding.mvControl.text = description }
+            }
         })
         //已选回调
         dateMenuAdapter.setDateListener(object : DateMenuAdapter.SelectDateListener {
@@ -149,10 +154,20 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        /*获取用户餐别已订份数*/
+        downloadVM.queryMealOrderSize(orderForUI.ccbToken, currentDateBean.date, currentMealBean?.mealId ?: "-1", orderForUI.custId)
+    }
+
     private fun showDish(dateBean: SelectDateBean, mealBean: OrderMeal?) {
         orderDishAdapter.clear()
         if (mealBean == null) return
-        downloadVM.synOrderDish(orderForUI.ccbToken, dateBean.date, mealBean.mealId) { boolean, dishList ->
+        /*获取餐别限购配置*/
+        kv.encode(Constant.ORDER_MEAL_LIMIT_SWITCH, mealBean.orderQuota == "1")
+        kv.encode(Constant.ORDER_MEAL_LIMIT_SIZE, mealBean.orderQuotaNum.toInt())
+        /*获取当前菜品数据*/
+        downloadVM.synOrderDish(orderForUI.ccbToken, dateBean.date, mealBean.mealId, orderForUI.custId) { boolean, dishList ->
             handler.post {
                 if (!boolean) orderMealVM.getAwaitStatus().value = "同步菜品中"
                 else {
@@ -192,5 +207,10 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         dateMenuAdapter.clear()
         downloadVM.getMenuList().clear()
         updateTotalDish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mvControl.stopAnima()
     }
 }

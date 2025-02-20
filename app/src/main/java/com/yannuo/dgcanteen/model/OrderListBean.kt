@@ -64,6 +64,7 @@ class DcOrderDishes {
     var dishesPrice: String = ""    //菜品价格
     var unit: String = ""           //菜品单位
     var imgUrl: String = ""         //菜品url
+    var windowIdList: String = ""   //窗口列表
     var isVerification: String = "" //核销状态 1-未核销 2-已核销
     var dishesRefundNum: String = "0"   //退款数量
 }

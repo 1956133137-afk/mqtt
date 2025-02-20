@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.interfaces
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.yannuo.dgcanteen.download.AppInfoB
 import com.yannuo.dgcanteen.download.AppUpdateResultB
@@ -128,6 +129,20 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("dcCcb/decrypt")
     suspend fun getToken(@Body bean: TokenBean): CanteenResponse<TokenReceive>
+
+    /**
+     * 获取窗口列表
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/windowList")
+    suspend fun getWindowList(@Header("dcccbauthorization") token: String, @Body bean: OrderMealBean): CanteenResponse<JsonArray>
+
+    /**
+     * 获取餐别已订份数
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/order/dateHasOrderMeal")
+    suspend fun getMealOrderSize(@Header("dcccbauthorization") token: String, @Body bean: MealSizeBean): CanteenResponse<JsonObject>
 
     /**
      * 查询餐别信息

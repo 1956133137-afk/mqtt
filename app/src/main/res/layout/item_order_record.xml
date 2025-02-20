@@ -7,39 +7,98 @@
     android:orientation="vertical"
     android:padding="20dp">
 
-    <TextView
-        android:id="@+id/business_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:minHeight="60dp"
-        android:singleLine="true"
-        android:textColor="#4F4F4F"
-        android:textSize="40sp"
-        android:textStyle="bold" />
-
     <LinearLayout
+        android:id="@+id/ll_windows"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="60dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/business_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="60dp"
+            android:singleLine="true"
+            android:textColor="#4F4F4F"
+            android:textSize="40sp"
+            android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="餐别日期: "
-                android:textColor="#4F4F4F"
-                android:textSize="36sp" />
+                android:layout_weight="3"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="餐别日期: "
+                    android:textColor="#4F4F4F"
+                    android:textSize="36sp" />
+
+                <TextView
+                    android:id="@+id/meal_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="36sp" />
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/meal_date"
+                android:id="@+id/week_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="餐别名称: "
+                    android:textColor="#4F4F4F"
+                    android:textSize="36sp" />
+
+                <TextView
+                    android:id="@+id/meal_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:textColor="#4F4F4F"
+                    android:textSize="36sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/order_type"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -49,131 +108,80 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/week_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="60dp"
-        android:orientation="horizontal">
-
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/time_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="餐别名称: "
                 android:textColor="#4F4F4F"
                 android:textSize="36sp" />
 
             <TextView
-                android:id="@+id/meal_name"
+                android:id="@+id/use_meal_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:singleLine="true"
                 android:textColor="#4F4F4F"
                 android:textSize="36sp" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/order_type"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="订餐金额: "
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="60dp"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/order_payment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
 
-        <TextView
-            android:id="@+id/time_name"
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
+            android:gravity="center_vertical"
+            android:minHeight="60dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/use_meal_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="下单时间: "
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/order_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="60dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="订餐金额: "
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
-
-        <TextView
-            android:id="@+id/order_payment"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:minHeight="60dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="下单时间: "
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
-
-        <TextView
-            android:id="@+id/order_time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="#4F4F4F"
-            android:textSize="36sp" />
     </LinearLayout>
 
     <RelativeLayout

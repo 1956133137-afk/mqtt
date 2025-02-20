@@ -13,6 +13,7 @@ import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.Order
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
+import com.yannuo.dgcanteen.util.LogUtil
 import java.util.*
 
 /**
@@ -53,6 +54,15 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
     }
 
     override fun addEventListener(holder: Holder) {
+        holder.binding.llWindows.setOnClickListener {
+            val position = holder.adapterPosition
+            if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
+            val windowIdList: MutableList<String> = mutableListOf()
+            getData(position).dcOrderDishesList.forEach { dishes ->
+                dishes.windowIdList.split(",").forEach { if (it.isNotEmpty()) windowIdList.add(it) }
+            }
+            listener?.onItemWindow(windowIdList.distinct().toMutableList())
+        }
         holder.binding.btnRefund.setOnClickListener {
             val position = holder.adapterPosition
             if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
@@ -127,5 +137,7 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
+
+        fun onItemWindow(windowList: MutableList<String>)
     }
 }

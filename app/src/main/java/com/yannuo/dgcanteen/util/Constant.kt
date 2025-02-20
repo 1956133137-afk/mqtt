@@ -100,6 +100,9 @@ object Constant {
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
     const val ORDER_DISCOUNT_SWITCH = "orderDiscountSwitch" //订餐优惠开关
+    const val ORDER_MEAL_LIMIT_SWITCH = "orderMealLimitSwitch"  //订餐餐别限制开关
+    const val ORDER_MEAL_LIMIT_SIZE = "orderMealLimitSize"  //订餐餐别限制份数
+    const val ORDER_MEAL_SIZE = "orderMealSize" //已订餐别份数
 
     const val USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH = "收款模式受开餐状态限制" // 开餐后才能收款  0：关闭   1：打开
     const val IS_USE_MEAL = "是否开餐" // 0: 未开餐  1：开餐

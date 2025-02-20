@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
@@ -26,11 +27,13 @@ import java.util.*
 class DownloadVM : ViewModel() {
     private val TAG = javaClass.simpleName
     private val kv = MMKV.defaultMMKV()
+    private val DAY_TIME: Long = 86400000L
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
     private val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
     private val mealList: MutableList<OrderMeal> = mutableListOf()
     private val dishList: MutableList<DishBean> = mutableListOf()
     private val menuList: MutableList<DateMenu> = mutableListOf()
+    private var orderSize: Int = 0
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
@@ -60,35 +63,54 @@ class DownloadVM : ViewModel() {
         }
     }
 
-    fun synOrderDish(ccbToken: String, date: String, mealId: String, res: (Boolean, MutableList<DishBean>) -> Unit) {
+    fun synOrderDish(ccbToken: String, date: String, mealId: String, custId: String, res: (Boolean, MutableList<DishBean>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             if (payCfg.businessId.isEmpty()) return@launch
             dishList.clear()
             res(false, dishList)
+            /*获取用户餐别已订份数*/
+            queryMealOrderSize(ccbToken, date, mealId, custId)
+            /*获取餐别菜品信息*/
             val orderDish = mRepository.queryOrderDish(ccbToken, date, mealId, payCfg.businessId, payCfg.campusId)
             if (orderDish.code == "200") {
                 val orderDishList = orderDish.data?.batchDishes
                 if (orderDishList != null && orderDishList.size > 0) {
-                    orderDishList.forEach {
-                        if (it.status == "1") {
+                    LogUtil.d(TAG, Gson().toJson(orderDishList))
+                    orderDishList.forEach { dish ->
+                        if (dish.status == "1") {
                             val bean = DishBean().apply {
-                                dishId = it.dishesId
-                                dishName = it.dishesName
-                                dishPrice = it.price
-                                dishUnit = it.unit
+                                dishId = dish.dishesId
+                                dishName = dish.dishesName
+                                dishPrice = dish.price
+                                dishUnit = dish.unit
                                 dishCount = queryDishNumber(date, mealId, dishId)
-                                imgUrl = it.imgUrl ?: ""
-                                windowIdList = it.windowIdList
+                                imgUrl = dish.imgUrl ?: ""
+                                windowIdList = dish.windowIdList
+                                description = dish.description
+                                orderMealQuota = dish.orderMealQuota
+                                orderMealQuotaNum = dish.orderMealQuotaNum
                             }
                             dishList.add(bean)
                         }
-                        downloadImgUrl(it.imgUrl)
+                        downloadImgUrl(dish.imgUrl)
                     }
                 }
                 if (dishList.size < 1) withContext(Dispatchers.Main) { ToastShowUtil.show("未设置菜品信息") }
             } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步菜品失败") }
             res(true, dishList)
         }
+    }
+
+    fun queryMealOrderSize(ccbToken: String, date: String, mealId: String, custId: String) {
+        orderSize = runBlocking(Dispatchers.IO + mHandler) {
+            val bean = MealSizeBean(payCfg.campusId, date, mealId, custId)
+            val receive = mRepository.getMealOrderSize(ccbToken, bean)
+            if (receive.code == "200") {
+                val fromJson = Gson().fromJson(Gson().toJson(receive.data), MealSizeReceive::class.java)
+                fromJson.num
+            } else 0
+        }
+        kv.encode(Constant.ORDER_MEAL_SIZE, orderSize)
     }
 
     private fun queryDishNumber(date: String, mealId: String, dishId: String): Int {
@@ -113,7 +135,7 @@ class DownloadVM : ViewModel() {
     fun getDateWeek(): MutableList<SelectDateBean> {
         val beanList = mutableListOf<SelectDateBean>()
         for (i in 0..kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6)) {
-            val millis = System.currentTimeMillis() + i * 86400000
+            val millis = System.currentTimeMillis() + i * DAY_TIME
             val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", millis)
             val dateBean = SelectDateBean()
             dateBean.date = dateFormat
@@ -125,10 +147,11 @@ class DownloadVM : ViewModel() {
     }
 
     private fun getDayMeal(date: String, value: String): MutableList<OrderMeal> {
+        LogUtil.d(TAG, "data: $date, value: $value")
         val orderMeal: MutableList<OrderMeal> = mutableListOf()
         mealList.forEach {
             val split = it.orderMealDay.split(", ".toRegex())
-            if (split.contains(value) && it.delFlag != "1" && isJudgeTime("$date ${it.endTime}")) orderMeal.add(it)
+            if (split.contains(value) && it.delFlag != "1" && isJudgeTime("$date ${it.endTime}") && isJudgeLimitTime(date, it)) orderMeal.add(it)
         }
         return orderMeal
     }
@@ -150,9 +173,17 @@ class DownloadVM : ViewModel() {
         }
     }
 
+    /*判断餐别结束时间*/
     private fun isJudgeTime(time: String): Boolean {
         val timeMillis = Date(time.replace("-", "/")).time
         return timeMillis >= System.currentTimeMillis()
+    }
+
+    /*判断限制时间*/
+    private fun isJudgeLimitTime(date: String, orderMeal: OrderMeal): Boolean {
+        val time = "$date ${orderMeal.orderDelineTime}".replace("-", "/")
+        val timeMillis = Date(time).time
+        return (timeMillis - orderMeal.orderDelineDate.toLong() * DAY_TIME) > System.currentTimeMillis()
     }
 
     private fun isValidDate(dateFormat: String): Boolean {

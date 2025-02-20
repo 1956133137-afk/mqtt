@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.model.*
@@ -145,6 +146,18 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getWindowList(token: String, businessId: String, campusId: String): CanteenResponse<JsonArray> {
+        return apiCall {
+            RetrofitClient.getApi().getWindowList(token, OrderMealBean(campusId, businessId))
+        }
+    }
+
+    suspend fun getMealOrderSize(token: String, bean: MealSizeBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().getMealOrderSize(token, bean)
+        }
+    }
+
     suspend fun queryOrderMeal(token: String, campusId: String, businessId: String): CanteenResponse<OrderMealReceive> {
         return apiCall {
             RetrofitClient.getApi().queryOrderMeal(token, OrderMealBean(campusId, businessId))
@@ -207,7 +220,7 @@ class PayRepositoryOfPay {
 
     suspend fun swPayByIcCard(encryptedData: String, orderFlag: String, isAllowance: String, actualMealId: Int?, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
         return apiCall {
-            val request = RequestPay(encryptedData,1, orderFlag, isAllowance,actualMealId, mealId, userMealId)
+            val request = RequestPay(encryptedData, 1, orderFlag, isAllowance, actualMealId, mealId, userMealId)
             LogUtil.i(TAG, "swPayByIcCard request: $request")
             RetrofitClient.getApi().swPayWithCard(request)
         }
@@ -215,7 +228,7 @@ class PayRepositoryOfPay {
 
     suspend fun swPayByQrCode(encryptedData: String, orderFlag: String, isAllowance: String, actualMealId: Int?, mealId: Int?, userMealId: Int?): CanteenResponse<String> {
         return apiCall {
-            val request = RequestPay(encryptedData,1, orderFlag, isAllowance, actualMealId, mealId, userMealId)
+            val request = RequestPay(encryptedData, 1, orderFlag, isAllowance, actualMealId, mealId, userMealId)
             LogUtil.i(TAG, "swPayByQrCode request: $request")
             RetrofitClient.getApi().swPayWithCode(request)
         }
