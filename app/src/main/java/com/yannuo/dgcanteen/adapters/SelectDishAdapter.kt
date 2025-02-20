@@ -3,10 +3,8 @@ package com.yannuo.dgcanteen.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ItemSelectDishBinding
 import com.yannuo.dgcanteen.model.DishBean
-import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
@@ -17,9 +15,14 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     private val repeatMap: HashMap<String, Int> = hashMapOf()
     private var listener: SelectDishListener? = null
-    private val mmkv = MMKV.defaultMMKV()
+    private var isLimit: Boolean = false
+    private var limitSize: Int = 1
+    private var size: Int = 0
 
-    fun setDishListener(listener: SelectDishListener?) {
+    fun setDishListener(isLimit: Boolean, limitSize: Int, size: Int, listener: SelectDishListener?) {
+        this.isLimit = isLimit
+        this.limitSize = limitSize
+        this.size = size
         this.listener = listener
     }
 
@@ -66,11 +69,11 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
 
     private fun judgeDishLimit(): Boolean {
         /*是否限购*/
-        if (!mmkv.decodeBool(Constant.ORDER_MEAL_LIMIT_SWITCH, false)) return true
+        if (!isLimit) return true
         /*是否已达餐别订餐份数上限*/
         var dishTotalCount = 0
         mData.forEach { dishTotalCount += it.dishCount }
-        return mmkv.decodeInt(Constant.ORDER_MEAL_SIZE) + dishTotalCount < mmkv.decodeInt(Constant.ORDER_MEAL_LIMIT_SIZE, 1)
+        return size + dishTotalCount < limitSize
     }
 
     fun insertedData(bean: DishBean) {

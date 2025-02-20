@@ -275,6 +275,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
+            binding.verifyPerson.visibility = if (kv.decodeBool(Constant.VERIFY_PERSON_STATISTIC, true)) View.VISIBLE else View.GONE
             verificationVM.getDishesCountOfWindow()
         } else binding.verifyShow.visibility = View.GONE
     }

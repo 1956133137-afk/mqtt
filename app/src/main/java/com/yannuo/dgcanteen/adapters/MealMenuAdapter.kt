@@ -35,7 +35,7 @@ class MealMenuAdapter(val context: Context) : BaseAdapter<MealMenu, ItemMealMenu
         holder.binding.dishListView.itemAnimator = null
         holder.binding.dishListView.adapter = adapterList[position]
         adapterList[position].data = bean.dishList
-        adapterList[position].setDishListener(object : SelectDishAdapter.SelectDishListener {
+        adapterList[position].setDishListener(bean.isLimit, bean.limitSize, bean.size, object : SelectDishAdapter.SelectDishListener {
             override fun onSelectDish(dishBean: DishBean) {
                 val mealId = getData(position).mealId
                 updateDish(position)

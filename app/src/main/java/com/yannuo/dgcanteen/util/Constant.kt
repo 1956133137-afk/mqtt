@@ -93,6 +93,8 @@ object Constant {
     const val VERIFY_CHANGE = "verify_change" //核销变量(防止二次刷脸)
     const val AUTO_PAY = "auto_pay"   //自动收款
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
+    const val DISPLAY_CARD_VERIFY = "displayCardVerify" //副屏刷卡核销按钮
+    const val VERIFY_PERSON_STATISTIC = "verifyPersonStatistic" //核销人数统计
 
     const val REPEAT_PAY_JUDGE = "repeatPayJudge"   //是否判断重复支付 默认开启
 

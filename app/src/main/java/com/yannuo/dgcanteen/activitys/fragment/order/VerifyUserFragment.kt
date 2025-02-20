@@ -27,7 +27,7 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     override fun initOperation() {
-        initObject()
+//        initObject()
         initEvent()
     }
 
@@ -91,6 +91,7 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     override fun onResume() {
         super.onResume()
         btnEnabled(true)
+        initObject()
     }
 
     private fun tipsDialog(type: String) {

@@ -16,6 +16,9 @@ class MealMenu {
     var mealName: String = ""
     var startTime: String = ""  //开始时间 HH:mm:ss
     var endTime: String = ""    //结束数据 HH:mm:ss
+    var isLimit: Boolean = false//是否限购
+    var limitSize: Int = 1      //限购份数
+    var size: Int = 0           //已订份数
     var dishList: MutableList<DishBean> = mutableListOf()
 }
 

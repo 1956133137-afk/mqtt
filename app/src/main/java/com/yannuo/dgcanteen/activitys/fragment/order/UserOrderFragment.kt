@@ -33,6 +33,7 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private var currentMealBean: OrderMeal? = null
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
+    private var isFirst: Boolean = true
 
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentUserOrderBinding.inflate(inflater, container, false)
@@ -83,6 +84,7 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                     currentDateBean = dateList[0]
                     currentMealBean = if (currentDateBean.mealList.size > 0) currentDateBean.mealList[0] else null
                     showDish(currentDateBean, currentMealBean)
+                    isFirst = false
                 }
             }
         }
@@ -156,8 +158,9 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
 
     override fun onResume() {
         super.onResume()
+        if (!isFirst) showDish(currentDateBean, currentMealBean)
         /*获取用户餐别已订份数*/
-        downloadVM.queryMealOrderSize(orderForUI.ccbToken, currentDateBean.date, currentMealBean?.mealId ?: "-1", orderForUI.custId)
+//        downloadVM.queryMealOrderSize(orderForUI.ccbToken, currentDateBean.date, currentMealBean?.mealId ?: "-1", orderForUI.custId)
     }
 
     private fun showDish(dateBean: SelectDateBean, mealBean: OrderMeal?) {

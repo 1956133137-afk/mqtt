@@ -129,7 +129,8 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
         binding.verifyView.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
 
         binding.tvVerifyFace.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
-        binding.tvVerifyCardCode.visibility = if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) View.VISIBLE else View.GONE
+        val boolean = kv.decodeBool(Constant.CODE_VERIFICATION_SET, false) && kv.decodeBool(Constant.DISPLAY_CARD_VERIFY, false)
+        binding.tvVerifyCardCode.visibility = if (boolean) View.VISIBLE else View.GONE
 //        binding.tvVerifyFace.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
 
         binding.tvFace.visibility = if (kv.decodeBool(Constant.SUPPORT_PAY, true)) View.VISIBLE else View.GONE

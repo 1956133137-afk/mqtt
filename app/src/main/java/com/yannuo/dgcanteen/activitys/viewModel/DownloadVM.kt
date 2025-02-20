@@ -278,6 +278,9 @@ class DownloadVM : ViewModel() {
             mealName = mealBean.mealName
             startTime = mealBean.startTime
             endTime = mealBean.endTime
+            isLimit = mealBean.orderQuota == "1"
+            limitSize = mealBean.orderQuotaNum.toInt()
+            size = orderSize
             dishList.add(dishBean)
         }
         return meal

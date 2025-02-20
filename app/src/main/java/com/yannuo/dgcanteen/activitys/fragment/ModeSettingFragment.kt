@@ -153,6 +153,18 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
+        binding.displayCardVerify.setOnClickListener {
+            kv.encode(Constant.DISPLAY_CARD_VERIFY, binding.displayCardVerify.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+        }
+        binding.verifyPersonStatistic.setOnClickListener {
+            kv.encode(Constant.VERIFY_PERSON_STATISTIC, binding.verifyPersonStatistic.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+        }
+        binding.supportPay.setOnClickListener {
+            kv.encode(Constant.SUPPORT_PAY, binding.supportPay.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+        }
         binding.autoVerify.setOnClickListener {
             var flag = -1
             when {
@@ -170,9 +182,6 @@ class ModeSettingFragment : Fragment() {
             }
             kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
             kv.encode(Constant.VERIFY_CHANGE, false)
-        }
-        binding.supportPay.setOnClickListener {
-            kv.encode(Constant.SUPPORT_PAY, binding.supportPay.isChecked)
         }
         binding.autoPay.setOnClickListener {
             var flag = -1
@@ -255,22 +264,22 @@ class ModeSettingFragment : Fragment() {
             }
             CoroutineScope(Dispatchers.IO).launch {
                 EmailSender.sendEmail(
-                        "zhangzhanmian@yannuozhineng.com",
-                        "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
-                        "序列号：${serial}", object : EmailSender.CallbackListener {
-                    override fun onStare(code: Int, msg: String?) {
-                        requireActivity().runOnUiThread(Runnable {
-                            when (code) {
-                                0 -> {
-                                    awaitingDialog.cancel()
-                                    ToastShowUtil.show("上送成功")
+                    "zhangzhanmian@yannuozhineng.com",
+                    "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
+                    "序列号：${serial}", object : EmailSender.CallbackListener {
+                        override fun onStare(code: Int, msg: String?) {
+                            requireActivity().runOnUiThread(Runnable {
+                                when (code) {
+                                    0 -> {
+                                        awaitingDialog.cancel()
+                                        ToastShowUtil.show("上送成功")
+                                    }
+                                    10 -> awaitingDialog.show()
+                                    else -> awaitingDialog.cancel()
                                 }
-                                10 -> awaitingDialog.show()
-                                else -> awaitingDialog.cancel()
-                            }
-                        })
-                    }
-                })
+                            })
+                        }
+                    })
             }
         }
         binding.orderPrinterFormat.setOnClickListener { //切换支付
@@ -330,11 +339,11 @@ class ModeSettingFragment : Fragment() {
 
     private fun changeConsumeMode() {
         val array = arrayOf(
-                Constant.ORDERING_FOOD_MODE,
-                Constant.ORDERING_TWO_MODE,
-                Constant.PROCEEDS_MODE,
-                Constant.PROCEEDS_TWO_MODE,
-                Constant.ORDERING_MEAL_MODE
+            Constant.ORDERING_FOOD_MODE,
+            Constant.ORDERING_TWO_MODE,
+            Constant.PROCEEDS_MODE,
+            Constant.PROCEEDS_TWO_MODE,
+            Constant.ORDERING_MEAL_MODE
         )
         val position = byteArrayOf(0)
         val oldPosition = when (kv.decodeString(Constant.APP_MODE)) {
@@ -346,28 +355,28 @@ class ModeSettingFragment : Fragment() {
         }
         val builder = AlertDialog.Builder(requireContext())
         builder.setCancelable(false)
-                .setIcon(R.mipmap.ic_app)
-                .setTitle("消费模式切换")
-                .setSingleChoiceItems(array, oldPosition) { dialog, which ->
-                    position[0] = which.toByte()
-                    LogUtil.i(TAG, "which $which")
-                }
-                .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
-                .setPositiveButton("确定") { dialog, which ->
-                    ToastShowUtil.show(array[position[0].toInt()])
-                    kv.encode(Constant.APP_MODE, array[position[0].toInt()])
+            .setIcon(R.mipmap.ic_app)
+            .setTitle("消费模式切换")
+            .setSingleChoiceItems(array, oldPosition) { dialog, which ->
+                position[0] = which.toByte()
+                LogUtil.i(TAG, "which $which")
+            }
+            .setNegativeButton("取消") { dialog, which -> dialog?.dismiss() }
+            .setPositiveButton("确定") { dialog, which ->
+                ToastShowUtil.show(array[position[0].toInt()])
+                kv.encode(Constant.APP_MODE, array[position[0].toInt()])
 
-                    val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
-                    restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    startActivity(restartIntent)
-                    exitProcess(0)
-                }
+                val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(restartIntent)
+                exitProcess(0)
+            }
         builder.create()
-                .apply {
-                    show()
-                    getButton(DialogInterface.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-                    getButton(DialogInterface.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
-                }
+            .apply {
+                show()
+                getButton(DialogInterface.BUTTON_NEGATIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+                getButton(DialogInterface.BUTTON_POSITIVE).setTextSize(TypedValue.COMPLEX_UNIT_SP, 25f)
+            }
 
     }
 
@@ -428,6 +437,9 @@ class ModeSettingFragment : Fragment() {
         if (kv.decodeString(Constant.APP_MODE) == null) kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
+
+        binding.displayCardVerify.isChecked = kv.decodeBool(Constant.DISPLAY_CARD_VERIFY, false)
+        binding.verifyPersonStatistic.isChecked = kv.decodeBool(Constant.VERIFY_PERSON_STATISTIC, true)
 
         binding.orderPrinterFormat.text = printerList[kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)]
         binding.orderAdvanceDay.setText(kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6).toString())
@@ -538,7 +550,7 @@ class ModeSettingFragment : Fragment() {
                 awaitingDialog.dismiss()
                 if (failTime != 0) ToastShowUtil.show("同步失败，请重试！")
                 binding.tvPeopleCount.text =
-                        "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
+                    "同步人数：${DishesDBHelper.getInstance().getPersonsCount()}"
             }
         }
     }
