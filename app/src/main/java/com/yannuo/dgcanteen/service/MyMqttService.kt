@@ -44,6 +44,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
     private lateinit var binder: InteractionBinder
     private var TAG = javaClass.simpleName
     private lateinit var mqttStateListener: MqttConnectState
+    private val gson = Gson()
 
     //订阅的主题
     private var TOPIC_TITLE = "ccb/pub/dishes/${CommonAndDpToPxUtil.getDeviceSerial()}" //订阅本机专属主题
@@ -373,6 +374,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
                     val picList = mutableListOf<String>() //菜品图片
+                    val catList = mutableListOf<CategoryTable>() //菜品类别
 
                     //提取下架菜品
                     val dishMap = DishesDBHelper.getInstance().queryDishes().stream()
@@ -406,23 +408,34 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         }
 
                         mealList.add(meal)
-                        for (bean in da.selectedDishesList) {
-                            val dish = DishesTable()
-                            dish.dishesId = bean.dishesId
-                            dish.dishesName = bean.dishesName
-                            dish.mealId = da.mealId
-                            dish.price = bean.price.toDouble()
-                            dish.unit = bean.unit
-                            dish.imgUrl = bean.imgUrl
-                            dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
-                            dishList.add(dish)
-                            picList.add(bean.imgUrl)
+                        for (bean in da.selectedDishesCategoryData){
+                            val cat =CategoryTable()
+                            cat.categoryId = bean.categoryId
+                            cat.categoryName = bean.categoryName
+                            cat.sort = bean.sort
+                            cat.mealId = da.mealId
+                            catList.add(cat)
+                            bean.selectedDishesList.forEach {
+                                val dish = DishesTable()
+                                dish.dishesId = it.dishesId
+                                dish.dishesName = it.dishesName
+                                dish.mealId = da.mealId
+                                dish.price = it.price.toDouble()
+                                dish.unit = it.unit
+                                dish.imgUrl = it.imgUrl ?: ""
+                                dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
+                                dish.categoryName = bean.categoryName
+                                dishList.add(dish)
+                                picList.add(dish.imgUrl)
+                            }
                         }
                     }
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
+                    DishesDBHelper.getInstance().clearAllCategory()
                     DishesDBHelper.getInstance().insertDishes(dishList)
                     DishesDBHelper.getInstance().insertMeals(mealList)
+                    DishesDBHelper.getInstance().insertCategory(catList)
 
                     //下载菜品图片
                     downLoadPic(picList)
@@ -461,6 +474,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
             val mealList = mutableListOf<MealTable>()  //餐别
             val dishList = mutableListOf<DishesTable>() //菜品
             val picList = mutableListOf<String>() //菜品图片
+            val catList = mutableListOf<CategoryTable>() //菜品类别
             for (da in dishes) {
                 val meal = MealTable()
                 meal.mealId = da.mealId
@@ -485,24 +499,35 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                 }
 
                 mealList.add(meal)
-                for (bean in da.selectedDishesList) {
-                    val dish = DishesTable()
-                    dish.dishesId = bean.dishesId
-                    dish.dishesName = bean.dishesName
-                    dish.mealId = da.mealId
-                    dish.price = bean.price.toDouble()
-                    dish.unit = bean.unit
-                    dish.imgUrl = bean.imgUrl
-                    dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
-                    dishList.add(dish)
-                    picList.add(bean.imgUrl)
+                for (bean in da.selectedDishesCategoryData){
+                    val cat =CategoryTable()
+                    cat.categoryId = bean.categoryId
+                    cat.categoryName = bean.categoryName
+                    cat.sort = bean.sort
+                    cat.mealId = da.mealId
+                    catList.add(cat)
+                    bean.selectedDishesList.forEach {
+                        val dish = DishesTable()
+                        dish.dishesId = it.dishesId
+                        dish.dishesName = it.dishesName
+                        dish.mealId = da.mealId
+                        dish.price = it.price.toDouble()
+                        dish.unit = it.unit
+                        dish.imgUrl = it.imgUrl ?: ""
+                        dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
+                        dish.categoryName = bean.categoryName
+                        dishList.add(dish)
+                        picList.add(dish.imgUrl)
+                    }
                 }
             }
             //存储到数据库中
             DishesDBHelper.getInstance().clearAllDishes()
             DishesDBHelper.getInstance().clearAllMeal()
+            DishesDBHelper.getInstance().clearAllCategory()
             DishesDBHelper.getInstance().insertDishes(dishList)
             DishesDBHelper.getInstance().insertMeals(mealList)
+            DishesDBHelper.getInstance().insertCategory(catList)
 
             //下载菜品图片
             downLoadPic(picList)

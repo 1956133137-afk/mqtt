@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -14,18 +15,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ccb.smartcanteen.ZHSTFacePayService
 import com.yannuo.dgcanteen.activitys.presenters.OrderMenuPresenter
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
+import com.yannuo.dgcanteen.adapters.CategoryAdapter
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderMenuBinding
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.CategoryTable
+import com.yannuo.dgcanteen.greendao.entity.DishesTable
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.interfaces.ReadCardListener
 import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -35,21 +42,25 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.HintDialog
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+
 
 /**
  * 点餐模式2：左侧购物车栏
  */
-open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
-    PayForAdapter.WorkListener, CallbackListener, IProductsVM {
+open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
+    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener {
     private lateinit var mAdapter: ProductsAdapter
+    private lateinit var mCategory: CategoryAdapter
     private lateinit var model: ProductsVM
     private lateinit var mPresenter: OrderMenuPresenter
     private val payViewModel by lazy { ViewModelProvider(requireActivity())[PayViewModel::class.java] }
     private lateinit var mAdapterPayFor: PayForAdapter
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
+    private var mealIds = 0
 
     //    private var secondLoadingDialog :LoadingDialog ?= null
     @Volatile
@@ -75,6 +86,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
 
     override fun onInit() {
+        EventBus.getDefault().register(this)
         initObject()
         initView()
         initEvent()
@@ -96,6 +108,8 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         mAdapterPayFor.setListener(this)
         mAdapter = ProductsAdapter(context)
         mAdapter.setListener(this)
+        mCategory = CategoryAdapter()
+        mCategory.setListener(this)
         model = ViewModelProvider(requireActivity()).get(ProductsVM::class.java)
         model.listener = this
         val linearLayoutManager = LinearLayoutManager(context)
@@ -104,6 +118,9 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
         val gridLayoutManager = GridLayoutManager(requireContext(), 5)
         binding.rvManInfo.layoutManager = gridLayoutManager
         mAdapter.setImgSize(gridLayoutManager)
+
+        val categoryLayoutManager = LinearLayoutManager(requireContext(),RecyclerView.HORIZONTAL,false)
+        binding.rvCategory.layoutManager = categoryLayoutManager
     }
 
     private fun openIcQr() {
@@ -133,12 +150,12 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
         binding.rvSelectItem.adapter = mAdapterPayFor
         binding.rvManInfo.adapter = mAdapter
-
-
+        binding.rvCategory.adapter = mCategory
     }
 
 
     override fun onDestroy() {
+        EventBus.getDefault().unregister(this)
         closeIcQr()
         requireActivity().unbindService(mServiceConnection)
         super.onDestroy()
@@ -146,7 +163,9 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
 
     private fun initEvent() {
         model.menuChange.observe(this) {
+            mealIds = it
             mPresenter.dishesData(mAdapter, it)
+            mPresenter.categoryData(mCategory,it)
         }
 
         binding.ibDelAll.setOnClickListener {
@@ -194,6 +213,9 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
             openIcQr()
             CommonAndDpToPxUtil.speakWork("请刷卡或扫码")
         }
+        binding.MenuAll.setOnClickListener {
+            updateMenu()
+        }
     }
 
 
@@ -211,7 +233,7 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
     }
 
 
-    private fun clearShoppingCart() {
+    fun clearShoppingCart() {
         for (u in mAdapter.data) {
             if (u.count != 0) {
                 u.count = 0
@@ -325,6 +347,79 @@ open class OrderMenuFragment() : BaseFragment<FragmentOrderMenuBinding>(), Produ
             model.tab.postValue(1)
             model.uiData.postValue(data)
         }, 300)
+    }
+
+    private fun updateMenu(){
+        val dataList: MutableList<DishesInfo> = ArrayList()
+        val list = DishesDBHelper.getInstance(context)
+            .queryDishesByMealIdAneStatus(mealIds, 1)
+        for (u in list) {
+            val imgUrl = if (u.imgUrl == null || u.imgUrl.isEmpty()) "" else u.imgUrl
+            var status = u.status
+            if (status == null) status = 1
+            dataList.add(
+                DishesInfo(
+                    u.dishesId,
+                    u.dishesName,
+                    u.mealId,
+                    null,
+                    u.price,
+                    u.unit,
+                    imgUrl,
+                    status,
+                    0
+                )
+            )
+        }
+        mAdapter.setData(dataList)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    open fun onMessageEvent(event: MessageEvent) {
+        // 处理接收到的事件
+        when (event.code) {
+            Constant.EVENT_FIFTH -> {
+                Log.d(TAG, "eventArrive: 更新菜品")
+                //todo 清空购物车
+                if (mAdapterPayFor.data.size >= 1){
+                    clearShoppingCart()
+                }
+                //todo 更新菜品页面
+                updateMenu()
+            }
+        }
+    }
+
+    //菜品类别回调
+    override fun onEventClickCategory(category: CategoryTable) {
+        val dataList: MutableList<DishesInfo> = ArrayList()
+        var list: List<DishesTable>?
+        if(category.categoryName.equals("全部")){
+            list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatus(category.mealId, 1)
+        }else{
+            list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatusAnCategory(category.mealId, 1, category.categoryName)
+        }
+        if (list != null) {
+            for (u in list) {
+                val imgUrl = if (u.imgUrl == null || u.imgUrl.isEmpty()) "" else u.imgUrl
+                var status = u.status
+                if (status == null) status = 1
+                dataList.add(
+                    DishesInfo(
+                        u.dishesId,
+                        u.dishesName,
+                        u.mealId,
+                        null,
+                        u.price,
+                        u.unit,
+                        imgUrl,
+                        status,
+                        0
+                    )
+                )
+            }
+        }
+        mAdapter.setData(dataList)
     }
 }
 

@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys.presenters
 
 import android.content.Context
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
+import com.yannuo.dgcanteen.adapters.CategoryAdapter
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.DishesInfo
 
@@ -40,6 +41,11 @@ class OrderMenuPresenter(context: Context) {
             }
         }
         return result
+    }
+
+    fun categoryData(adapter : CategoryAdapter?, i: Int){
+        val queryCategory = DishesDBHelper.getInstance(cnt).queryCategoryByMealId(i)
+        adapter?.data = queryCategory
     }
 
 

@@ -19,7 +19,6 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.*
-import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -88,6 +87,7 @@ class ProductsVM : ViewModel() {
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
                     val picList = mutableListOf<String>() //菜品图片
+                    val catList = mutableListOf<CategoryTable>() //菜品类别
 
                     //提取下架菜品
                     val dishMap = DishesDBHelper.getInstance().queryDishes().stream().filter {
@@ -125,24 +125,39 @@ class ProductsVM : ViewModel() {
                         }
 
                         mealList.add(meal)
-                        for (bean in da.selectedDishesList) {
-                            val dish = DishesTable()
-                            dish.dishesId = bean.dishesId
-                            dish.dishesName = bean.dishesName
-                            dish.mealId = da.mealId
-                            dish.price = bean.price.toDouble()
-                            dish.unit = bean.unit
-                            dish.imgUrl = bean.imgUrl ?: ""
-                            dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
-                            dishList.add(dish)
-                            picList.add(dish.imgUrl)
+
+                        for (bean in da.selectedDishesCategoryData){
+                            if(!bean.categoryName.isNullOrEmpty()){
+                                val cat =CategoryTable()
+                                cat.categoryId = bean.categoryId
+                                cat.categoryName = bean.categoryName
+                                cat.sort = bean.sort
+                                cat.mealId = da.mealId
+                                catList.add(cat)
+                            }
+                            bean.selectedDishesList.forEach {
+                                val dish = DishesTable()
+                                dish.dishesId = it.dishesId
+                                dish.dishesName = it.dishesName
+                                dish.mealId = da.mealId
+                                dish.price = it.price.toDouble()
+                                dish.unit = it.unit
+                                dish.imgUrl = it.imgUrl ?: ""
+                                dish.status = dishMap.get("${dish.mealId}:${dish.dishesId}:${dish.dishesName}") ?: 1
+                                dish.categoryName = bean.categoryName
+                                dishList.add(dish)
+                                picList.add(dish.imgUrl)
+                            }
                         }
                     }
                     LogUtil.i(TAG, "mealList: $mealList")
+                    LogUtil.i(TAG, "catList: $catList")
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
+                    DishesDBHelper.getInstance().clearAllCategory()
                     DishesDBHelper.getInstance().insertDishes(dishList)
                     DishesDBHelper.getInstance().insertMeals(mealList)
+                    DishesDBHelper.getInstance().insertCategory(catList)
 
                     //下载菜品图片
                     downLoadPic(picList)

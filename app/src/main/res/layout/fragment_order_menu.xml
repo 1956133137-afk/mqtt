@@ -205,13 +205,60 @@
 
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_man_info"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+        <LinearLayout
             android:layout_weight="7"
-            android:overScrollMode="never"
-            android:padding="10dp" />
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:padding="10dp"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:padding="5dp"
+                android:layout_height="80dp">
+                <TextView
+                    android:text="类别: "
+                    android:textSize="30dp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/Menu_All"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:gravity="center"
+                        android:text="全部"
+                        android:id="@+id/iv_category"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:textSize="30dp"
+                        android:textStyle="bold"
+                        android:minWidth="80dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="60dp" />
+
+                </androidx.cardview.widget.CardView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_man_info"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:padding="10dp" />
+
+        </LinearLayout>
+
 
 
     </LinearLayout>

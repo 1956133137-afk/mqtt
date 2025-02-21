@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
@@ -21,6 +22,7 @@ import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
+import com.yannuo.dgcanteen.greendao.entity.CategoryTable;
 import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
@@ -80,6 +82,7 @@ public class DishesDBHelper {
     private OfflineAccListTableDao olAccListDao;
     private SwPayOrderTableDao swPayOrderTableDao;
     private QuotaTimeTableDao quotaTimeTableDao;
+    private CategoryTableDao categoryTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -129,6 +132,7 @@ public class DishesDBHelper {
         olAccListDao = mDaoSession.getOfflineAccListTableDao();
         swPayOrderTableDao = mDaoSession.getSwPayOrderTableDao();
         quotaTimeTableDao = mDaoSession.getQuotaTimeTableDao();
+        categoryTableDao = mDaoSession.getCategoryTableDao();
     }
 
     /**
@@ -180,6 +184,14 @@ public class DishesDBHelper {
 
         return mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status))
+                .build()
+                .list();
+    }
+
+    public List<DishesTable> queryDishesByMealIdAneStatusAnCategory(int MealId, int Status, String Category) {
+
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status), DishesTableDao.Properties.CategoryName.eq(Category))
                 .build()
                 .list();
     }
@@ -814,5 +826,25 @@ public class DishesDBHelper {
 
     public void deleteQuotaTime(QuotaTimeTable quotaTime) {
         quotaTimeTableDao.delete(quotaTime);
+    }
+
+    /*******************************   菜品类别   *******************************/
+    public void insertCategory(List<CategoryTable> categoryTable) {
+        categoryTableDao.insertOrReplaceInTx(categoryTable);
+    }
+
+    public List<CategoryTable> queryCategory(){
+        return categoryTableDao.queryBuilder().build().list();
+    }
+
+    public List<CategoryTable> queryCategoryByMealId(int i){
+        return categoryTableDao.queryBuilder()
+                .where(CategoryTableDao.Properties.MealId.eq(i))
+                .build()
+                .list();
+    }
+
+    public void clearAllCategory() {
+        categoryTableDao.deleteAll();
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
+import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
@@ -51,7 +52,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 OfflineOrderTableDao.class,
                 OfflineDishTableDao.class,
                 SwPayOrderTableDao.class,
-                QuotaTimeTableDao.class
+                QuotaTimeTableDao.class,
+                CategoryTableDao.class
         );
     }
 }
