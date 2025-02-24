@@ -655,7 +655,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
                     LogUtil.d(TAG, "支付方式：$type")
                     EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, type))
-                    handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
+//                    handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
                 }
             }
             Constant.EVENT_FACE_STATUS -> isPayStatus = false
