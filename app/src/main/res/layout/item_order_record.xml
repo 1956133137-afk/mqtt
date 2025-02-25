@@ -31,37 +31,22 @@
             android:minHeight="60dp"
             android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/meal_date"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="餐别日期: "
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
-                    android:id="@+id/meal_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-            </LinearLayout>
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="36sp" />
 
             <TextView
-                android:id="@+id/week_name"
+                android:id="@+id/meal_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textColor="#4F4F4F"
+                android:singleLine="true"
+                android:textColor="#FFA73E"
                 android:textSize="36sp" />
         </LinearLayout>
 
@@ -72,30 +57,14 @@
             android:minHeight="60dp"
             android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/windows"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
                 android:layout_weight="3"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="餐别名称: "
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
-                    android:id="@+id/meal_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:singleLine="true"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-            </LinearLayout>
+                android:textColor="#FFA73E"
+                android:textSize="36sp" />
 
             <TextView
                 android:id="@+id/order_type"
