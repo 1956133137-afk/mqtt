@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys.presenters
 
 import android.content.Context
+import com.yannuo.dgcanteen.activitys.fragment.OrderMenuFragment
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.adapters.CategoryAdapter
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -10,7 +11,7 @@ class OrderMenuPresenter(context: Context) {
     private var cnt = context
 
 
-    fun dishesData(adapter : ProductsAdapter? , i: Int) {
+    fun dishesData(adapter: ProductsAdapter?, i: Int, orderMenuFragment: OrderMenuFragment) {
         val dataList: MutableList<DishesInfo> = ArrayList()
         val list = DishesDBHelper.getInstance(cnt).queryDishesByMealIdAneStatus(i, 1)
         for (u in list) {
@@ -29,6 +30,7 @@ class OrderMenuPresenter(context: Context) {
             )
         }
         adapter?.data = dataList
+        orderMenuFragment.setCategoryList(dataList)
     }
 
     fun calculate(list : MutableList<DishesInfo>):FloatArray{

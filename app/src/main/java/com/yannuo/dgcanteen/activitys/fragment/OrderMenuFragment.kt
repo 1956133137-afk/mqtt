@@ -51,7 +51,7 @@ import org.greenrobot.eventbus.ThreadMode
  * 点餐模式2：左侧购物车栏
  */
 open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
-    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener {
+    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener{
     private lateinit var mAdapter: ProductsAdapter
     private lateinit var mCategory: CategoryAdapter
     private lateinit var model: ProductsVM
@@ -61,6 +61,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
     private var mealIds = 0
+
+    private var categoryList: MutableList<DishesInfo>? = null
 
     //    private var secondLoadingDialog :LoadingDialog ?= null
     @Volatile
@@ -137,17 +139,17 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
 
 
     //更新购物车UI
-    private fun updateUiItems(it: DishesInfo, accumulation: Boolean) {
-        mAdapterPayFor.insertedData(it, accumulation)
-        binding.rvSelectItem.scrollToPosition(mAdapterPayFor.data.size - 1) //插入数据后滑动到底部
-        val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
+    private fun updateUiItems(it: MutableList<DishesInfo>) {
+        mAdapterPayFor.data = it
+        binding.rvSelectItem.scrollToPosition(it.size - 1) //插入数据后滑动到底部
+        val res: FloatArray = mPresenter.calculate(it)
         binding.tvTotalMoney.text = res[0].toString()
+        //数量
         binding.tvTotalCount.text = res[1].toString().replace(".0", "")
     }
 
 
     private fun initView() {
-
         binding.rvSelectItem.adapter = mAdapterPayFor
         binding.rvManInfo.adapter = mAdapter
         binding.rvCategory.adapter = mCategory
@@ -164,7 +166,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private fun initEvent() {
         model.menuChange.observe(this) {
             mealIds = it
-            mPresenter.dishesData(mAdapter, it)
+            mPresenter.dishesData(mAdapter, it, this)
             mPresenter.categoryData(mCategory,it)
         }
 
@@ -218,6 +220,10 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         }
     }
 
+    fun setCategoryList(dataList: MutableList<DishesInfo>) {
+        this.categoryList = dataList
+    }
+
 
     private fun setFoodsPayList() {
         //            binding.btSureMeal.setEnabled(false);
@@ -241,23 +247,32 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
             }
         }
         mAdapterPayFor.clear()
+        model.clearDishes()
         binding.tvTotalMoney.text = ""
         binding.tvTotalCount.text = "0"
         changeDishPlay(mAdapterPayFor.data, String.format(MONEY_FMT, "0.00"), String.format(COUNT_FMT, "0"))
     }
 
+    //菜品回调
     override fun onEventClick(position: Int) {
+        //获取到添加的菜品
         val data = mAdapter.getData(position)
+        val selectDateCategoryDish = model.selectDateCategoryDish(data)
         //选择的购买商品添加到购物车
-        updateUiItems(data, false)
+        updateUiItems(selectDateCategoryDish)
+        //副屏显示
         changeDishPlay(
             mAdapterPayFor.data, String.format(MONEY_FMT, binding.tvTotalMoney.text),
             String.format(COUNT_FMT, binding.tvTotalCount.text)
         )
     }
 
+    //购物车菜品回调
     override fun onEventClick(data: DishesInfo) {
-        mAdapter.notifyItemChanged(mAdapter.data.indexOf(data), "count")
+        categoryList?.forEach {
+            if(it.dishesId == data.dishesId) it.count = data.count
+        }
+        mAdapter.setData(categoryList)
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
         binding.tvTotalMoney.text = res[0].toString()
         binding.tvTotalCount.text = res[1].toString().replace(".0", "")
@@ -350,28 +365,9 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     }
 
     private fun updateMenu(){
-        val dataList: MutableList<DishesInfo> = ArrayList()
-        val list = DishesDBHelper.getInstance(context)
-            .queryDishesByMealIdAneStatus(mealIds, 1)
-        for (u in list) {
-            val imgUrl = if (u.imgUrl == null || u.imgUrl.isEmpty()) "" else u.imgUrl
-            var status = u.status
-            if (status == null) status = 1
-            dataList.add(
-                DishesInfo(
-                    u.dishesId,
-                    u.dishesName,
-                    u.mealId,
-                    null,
-                    u.price,
-                    u.unit,
-                    imgUrl,
-                    status,
-                    0
-                )
-            )
-        }
-        mAdapter.setData(dataList)
+        val list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatus(mealIds, 1)
+        val tabelToInfo = tabelToInfo(list)
+        this.categoryList = tabelToInfo
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -380,11 +376,11 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         when (event.code) {
             Constant.EVENT_FIFTH -> {
                 Log.d(TAG, "eventArrive: 更新菜品")
-                //todo 清空购物车
+                // 清空购物车
                 if (mAdapterPayFor.data.size >= 1){
                     clearShoppingCart()
                 }
-                //todo 更新菜品页面
+                // 更新菜品页面
                 updateMenu()
             }
         }
@@ -392,18 +388,21 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
 
     //菜品类别回调
     override fun onEventClickCategory(category: CategoryTable) {
+        val list: List<DishesTable>? = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatusAnCategory(category.mealId, 1, category.categoryName)
+        val tabelToInfo = tabelToInfo(list)
+        this.categoryList = tabelToInfo
+    }
+
+    private fun tabelToInfo(list: List<DishesTable>?): MutableList<DishesInfo> {
         val dataList: MutableList<DishesInfo> = ArrayList()
-        var list: List<DishesTable>?
-        if(category.categoryName.equals("全部")){
-            list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatus(category.mealId, 1)
-        }else{
-            list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatusAnCategory(category.mealId, 1, category.categoryName)
-        }
+        val dishesList = model.getDishesList()
         if (list != null) {
             for (u in list) {
+                var count = 0
+                for(n in dishesList){
+                    if(u.dishesId == n.dishesId) count = n.count
+                }
                 val imgUrl = if (u.imgUrl == null || u.imgUrl.isEmpty()) "" else u.imgUrl
-                var status = u.status
-                if (status == null) status = 1
                 dataList.add(
                     DishesInfo(
                         u.dishesId,
@@ -413,13 +412,14 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
                         u.price,
                         u.unit,
                         imgUrl,
-                        status,
-                        0
+                        1,
+                        count
                     )
                 )
             }
         }
         mAdapter.setData(dataList)
+        return dataList
     }
 }
 

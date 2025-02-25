@@ -25,8 +25,11 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
 class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private val downloadVM by lazy { ViewModelProvider(requireActivity())[DownloadVM::class.java] }
     private val orderMealVM by lazy { ViewModelProvider(requireActivity())[OrderMealVM::class.java] }
+    //日期
     private val selectDateAdapter by lazy { SelectDateAdapter() }
+    //餐别
     private val selectMealAdapter by lazy { SelectMealAdapter() }
+    //菜单
     private val orderDishAdapter by lazy { OrderDishAdapter(requireContext()) }
     private val dateMenuAdapter by lazy { DateMenuAdapter(requireContext()) }
     private var currentDateBean: SelectDateBean = SelectDateBean()
@@ -119,6 +122,7 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                 handler.post {
                     val menuList = downloadVM.selectDateMealDish(currentDateBean, currentMealBean, dishBean)
                     dateMenuAdapter.data = menuList
+                    //更新价格
                     updateTotalDish()
                 }
             }

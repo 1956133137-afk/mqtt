@@ -47,6 +47,8 @@ class ProductsVM : ViewModel() {
     val tab: MutableLiveData<Int> = MutableLiveData()
     val uiData: MutableLiveData<PayForUI> = MutableLiveData()
 
+    private val dishesList: MutableList<DishesInfo> = mutableListOf()
+
     private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
     private val mPayCfg: PayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
     private var mDishesDisplay: DishesDisplay? = null
@@ -74,6 +76,10 @@ class ProductsVM : ViewModel() {
 
     fun getDisplay(): DishesDisplay? {
         return mDishesDisplay
+    }
+
+    fun clearDishes(){
+        dishesList.clear()
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -479,5 +485,23 @@ class ProductsVM : ViewModel() {
                 e.printStackTrace()
             }
         }
+    }
+
+    fun getDishesList(): MutableList<DishesInfo> {
+        return dishesList
+    }
+
+    fun selectDateCategoryDish(data: DishesInfo): MutableList<DishesInfo> {
+        var getDishes = 0
+        dishesList.forEach {
+            if(it.dishesId == data.dishesId) {
+                getDishes++
+                it.count = data.count
+            }
+        }
+        if(getDishes == 0){
+            dishesList.add(data)
+        }
+        return dishesList
     }
 }

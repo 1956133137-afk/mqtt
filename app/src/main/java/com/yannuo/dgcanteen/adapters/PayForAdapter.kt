@@ -85,8 +85,7 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
             val position = holder.adapterPosition
             if (position == RecyclerView.NO_POSITION) return@setListener
             LogUtil.d(TAG,"添加 $position")
-
-            val data = mData.get(position)
+            val data = mData[position]
             data.count = it
             when(it){
                 0-> {

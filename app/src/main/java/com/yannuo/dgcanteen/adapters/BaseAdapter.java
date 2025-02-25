@@ -47,7 +47,7 @@ public abstract class BaseAdapter<T,B extends ViewBinding> extends RecyclerView.
     abstract void bindHolder(Holder holder, int position);
 
 
-    //添加元素
+    //更新全部元素
     public void setData(List<T> data) {
         if (data == null) return;
         mData.clear();

@@ -233,6 +233,11 @@ class DownloadVM : ViewModel() {
         }
     }
 
+    /**
+     * @param dateBean 日期
+     * @param mealBean 餐别
+     * @param dishBean 菜品
+     */
     fun selectDateMealDish(dateBean: SelectDateBean, mealBean: OrderMeal?, dishBean: DishBean): MutableList<DateMenu> {
         if (mealBean == null) return menuList
         var dateIndex = -1
