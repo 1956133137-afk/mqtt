@@ -64,7 +64,6 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
 
     private var categoryList: MutableList<DishesInfo>? = null
 
-    //    private var secondLoadingDialog :LoadingDialog ?= null
     @Volatile
     private var state_opened = false
     private var mHintDialog: HintDialog? = null
