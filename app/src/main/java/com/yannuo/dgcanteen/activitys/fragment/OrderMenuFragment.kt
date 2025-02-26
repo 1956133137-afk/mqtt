@@ -62,7 +62,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private val COUNT_FMT = "%s 件"
     private var mealIds = 0
 
-    private var categoryList: MutableList<DishesInfo>? = null
+    private var dishesInfoList: MutableList<DishesInfo>? = null
 
     @Volatile
     private var state_opened = false
@@ -163,6 +163,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     }
 
     private fun initEvent() {
+        //监听时间切换餐别
         model.menuChange.observe(this) {
             mealIds = it
             mPresenter.dishesData(mAdapter, it, this)
@@ -219,8 +220,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         }
     }
 
-    fun setCategoryList(dataList: MutableList<DishesInfo>) {
-        this.categoryList = dataList
+    fun setDishesInfoList(dataList: MutableList<DishesInfo>) {
+        this.dishesInfoList = dataList
     }
 
 
@@ -268,10 +269,10 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
 
     //购物车菜品回调
     override fun onEventClick(data: DishesInfo) {
-        categoryList?.forEach {
+        dishesInfoList?.forEach {
             if(it.dishesId == data.dishesId) it.count = data.count
         }
-        mAdapter.setData(categoryList)
+        mAdapter.setData(dishesInfoList)
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
         binding.tvTotalMoney.text = res[0].toString()
         binding.tvTotalCount.text = res[1].toString().replace(".0", "")
@@ -366,7 +367,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private fun updateMenu(){
         val list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatus(mealIds, 1)
         val tabelToInfo = tabelToInfo(list)
-        this.categoryList = tabelToInfo
+        this.dishesInfoList = tabelToInfo
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -381,6 +382,9 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
                 }
                 // 更新菜品页面
                 updateMenu()
+
+                //更新类目
+                mPresenter.categoryData(mCategory,mealIds)
             }
         }
     }
@@ -389,7 +393,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     override fun onEventClickCategory(category: CategoryTable) {
         val list: List<DishesTable>? = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatusAnCategory(category.mealId, 1, category.categoryName)
         val tabelToInfo = tabelToInfo(list)
-        this.categoryList = tabelToInfo
+        this.dishesInfoList = tabelToInfo
     }
 
     private fun tabelToInfo(list: List<DishesTable>?): MutableList<DishesInfo> {

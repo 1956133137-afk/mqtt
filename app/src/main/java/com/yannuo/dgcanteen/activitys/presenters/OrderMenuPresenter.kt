@@ -30,7 +30,7 @@ class OrderMenuPresenter(context: Context) {
             )
         }
         adapter?.data = dataList
-        orderMenuFragment.setCategoryList(dataList)
+        orderMenuFragment.setDishesInfoList(dataList)
     }
 
     fun calculate(list : MutableList<DishesInfo>):FloatArray{
@@ -47,7 +47,7 @@ class OrderMenuPresenter(context: Context) {
 
     fun categoryData(adapter : CategoryAdapter?, i: Int){
         val queryCategory = DishesDBHelper.getInstance(cnt).queryCategoryByMealId(i)
-        adapter?.data = queryCategory
+        adapter?.setData(queryCategory)
     }
 
 
