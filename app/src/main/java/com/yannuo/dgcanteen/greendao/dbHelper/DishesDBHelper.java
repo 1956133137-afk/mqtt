@@ -605,6 +605,7 @@ public class DishesDBHelper {
 
     public List<PayOrderTable> queryPayOrder(String username, String orderId) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.Username.like("%" + username + "%"))
                 .where(PayOrderTableDao.Properties.OrderId.like("%" + orderId + "%"))
                 .orderDesc(PayOrderTableDao.Properties.PayTime)
@@ -620,6 +621,7 @@ public class DishesDBHelper {
 
     public PayOrderTable queryPayOrderUser(String date) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
                 .orderDesc(PayOrderTableDao.Properties.Id)
                 .limit(1)
@@ -628,6 +630,7 @@ public class DishesDBHelper {
 
     public List<PayOrderTable> queryPayOrderUserToTen(String date) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
                 .orderDesc(PayOrderTableDao.Properties.Id)
                 .limit(10)
@@ -833,11 +836,11 @@ public class DishesDBHelper {
         categoryTableDao.insertOrReplaceInTx(categoryTable);
     }
 
-    public List<CategoryTable> queryCategory(){
+    public List<CategoryTable> queryCategory() {
         return categoryTableDao.queryBuilder().build().list();
     }
 
-    public List<CategoryTable> queryCategoryByMealId(int i){
+    public List<CategoryTable> queryCategoryByMealId(int i) {
         return categoryTableDao.queryBuilder()
                 .where(CategoryTableDao.Properties.MealId.eq(i))
                 .build()

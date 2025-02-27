@@ -158,8 +158,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         ORDER_ID = order.orderId
                         TRAN_RESULT = order.tranResult
                         OFFLINE = order.offline
-                        ERRCODE = ""
-                        ERRMSG = ""
+                        ERRCODE = order.errCode
+                        ERRMSG = order.errMsg
                         order.accList.forEach {
                             val acclist = ACCLIST().apply {
                                 ACC_NO = it.acC_NO
@@ -408,8 +408,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         }
 
                         mealList.add(meal)
-                        for (bean in da.selectedDishesCategoryData){
-                            val cat =CategoryTable()
+                        for (bean in da.selectedDishesCategoryData) {
+                            val cat = CategoryTable()
                             cat.categoryId = bean.categoryId
                             cat.categoryName = bean.categoryName
                             cat.sort = bean.sort
@@ -499,8 +499,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                 }
 
                 mealList.add(meal)
-                for (bean in da.selectedDishesCategoryData){
-                    val cat =CategoryTable()
+                for (bean in da.selectedDishesCategoryData) {
+                    val cat = CategoryTable()
                     cat.categoryId = bean.categoryId
                     cat.categoryName = bean.categoryName
                     cat.sort = bean.sort

@@ -46,6 +46,8 @@ public class PayOrderTable {
     private String payTime;         //支付时间 yyyy-MM-dd HH:mm:ss
     private String payDate;         //支付日期
     private String offline;         //离线标记 0在线 1离线
+    private String errCode;         //错误代码
+    private String errMsg;          //错误信息
     private Integer flag = 0;       //上传标记 0未上传 1已上传
 
     @ToMany(referencedJoinProperty = "payOrderId")
@@ -60,12 +62,13 @@ public class PayOrderTable {
     @Generated(hash = 808079322)
     private transient PayOrderTableDao myDao;
 
-    @Generated(hash = 727829600)
+    @Generated(hash = 672333132)
     public PayOrderTable(Long id, String result, String tranResult, String businessId,
             String businessName, String campusId, String corpId, String vposId, String deviceId,
             String custId, String username, String accNo, String accBal, String accType, String orderId,
             String traceId, String payType, String payContent, String payment, String actualPayment,
-            String payTime, String payDate, String offline, Integer flag) {
+            String payTime, String payDate, String offline, String errCode, String errMsg,
+            Integer flag) {
         this.id = id;
         this.result = result;
         this.tranResult = tranResult;
@@ -89,6 +92,8 @@ public class PayOrderTable {
         this.payTime = payTime;
         this.payDate = payDate;
         this.offline = offline;
+        this.errCode = errCode;
+        this.errMsg = errMsg;
         this.flag = flag;
     }
 
@@ -386,6 +391,22 @@ public class PayOrderTable {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getPayOrderTableDao() : null;
+    }
+
+    public String getErrCode() {
+        return this.errCode;
+    }
+
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
+    }
+
+    public String getErrMsg() {
+        return this.errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
     }
     
 }

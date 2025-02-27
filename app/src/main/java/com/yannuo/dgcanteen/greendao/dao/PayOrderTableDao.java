@@ -47,7 +47,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         public final static Property PayTime = new Property(20, String.class, "payTime", false, "PAY_TIME");
         public final static Property PayDate = new Property(21, String.class, "payDate", false, "PAY_DATE");
         public final static Property Offline = new Property(22, String.class, "offline", false, "OFFLINE");
-        public final static Property Flag = new Property(23, Integer.class, "flag", false, "FLAG");
+        public final static Property ErrCode = new Property(23, String.class, "errCode", false, "ERR_CODE");
+        public final static Property ErrMsg = new Property(24, String.class, "errMsg", false, "ERR_MSG");
+        public final static Property Flag = new Property(25, Integer.class, "flag", false, "FLAG");
     }
 
     private DaoSession daoSession;
@@ -89,7 +91,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
                 "\"PAY_TIME\" TEXT," + // 20: payTime
                 "\"PAY_DATE\" TEXT," + // 21: payDate
                 "\"OFFLINE\" TEXT," + // 22: offline
-                "\"FLAG\" INTEGER);"); // 23: flag
+                "\"ERR_CODE\" TEXT," + // 23: errCode
+                "\"ERR_MSG\" TEXT," + // 24: errMsg
+                "\"FLAG\" INTEGER);"); // 25: flag
     }
 
     /** Drops the underlying database table. */
@@ -217,9 +221,19 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(23, offline);
         }
  
+        String errCode = entity.getErrCode();
+        if (errCode != null) {
+            stmt.bindString(24, errCode);
+        }
+ 
+        String errMsg = entity.getErrMsg();
+        if (errMsg != null) {
+            stmt.bindString(25, errMsg);
+        }
+ 
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(24, flag);
+            stmt.bindLong(26, flag);
         }
     }
 
@@ -342,9 +356,19 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             stmt.bindString(23, offline);
         }
  
+        String errCode = entity.getErrCode();
+        if (errCode != null) {
+            stmt.bindString(24, errCode);
+        }
+ 
+        String errMsg = entity.getErrMsg();
+        if (errMsg != null) {
+            stmt.bindString(25, errMsg);
+        }
+ 
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(24, flag);
+            stmt.bindLong(26, flag);
         }
     }
 
@@ -385,7 +409,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
             cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // payTime
             cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // payDate
             cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22), // offline
-            cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23) // flag
+            cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // errCode
+            cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24), // errMsg
+            cursor.isNull(offset + 25) ? null : cursor.getInt(offset + 25) // flag
         );
         return entity;
     }
@@ -415,7 +441,9 @@ public class PayOrderTableDao extends AbstractDao<PayOrderTable, Long> {
         entity.setPayTime(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
         entity.setPayDate(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
         entity.setOffline(cursor.isNull(offset + 22) ? null : cursor.getString(offset + 22));
-        entity.setFlag(cursor.isNull(offset + 23) ? null : cursor.getInt(offset + 23));
+        entity.setErrCode(cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23));
+        entity.setErrMsg(cursor.isNull(offset + 24) ? null : cursor.getString(offset + 24));
+        entity.setFlag(cursor.isNull(offset + 25) ? null : cursor.getInt(offset + 25));
      }
     
     @Override
