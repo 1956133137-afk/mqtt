@@ -78,7 +78,7 @@ class ProductsVM : ViewModel() {
         return mDishesDisplay
     }
 
-    fun clearDishes(){
+    fun clearDishes() {
         dishesList.clear()
     }
 
@@ -132,9 +132,9 @@ class ProductsVM : ViewModel() {
 
                         mealList.add(meal)
 
-                        for (bean in da.selectedDishesCategoryData){
-                            if(!bean.categoryName.isNullOrEmpty()){
-                                val cat =CategoryTable()
+                        for (bean in da.selectedDishesCategoryData) {
+                            if (!bean.categoryName.isNullOrEmpty()) {
+                                val cat = CategoryTable()
                                 cat.categoryId = bean.categoryId
                                 cat.categoryName = bean.categoryName
                                 cat.sort = bean.sort
@@ -206,6 +206,7 @@ class ProductsVM : ViewModel() {
             bean.CAMPUS_ID = mPayCfg.campusId
             bean.CORP_ID = mPayCfg.corp_id
             bean.PAYMENT = detail.totalMoney.replace('元', ' ')
+            bean.ORDER_ID = "${mPayCfg.counterId}${System.currentTimeMillis()}"
             bean.BUSINESS_ID = mPayCfg.businessId
             bean.VPOS_ID = mPayCfg.counterId
             bean.REMARK = stringBuffer.toString()
@@ -225,9 +226,9 @@ class ProductsVM : ViewModel() {
                         vposId = mPayCfg.counterId
                         deviceId = CommonAndDpToPxUtil.getDeviceSerial()
                         payType = "1"
-                        payment = detail.totalMoney
-                        orderId = payResult.ORDER_ID
-                        payTime = payResult.PAYTIME
+                        payment = payResult.PAYMENT.ifEmpty { bean.PAYMENT }
+                        orderId = payResult.ORDER_ID.ifEmpty { bean.ORDER_ID }
+                        payTime = payResult.PAYTIME.ifEmpty { TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime) }
                         payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
                         sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
                         signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
@@ -242,43 +243,31 @@ class ProductsVM : ViewModel() {
                         }
                         payForUI.paymentDishes.add(dish)
                     }
-                    when (payResult.RESULT) {
-                        "Y" -> { //订单状态,成功
-                            payForUI.username = payResult.CUST_NAME
-                            payForUI.custId = payResult.CUST_ID
-                            if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                            payForUI.accType = payResult.ACC_TYPE
-                            payForUI.accNo = payResult.ACC_NO
-                            payForUI.accBal = payResult.ACC_BAL
-//                            payForUI.accList = payResult.ACC_LIST
-                            payResult.ACC_LIST.forEach {
-                                val acclist = ACCLIST().apply {
-                                    ACC_NO = it.ACC_NO
-                                    ACC_BAL = it.ACC_BAL
-                                    ACC_TYPE = it.ACC_TYPE
-                                    TRAN_ID = it.TRAN_ID
-                                    PAYMENT = it.PAYMENT
-                                }
-                                payForUI.accList.add(acclist)
-                            }
-                            //检查支付结果，
-                            when (payResult.TRAN_RESULT) {
-                                "3" -> {  //3支付成功
-                                    payForUI.result = "Y"
-                                    payForUI.traceId = payResult.TRACEID
-                                    saveOrSynOrder(payForUI)
-                                }
-                                else -> { //1 -待支付、2-支付失败
-                                    payForUI.errCode = payResult.ERRCODE
-                                    payForUI.errMsg = payResult.ERRMSG
-                                }
-                            }
-                        }
-                        else -> { //订单状态,失败
-                            payForUI.errCode = payResult.ERRCODE
-                            payForUI.errMsg = payResult.ERRMSG
-                        }
+                    payForUI.apply {
+                        this.result = payResult.RESULT
+                        username = payResult.CUST_NAME
+                        custId = payResult.CUST_ID
+                        actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                        accType = payResult.ACC_TYPE
+                        accNo = payResult.ACC_NO
+                        accBal = payResult.ACC_BAL
+                        traceId = payResult.TRACEID
+                        errCode = payResult.ERRCODE
+                        errMsg = payResult.ERRMSG
                     }
+                    payResult.ACC_LIST.forEach {
+                        val acclist = ACCLIST().apply {
+                            ACC_NO = it.ACC_NO
+                            ACC_BAL = it.ACC_BAL
+                            ACC_TYPE = it.ACC_TYPE
+                            TRAN_ID = it.TRAN_ID
+                            PAYMENT = it.PAYMENT
+                        }
+                        payForUI.accList.add(acclist)
+                    }
+                    LogUtil.d(TAG, Gson().toJson(payForUI))
+                    /*保存记录*/
+                    saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     listener?.onFacePayResult(payForUI)
                 }
             })
@@ -306,6 +295,7 @@ class ProductsVM : ViewModel() {
             bean.CAMPUS_ID = mPayCfg.campusId
             bean.CORP_ID = mPayCfg.corp_id
             bean.PAYMENT = String.format("%.2f", amount)
+            bean.ORDER_ID = "${mPayCfg.counterId}${System.currentTimeMillis()}"
             bean.BUSINESS_ID = mPayCfg.businessId
             bean.VPOS_ID = mPayCfg.counterId
             bean.OFFLINE = offline.toString()
@@ -323,52 +313,40 @@ class ProductsVM : ViewModel() {
                         vposId = mPayCfg.counterId
                         deviceId = CommonAndDpToPxUtil.getDeviceSerial()
                         payType = "1"
-                        payment = payResult.PAYMENT
-                        orderId = payResult.ORDER_ID
-                        payTime = payResult.PAYTIME
+                        payment = payResult.PAYMENT.ifEmpty { bean.PAYMENT }
+                        orderId = payResult.ORDER_ID.ifEmpty { bean.ORDER_ID }
+                        payTime = payResult.PAYTIME.ifEmpty { TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime) }
                         payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
                         sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
                         signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
                         this.offline = offline.toString()
                     }
-                    when (payResult.RESULT) {
-                        "Y" -> { //订单状态,成功
-                            payForUI.username = payResult.CUST_NAME
-                            payForUI.custId = payResult.CUST_ID
-                            if (offline == 0) payForUI.actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
-                            payForUI.accType = payResult.ACC_TYPE
-                            payForUI.accNo = payResult.ACC_NO
-                            payForUI.accBal = payResult.ACC_BAL
-                            payResult.ACC_LIST.forEach {
-                                val acclist = ACCLIST().apply {
-                                    ACC_NO = it.ACC_NO
-                                    ACC_BAL = it.ACC_BAL
-                                    ACC_TYPE = it.ACC_TYPE
-                                    TRAN_ID = it.TRAN_ID
-                                    PAYMENT = it.PAYMENT
-                                }
-                                payForUI.accList.add(acclist)
-                            }
-                            //检查支付结果，
-                            when (payResult.TRAN_RESULT) {
-                                "3" -> {  //3支付成功
-                                    payForUI.result = payResult.RESULT
-                                    payForUI.traceId = payResult.TRACEID
-                                    saveOrSynOrder(payForUI)
-                                }
-                                else -> { //1 -待支付、2-支付失败
-                                    payForUI.result = payResult.RESULT
-                                    payForUI.errCode = payResult.ERRCODE
-                                    payForUI.errMsg = payResult.ERRMSG
-                                }
-                            }
-                        }
-                        else -> { //订单状态,失败
-                            payForUI.result = payResult.RESULT
-                            payForUI.errCode = payResult.ERRCODE
-                            payForUI.errMsg = payResult.ERRMSG
-                        }
+                    payForUI.apply {
+                        this.result = payResult.RESULT
+                        username = payResult.CUST_NAME
+                        custId = payResult.CUST_ID
+                        actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
+                        accType = payResult.ACC_TYPE
+                        accNo = payResult.ACC_NO
+                        accBal = payResult.ACC_BAL
+                        traceId = payResult.TRACEID
+                        errCode = payResult.ERRCODE
+                        errMsg = payResult.ERRMSG
                     }
+                    payResult.ACC_LIST.forEach {
+                        val acclist = ACCLIST().apply {
+                            ACC_NO = it.ACC_NO
+                            ACC_BAL = it.ACC_BAL
+                            ACC_TYPE = it.ACC_TYPE
+                            TRAN_ID = it.TRAN_ID
+                            PAYMENT = it.PAYMENT
+                        }
+                        payForUI.accList.add(acclist)
+                    }
+
+                    LogUtil.d(TAG, Gson().toJson(payForUI))
+                    /*保存记录*/
+                    saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     listener?.onFacePayResult(payForUI)
                 }
             })
@@ -379,11 +357,11 @@ class ProductsVM : ViewModel() {
     /**
      * 保存或同步消费记录,离线模式将直接保存，在线模式上传失败也会保存
      */
-    private fun saveOrSynOrder(payForUI: PayForUI) {
+    private fun saveOrSynOrder(payForUI: PayForUI, tranResult: String) {
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             //保存记录
             val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
-            payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            payOrder.tranResult = tranResult.ifEmpty { "2" }  //1：待支付，2：支付失败，3：支付成功
             dbHelper.insertPayOrder(payOrder)
             val order = dbHelper.queryPayOrder(payOrder.orderId)
             payForUI.paymentDishes.forEach {
@@ -409,8 +387,8 @@ class ProductsVM : ViewModel() {
                 ORDER_ID = order.orderId
                 TRAN_RESULT = order.tranResult
                 OFFLINE = order.offline
-                ERRCODE = ""
-                ERRMSG = ""
+                ERRCODE = order.errCode
+                ERRMSG = order.errMsg
                 order.accList.forEach {
                     val acclist = ACCLIST().apply {
                         ACC_NO = it.acC_NO
@@ -494,12 +472,12 @@ class ProductsVM : ViewModel() {
     fun selectDateCategoryDish(data: DishesInfo): MutableList<DishesInfo> {
         var getDishes = 0
         dishesList.forEach {
-            if(it.dishesId == data.dishesId) {
+            if (it.dishesId == data.dishesId) {
                 getDishes++
                 it.count = data.count
             }
         }
-        if(getDishes == 0){
+        if (getDishes == 0) {
             dishesList.add(data)
         }
         return dishesList

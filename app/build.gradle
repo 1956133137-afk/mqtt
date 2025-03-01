@@ -80,8 +80,8 @@ android {
 
         //手动输入金额版本
         input {
-            versionCode 65
-            versionName "1.6.5"
+            versionCode 66
+            versionName "1.6.6"
             buildConfigField "int", "CHANNEL", "1"
         }
 
@@ -179,7 +179,7 @@ dependencies {
 
 }
 greendao {
-    schemaVersion 29 //指定数据库schema版本号，迁移等操作会用到;
+    schemaVersion 30 //指定数据库schema版本号，迁移等操作会用到;
     daoPackage 'com.yannuo.dgcanteen.greendao.dao' //dao的包名，包名默认是entity所在的包；
     targetGenDir 'src/main/java'//生成数据库文件的目录;
 }

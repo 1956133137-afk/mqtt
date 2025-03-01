@@ -114,8 +114,8 @@ class PayOrderFragment : BaseFragment<FragmentPayOrderBinding>() {
                         ORDER_ID = order.orderId
                         TRAN_RESULT = order.tranResult
                         OFFLINE = order.offline
-                        ERRCODE = ""
-                        ERRMSG = ""
+                        ERRCODE = order.errCode
+                        ERRMSG = order.errMsg
                         order.accList.forEach {
                             val acclist = ACCLIST().apply {
                                 ACC_NO = it.acC_NO
