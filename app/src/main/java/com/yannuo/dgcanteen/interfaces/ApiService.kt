@@ -52,6 +52,11 @@ interface ApiService {
     @GET("android/getDishes")
     suspend fun ccbDishes(@Query("deviceId") sn: String): CanteenResponse<MutableList<DayDishesBean>>
 
+    //获取带餐别菜品信息
+    @Headers("content-type: application/json")
+    @GET("android/getDishesV2")
+    suspend fun ccbDishesAndCategory(@Query("deviceId") sn: String): CanteenResponse<MutableList<DayDishesBean>>
+
     // 同步消费记录
     @Headers("content-type: application/json")
     @POST("deviceData/insertPaymentRecord")

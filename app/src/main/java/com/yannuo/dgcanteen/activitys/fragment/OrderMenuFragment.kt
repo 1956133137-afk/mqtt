@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -168,6 +169,10 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
             mealIds = it
             mPresenter.dishesData(mAdapter, it, this)
             mPresenter.categoryData(mCategory,it)
+            //同步菜品
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                model.upDataDishes()
+//            }
         }
 
         binding.ibDelAll.setOnClickListener {

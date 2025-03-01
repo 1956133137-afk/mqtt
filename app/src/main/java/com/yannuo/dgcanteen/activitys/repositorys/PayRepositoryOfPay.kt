@@ -20,7 +20,7 @@ class PayRepositoryOfPay {
     suspend fun getDayDishes(): CanteenResponse<MutableList<DayDishesBean>> {
         return apiCall {
             val sn = CommonAndDpToPxUtil.getDeviceSerial()
-            val ben = RetrofitClient.getApi().ccbDishes(sn)
+            val ben = RetrofitClient.getApi().ccbDishesAndCategory(sn)
             return@apiCall ben
         }
     }
