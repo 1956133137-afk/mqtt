@@ -80,8 +80,8 @@ android {
 
         //手动输入金额版本
         input {
-            versionCode 66
-            versionName "1.6.6"
+            versionCode 67
+            versionName "1.6.7"
             buildConfigField "int", "CHANNEL", "1"
         }
 
