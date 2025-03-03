@@ -1,9 +1,6 @@
 package com.yannuo.dgcanteen.adapters
 
 import android.content.Context
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.AbsoluteSizeSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.marginLeft

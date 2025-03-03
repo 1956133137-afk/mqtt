@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.QuotaTimeActivity
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
@@ -83,6 +84,15 @@ class ModeSettingFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 分时段金额
+//        val currentQuotaAmount = kv.decodeString(Constant.QUOTA_TIME_DEFAULT_AMOUNT, "0.00")
+//        kv.encode(Constant.QUOTA_AMOUNT, currentQuotaAmount)
+//        binding.fixedSum.setText(currentQuotaAmount)
+        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+    }
+
     private fun initObject() {
         kv = MMKV.defaultMMKV()
         mHandle = CoroutineExceptionHandler { coroutineContext, e ->
@@ -111,6 +121,7 @@ class ModeSettingFragment : Fragment() {
                 "扫码支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_TYPE)
                 "码卡支付模式" -> kv.encode(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
             }
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
 
         printerListView = ListView(requireContext())
@@ -142,14 +153,53 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.CODE_VERIFICATION_SET, binding.codeVerification.isChecked)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
-        binding.autoVerify.setOnClickListener {
-            kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
-            kv.encode(Constant.VERIFY_CHANGE, false)
+        binding.displayCardVerify.setOnClickListener {
+            kv.encode(Constant.DISPLAY_CARD_VERIFY, binding.displayCardVerify.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+        }
+        binding.verifyPersonStatistic.setOnClickListener {
+            kv.encode(Constant.VERIFY_PERSON_STATISTIC, binding.verifyPersonStatistic.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
         }
         binding.supportPay.setOnClickListener {
             kv.encode(Constant.SUPPORT_PAY, binding.supportPay.isChecked)
+            EventBus.getDefault().post(MessageEvent(Constant.EVENT_VERIFY_CHANGE, true))
+        }
+        binding.autoVerify.setOnClickListener {
+            var flag = -1
+            when {
+                binding.autoVerify.isChecked && !binding.codeVerification.isChecked -> flag = 0
+                binding.autoVerify.isChecked && binding.autoPay.isChecked -> flag = 1
+            }
+            val strMsg = when (flag) {
+                -1 -> ""
+                0 -> "请先开启核销模式"
+                else -> "请先关闭自动定额收款"
+            }
+            if (flag != -1) {
+                ToastShowUtil.show(strMsg)
+                binding.autoVerify.isChecked = false
+            }
+            kv.encode(Constant.AUTO_VERIFY, binding.autoVerify.isChecked)
+            kv.encode(Constant.VERIFY_CHANGE, false)
         }
         binding.autoPay.setOnClickListener {
+            var flag = -1
+            when {
+                binding.autoPay.isChecked && binding.autoVerify.isChecked -> flag = 0
+                binding.autoPay.isChecked && !binding.switchFixed.isChecked -> flag = 1
+                binding.autoPay.isChecked && kv.decodeString(Constant.QUOTA_AMOUNT, "0.00")!!.toDouble() <= 0.0 -> flag = 2
+            }
+            val strMsg = when (flag) {
+                -1 -> ""
+                0 -> "请先关闭自动核销"
+                1 -> "请先开启定额模式"
+                else -> "定额收款金额不能为0元"
+            }
+            if (flag != -1) {
+                ToastShowUtil.show(strMsg)
+                binding.autoPay.isChecked = false
+            }
             kv.encode(Constant.AUTO_PAY, binding.autoPay.isChecked)
         }
         binding.switchUseMealLimitPay.setOnClickListener {
@@ -169,9 +219,16 @@ class ModeSettingFragment : Fragment() {
 //            if (check) kv.encode(Constant.MEAL_TIME_MODE, 1)
 //            else kv.encode(Constant.MEAL_TIME_MODE, 0)
 //        }
+        binding.tvQuotaTime.setOnClickListener { startActivity(Intent(requireContext(), QuotaTimeActivity::class.java)) }
         binding.switchFixed.setOnClickListener { //定额模式
+            if (binding.switchFixed.isChecked && !amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)) {
+                binding.switchFixed.isChecked = false
+            }
+            if (!binding.switchFixed.isChecked && binding.autoPay.isChecked) {
+                binding.autoPay.isChecked = false
+                kv.encode(Constant.AUTO_PAY, false)
+            }
             kv.encode(Constant.QUOTA_SWITCH, binding.switchFixed.isChecked)
-            amountJudgment(binding.fixedSum, Constant.QUOTA_AMOUNT)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
         }
         binding.queryVerify.setOnClickListener {
@@ -371,7 +428,7 @@ class ModeSettingFragment : Fragment() {
         binding.autoPay.isChecked = kv.decodeBool(Constant.AUTO_PAY, false)
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
-        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
+//        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))
         binding.mealTimeDialogTime.setText(kv.decodeLong(Constant.PAY_RESULT_DIALOG_TIME, 3L).toString())  //主屏
         binding.mealTimePayResultTime.setText(kv.decodeLong(Constant.MEAL_TIME_PAY_RESULT_TIME, 10L).toString())  //副屏
         binding.mealTimeQueryBalTime.setText(kv.decodeLong(Constant.MEAL_TIME_QUERY_BALANCE_TIME, 10L).toString()) //副屏
@@ -380,6 +437,9 @@ class ModeSettingFragment : Fragment() {
         if (kv.decodeString(Constant.APP_MODE) == null) kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
         binding.appMode.text = kv.decodeString(Constant.APP_MODE)
         binding.tvFinalTime.text = kv.decodeString(Constant.FINAL_TIME)
+
+        binding.displayCardVerify.isChecked = kv.decodeBool(Constant.DISPLAY_CARD_VERIFY, false)
+        binding.verifyPersonStatistic.isChecked = kv.decodeBool(Constant.VERIFY_PERSON_STATISTIC, true)
 
         binding.orderPrinterFormat.text = printerList[kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)]
         binding.orderAdvanceDay.setText(kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6).toString())
@@ -401,21 +461,18 @@ class ModeSettingFragment : Fragment() {
     }
 
     private fun amountJudgment(view: EditText, name: String): Boolean {
-        if (view.text.isEmpty()) {
-            ToastShowUtil.show("输入金额不可为空")
-            return false
-        }
-        val amount = String.format(Locale.CHINA, "%.02f", view.text.toString().toFloat())
-        if (isFormJudgment(amount)) {
-            kv.encode(name, amount)
-            mScope.launch {
-                withContext(Dispatchers.Main) {
-                    view.setText(kv.decodeString(name))
-                }
-            }
+        val amountStr = view.text.toString()
+        if (isFormJudgment(amountStr)) {
+            val payMoney = String.format("%.02f", amountStr.toDouble())
+            kv.encode(name, payMoney)
+            if (name == Constant.QUOTA_AMOUNT) kv.encode(Constant.QUOTA_TIME_DEFAULT_AMOUNT, payMoney)
+            mScope.launch { withContext(Dispatchers.Main) { view.setText(kv.decodeString(name)) } }
             return true
         } else {
-            if (view.id == binding.fixedSum.id) binding.switchFixed.isChecked = false
+            if (view.id == binding.fixedSum.id) {
+                binding.switchFixed.isChecked = false
+                binding.autoPay.isChecked = false
+            }
             ToastShowUtil.show("输入金额有误")
             return false
         }

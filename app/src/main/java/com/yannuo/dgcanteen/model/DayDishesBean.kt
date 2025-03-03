@@ -7,6 +7,13 @@ data class DayDishesBean(
     val mealName: String,
     val startTime: String?,
     val endTime: String?,
+    val selectedDishesCategoryData: List<SelectedDishesCategory>
+)
+
+data class SelectedDishesCategory(
+    val categoryId: String,
+    val categoryName: String,
+    val sort: String,
     val selectedDishesList: List<SelectedDishes>
 )
 
@@ -16,4 +23,8 @@ data class SelectedDishes(
     val imgUrl: String,
     val price: String,
     val unit: String
+)
+
+data class DishesCategory(
+    val selectedDishesList: List<SelectedDishes>
 )

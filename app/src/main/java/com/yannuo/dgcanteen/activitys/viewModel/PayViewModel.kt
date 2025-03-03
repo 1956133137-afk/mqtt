@@ -96,19 +96,23 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     fun getIsAllowance() = isAllowance
 
-    fun openPayStatus() {
+    fun openPayStatus(payType: Int) {
         payState = PayStatus.PAY
         //打卡读卡器
-        mCardHandle = SerialPortHelper()
-        mCardHandle?.readDataListener = mReadCardListener
-        mCardHandle?.openSerialPort("/dev/ttyS4")
-//        mCardHandle?.openSerialPort("/dev/ttyXRUSB0")
+        if (payType == Constant.PAY_IC_TYPE || payType == Constant.PAY_CODE_IC_TYPE) {
+            mCardHandle = SerialPortHelper()
+            mCardHandle?.readDataListener = mReadCardListener
+            mCardHandle?.openSerialPort("/dev/ttyS4")
+//            mCardHandle?.openSerialPort("/dev/ttyXRUSB0")
+        }
         //打开扫码头
-        mScanDevice = ScanDevice()
-        mScanDevice?.setCallbackListener(mScanCodeListener)
-        mScanDevice?.openScan()
-        ntHelp = NTScanHelp()
-        ntHelp?.OpenScanCode(mScanCodeListener, MyApplication.applicationContext)
+        if (payType == Constant.PAY_CODE_TYPE || payType == Constant.PAY_CODE_IC_TYPE) {
+            mScanDevice = ScanDevice()
+            mScanDevice?.setCallbackListener(mScanCodeListener)
+            mScanDevice?.openScan()
+            ntHelp = NTScanHelp()
+            ntHelp?.OpenScanCode(mScanCodeListener, MyApplication.applicationContext)
+        }
     }
 
     fun closePayStatus() {
@@ -993,6 +997,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             if (response.code == "200") {
                 val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
                 val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                LogUtil.d(TAG, "支付结果:${Gson().toJson(result)}")
                 payForUI.result = result.RESULT
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
@@ -1006,6 +1011,11 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         PAYMENT = it.PAYMENT
                     }
                     payForUI.accList.add(acclist)
+                }
+                // 查询人员姓名
+                if (result.CUST_ID.isNotEmpty() && payForUI.username.isEmpty()) {
+                    val persons = dbHelper.queryPersonToCustId(result.CUST_ID)
+                    if (persons != null) payForUI.username = persons.personName
                 }
                 payForUI.actualPayment = result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID

@@ -43,6 +43,8 @@ class CheckVerifyActivity : BaseActivity<ActivityCheckVerifyBinding>(), Callback
     private val mmkv by lazy { MMKV.defaultMMKV() }
     private val verificationVM by lazy { ViewModelProvider(this)[VerificationVM::class.java] }
     private val verifyQueryAdapter by lazy { VerifyQueryAdapter(this) }
+    private var clickStartTime = 0L
+    private var clickTimes = 0
 
     private var mFacePayService: ZHSTFacePayService? = null
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
@@ -95,9 +97,14 @@ class CheckVerifyActivity : BaseActivity<ActivityCheckVerifyBinding>(), Callback
 
     private fun initEvent() {
         binding.ibtBack.setOnClickListener {
-            mXService?.hideNavBar = false
-            mmkv.encode(Constant.QUERY_VERIFY, false)
-            finish()
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+                mXService?.hideNavBar = false
+//                mmkv.encode(Constant.QUERY_VERIFY, false)
+                finish()
+            }
         }
 
         binding.btnFaceCheck.setOnClickListener {

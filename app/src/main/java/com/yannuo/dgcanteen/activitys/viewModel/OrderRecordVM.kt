@@ -3,12 +3,12 @@ package com.yannuo.dgcanteen.activitys.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,12 +28,15 @@ class OrderRecordVM : ViewModel() {
     private var currentCustId: String = ""
     private var payCfg = PayCfg()
     private val orderList: MutableList<Order> = mutableListOf()
+    private val windowList: MutableList<WindowBean> = mutableListOf()
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
         listener?.onOrder(0, "")
     }
+
+    fun getWindowList(): MutableList<WindowBean> = windowList
 
     fun setListener(listener: OnOrderListener?) {
         this.listener = listener
@@ -44,6 +47,21 @@ class OrderRecordVM : ViewModel() {
         currentCcbToken = ccbToken
         currentCustId = custId
         payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+        synWindowList()
+    }
+
+    private fun synWindowList() {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            /*获取窗口信息*/
+            windowList.clear()
+            val windowReceive = mRepository.getWindowList(currentCcbToken, payCfg.businessId, payCfg.campusId)
+            if (windowReceive.code == "200") {
+                val type = object : TypeToken<MutableList<WindowBean>>() {}.type
+                val list = Gson().fromJson<MutableList<WindowBean>>(Gson().toJson(windowReceive.data), type)
+                LogUtil.d(TAG, Gson().toJson(list))
+                windowList.addAll(list)
+            }
+        }
     }
 
     fun queryOrderList(page: Int, pageSize: Int, callback: (Int, MutableList<Order>) -> Unit) {

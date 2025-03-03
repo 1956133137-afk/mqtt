@@ -29,6 +29,8 @@ class BalanceActivity :BaseActivity<ActivityBalanceBinding>(), CallbackListener 
     private var mXService: MyService? = null
     private var passwordDialog: PasswordDialog?= null
     private lateinit var mHandler: Handler
+    private var clickStartTime = 0L
+    private var clickTimes = 0
 
     override fun bindLayout() {
         binding = ActivityBalanceBinding.inflate(layoutInflater)
@@ -63,8 +65,13 @@ class BalanceActivity :BaseActivity<ActivityBalanceBinding>(), CallbackListener 
     private fun initEvent() {
 
         binding.ibtBack.setOnClickListener {
-            mXService?.hideNavBar = false
-            finish()
+            if (clickTimes == 0) clickStartTime = System.currentTimeMillis()
+            if (System.currentTimeMillis() - clickStartTime < 1000) clickTimes++ else clickTimes = 0
+            if (clickTimes == 3) {
+                clickTimes = 0
+                mXService?.hideNavBar = false
+                finish()
+            }
         }
 
         binding.tvSetting.setOnClickListener {

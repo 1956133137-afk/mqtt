@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
@@ -268,9 +269,11 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     }
 
     private fun getOrderToken(orderForUI: OrderForUI) {
-        runBlocking {
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
             val encryptStr = getCavEncryptParam(orderForUI)
+            LogUtil.d(TAG, encryptStr)
             val tokenRes = mRepository.getToken(orderForUI.campusId, encryptStr)
+            LogUtil.d(TAG, Gson().toJson(tokenRes))
             if (tokenRes.code == "200") {
                 orderForUI.ccbToken = tokenRes.data?.dcccbToken ?: ""
                 currentCustId = orderForUI.custId

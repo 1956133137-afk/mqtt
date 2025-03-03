@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -40,6 +41,64 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="自助余额查询"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/cb_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="核销查询"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/query_verify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false" />
+        </LinearLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
@@ -70,6 +129,144 @@
                 android:textStyle="bold" />
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_quota_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="分时段定额设置"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp"
+                app:drawableEndCompat="@drawable/ic_right" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="定额收款金额"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+                <EditText
+                    android:id="@+id/fixed_sum"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:gravity="center"
+                    android:inputType="number|numberDecimal"
+                    android:text="10.0"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:text="定额模式"
+                    android:textColor="#4F4F4F"
+                    android:textSize="28sp" />
+
+                <CheckBox
+                    android:id="@+id/switch_fixed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/select_switch"
+                    android:button="@null"
+                    android:checked="false" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="自动定额收款"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/auto_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="副屏支付按钮"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/support_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:gravity="right" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -118,6 +315,96 @@
                 android:layout_height="40dp"
                 android:layout_marginStart="45dp"
                 android:layout_weight="1"
+                android:text="副屏码卡核销"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/display_card_verify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
+                android:text="核销人数统计"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/verify_person_statistic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:background="@drawable/select_switch"
+                android:button="@null"
+                android:checked="false"
+                android:gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="217dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="40dp"
+                android:text="切换核销方式"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <Spinner
+                android:id="@+id/sp_verify"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="45dp"
+                android:entries="@array/spVerify"
+                android:gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
                 android:text="自动核销(常亮刷脸)"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
@@ -145,23 +432,25 @@
             android:gravity="center_vertical">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_marginStart="45dp"
-                android:layout_weight="1"
-                android:text="副屏支付按钮"
+                android:text="核销菜品展示时间"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />
 
-            <CheckBox
-                android:id="@+id/support_pay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <EditText
+                android:id="@+id/meal_time"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="45dp"
-                android:background="@drawable/select_switch"
-                android:button="@null"
-                android:checked="false"
-                android:gravity="right" />
+                android:layout_weight="1"
+                android:background="@null"
+                android:gravity="right"
+                android:inputType="number"
+                android:text="10"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
         </LinearLayout>
 
         <RelativeLayout
@@ -261,203 +550,6 @@
                 android:button="@null"
                 android:checked="false" />
         </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="217dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="40dp"
-                android:text="切换核销方式"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-            <Spinner
-                android:id="@+id/sp_verify"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="45dp"
-                android:entries="@array/spVerify"
-                android:gravity="right" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="45dp"
-                android:text="定额收款模式"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-            <EditText
-                android:id="@+id/fixed_sum"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="20dp"
-                android:layout_weight="1"
-                android:background="@null"
-                android:gravity="right"
-                android:inputType="number|numberDecimal"
-                android:text="10.0"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-
-            <CheckBox
-                android:id="@+id/switch_fixed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="45dp"
-                android:background="@drawable/select_switch"
-                android:button="@null"
-                android:checked="false" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="45dp"
-                android:layout_weight="1"
-                android:text="自动定额收款(请先打开定额模式且支付金额不能为0元)"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-            <CheckBox
-                android:id="@+id/auto_pay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="45dp"
-                android:background="@drawable/select_switch"
-                android:button="@null"
-                android:checked="false"
-                android:gravity="right" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="45dp"
-                android:text="核销菜品展示时间"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-            <EditText
-                android:id="@+id/meal_time"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="45dp"
-                android:layout_weight="1"
-                android:background="@null"
-                android:gravity="right"
-                android:inputType="number"
-                android:text="10"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="45dp"
-                android:layout_weight="1"
-                android:text="核销查询"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-
-            <CheckBox
-                android:id="@+id/query_verify"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="45dp"
-                android:background="@drawable/select_switch"
-                android:button="@null"
-                android:checked="false" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="35dp"
-            android:background="@drawable/shape_btn_bg_white"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginStart="45dp"
-                android:layout_weight="1"
-                android:text="自助余额查询"
-                android:textColor="#4F4F4F"
-                android:textSize="28sp" />
-
-
-            <CheckBox
-                android:id="@+id/cb_balance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="45dp"
-                android:background="@drawable/select_switch"
-                android:button="@null"
-                android:checked="false" />
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

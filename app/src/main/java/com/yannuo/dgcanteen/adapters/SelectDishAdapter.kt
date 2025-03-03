@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.yannuo.dgcanteen.databinding.ItemSelectDishBinding
 import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
  * Author: filowl
@@ -14,8 +15,14 @@ import com.yannuo.dgcanteen.model.DishBean
 class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     private val repeatMap: HashMap<String, Int> = hashMapOf()
     private var listener: SelectDishListener? = null
+    private var isLimit: Boolean = false
+    private var limitSize: Int = 1
+    private var size: Int = 0
 
-    fun setDishListener(listener: SelectDishListener?) {
+    fun setDishListener(isLimit: Boolean, limitSize: Int, size: Int, listener: SelectDishListener?) {
+        this.isLimit = isLimit
+        this.limitSize = limitSize
+        this.size = size
         this.listener = listener
     }
 
@@ -39,6 +46,10 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
         holder.binding.ivBtnAdd.setOnClickListener {
             val position = holder.adapterPosition
             if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (!judgeDishLimit()) {
+                ToastShowUtil.show("餐别订餐份数已达上限！")
+                return@setOnClickListener
+            }
             val dishBean = mData[position]
             mData[position].dishCount++
             notifyItemChanged(position, "dishCount")
@@ -54,6 +65,15 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
                 listener?.onSelectDish(dishBean)
             }
         }
+    }
+
+    private fun judgeDishLimit(): Boolean {
+        /*是否限购*/
+        if (!isLimit) return true
+        /*是否已达餐别订餐份数上限*/
+        var dishTotalCount = 0
+        mData.forEach { dishTotalCount += it.dishCount }
+        return size + dishTotalCount < limitSize
     }
 
     fun insertedData(bean: DishBean) {

@@ -34,10 +34,12 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
 class CameraService : Service(), NetworkStateManager.NetWorkListener {
@@ -123,6 +125,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //        }
 //        authFace.authCheck(initcallback)
         deviceInit()
+        timingQuest()
         deleteNonTodayRecords()
     }
 
@@ -605,8 +608,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                         ORDER_ID = order.orderId
                         TRAN_RESULT = order.tranResult
                         OFFLINE = order.offline
-                        ERRCODE = ""
-                        ERRMSG = ""
+                        ERRCODE = order.errCode
+                        ERRMSG = order.errMsg
                         order.accList.forEach {
                             val acclist = ACCLIST().apply {
                                 ACC_NO = it.acC_NO
@@ -734,6 +737,50 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         DishesDBHelper.getInstance().deleteOfflineOrderByPayDate(date)
         //核销记录
         DishesDBHelper.getInstance().deleteVerifyUser(date)
+    }
+
+    /**
+     * 分时段定额
+     */
+    @OptIn(ExperimentalTime::class)
+    private fun timingQuest() {
+        mScope.launch {
+            val mmkv = MMKV.defaultMMKV()
+            while (isActive) {
+                // 分时段定额
+                val quotaAmount = currentWithinIntervals(mmkv)
+                // 判断是否
+                if (quotaAmount != mmkv.decodeString(Constant.QUOTA_AMOUNT)) {
+                    mmkv.encode(Constant.QUOTA_AMOUNT, quotaAmount)
+                    // 定额开启，通知界面更新
+                    if (mmkv.decodeBool(Constant.QUOTA_SWITCH)) {
+                        LogUtil.d(TAG, mmkv.decodeString(Constant.QUOTA_AMOUNT).toString() + "_ 固定金额改变")
+                        EventBus.getDefault().post(MessageEvent(Constant.EVENT_QUOTA_CHANGE, null))
+                    }
+                }
+                delay(10000)
+            }
+        }
+    }
+
+    /**
+     * 判断当前时间是否在某些区间内
+     */
+    private fun currentWithinIntervals(mmkv: MMKV): String {
+        DishesDBHelper.getInstance().queryQuotaTime().forEach {
+            if (currentTimePeriod(it.startTime, it.endTime)) return it.quotaAmount
+        }
+        return mmkv.decodeString(Constant.QUOTA_TIME_DEFAULT_AMOUNT) ?: "0.00"
+    }
+
+    private fun currentTimePeriod(begin: String, end: String): Boolean {
+        val str = TimeUtil.timeFormat("yyyy/MM/dd", System.currentTimeMillis())
+
+        val startTime = Date("$str $begin").time
+        val nowTime = System.currentTimeMillis()
+        val endTime = Date("$str $end").time
+
+        return nowTime in startTime until (endTime + 1)
     }
 
     inner class LocalBinder : Binder() {

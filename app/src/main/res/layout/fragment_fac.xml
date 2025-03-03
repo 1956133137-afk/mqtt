@@ -6,6 +6,11 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+    <TextView
+        android:id="@+id/back_auto_pay"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
     <Button
         android:id="@+id/btn_back"
         android:layout_width="220dp"

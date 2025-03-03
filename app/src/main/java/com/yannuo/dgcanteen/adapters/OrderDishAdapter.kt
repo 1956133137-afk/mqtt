@@ -6,12 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemOrderDishBinding
 import com.yannuo.dgcanteen.model.DishBean
-import com.yannuo.dgcanteen.model.OrderDish
-import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.PictureUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
  * Author: filowl
@@ -20,6 +21,7 @@ import com.yannuo.dgcanteen.util.PictureUtil
  **/
 class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDishBinding>() {
     private var listener: OrderDishListener? = null
+    private val mmkv = MMKV.defaultMMKV()
 
     fun setDishListener(listener: OrderDishListener) {
         this.listener = listener
@@ -50,9 +52,18 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
     }
 
     override fun addEventListener(holder: Holder) {
+        holder.binding.rlDescription.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            listener?.onOrderDishDescription("菜品描述:\n${mData[position].description}")
+        }
         holder.binding.btnAdd.setOnClickListener {
             val position = holder.adapterPosition
             if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (!judgeMealLimit()) {
+                ToastShowUtil.show("餐别订餐份数已达上限！")
+                return@setOnClickListener
+            }
             mData[position].dishCount++
             notifyItemChanged(position, "dishCount")
             listener?.onOrderDish(mData[position])
@@ -68,6 +79,15 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
         }
     }
 
+    private fun judgeMealLimit(): Boolean {
+        /*是否限购*/
+        if (!mmkv.decodeBool(Constant.ORDER_MEAL_LIMIT_SWITCH, false)) return true
+        /*是否已达餐别订餐份数上限*/
+        var dishTotalCount = 0
+        mData.forEach { dishTotalCount += it.dishCount }
+        return mmkv.decodeInt(Constant.ORDER_MEAL_SIZE) + dishTotalCount < mmkv.decodeInt(Constant.ORDER_MEAL_LIMIT_SIZE, 1)
+    }
+
     fun updateDishCount(dishBean: DishBean) {
         mData.forEachIndexed { position, dish ->
             if (dish.dishId == dishBean.dishId) {
@@ -79,5 +99,6 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
 
     interface OrderDishListener {
         fun onOrderDish(bean: DishBean)
+        fun onOrderDishDescription(description: String)
     }
 }

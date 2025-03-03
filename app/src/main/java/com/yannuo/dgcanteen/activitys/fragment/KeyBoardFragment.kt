@@ -16,19 +16,15 @@ import com.yannuo.dgcanteen.activitys.HostActivity
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentInputKeyboardBinding
 import com.yannuo.dgcanteen.interfaces.KeyboardListener
-import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.OrderPayInfo
+import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.KeyboardUtil
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.ToastShowUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import com.yannuo.dgcanteen.util.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.Locale
+import java.util.*
 
 /**
  * Author: filowl

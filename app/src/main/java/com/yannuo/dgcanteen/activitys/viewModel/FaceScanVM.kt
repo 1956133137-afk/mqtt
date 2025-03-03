@@ -98,15 +98,22 @@ class FaceScanVM {
             CAMPUS_ID = mPayCfg.campusId
             CORP_ID = mPayCfg.corp_id        // "1046"
             PAYMENT = payment
-            ORDER_ID = orderId
+            ORDER_ID = orderId.ifEmpty { "${mPayCfg.counterId}${System.currentTimeMillis()}" }
             BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
             VPOS_ID = mPayCfg.counterId      // "V00023523"
             REMARK = verifyFlag
             OFFLINE = currentOffline
         }
-        if (mmkv.decodeBool(Constant.CODE_VERIFICATION_SET, false) && mmkv.decodeBool(Constant.AUTO_VERIFY, false)) {
-            mFacePayService?.setTimeOut(0)
-        } else mFacePayService?.setTimeOut(30000)
+        // 常亮模式
+        when {
+            mmkv.decodeString(Constant.APP_MODE) == Constant.PROCEEDS_MODE && mmkv.decodeBool(Constant.AUTO_VERIFY, false) -> {
+                mFacePayService?.setTimeOut(0)  // 常亮核销
+            }
+            mmkv.decodeString(Constant.APP_MODE) == Constant.PROCEEDS_MODE && mmkv.decodeBool(Constant.AUTO_PAY, false) -> {
+                mFacePayService?.setTimeOut(0)  // 常亮收款
+            }
+            else -> mFacePayService?.setTimeOut(30000)
+        }
         mFacePayService?.startFacePay(if (modeStatus) "" else Gson().toJson(ccbFacePayBean), currentOffline, resultListener)
     }
 
@@ -116,6 +123,10 @@ class FaceScanVM {
         serviceIntent.action = "com.ccb.smartcanteen.FacePayService"
         serviceIntent.setPackage("com.ccb.smartcanteen")
         mContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun stopScanFace() {
+        mFacePayService?.stopFacePay()
     }
 
     private inner class MyServiceConnection : ServiceConnection {
@@ -150,9 +161,9 @@ class FaceScanVM {
             vposId = mPayCfg.counterId
             deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             payType = "1"
-            payment = bean.PAYMENT
-            orderId = bean.ORDER_ID
-            payTime = bean.PAYTIME
+            payment = bean.PAYMENT.ifEmpty { ccbFacePayBean.PAYMENT }
+            orderId = bean.ORDER_ID.ifEmpty { ccbFacePayBean.ORDER_ID }
+            payTime = bean.PAYTIME.ifEmpty { TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime) }
             payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
             sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
@@ -160,52 +171,39 @@ class FaceScanVM {
             paymentDishes.addAll(dishList)
         }
         dishList.clear()
-        when (bean.RESULT) {
-            "Y" -> { //订单状态,成功
-                payForUI.username = bean.CUST_NAME
-                payForUI.custId = bean.CUST_ID
-                payForUI.actualPayment = bean.ACTUAL_PAYMENT  //非离线用实际支付值
-                payForUI.accType = bean.ACC_TYPE
-                payForUI.accNo = bean.ACC_NO
-                payForUI.accBal = bean.ACC_BAL
-                bean.ACC_LIST.forEach {
-                    val acclist = ACCLIST().apply {
-                        ACC_NO = it.ACC_NO
-                        ACC_BAL = it.ACC_BAL
-                        ACC_TYPE = it.ACC_TYPE
-                        TRAN_ID = it.TRAN_ID
-                        PAYMENT = it.PAYMENT
-                    }
-                    payForUI.accList.add(acclist)
-                }
-                //检查支付结果，
-                when (bean.TRAN_RESULT) {
-                    "3" -> {  //3支付成功
-                        payForUI.result = bean.RESULT
-                        payForUI.traceId = bean.TRACEID
-                        saveOrSynOrder(payForUI)
-                    }
-                    else -> { //1 -待支付、2-支付失败
-                        payForUI.result = bean.RESULT
-                        payForUI.errCode = bean.ERRCODE
-                        payForUI.errMsg = bean.ERRMSG
-                    }
-                }
-            }
-            else -> { //订单状态,失败
-                payForUI.result = bean.RESULT
-                payForUI.errCode = bean.ERRCODE
-                payForUI.errMsg = bean.ERRMSG
-            }
+        payForUI.apply {
+            result = bean.RESULT
+            username = bean.CUST_NAME
+            custId = bean.CUST_ID
+            actualPayment = bean.ACTUAL_PAYMENT  //非离线用实际支付值
+            accType = bean.ACC_TYPE
+            accNo = bean.ACC_NO
+            accBal = bean.ACC_BAL
+            traceId = bean.TRACEID
+            errCode = bean.ERRCODE
+            errMsg = bean.ERRMSG
         }
+        bean.ACC_LIST.forEach {
+            val acclist = ACCLIST().apply {
+                ACC_NO = it.ACC_NO
+                ACC_BAL = it.ACC_BAL
+                ACC_TYPE = it.ACC_TYPE
+                TRAN_ID = it.TRAN_ID
+                PAYMENT = it.PAYMENT
+            }
+            payForUI.accList.add(acclist)
+        }
+        LogUtil.d(TAG, Gson().toJson(payForUI))
+        /*保存记录*/
+        saveOrSynOrder(payForUI, bean.TRAN_RESULT)
         listener?.onFacePay(payForUI)
     }
 
-    private fun saveOrSynOrder(payForUI: PayForUI) {
+    private fun saveOrSynOrder(payForUI: PayForUI, tranResult: String) {
         mScope.launch(Dispatchers.IO + mHandler) {
             //保存记录
             val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
-            payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            payOrder.tranResult = tranResult.ifEmpty { "2" } //1：待支付，2：支付失败，3：支付成功
             dbHelper.insertPayOrder(payOrder)
             val order = dbHelper.queryPayOrder(payOrder.orderId)
             payForUI.paymentDishes.forEach {
@@ -231,8 +229,8 @@ class FaceScanVM {
                 ORDER_ID = order.orderId
                 TRAN_RESULT = order.tranResult
                 OFFLINE = order.offline
-                ERRCODE = ""
-                ERRMSG = ""
+                ERRCODE = order.errCode
+                ERRMSG = order.errMsg
                 order.accList.forEach {
                     val acclist = ACCLIST().apply {
                         ACC_NO = it.acC_NO
@@ -255,7 +253,7 @@ class FaceScanVM {
                     if (payForUI.isSw == 1) {
                         // 回调sw餐次界面
                         swListener?.swOnFacePay(payForUI, "订单${bean.ORDER_ID} 上传成功!")
-                    }else dbHelper.updatePayOrder(order)
+                    } else dbHelper.updatePayOrder(order)
                     LogUtil.i(TAG, "订单${bean.ORDER_ID} 上传成功!")
                 } else {
                     if (payForUI.isSw == 1) {

@@ -144,6 +144,9 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
             list = DishesDBHelper.getInstance().queryDishesByMealId(mealId);
         }
         for (DishesTable u : list){
+            String imgUrl = (u.getImgUrl() == null || u.getImgUrl().isEmpty()) ? "" : u.getImgUrl();
+            Integer status = u.getStatus();
+            if (status == null) status = 1;
             dataList.add(new DishesInfo(
                     u.getDishesId(),
                     u.getDishesName(),
@@ -151,8 +154,8 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
                     null,
                     u.getPrice(),
                     u.getUnit(),
-                    u.getImgUrl(),
-                    u.getStatus(),
+                    imgUrl,
+                    status,
                     0
             ));
         }

@@ -22,6 +22,7 @@ public class DishesTable {
     private String unit;  //菜品单位（个/份/碗 等）
     private String imgUrl;  //菜品图片资源Url
     private int status = 1;  //上架状态：0-下架，1-上架
+    private String categoryName; //餐别名称
 
 
     public DishesTable(Long id, @NotNull String dishesId,
@@ -42,9 +43,8 @@ public class DishesTable {
     public DishesTable() {
     }
 
-    @Generated(hash = 1078586162)
-    public DishesTable(Long id, @NotNull String dishesId, @NotNull String dishesName,
-            int mealId, @NotNull Double price, String unit, String imgUrl, int status) {
+    @Generated(hash = 714880082)
+    public DishesTable(Long id, @NotNull String dishesId, @NotNull String dishesName, int mealId, @NotNull Double price, String unit, String imgUrl, int status, String categoryName) {
         this.id = id;
         this.dishesId = dishesId;
         this.dishesName = dishesName;
@@ -53,6 +53,15 @@ public class DishesTable {
         this.unit = unit;
         this.imgUrl = imgUrl;
         this.status = status;
+        this.categoryName = categoryName;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public Long getId() {

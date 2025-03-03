@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.yannuo.dgcanteen.greendao.dao.AccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
@@ -17,9 +18,11 @@ import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
+import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
+import com.yannuo.dgcanteen.greendao.entity.CategoryTable;
 import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
@@ -30,6 +33,7 @@ import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable;
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.Persons;
+import com.yannuo.dgcanteen.greendao.entity.QuotaTimeTable;
 import com.yannuo.dgcanteen.greendao.entity.SwPayOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.VerifyDishes;
 import com.yannuo.dgcanteen.util.LogUtil;
@@ -77,6 +81,8 @@ public class DishesDBHelper {
     private AccListTableDao accListDao;
     private OfflineAccListTableDao olAccListDao;
     private SwPayOrderTableDao swPayOrderTableDao;
+    private QuotaTimeTableDao quotaTimeTableDao;
+    private CategoryTableDao categoryTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -125,6 +131,8 @@ public class DishesDBHelper {
         accListDao = mDaoSession.getAccListTableDao();
         olAccListDao = mDaoSession.getOfflineAccListTableDao();
         swPayOrderTableDao = mDaoSession.getSwPayOrderTableDao();
+        quotaTimeTableDao = mDaoSession.getQuotaTimeTableDao();
+        categoryTableDao = mDaoSession.getCategoryTableDao();
     }
 
     /**
@@ -176,6 +184,14 @@ public class DishesDBHelper {
 
         return mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status))
+                .build()
+                .list();
+    }
+
+    public List<DishesTable> queryDishesByMealIdAneStatusAnCategory(int MealId, int Status, String Category) {
+
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status), DishesTableDao.Properties.CategoryName.eq(Category))
                 .build()
                 .list();
     }
@@ -589,6 +605,7 @@ public class DishesDBHelper {
 
     public List<PayOrderTable> queryPayOrder(String username, String orderId) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.Username.like("%" + username + "%"))
                 .where(PayOrderTableDao.Properties.OrderId.like("%" + orderId + "%"))
                 .orderDesc(PayOrderTableDao.Properties.PayTime)
@@ -604,6 +621,7 @@ public class DishesDBHelper {
 
     public PayOrderTable queryPayOrderUser(String date) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
                 .orderDesc(PayOrderTableDao.Properties.Id)
                 .limit(1)
@@ -612,6 +630,7 @@ public class DishesDBHelper {
 
     public List<PayOrderTable> queryPayOrderUserToTen(String date) {
         return payOrderTableDao.queryBuilder()
+                .where(PayOrderTableDao.Properties.TranResult.eq("3"))
                 .where(PayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"), PayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
                 .orderDesc(PayOrderTableDao.Properties.Id)
                 .limit(10)
@@ -737,8 +756,8 @@ public class DishesDBHelper {
 
     public List<SwPayOrderTable> querySwPayOrderListByDate(String date, String actualMealName) {
         return swPayOrderTableDao.queryBuilder()
-                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
-                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"),
                         SwPayOrderTableDao.Properties.ActualMealName.eq(actualMealName))
                 .build().list();
     }
@@ -746,8 +765,8 @@ public class DishesDBHelper {
     public List<SwPayOrderTable> querySwPayOrderListByCustIdDate(String custId, String date, String actualMealName) {
         return swPayOrderTableDao.queryBuilder()
                 .where(SwPayOrderTableDao.Properties.CustId.eq(custId),
-                        SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
-                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                        SwPayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"),
                         SwPayOrderTableDao.Properties.ActualMealName.eq(actualMealName))
                 .build().list();
     }
@@ -756,16 +775,16 @@ public class DishesDBHelper {
         return swPayOrderTableDao.queryBuilder()
                 .where(SwPayOrderTableDao.Properties.Username.like("%" + username + "%"),
                         SwPayOrderTableDao.Properties.OrderId.like("%" + orderId + "%"),
-                        SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
-                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"))
+                        SwPayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"))
                 .orderDesc(SwPayOrderTableDao.Properties.PayTime)
                 .build().list();
     }
 
     public List<SwPayOrderTable> querySwPayOrderByStandardMealId(int standardMealId, String date) {
         return swPayOrderTableDao.queryBuilder()
-                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
-                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"),
                         SwPayOrderTableDao.Properties.StandardMealId.eq(standardMealId))
                 .orderDesc(SwPayOrderTableDao.Properties.PayTime)
                 .build().list();
@@ -773,8 +792,8 @@ public class DishesDBHelper {
 
     public List<SwPayOrderTable> querySwPayOrderByActualMealId(int actualMealId, String date) {
         return swPayOrderTableDao.queryBuilder()
-                .where(SwPayOrderTableDao.Properties.PayTime.gt(date+ " 00:00:00"),
-                        SwPayOrderTableDao.Properties.PayTime.lt(date+ " 23:59:59"),
+                .where(SwPayOrderTableDao.Properties.PayTime.gt(date + " 00:00:00"),
+                        SwPayOrderTableDao.Properties.PayTime.lt(date + " 23:59:59"),
                         SwPayOrderTableDao.Properties.ActualMealId.eq(actualMealId))
                 .orderDesc(SwPayOrderTableDao.Properties.PayTime)
                 .build().list();
@@ -793,5 +812,42 @@ public class DishesDBHelper {
             deletePayDish(order.getId());
             deleteSwPayOrder(order);
         }
+    }
+
+    /*******************************   分时段定额   *******************************/
+    public void insertQuotaTime(QuotaTimeTable quotaTime) {
+        quotaTimeTableDao.insert(quotaTime);
+    }
+
+    public void updateQuotaTime(QuotaTimeTable quotaTime) {
+        quotaTimeTableDao.update(quotaTime);
+    }
+
+    public List<QuotaTimeTable> queryQuotaTime() {
+        return quotaTimeTableDao.queryBuilder().build().list();
+    }
+
+    public void deleteQuotaTime(QuotaTimeTable quotaTime) {
+        quotaTimeTableDao.delete(quotaTime);
+    }
+
+    /*******************************   菜品类别   *******************************/
+    public void insertCategory(List<CategoryTable> categoryTable) {
+        categoryTableDao.insertOrReplaceInTx(categoryTable);
+    }
+
+    public List<CategoryTable> queryCategory() {
+        return categoryTableDao.queryBuilder().build().list();
+    }
+
+    public List<CategoryTable> queryCategoryByMealId(int i) {
+        return categoryTableDao.queryBuilder()
+                .where(CategoryTableDao.Properties.MealId.eq(i))
+                .build()
+                .list();
+    }
+
+    public void clearAllCategory() {
+        categoryTableDao.deleteAll();
     }
 }

@@ -124,8 +124,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         return super.onTouchEvent(event)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         settingDisplay.safeCancel()
     }
 }

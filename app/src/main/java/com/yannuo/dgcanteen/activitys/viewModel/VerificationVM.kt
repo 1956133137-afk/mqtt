@@ -164,18 +164,23 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         val verificationUI = VerificationUI().apply {
             errorMsg = ccbCodeVerification.msg
             personName = json.personName
-            dish = json.verifyDishes
+//            dish = json.verifyDishes
 //            dishesList = json.verify[mealName]?.dishesList
             window = json.unVerifyWindowName
 //            windows = json.verify[mealName]?.windowList
             unDish = json.unVerifyDishes
             time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
         }
+        // 整理核销菜品格式
+        val dishList: MutableList<String> = mutableListOf()
+        json.verifyDishes.forEach { dishList.add(spliceMsg(it)) }
+        verificationUI.dish = dishList.toTypedArray()
+
         val verifyDishesBean = VerifyDishes()
         verifyDishesBean.personName = verificationUI.personName
         verifyDishesBean.time = verificationUI.time
         verifyDishesBean.apply {
-            this.dish = TextUtils.join("|@|", json.verifyDishes ?: arrayOf())
+            this.dish = TextUtils.join("|@|", dishList.toTypedArray() ?: arrayOf())
             this.window = TextUtils.join("|@|", json.unVerifyWindowName ?: arrayOf())
             this.unDish = TextUtils.join("|@|", json.unVerifyDishes ?: arrayOf())
         }
@@ -229,6 +234,21 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
 //        }
     }
 
+    private fun spliceMsg(dish: String): String {
+        val dishStr = StringBuilder()
+        if (dish.contains('，')) {
+            val dishMsg = dish.substring(0, dish.lastIndexOf("，"))
+            val dishUnit = dish.substring(dish.lastIndexOf("，") + 1).replace("|", "")
+            if (dishMsg.contains('|')) {
+                val dishName = dishMsg.substring(0, dishMsg.lastIndexOf("|"))
+                val dishPrice = dishMsg.substring(dishMsg.lastIndexOf("|") + 1)
+                dishStr.append("${dishName}(${dishPrice})")
+            } else dishStr.append(dishMsg)
+            dishStr.append("， $dishUnit")
+        } else return dish
+        return dishStr.toString()
+    }
+
     //设置回调监听
     fun setListener(listener: CallbackListener) {
         this.callBackListener = listener
@@ -280,7 +300,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val res = mRespository.getCountDishes(request)
             if (res.code == "200") {
                 val json = Gson().fromJson(Gson().toJson(res.data), CountDishesOfWindowResponse::class.java)
-                LogUtil.d(TAG, "getDishesCountOfWindow: ${Gson().toJson(json)}")
+                LogUtil.d(TAG, "订餐统计结果: ${Gson().toJson(json)}")
                 dishesCountOfWindow.value = json
             }
             mutex.withLock { isStatus = false }

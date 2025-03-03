@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
+import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
@@ -14,6 +15,7 @@ import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
+import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 
@@ -49,7 +51,9 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 PayDishTableDao.class,
                 OfflineOrderTableDao.class,
                 OfflineDishTableDao.class,
-                SwPayOrderTableDao.class
+                SwPayOrderTableDao.class,
+                QuotaTimeTableDao.class,
+                CategoryTableDao.class
         );
     }
 }

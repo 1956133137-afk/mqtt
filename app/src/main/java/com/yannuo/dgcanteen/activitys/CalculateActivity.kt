@@ -65,6 +65,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     private lateinit var displayManager: DisplayManager
     private lateinit var secondDisplays: Display
     private var simpleDisplay: SimpleDisplay? = null
+
     @Volatile
     private var mealTimeDisplay: MealTimeDisplay? = null
 
@@ -113,7 +114,6 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     }
 
 
-
     @RequiresApi(Build.VERSION_CODES.N)
     private fun initObject() {
         productsVM.upDataDishes(true)
@@ -135,7 +135,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             Constant.PAY_FACE_TYPE -> "刷脸支付"
             Constant.PAY_IC_TYPE -> "刷卡支付"
             Constant.PAY_CODE_TYPE -> "扫码支付"
-            else -> "刷卡扫码支付"
+            else -> "码卡支付"
         }
         maps.remove(type)
         binding.btnVerify.text = if (kv.decodeInt(Constant.VERIFY_MODE) == 0) "刷脸核销" else "订餐核销"
@@ -160,6 +160,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 unVerifyTotalOrderNum += it.dishesNum
                 it.flag = 2
             }
+
+            binding.tvVerifyTotalPersonCount.text = value.dcTotalPersonNum.ifEmpty { "0" }
+            binding.tvVerifyAlreadyPersonCount.text = value.dcVerifyPersonNum.ifEmpty { "0" }
+            binding.tvVerifyNotPersonCount.text = value.dcUnverifyPersonNum.ifEmpty { "0" }
             binding.tvTotalOrder.text = totalOrderNum.toString()
             binding.tvTotalVerify.text = verifyTotalOrderNum.toString()
             binding.tvUnVerify.text = unVerifyTotalOrderNum.toString()
@@ -234,13 +238,13 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             "刷脸支付" to Constant.PAY_FACE_TYPE,
             "刷卡支付" to Constant.PAY_IC_TYPE,
             "扫码支付" to Constant.PAY_CODE_TYPE,
-            "刷卡扫码支付" to Constant.PAY_CODE_IC_TYPE,
+            "码卡支付" to Constant.PAY_CODE_IC_TYPE,
         )
         val type = when (kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)) {
             Constant.PAY_FACE_TYPE -> "刷脸支付"
             Constant.PAY_IC_TYPE -> "刷卡支付"
             Constant.PAY_CODE_TYPE -> "扫码支付"
-            else -> "刷卡扫码支付"
+            else -> "码卡支付"
         }
         maps.remove(type)
         maps.entries.forEachIndexed { index, it ->
@@ -250,6 +254,8 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 2 -> binding.btnThird.text = it.key
             }
         }
+        //自动收款
+        if (kv.decodeBool(Constant.AUTO_PAY, false)) EventBus.getDefault().post(MessageEvent(Constant.EVENT_SECOND, null))
         //自动核销
         if (!kv.decodeBool(Constant.VERIFY_CHANGE, false) && kv.decodeBool(Constant.AUTO_VERIFY, false)) {
             if ((System.currentTimeMillis() - lastTime) > 1000 && judgePayStatus()) {
@@ -269,6 +275,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
     fun initVerify() {
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET)) {
             binding.verifyShow.visibility = View.VISIBLE
+            binding.verifyPerson.visibility = if (kv.decodeBool(Constant.VERIFY_PERSON_STATISTIC, true)) View.VISIBLE else View.GONE
             verificationVM.getDishesCountOfWindow()
         } else binding.verifyShow.visibility = View.GONE
     }
@@ -386,6 +393,11 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
         }
 
         binding.btnMealTimeMode.setOnClickListener {
+            // 需要先关闭定额模式
+            if (kv.decodeBool(Constant.QUOTA_SWITCH, false)) {
+                ToastShowUtil.show("请先关闭定额收款")
+                return@setOnClickListener
+            }
             // 打开餐次模式
 //            ToastShowUtil.show("打开餐次模式")
 //            val intent = Intent(this, MealTimeActivity::class.java)
@@ -578,7 +590,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     }
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
-                    binding.btnConfirm.text="取消收款￥${event.any as String}"
+                    binding.btnConfirm.text = "取消收款￥${event.any as String}"
                     simpleDisplay?.enableBtn(event.any as String, true)
                 }
             }
@@ -594,7 +606,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     }
                     binding.btnConfirm.setBackgroundResource(R.drawable.click_button_gred)
                     binding.btnConfirm.setTextColor(Color.WHITE)
-                    binding.btnConfirm.text="取消收款￥${event.any as String}"
+                    binding.btnConfirm.text = "取消收款￥${event.any as String}"
                     mealTimeDisplay?.setBulkPayAmount("${event.any}元", true)
                 }
             }
@@ -603,7 +615,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_KEYBOARD_CANCEL, null))
                 binding.btnConfirm.setBackgroundResource(R.drawable.click_button)
                 binding.btnConfirm.setTextColor(Color.parseColor("#4F4F4F"))
-                binding.btnConfirm.text="确定金额"
+                binding.btnConfirm.text = "确定金额"
                 if (simpleDisplay?.isShowing == true) {
                     simpleDisplay?.enableBtn("", false)
                 } else if (mealTimeDisplay?.isShowing == true) {
@@ -617,10 +629,9 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 btnViewChange(binding.btnOff, Constant.SWITCH)
             }
             Constant.EVENT_CODE -> handler.post {
-                simpleDisplay?.dismiss()
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
-                val i = Intent(this, CardVerificationActivity::class.java)
-                startActivity(i)
+                startActivity(Intent(this, CardVerificationActivity::class.java))
+                handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
             }
             Constant.EVENT_FACE -> handler.post {
                 if ((System.currentTimeMillis() - lastTime) > 1000 && judgePayStatus()) {
@@ -644,16 +655,17 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     val type = kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)
                     LogUtil.d(TAG, "支付方式：$type")
                     EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, type))
+//                    handler.postDelayed({ simpleDisplay?.dismiss() }, 250)
                 }
             }
             Constant.EVENT_FACE_STATUS -> isPayStatus = false
-            Constant.EVENT_SHOW_CALCULATE_AWAIT_DIALOG -> handler.post{
+            Constant.EVENT_SHOW_CALCULATE_AWAIT_DIALOG -> handler.post {
                 if (awaitPayDialog?.isShowing != true) {
                     awaitPayDialog?.show()
                     awaitPayDialog?.updateText(event.any as String)
                 }
             }
-            Constant.EVENT_DISMISS_CALCULATE_AWAIT_DIALOG -> handler.post{
+            Constant.EVENT_DISMISS_CALCULATE_AWAIT_DIALOG -> handler.post {
                 awaitPayDialog?.dismiss()
             }
             Constant.EVENT_SHOW_CALCULATE_PAY_DIALOG -> handler.post {
@@ -664,7 +676,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             Constant.EVENT_DISMISS_CALCULATE_PAY_DIALOG -> handler.post {
                 payResultDialog?.dismiss()
             }
-            Constant.UPDATE_MEAL_TIME_BILL -> handler.post{
+            Constant.UPDATE_MEAL_TIME_BILL -> handler.post {
                 updateMealTimeBill()
             }
             Constant.EVENT_FIFTH -> handler.post {

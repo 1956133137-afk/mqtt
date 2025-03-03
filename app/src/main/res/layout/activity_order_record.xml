@@ -40,10 +40,31 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/order_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp" />
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/order_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp" />
+
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent">-->
+
+<!--            <com.yannuo.dgcanteen.views.MoveTextview2-->
+<!--                android:id="@+id/mv_control"-->
+<!--                android:layout_width="400dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="32sp"-->
+<!--                app:layout_constraintEnd_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--    </RelativeLayout>-->
 
 </LinearLayout>

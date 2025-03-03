@@ -82,6 +82,7 @@ object Constant {
     const val QUOTA_SWITCH = "Quota_Switch" //是否定额收款
     const val BALANCE_SWITCH = "balance_Switch" //余额查询
     const val QUOTA_AMOUNT = "Quota_Amount" //定额收款金额
+    const val QUOTA_TIME_DEFAULT_AMOUNT = "quotaTimeDefaultAmount"  //分时段默认定额收款金额
 
     const val LIMIT_AMOUNT = "limitAmount"  //单笔最高收款
     const val TITLE_CONTENT = "titleContent"//副屏标题设置
@@ -92,6 +93,8 @@ object Constant {
     const val VERIFY_CHANGE = "verify_change" //核销变量(防止二次刷脸)
     const val AUTO_PAY = "auto_pay"   //自动收款
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
+    const val DISPLAY_CARD_VERIFY = "displayCardVerify" //副屏刷卡核销按钮
+    const val VERIFY_PERSON_STATISTIC = "verifyPersonStatistic" //核销人数统计
 
     const val REPEAT_PAY_JUDGE = "repeatPayJudge"   //是否判断重复支付 默认开启
 
@@ -99,6 +102,9 @@ object Constant {
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
     const val ORDER_DISCOUNT_SWITCH = "orderDiscountSwitch" //订餐优惠开关
+    const val ORDER_MEAL_LIMIT_SWITCH = "orderMealLimitSwitch"  //订餐餐别限制开关
+    const val ORDER_MEAL_LIMIT_SIZE = "orderMealLimitSize"  //订餐餐别限制份数
+    const val ORDER_MEAL_SIZE = "orderMealSize" //已订餐别份数
 
     const val USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH = "收款模式受开餐状态限制" // 开餐后才能收款  0：关闭   1：打开
     const val IS_USE_MEAL = "是否开餐" // 0: 未开餐  1：开餐

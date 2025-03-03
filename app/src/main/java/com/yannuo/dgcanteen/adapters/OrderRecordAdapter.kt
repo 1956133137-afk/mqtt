@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Html
 import android.view.LayoutInflater
@@ -9,10 +10,9 @@ import com.google.gson.Gson
 import com.yannuo.dgcanteen.databinding.ItemOrderRecordBinding
 import com.yannuo.dgcanteen.dialogView.DishDetailsDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
-import com.yannuo.dgcanteen.model.DishBean
-import com.yannuo.dgcanteen.model.Order
-import com.yannuo.dgcanteen.model.OrderForUI
+import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
+import com.yannuo.dgcanteen.util.LogUtil
 import java.util.*
 
 /**
@@ -24,8 +24,10 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
     private val dishDetailsDialog by lazy { DishDetailsDialog(context) }
     private var listener: OnItemClickListener? = null
     private var currentTime: Long = 0
+    private var windowList: MutableList<WindowBean> = mutableListOf()
 
-    fun setItemListener(listener: OnItemClickListener?) {
+    fun setItemListener(windowList: MutableList<WindowBean>, listener: OnItemClickListener?) {
+        this.windowList = windowList
         this.listener = listener
     }
 
@@ -33,12 +35,13 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         return ItemOrderRecordBinding.inflate(inflater, parent, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun bindHolder(holder: Holder, position: Int) {
         val bean = getData(position)
         holder.binding.businessName.text = bean.businessName
-        holder.binding.mealDate.text = bean.mealDate
-        holder.binding.weekName.text = getWeekDay(bean.mealDate)
+        holder.binding.mealDate.text = "${bean.mealDate}(${getWeekDay(bean.mealDate)})"
         holder.binding.mealName.text = bean.mealName
+        holder.binding.windows.text = getWindows(bean.dcOrderDishesList)
         holder.binding.orderType.text = if (bean.orderType == "1") "配送" else "自提"
         holder.binding.timeName.text = if (bean.orderType == "1") "配送时间: " else "用餐时间: "
         holder.binding.useMealTime.text = "${bean.startTime} - ${bean.endTime}"
@@ -53,6 +56,15 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
     }
 
     override fun addEventListener(holder: Holder) {
+//        holder.binding.llWindows.setOnClickListener {
+//            val position = holder.adapterPosition
+//            if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
+//            val windowIdList: MutableList<String> = mutableListOf()
+//            getData(position).dcOrderDishesList.forEach { dishes ->
+//                dishes.windowIdList.split(",").forEach { if (it.isNotEmpty()) windowIdList.add(it) }
+//            }
+//            listener?.onItemWindow(windowIdList.distinct().toMutableList())
+//        }
         holder.binding.btnRefund.setOnClickListener {
             val position = holder.adapterPosition
             if (!judgeReClick() || position == RecyclerView.NO_POSITION) return@setOnClickListener
@@ -72,6 +84,19 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
                 dishDetailsDialog.setOrderDishDetails(data.dcOrderDishesList, data.packagingFee ?: "0.00", data.deliveryFee ?: "0.00")
             }
         }
+    }
+
+    private fun getWindows(dcOrderDishesList: MutableList<DcOrderDishes>): String {
+        val windowIdList: MutableList<String> = mutableListOf()
+        val windowStr = StringBuilder()
+        dcOrderDishesList.forEach { dishes ->
+            dishes.windowIdList.split(",").forEach { if (it.isNotEmpty() && !windowIdList.contains(it)) windowIdList.add(it) }
+        }
+        windowIdList.forEach { windowId ->
+            windowList.forEach { if (windowId == it.windowId) windowStr.append("${it.windowName}，") }
+        }
+        if (windowStr.isNotEmpty()) windowStr.deleteCharAt(windowStr.length - 1)
+        return windowStr.toString()
     }
 
     private fun judgeReClick(): Boolean {
@@ -127,5 +152,7 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
+
+//        fun onItemWindow(windowList: MutableList<String>)
     }
 }

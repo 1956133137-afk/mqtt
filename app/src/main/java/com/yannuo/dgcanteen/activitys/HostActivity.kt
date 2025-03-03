@@ -6,14 +6,10 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
-import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityHostBinding
-import com.yannuo.dgcanteen.model.MealTimeRuleInfo
-import com.yannuo.dgcanteen.model.MealTimeRuleReceive
 import com.yannuo.dgcanteen.model.OrderPayInfo
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
-
 
 class HostActivity : BaseActivity<ActivityHostBinding>() {
 
@@ -40,7 +36,7 @@ class HostActivity : BaseActivity<ActivityHostBinding>() {
         } else {
             navHostFragment?.navController!!.setGraph(R.navigation.nav_graph, bundle)
         }
-        LogUtil.d(TAG,"onInit")
+        LogUtil.d(TAG, "onInit")
     }
 
     override fun onResume() {

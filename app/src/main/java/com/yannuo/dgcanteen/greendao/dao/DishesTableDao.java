@@ -32,6 +32,7 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         public final static Property Unit = new Property(5, String.class, "unit", false, "UNIT");
         public final static Property ImgUrl = new Property(6, String.class, "imgUrl", false, "IMG_URL");
         public final static Property Status = new Property(7, int.class, "status", false, "STATUS");
+        public final static Property CategoryName = new Property(8, String.class, "categoryName", false, "CATEGORY_NAME");
     }
 
 
@@ -54,7 +55,8 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
                 "\"PRICE\" REAL NOT NULL ," + // 4: price
                 "\"UNIT\" TEXT," + // 5: unit
                 "\"IMG_URL\" TEXT," + // 6: imgUrl
-                "\"STATUS\" INTEGER NOT NULL );"); // 7: status
+                "\"STATUS\" INTEGER NOT NULL ," + // 7: status
+                "\"CATEGORY_NAME\" TEXT);"); // 8: categoryName
     }
 
     /** Drops the underlying database table. */
@@ -86,6 +88,11 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
             stmt.bindString(7, imgUrl);
         }
         stmt.bindLong(8, entity.getStatus());
+ 
+        String categoryName = entity.getCategoryName();
+        if (categoryName != null) {
+            stmt.bindString(9, categoryName);
+        }
     }
 
     @Override
@@ -111,6 +118,11 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
             stmt.bindString(7, imgUrl);
         }
         stmt.bindLong(8, entity.getStatus());
+ 
+        String categoryName = entity.getCategoryName();
+        if (categoryName != null) {
+            stmt.bindString(9, categoryName);
+        }
     }
 
     @Override
@@ -128,7 +140,8 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
             cursor.getDouble(offset + 4), // price
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // unit
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // imgUrl
-            cursor.getInt(offset + 7) // status
+            cursor.getInt(offset + 7), // status
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // categoryName
         );
         return entity;
     }
@@ -143,6 +156,7 @@ public class DishesTableDao extends AbstractDao<DishesTable, Long> {
         entity.setUnit(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setImgUrl(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setStatus(cursor.getInt(offset + 7));
+        entity.setCategoryName(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }
     
     @Override

@@ -24,10 +24,13 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
+import com.yannuo.dgcanteen.adapters.CategoryAdapter
+import com.yannuo.dgcanteen.adapters.PayForAdapter
+import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
@@ -75,6 +78,13 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
 
     private var mMealId = 0
     private var mealId = 0
+
+    //购物车
+    private lateinit var mAdapterPayFor: PayForAdapter
+    //类别
+    private lateinit var mCategoryAdapter: CategoryAdapter
+    //菜单
+    private lateinit var mProductsAdapter: ProductsAdapter
 
     private lateinit var mAdapter: ScreenSlidePagerAdapter
     private lateinit var displayManager: DisplayManager

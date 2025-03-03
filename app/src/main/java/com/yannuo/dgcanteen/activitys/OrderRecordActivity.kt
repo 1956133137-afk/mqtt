@@ -17,6 +17,7 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
     private val handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
     private var awaitingDialog: AwaitingDialog? = null
     private var confirmDialog: ConfirmDialog? = null
+//    private var windowStr = StringBuilder()
 
     override fun bindLayout() {
         binding = ActivityOrderRecordBinding.inflate(layoutInflater)
@@ -38,10 +39,22 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
         })
         binding.orderListView.layoutManager = GridLayoutManager(this, 3)
         binding.orderListView.adapter = orderRecordAdapter
-        orderRecordAdapter.setItemListener(object : OrderRecordAdapter.OnItemClickListener {
+        orderRecordAdapter.setItemListener(orderRecordVM.getWindowList(), object : OrderRecordAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
                 showConfirmDialog(position)
             }
+
+//            override fun onItemWindow(windowList: MutableList<String>) {
+//                handler.post {
+//                    windowStr.clear()
+//                    windowStr.append("核销窗口:\n")
+//                    windowList.forEach { windowId ->
+//                        orderRecordVM.getWindowList().forEach { if (windowId == it.windowId) windowStr.append("${it.windowName}，") }
+//                    }
+//                    if (windowStr.isNotEmpty()) windowStr.deleteCharAt(windowStr.length - 1)
+//                    binding.mvControl.text = windowStr.toString()
+//                }
+//            }
         })
         synOrderRecord()
     }
@@ -87,6 +100,7 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
     }
 
     override fun onDestroy() {
+//        binding.mvControl.stopAnima()
         orderRecordAdapter.release()
         awaitingDialog?.cancel()
         confirmDialog?.cancel()
