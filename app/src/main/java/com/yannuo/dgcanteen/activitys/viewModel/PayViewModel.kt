@@ -625,6 +625,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
 
     fun queryRestTimeAndBalance(custId: String, type: String, content: Any) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
+            listener?.onOtherListener(1, null)
             var realCustId = custId
             var name = ""
             var bal = ""
@@ -650,10 +651,10 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 }
                 "2","3" -> {
                     val queryBalance = queryBalance(type, content as String)
-                    if (queryBalance == null) {
-                        listener?.onOtherListener(9, "异常错误")
-                        return@launch
-                    }
+//                    if (queryBalance == null) {
+//                        listener?.onOtherListener(9, "异常错误")
+//                        return@launch
+//                    }
                     LogUtil.i(TAG, "queryRestTimeAndBalance: $queryBalance")
                     if (queryBalance.RESULT == "N") {
                         listener?.onOtherListener(9, queryBalance.ERRMSG)
@@ -726,7 +727,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             return null
         }
     }
-    private suspend fun queryBalance(type: String, content: String): QueryBalanceResponse? {
+    private suspend fun queryBalance(type: String, content: String): QueryBalanceResponse {
         try {
             val gson = Gson()
             val request = QueryBalanceRequest().apply {
@@ -752,12 +753,21 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         } catch (e: Exception) {
             e.printStackTrace()
             LogUtil.e(TAG, e.message)
-            withContext(Dispatchers.Main) {
+            return withContext(Dispatchers.Main) {
                 if (e is ResponseException) {
                     ToastShowUtil.show("错误： $e")
-                } else ToastShowUtil.show("错误： ${e.message}")
+                    return@withContext QueryBalanceResponse().apply {
+                        RESULT = "N"
+                        ERRCODE = e.errorCode
+                        ERRMSG = e.msg
+                    }
+                }
+                ToastShowUtil.show("错误： ${e.message}")
+                return@withContext QueryBalanceResponse().apply {
+                    RESULT = "N"
+                    ERRMSG = e.message ?: ""
+                }
             }
-            return null
         }
     }
 

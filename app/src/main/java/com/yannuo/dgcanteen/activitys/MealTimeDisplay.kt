@@ -313,8 +313,9 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
                     1 -> { //开始支付
                         if (!this@MealTimeDisplay::awaitPayDialog.isInitialized) awaitPayDialog = AwaitingDialog(context)
                         awaitPayDialog.show()
-                        var str = "支付中"
-                        if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) str = "查询余次中"
+                        var str = "正在支付"
+                        if (kv.decodeInt(Constant.QUERY_TIME_SWITCH, 0) == 1) str = "正在查询"
+                        if (any != null) str = any as String
                         awaitPayDialog.updateText(str)
                         EventBus.getDefault().post(MessageEvent(Constant.EVENT_SHOW_CALCULATE_AWAIT_DIALOG, str))
                         clearScreenData()
@@ -712,6 +713,7 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
                     this@MealTimeDisplay.onOtherListener(4, "未开餐，不能使用餐次模式")
                     return@launch
                 }
+                this@MealTimeDisplay.onOtherListener(1, "确认人员中")
                 custId = payViewModel.getCustId("2", data)
                 if (custId.isNullOrBlank()) {
                     LogUtil.e(TAG, "未查询到该人员信息：content -> $data, type -> 2")
@@ -753,7 +755,8 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
                     this@MealTimeDisplay.onOtherListener(4, "未开餐，不能使用餐次模式")
                     return@launch
                 }
-                custId = payViewModel.getCustId("3", icCard)
+                this@MealTimeDisplay.onOtherListener(1, "确认人员中")
+                custId = payViewModel.getCustId("3", number)
                 if (custId.isNullOrBlank()) {
                     if (custId == null) return@launch
                     LogUtil.e(TAG, "未查询到该人员信息：content -> $icCard, type -> 3")
