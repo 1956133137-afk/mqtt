@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.fragment.order
 
+import android.content.Intent
 import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
@@ -7,11 +8,13 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import com.yannuo.dgcanteen.activitys.OrderRecordActivity
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.databinding.FragmentVerifyUserBinding
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.views.HintDialog
 import java.util.concurrent.TimeUnit
@@ -50,8 +53,15 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
                                     binding.err.visibility = View.VISIBLE
                                 }
                                 1 -> {
-                                    val skipPage = VerifyUserFragmentDirections.verifyUserToUserOrder(orderForUI)
-                                    findNavController().navigate(skipPage)
+                                    if (kv.decodeBool(Constant.ORDER_QUERY, false)) {
+                                        val intent = Intent(requireActivity(), OrderRecordActivity::class.java)
+                                        intent.putExtra("custId", orderMealVM.getUserId())
+                                        intent.putExtra("ccbToken", orderMealVM.getCcbToken())
+                                        startActivity(intent)
+                                    } else {
+                                        val skipPage = VerifyUserFragmentDirections.verifyUserToUserOrder(orderForUI)
+                                        findNavController().navigate(skipPage)
+                                    }
                                 }
                             }
                         }

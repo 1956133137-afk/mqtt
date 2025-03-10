@@ -136,6 +136,13 @@ interface ApiService {
     suspend fun getToken(@Body bean: TokenBean): CanteenResponse<TokenReceive>
 
     /**
+     * 获取商家配置
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/businessConfig/qryBusinessConfig")
+    suspend fun getBusinessConfig(@Header("dcccbauthorization") token: String, @Body bean: OrderMealBean): CanteenResponse<JsonObject>
+
+    /**
      * 获取窗口列表
      */
     @Headers("content-type: application/json")
@@ -172,10 +179,7 @@ interface ApiService {
 
     @Headers("content-type: application/json")
     @POST("dcCcb/dcOrderRecord/batchOrder")
-    suspend fun insertBatchOrder(
-        @Header("dcccbauthorization") token: String,
-        @Body bean: InsertBatchOrderBean
-    ): CanteenResponse<InsertBatchOrderReceive>
+    suspend fun insertBatchOrder(@Header("dcccbauthorization") token: String, @Body bean: InsertBatchOrderBean): CanteenResponse<InsertBatchOrderReceive>
 
     /**
      * 查询订餐列表

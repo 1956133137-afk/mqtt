@@ -146,6 +146,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getBusinessConfig(token: String, campusId: String, businessId: String): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().getBusinessConfig(token, OrderMealBean(campusId, businessId))
+        }
+    }
+
     suspend fun getWindowList(token: String, businessId: String, campusId: String): CanteenResponse<JsonArray> {
         return apiCall {
             RetrofitClient.getApi().getWindowList(token, OrderMealBean(campusId, businessId))

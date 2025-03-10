@@ -278,7 +278,27 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 orderForUI.ccbToken = tokenRes.data?.dcccbToken ?: ""
                 currentCustId = orderForUI.custId
                 currentCcbToken = orderForUI.ccbToken
-                listener?.onOrderResult(1, orderForUI)
+                /*订餐查询*/
+                if (kv.decodeBool(Constant.ORDER_QUERY, false)) {
+                    listener?.onOrderResult(1, orderForUI)
+                    return@launch
+                }
+                /*获取商家配置*/
+                val businessConfig = mRepository.getBusinessConfig(currentCcbToken, orderForUI.campusId, orderForUI.businessId)
+                LogUtil.d(TAG, Gson().toJson(businessConfig))
+                if (businessConfig.code == "200") {
+                    val busCigBean = Gson().fromJson(Gson().toJson(businessConfig.data), BusCigBean::class.java)
+                    if (busCigBean.isOrder == "1") listener?.onOrderResult(1, orderForUI)
+                    else {
+                        orderForUI.errCode = "ORDER004"
+                        orderForUI.errMsg = "当前商家不支持订餐"
+                        listener?.onOrderResult(0, orderForUI)
+                    }
+                } else {
+                    orderForUI.errCode = businessConfig.code
+                    orderForUI.errMsg = businessConfig.msg
+                    listener?.onOrderResult(0, orderForUI)
+                }
             } else {
                 orderForUI.errCode = tokenRes.code
                 orderForUI.errMsg = tokenRes.msg

@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.databinding.ItemDishDetailsBinding
 import com.yannuo.dgcanteen.model.DcOrderDishes
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.PictureUtil
 
 /**
@@ -16,6 +18,7 @@ import com.yannuo.dgcanteen.util.PictureUtil
  * Date: 2024/9/25 11:02
  **/
 class DishDetailsAdapter(val context: Context) : BaseAdapter<DcOrderDishes, ItemDishDetailsBinding>() {
+    private val mmkv = MMKV.defaultMMKV()
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup): ItemDishDetailsBinding {
         return ItemDishDetailsBinding.inflate(inflater, parent, false)
@@ -23,6 +26,7 @@ class DishDetailsAdapter(val context: Context) : BaseAdapter<DcOrderDishes, Item
 
     override fun bindHolder(holder: Holder, position: Int) {
         val bean = getData(position)
+        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) holder.binding.tvName.isSingleLine = false
         holder.binding.tvName.text = bean.dishesName
         holder.binding.tvPrice.text = "￥${String.format("%.02f", bean.dishesPrice.toDouble())}"
         val count = bean.dishesNum.toInt() - bean.dishesRefundNum.toInt()

@@ -1,23 +1,31 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.os.CountDownTimer
 import android.os.Handler
+import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.OrderRecordVM
 import com.yannuo.dgcanteen.adapters.OrderRecordAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityOrderRecordBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import java.util.concurrent.TimeUnit
 
 class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
+    private val mmkv = MMKV.defaultMMKV()
     private val orderRecordVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))[OrderRecordVM::class.java] }
     private val orderRecordAdapter by lazy { OrderRecordAdapter(this) }
     private val handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
     private var awaitingDialog: AwaitingDialog? = null
     private var confirmDialog: ConfirmDialog? = null
 //    private var windowStr = StringBuilder()
+
+    private var countDown: CountDownTimer? = null
 
     override fun bindLayout() {
         binding = ActivityOrderRecordBinding.inflate(layoutInflater)
@@ -57,6 +65,7 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
 //            }
         })
         synOrderRecord()
+        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) onCountDownTimer(binding.btnBack, 30L)
     }
 
     private fun initEvent() {
@@ -99,11 +108,26 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
         awaitingDialog?.updateText(str)
     }
 
+    private fun onCountDownTimer(btnBack: Button?, time: Long) {
+        countDown?.cancel()
+        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(time), 1000) {
+            override fun onTick(mil: Long) {
+                btnBack?.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
+            }
+
+            override fun onFinish() {
+                finish()
+            }
+        }
+        countDown?.start()
+    }
+
     override fun onDestroy() {
 //        binding.mvControl.stopAnima()
         orderRecordAdapter.release()
         awaitingDialog?.cancel()
         confirmDialog?.cancel()
+        countDown?.cancel()
         super.onDestroy()
     }
 }

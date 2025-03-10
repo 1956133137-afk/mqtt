@@ -4,14 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Html
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ItemOrderRecordBinding
 import com.yannuo.dgcanteen.dialogView.DishDetailsDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import java.util.*
 
@@ -21,6 +24,7 @@ import java.util.*
  * Date: 2024/11/15 16:52
  **/
 class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordBinding>() {
+    private val mmkv = MMKV.defaultMMKV()
     private val dishDetailsDialog by lazy { DishDetailsDialog(context) }
     private var listener: OnItemClickListener? = null
     private var currentTime: Long = 0
@@ -49,6 +53,10 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         val fromHtml = Html.fromHtml("<s>${String.format("%.02f", bean.payment.toDouble())}元</s> <font color='#FF0000'>${money}元</font>")
         holder.binding.orderPayment.text = if (money.toDouble() != bean.payment.toDouble()) fromHtml else "${money}元"
         holder.binding.orderTime.text = bean.orderTime
+        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) {
+            holder.binding.btnRefund.visibility = View.GONE
+            holder.binding.btnPrinter.visibility = View.GONE
+        }
     }
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>?) {
@@ -90,6 +98,7 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         val windowIdList: MutableList<String> = mutableListOf()
         val windowStr = StringBuilder()
         dcOrderDishesList.forEach { dishes ->
+            if (dishes.windowIdList.isNullOrBlank()) return@forEach
             dishes.windowIdList.split(",").forEach { if (it.isNotEmpty() && !windowIdList.contains(it)) windowIdList.add(it) }
         }
         windowIdList.forEach { windowId ->
