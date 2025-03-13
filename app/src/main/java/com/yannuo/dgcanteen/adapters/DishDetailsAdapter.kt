@@ -26,7 +26,7 @@ class DishDetailsAdapter(val context: Context) : BaseAdapter<DcOrderDishes, Item
 
     override fun bindHolder(holder: Holder, position: Int) {
         val bean = getData(position)
-        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) holder.binding.tvName.isSingleLine = false
+//        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) holder.binding.tvName.isSingleLine = false
         holder.binding.tvName.text = bean.dishesName
         holder.binding.tvPrice.text = "￥${String.format("%.02f", bean.dishesPrice.toDouble())}"
         val count = bean.dishesNum.toInt() - bean.dishesRefundNum.toInt()

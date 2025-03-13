@@ -8,6 +8,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.DialogShowDishBinding
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
@@ -37,6 +38,7 @@ class ShowDishFragment : BaseFragment<DialogShowDishBinding>() {
         for (un in success.verification.unDish!!) {
             unVerfyDish.append("$un\n")
         }
+        CommonAndDpToPxUtil.speakWork("${success.verification.personName}核销成功")
         binding.tvNotDish.text = unVerfyDish
         binding.tvTime.text = success.verification.time
         binding.personName.text = success.verification.personName

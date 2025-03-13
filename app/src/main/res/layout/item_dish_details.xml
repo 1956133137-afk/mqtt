@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
-        android:singleLine="true"
+        android:singleLine="false"
         android:text="菜品名称"
         android:textColor="#4F4F4F"
         android:textSize="36sp" />
