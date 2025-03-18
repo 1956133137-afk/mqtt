@@ -44,6 +44,7 @@ class OrderDishes {
     var dishesPrice: String = ""        //菜品价格
     var dishesNum: String = ""          //菜品数量
     var imgUrl: String = ""             //菜品url
+    var description: String = ""        //菜品详情
     var status: String = ""             //状态
     var orderMealQuota: String = ""     //是否限购 1-是 2-否
     var orderMealQuotaNum: String = ""  //限购数量 0

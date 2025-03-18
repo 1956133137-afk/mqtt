@@ -30,8 +30,8 @@ class DishBean {
     var dishCount: Int = 0
     var imgUrl: String = ""
     var windowIdList: String = ""
-    var stockNum: String? = ""   //库存数
-    var description: String? = null //菜品描述
-    var orderMealQuota: String? = "" //是否限购 1限购 2不限购
-    var orderMealQuotaNum: String? = ""  //限购数量
+    var stockNum: String = ""   //库存数
+    var description: String = "" //菜品描述
+    var orderMealQuota: String = "" //是否限购 1限购 2不限购
+    var orderMealQuotaNum: String = ""  //限购数量
 }

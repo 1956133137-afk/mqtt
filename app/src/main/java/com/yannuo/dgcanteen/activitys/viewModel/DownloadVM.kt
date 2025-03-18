@@ -86,7 +86,7 @@ class DownloadVM : ViewModel() {
                                 dishCount = queryDishNumber(date, mealId, dishId)
                                 imgUrl = dish.imgUrl ?: ""
                                 windowIdList = dish.windowIdList
-                                description = dish.description
+                                description = if (dish.description.isNullOrEmpty()) "" else dish.description
                                 orderMealQuota = dish.orderMealQuota
                                 orderMealQuotaNum = dish.orderMealQuotaNum
                             }
