@@ -1,10 +1,12 @@
 package com.yannuo.dgcanteen.dialogView
 
 import android.content.Context
+import android.os.Handler
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yannuo.dgcanteen.adapters.DishDetailsAdapter
 import com.yannuo.dgcanteen.databinding.DialogDishDetailsBinding
 import com.yannuo.dgcanteen.model.DcOrderDishes
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
  * Author: filowl
@@ -13,6 +15,7 @@ import com.yannuo.dgcanteen.model.DcOrderDishes
  **/
 class DishDetailsDialog(context: Context) : BaseDialog<DialogDishDetailsBinding>(context) {
     private val mContext = context
+    private val handler = Handler(mContext.mainLooper)
     private val dishDetailsAdapter by lazy { DishDetailsAdapter(mContext) }
 
     override fun initDialogView() {
@@ -22,6 +25,11 @@ class DishDetailsDialog(context: Context) : BaseDialog<DialogDishDetailsBinding>
     override fun initOperation() {
         binding.dishDetailsView.layoutManager = LinearLayoutManager(context)
         binding.dishDetailsView.adapter = dishDetailsAdapter
+        dishDetailsAdapter.setItemListener(object : DishDetailsAdapter.OnItemClickListener {
+            override fun onItemClick(description: String) {
+                handler.post { if (description.isNotEmpty()) binding.mvControl.text = description else ToastShowUtil.show("没有菜品描述") }
+            }
+        })
 
         binding.btnClose.setOnClickListener { dismiss() }
     }

@@ -7,271 +7,293 @@
     android:background="@drawable/shape_bg_white_20"
     android:padding="10dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="1200dp"
-        android:layout_height="700dp"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="80dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:text="订餐菜品详情"
-                android:textColor="#4095E5"
-                android:textSize="40sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btn_close"
-                android:layout_width="160dp"
-                android:layout_height="70dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/select_btn_blue_press"
-                android:stateListAnimator="@null"
-                android:text="关闭"
-                android:textColor="#FFFFFF"
-                android:textSize="40sp" />
-        </RelativeLayout>
+        android:layout_height="700dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="80dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:text="订餐菜品详情"
+                    android:textColor="#4095E5"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_close"
+                    android:layout_width="160dp"
+                    android:layout_height="70dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/select_btn_blue_press"
+                    android:stateListAnimator="@null"
+                    android:text="关闭"
+                    android:textColor="#FFFFFF"
+                    android:textSize="40sp" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="60dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="图片"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="菜品名称"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="单价"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="数量"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="小计"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/dish_details_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="1000dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
                 android:minHeight="60dp"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="图片"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="菜品名称"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    android:layout_weight="1">
 
-                <TextView
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="单价"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="打包费: "
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
 
-                <TextView
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="数量"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:id="@+id/tv_package_fee"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="0.00"
+                        android:textColor="#FF462E"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="小计"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="元"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
 
-            </LinearLayout>
+                </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/dish_details_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="1000dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:minHeight="60dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="打包费: "
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
-                    android:id="@+id/tv_package_fee"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="0.00"
-                    android:textColor="#FF462E"
-                    android:textSize="40sp"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="100dp"
+                    android:layout_weight="1">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="元"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="配送费: "
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:id="@+id/tv_delivery_fee"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="0.00"
+                        android:textColor="#FF462E"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="元"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="600dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="100dp"
-                android:layout_weight="1">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="配送费: "
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
-                    android:id="@+id/tv_delivery_fee"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="0.00"
-                    android:textColor="#FF462E"
-                    android:textSize="40sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="元"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="600dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:minHeight="60dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
                 android:gravity="center_vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp">
+                android:minHeight="60dp"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="共"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
-
-                <TextView
-                    android:id="@+id/total_count"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="#FF462E"
-                    android:textSize="40sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="份"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="共"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/total_count"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="#FF462E"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center_vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="份"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="总金额"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/total_payment"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="0.00"
-                    android:textColor="#FF462E"
-                    android:textSize="40sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="2"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minWidth="40dp"
-                    android:text="元"
-                    android:textColor="#4F4F4F"
-                    android:textSize="36sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="总金额"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+
+                    <TextView
+                        android:id="@+id/total_payment"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="0.00"
+                        android:textColor="#FF462E"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="40dp"
+                        android:text="元"
+                        android:textColor="#4F4F4F"
+                        android:textSize="36sp" />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
-    </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.yannuo.dgcanteen.views.MoveTextview2
+                android:id="@+id/mv_control"
+                android:layout_width="500dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="32sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </RelativeLayout>
 
 </LinearLayout>

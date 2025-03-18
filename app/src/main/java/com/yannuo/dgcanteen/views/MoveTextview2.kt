@@ -28,7 +28,7 @@ class MoveTextview2 : androidx.appcompat.widget.AppCompatTextView {
             Animation.RELATIVE_TO_SELF, 0f,
             Animation.RELATIVE_TO_SELF, 0f
         )
-        showAnimation.duration = 5000
+        showAnimation.duration = 10000
 
         animationSet?.addAnimation(showAnimation)
     }

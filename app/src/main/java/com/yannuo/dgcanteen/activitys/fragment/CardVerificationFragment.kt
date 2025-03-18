@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.navigation.fragment.findNavController
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.common.MyApplication
@@ -82,14 +83,14 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                 val payCfg = verificationVM.getPayCfg()
                 if (bean.RESULT == "Y") {
                     verificationVM.verification(payCfg.campusId, payCfg.businessId, bean.CUST_ID, null, Utils.getSN(), null, 0)
-                }else {
+                } else {
                     handler.postDelayed({
                         val verificationUI = VerificationUI().apply {
                             errorMsg = bean.ERRMSG
                             time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
                         }
                         val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                        findNavController().navigate(toFail)
+                        if (judgeIsAdded()) findNavController().navigate(toFail)
                     }, 300)
                 }
             }
@@ -117,7 +118,7 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
 
                     val verificationUI = any as VerificationUI
                     val toSuccess = CardVerificationFragmentDirections.actionCardVerificationFragmentToShowDishFragment(verificationUI)
-                    findNavController().navigate(toSuccess)
+                    if (judgeIsAdded()) findNavController().navigate(toSuccess)
 
                 }
 
@@ -125,10 +126,12 @@ class CardVerificationFragment : BaseFragment<DisplayCardVerificationBinding>(),
                     LogUtil.d(TAG, "核销失败")
                     val verificationUI = any as VerificationUI
                     val toFail = CardVerificationFragmentDirections.actionCardVerificationFragmentToFailedFragment(verificationUI)
-                    findNavController().navigate(toFail)
+                    if (judgeIsAdded()) findNavController().navigate(toFail)
                 }
             }
         }
     }
+
+    private fun judgeIsAdded(): Boolean = isAdded && findNavController().currentDestination?.id == R.id.cardVerificationFragment
 
 }

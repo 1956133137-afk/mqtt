@@ -55,7 +55,7 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
         holder.binding.rlDescription.setOnClickListener {
             val position = holder.adapterPosition
             if (position == RecyclerView.NO_POSITION) return@setOnClickListener
-            listener?.onOrderDishDescription("菜品描述:\n${mData[position].description}")
+            listener?.onOrderDishDescription("菜品描述:\n${(mData[position].description ?: "").replace("(\n|\r|\n\r|\r\n)".toRegex(), "")}")
         }
         holder.binding.btnAdd.setOnClickListener {
             val position = holder.adapterPosition

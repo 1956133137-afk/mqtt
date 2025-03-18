@@ -128,7 +128,7 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
             }
 
             override fun onOrderDishDescription(description: String) {
-                handler.post { binding.mvControl.text = description }
+                handler.post { binding.mvControl.text = description.replace("(<p>|</p>)".toRegex(), "") }
             }
         })
         //已选回调

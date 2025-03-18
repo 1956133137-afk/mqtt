@@ -183,7 +183,9 @@ class FaceScanVM {
             errCode = bean.ERRCODE
             errMsg = bean.ERRMSG
         }
+        var remainBal = 0F
         bean.ACC_LIST.forEach {
+            remainBal += it.ACC_BAL.ifEmpty { "0" }.toFloat()
             val acclist = ACCLIST().apply {
                 ACC_NO = it.ACC_NO
                 ACC_BAL = it.ACC_BAL
@@ -193,6 +195,7 @@ class FaceScanVM {
             }
             payForUI.accList.add(acclist)
         }
+        if (payForUI.accBal.isEmpty()) payForUI.accBal = String.format("%.02f", remainBal)
         LogUtil.d(TAG, Gson().toJson(payForUI))
         /*保存记录*/
         saveOrSynOrder(payForUI, bean.TRAN_RESULT)
