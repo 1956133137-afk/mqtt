@@ -12,8 +12,10 @@ import android.provider.Settings
 import android.view.Display
 import android_serialport_api.SerialPort
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.GridLayoutManager
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
+import com.yannuo.dgcanteen.adapters.InitModeAdapter
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
@@ -58,6 +60,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     private var mode: String? = null
     private var loading: LoadingDialog? = null
     private lateinit var scope: CoroutineScope
+    private val initModeAdapter by lazy { InitModeAdapter() }
 
     override fun bindLayout() {
         binding = ActivityIntiBinding.inflate(layoutInflater)
@@ -73,7 +76,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         scope = CoroutineScope(Dispatchers.IO)
 
         FaceScanVM.instance.bindService()
-        initEvent()
+        initObject()
+//        initEvent()
     }
 
     //检测权限是否获得
@@ -152,33 +156,54 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         super.onStop()
     }
 
-    private fun initEvent() {
-        binding.order.setOnClickListener {
-            binding.order.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-            initMode()
-        }
-        binding.orderTwo.setOnClickListener {
-            binding.orderTwo.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
-            initMode()
-        }
-        binding.collection.setOnClickListener {
-            binding.collection.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
-            initMode()
-        }
-        binding.collectionTwo.setOnClickListener {
-            binding.collectionTwo.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_TWO_MODE)
-            initMode()
-        }
-        binding.orderMealMode.setOnClickListener {
-            binding.orderMealMode.isEnabled = false
-            kv.encode(Constant.APP_MODE, Constant.ORDERING_MEAL_MODE)
-            initMode()
-        }
+    private fun initObject() {
+        binding.initModeView.layoutManager = GridLayoutManager(this, 4)
+        binding.initModeView.adapter = initModeAdapter
+        initModeAdapter.addData(
+            mutableListOf(
+                Constant.ORDERING_FOOD_MODE,
+                Constant.PROCEEDS_MODE,
+                Constant.ORDERING_MEAL_MODE,
+                Constant.ORDERING_VERIFY_MODE,
+                Constant.ORDERING_TWO_MODE,
+                Constant.PROCEEDS_TWO_MODE
+            )
+        )
+        initModeAdapter.setItemListener(object : InitModeAdapter.OnItemClickListener {
+            override fun onItemClick(modeName: String) {
+                kv.encode(Constant.APP_MODE, modeName)
+                initMode()
+            }
+        })
     }
+
+//    private fun initEvent() {
+//        binding.order.setOnClickListener {
+//            binding.order.isEnabled = false
+//            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+//            initMode()
+//        }
+//        binding.orderTwo.setOnClickListener {
+//            binding.orderTwo.isEnabled = false
+//            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
+//            initMode()
+//        }
+//        binding.collection.setOnClickListener {
+//            binding.collection.isEnabled = false
+//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
+//            initMode()
+//        }
+//        binding.collectionTwo.setOnClickListener {
+//            binding.collectionTwo.isEnabled = false
+//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_TWO_MODE)
+//            initMode()
+//        }
+//        binding.orderMealMode.setOnClickListener {
+//            binding.orderMealMode.isEnabled = false
+//            kv.encode(Constant.APP_MODE, Constant.ORDERING_MEAL_MODE)
+//            initMode()
+//        }
+//    }
 
 
     private fun initMode() {
@@ -194,7 +219,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
                     when (mode) {
@@ -211,7 +236,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                                 Constant.ORDERING_TWO_MODE -> Intent(this@InitActivity, OrderMenuActivity::class.java)
                                 Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
-                                else -> Intent(this@InitActivity, OrderMealActivity::class.java)
+                                Constant.ORDERING_MEAL_MODE -> Intent(this@InitActivity, OrderMealActivity::class.java)
+                                else -> Intent(this@InitActivity, OrderVerifyActivity::class.java)
                             }
                         }
                     }

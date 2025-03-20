@@ -206,6 +206,13 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun orderVerify(data: VerificationRequest): CanteenResponse<JsonObject> {
+        return apiCall {
+            val ben = RetrofitClient.getApi().orderVerify(data)
+            return@apiCall ben
+        }
+    }
+
     suspend fun queryPersonRestMealTime(encryptedData: EncryptedDataRequest): CanteenResponse<MutableList<PersonRestMealTime>> {
         return apiCall {
             RetrofitClient.getApi().queryPersonRestMealTime(encryptedData)

@@ -29,6 +29,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CommodityPay">
         <activity
+            android:name=".activitys.OrderVerifyActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.QuotaTimeActivity"
             android:exported="false" />
         <activity

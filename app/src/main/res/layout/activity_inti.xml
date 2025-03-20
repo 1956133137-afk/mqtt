@@ -65,100 +65,105 @@
             android:layout_marginTop="350dp"
             android:visibility="visible">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="10dp">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/init_mode_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-                <Button
-                    android:id="@+id/order"
-                    android:layout_width="300dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/shape_btn_two"
-                    android:text="点餐模式"
-                    android:textColor="#3894FF"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="10dp">-->
 
-            </LinearLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/order"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="120dp"-->
+<!--                    android:background="@drawable/shape_btn_two"-->
+<!--                    android:text="点餐模式"-->
+<!--                    android:textColor="#3894FF"-->
+<!--                    android:textSize="36sp"-->
+<!--                    android:textStyle="bold" />-->
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="10dp">
+<!--            </LinearLayout>-->
 
-                <Button
-                    android:id="@+id/order_two"
-                    android:layout_width="300dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/shape_btn_two"
-                    android:text="点餐模式2"
-                    android:textColor="#3894FF"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="10dp">-->
 
-            </LinearLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/order_two"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="120dp"-->
+<!--                    android:background="@drawable/shape_btn_two"-->
+<!--                    android:text="点餐模式2"-->
+<!--                    android:textColor="#3894FF"-->
+<!--                    android:textSize="36sp"-->
+<!--                    android:textStyle="bold" />-->
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="10dp">
+<!--            </LinearLayout>-->
 
-                <Button
-                    android:id="@+id/collection"
-                    android:layout_width="300dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/shape_btn_two"
-                    android:text="收款模式"
-                    android:textColor="#3894FF"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="10dp">-->
 
-            </LinearLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/collection"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="120dp"-->
+<!--                    android:background="@drawable/shape_btn_two"-->
+<!--                    android:text="收款模式"-->
+<!--                    android:textColor="#3894FF"-->
+<!--                    android:textSize="36sp"-->
+<!--                    android:textStyle="bold" />-->
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="10dp">
+<!--            </LinearLayout>-->
 
-                <Button
-                    android:id="@+id/collection_two"
-                    android:layout_width="300dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/shape_btn_two"
-                    android:text="收款模式2"
-                    android:textColor="#3894FF"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="10dp">-->
 
-            </LinearLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/collection_two"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="120dp"-->
+<!--                    android:background="@drawable/shape_btn_two"-->
+<!--                    android:text="收款模式2"-->
+<!--                    android:textColor="#3894FF"-->
+<!--                    android:textSize="36sp"-->
+<!--                    android:textStyle="bold" />-->
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:padding="10dp">
+<!--            </LinearLayout>-->
 
-                <Button
-                    android:id="@+id/order_meal_mode"
-                    android:layout_width="300dp"
-                    android:layout_height="120dp"
-                    android:background="@drawable/shape_btn_two"
-                    android:text="订餐模式"
-                    android:textColor="#3894FF"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="10dp">-->
 
-            </LinearLayout>
+<!--                <Button-->
+<!--                    android:id="@+id/order_meal_mode"-->
+<!--                    android:layout_width="300dp"-->
+<!--                    android:layout_height="120dp"-->
+<!--                    android:background="@drawable/shape_btn_two"-->
+<!--                    android:text="订餐模式"-->
+<!--                    android:textColor="#3894FF"-->
+<!--                    android:textSize="36sp"-->
+<!--                    android:textStyle="bold" />-->
+
+<!--            </LinearLayout>-->
         </LinearLayout>
     </FrameLayout>
 </RelativeLayout>
