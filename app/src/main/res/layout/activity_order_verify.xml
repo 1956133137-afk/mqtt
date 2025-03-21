@@ -15,6 +15,18 @@
         android:paddingEnd="20dp">
 
         <TextView
+            android:id="@+id/meal_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@drawable/shape_tv_bg"
+            android:gravity="center"
+            android:minWidth="380dp"
+            android:minHeight="80dp"
+            android:textColor="#4F4F4F"
+            android:textSize="40sp" />
+
+        <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -65,5 +77,80 @@
             android:textSize="40sp" />
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:background="@drawable/shape_bg_white_10"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="80dp"
+                android:text="用户核销菜品"
+                android:textColor="#4F4F4F"
+                android:textSize="50sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/verify_name_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:minHeight="80dp"
+                android:textColor="#4F4F4F"
+                android:textSize="50sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/verify_dish_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/btn_verify_confirm"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/shape_btn_one"
+                android:text="无需确认"
+                android:textColor="#4F4F4F"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/btn_finish_verify"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_below="@+id/btn_verify_confirm"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/shape_bg_blue_10"
+                android:text="完成核销"
+                android:textColor="#FFFFFF"
+                android:textSize="45sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

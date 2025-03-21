@@ -4,17 +4,22 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.view.Display
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderVerifyVM
+import com.yannuo.dgcanteen.adapters.OrderVerify2Adapter
 import com.yannuo.dgcanteen.databinding.ActivityOrderVerifyBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
+import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 
 class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkStateManager.NetWorkListener {
@@ -29,6 +34,8 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
     private lateinit var secondDisplays: Display
     private var orderVerifyDisplay: OrderVerifyDisplay? = null
 
+    private val orderVerify2Adapter by lazy { OrderVerify2Adapter() }
+
     override fun bindLayout() {
         binding = ActivityOrderVerifyBinding.inflate(layoutInflater)
     }
@@ -42,7 +49,23 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         mXService = MyService(this)
         NetworkStateManager.getInstance().registerObserver(this)
 
+        val decodeBool = mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)
+        binding.btnVerifyConfirm.text = if (decodeBool) "员工确认" else "无需确认"
+        binding.btnFinishVerify.visibility = if (decodeBool) View.VISIBLE else View.GONE
+        binding.verifyDishView.layoutManager = GridLayoutManager(this, 2)
+        binding.verifyDishView.adapter = orderVerify2Adapter
+
         orderVerifyVM.openIcCard()
+        orderVerifyVM.mealTime.observe(this) { binding.mealTime.text = it }
+        orderVerifyVM.mOrderVerify.observe(this) {
+            if (it.verifyType == 0) binding.verifyNameTime.visibility = View.VISIBLE
+            else {
+                binding.verifyNameTime.visibility = View.GONE
+                orderVerifyVM.setIsVerifyStatus(true)
+            }
+            binding.verifyNameTime.text = "${orderVerifyVM.getVerifyName()} ${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+            orderVerify2Adapter.data = it.verifyDishList
+        }
 
         initPresentation()
     }
@@ -66,6 +89,13 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
                 })
             }
         }
+        binding.btnVerifyConfirm.setOnClickListener {
+            val boolean = !mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)
+            binding.btnVerifyConfirm.text = if (boolean) "员工确认" else "无需确认"
+            binding.btnFinishVerify.visibility = if (boolean) View.VISIBLE else View.GONE
+            mmkv.encode(Constant.ORDER_VERIFY_CONFIRM, boolean)
+        }
+        binding.btnFinishVerify.setOnClickListener { orderVerifyVM.mOrderVerify.postValue(OrderVerify()) }
     }
 
     private fun initPresentation() {

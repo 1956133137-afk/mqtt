@@ -17,9 +17,11 @@ import com.yannuo.dgcanteen.adapters.OrderVerifyAdapter
 import com.yannuo.dgcanteen.adapters.VerifyQueryAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.OrderVerifyDisplayBinding
+import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.TimeUtil
+import com.yannuo.dgcanteen.views.AwaitingDialog
 import java.util.concurrent.TimeUnit
 
 /**
@@ -36,6 +38,8 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     private var countDown: CountDownTimer? = null
     private val verifyQueryAdapter by lazy { VerifyQueryAdapter(getContext()) }
     private val orderVerifyAdapter by lazy { OrderVerifyAdapter(getContext()) }
+
+    private var awaitingDialog: AwaitingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
@@ -59,24 +63,31 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
 
     override fun onVerifyResult(type: Int, orderVerifyBean: OrderVerifyBean, errMsg: String) {
         handler.post {
-            binding.btnBack.visibility = View.VISIBLE
-            onCountDownTimer()
+            if (awaitingDialog != null && awaitingDialog?.isShowing == true) awaitingDialog?.dismiss()
             when (type) {
-                0 -> { /*成功*/
-                    changeView(1)
-                    binding.successName.text = orderVerifyBean.personName
-                    if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) {
-                        binding.orderQueryView.visibility = View.VISIBLE
-                        verifyQueryAdapter.data = orderVerifyVM.getOrderQuery(orderVerifyBean.verify)
-                    } else {
-                        binding.orderVerifyView.visibility = View.VISIBLE
-                        orderVerifyAdapter.data = orderVerifyVM.getOrderVerify(orderVerifyBean)
-                    }
+                -1 -> {
+                    if (awaitingDialog == null) awaitingDialog = AwaitingDialog(context)
+                    awaitingDialog?.show()
+                    awaitingDialog?.updateText("加载中")
                 }
-                else -> { /*失败*/
-                    changeView(2)
-                    binding.failureMsg.text = "失败原因：$errMsg"
-                    binding.failureTime.text = "失败时间：${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+                else -> {
+                    binding.btnBack.visibility = View.VISIBLE
+                    onCountDownTimer()
+                    if (type == 0) { /*成功*/
+                        changeView(1)
+                        binding.successName.text = orderVerifyBean.personName
+                        if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) {
+                            binding.orderQueryView.visibility = View.VISIBLE
+                            verifyQueryAdapter.data = orderVerifyVM.getOrderQuery(orderVerifyBean.verify)
+                        } else {
+                            binding.orderVerifyView.visibility = View.VISIBLE
+                            orderVerifyAdapter.data = orderVerifyVM.getOrderVerify(orderVerifyBean)
+                        }
+                    } else { /*失败*/
+                        changeView(2)
+                        binding.failureMsg.text = "失败原因：$errMsg"
+                        binding.failureTime.text = "失败时间：${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+                    }
                 }
             }
         }
@@ -99,6 +110,8 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 binding.btnBack.visibility = View.GONE
                 binding.initImg.setImageResource(if (!verifyQueryMode) R.drawable.ic_order_verify else R.drawable.ic_order_query)
                 countDown?.cancel()
+                /*是否需要确认*/
+                if (!mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)) orderVerifyVM.mOrderVerify.postValue(OrderVerify())
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE
@@ -129,5 +142,6 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     override fun cancel() {
         super.cancel()
         countDown?.cancel()
+        awaitingDialog?.cancel()
     }
 }

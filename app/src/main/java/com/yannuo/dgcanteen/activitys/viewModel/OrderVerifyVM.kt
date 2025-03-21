@@ -1,5 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import android.text.format.DateFormat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -11,13 +13,8 @@ import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
-import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
-import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
-import com.yannuo.dgcanteen.util.Utils
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.yannuo.dgcanteen.util.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -37,9 +34,28 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     private var mCardHandle: SerialPortHelper? = null
     private var listener: VerifyCallBack? = null
 
+    private var isVerifyStatus = true
+
+    private var mMealId = 0
+    private var mealId = -1
+    val mealTime: MutableLiveData<String> = MutableLiveData<String>("未开餐")
+
+    private var verifyName: String = ""
+    val mOrderVerify: MutableLiveData<OrderVerify> = MutableLiveData<OrderVerify>()
+
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
+    }
+
+    init {
+        checkTime()
+    }
+
+    fun getVerifyName(): String = verifyName
+
+    fun setIsVerifyStatus(status: Boolean) {
+        isVerifyStatus = status
     }
 
     fun setVerifyListener(listener: VerifyCallBack) {
@@ -62,6 +78,10 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
+        if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
+            viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+            return
+        }
         orderVerify(icCard)
     }
 
@@ -70,6 +90,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
         if (requestStatus) return
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             mutex.withLock { requestStatus = true }
+            listener?.onVerifyResult(-1, OrderVerifyBean())
             /*查询人员信息*/
             val persons = dbHelper.queryPersonToCardId(cardId)
             /*获取请求参数*/
@@ -82,9 +103,33 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             LogUtil.d(TAG, Gson().toJson(response))
             if (response.code == "200") {
                 val orderVerifyBean = Gson().fromJson(Gson().toJson(response.data ?: ""), OrderVerifyBean::class.java)
+                isVerifyStatus = false
                 listener?.onVerifyResult(0, orderVerifyBean)
-            } else listener?.onVerifyResult(1, OrderVerifyBean(), response.msg)
+            } else {
+                isVerifyStatus = true
+                listener?.onVerifyResult(1, OrderVerifyBean(), response.msg)
+            }
             mutex.withLock { requestStatus = false }
+        }
+    }
+
+    private fun checkTime() {
+        viewModelScope.launch(Dispatchers.Default + mHandler) {
+            while (isActive) {
+                mMealId = TimeUtil.CurrentTimeSection()
+                if (mMealId != mealId) {
+                    mealId = mMealId
+                    val timeStr = when (mealId) {
+                        0 -> "未开餐"
+                        else -> {
+                            val meal = DishesDBHelper.getInstance().queryToMeals(mealId)
+                            "${meal.mealName} ${DateFormat.format("HH:mm", meal.startTime)}~${DateFormat.format("HH:mm", meal.endTime)}"
+                        }
+                    }
+                    if (timeStr != mealTime.value) mealTime.postValue(timeStr)
+                }
+                delay(5000)
+            }
         }
     }
 
@@ -110,12 +155,14 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
 
     fun getOrderVerify(bean: OrderVerifyBean): MutableList<OrderVerify> {
         val orderVerifyList: MutableList<OrderVerify> = mutableListOf()
+        verifyName = bean.personName
         /*核销成功*/
         if (bean.verifySuccessDishes.size > 0) {
             val verifySuccess = OrderVerify().apply {
                 verifyType = 0
                 verifyDishList = bean.verifySuccessDishes
             }
+            mOrderVerify.postValue(verifySuccess)
             orderVerifyList.add(verifySuccess)
         }
         /*核销失败*/
