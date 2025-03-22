@@ -79,6 +79,10 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                         if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) {
                             binding.orderQueryView.visibility = View.VISIBLE
                             verifyQueryAdapter.data = orderVerifyVM.getOrderQuery(orderVerifyBean.verify)
+                            if (verifyQueryAdapter.data.size < 1) {
+                                binding.orderQueryMsg.visibility = View.VISIBLE
+                                binding.orderQueryMsg.text = "未查询到用户订餐信息"
+                            } else binding.orderQueryMsg.visibility = View.GONE
                         } else {
                             binding.orderVerifyView.visibility = View.VISIBLE
                             orderVerifyAdapter.data = orderVerifyVM.getOrderVerify(orderVerifyBean)

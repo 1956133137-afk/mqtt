@@ -9,18 +9,12 @@
     android:padding="5dp">
 
     <TextView
-        android:id="@+id/verify_meal"
+        android:id="@+id/verify_dish"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:lineSpacingMultiplier="1"
-        android:textColor="#4F4F4F"
+        android:textColor="@color/sky_color"
         android:textSize="50sp"
         android:textStyle="bold" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/dish_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
 </LinearLayout>

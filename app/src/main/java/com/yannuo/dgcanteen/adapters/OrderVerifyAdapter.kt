@@ -64,15 +64,15 @@ class OrderVerifyAdapter(context: Context) : BaseAdapter<OrderVerify, ItemOrderV
             0, 1 -> {
                 holder.binding.verifyStatus.setTextColor(Color.parseColor("#FFFFFF"))
                 holder.binding.verifyLine.setBackgroundColor(Color.parseColor("#FFFFFF"))
+                holder.binding.verifyMsg.setTextColor(Color.parseColor("#FFFFFF"))
                 adapterList[position].setColorStr("#FFFFFF")
             }
             else -> {
                 holder.binding.verifyStatus.setTextColor(Color.parseColor("#4F4F4F"))
                 holder.binding.verifyLine.setBackgroundColor(Color.parseColor("#4F4F4F"))
+                holder.binding.verifyMsg.setTextColor(Color.parseColor("#4F4F4F"))
                 adapterList[position].setColorStr("#4F4F4F")
             }
         }
-
     }
-
 }

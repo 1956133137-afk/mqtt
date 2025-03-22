@@ -103,7 +103,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             LogUtil.d(TAG, Gson().toJson(response))
             if (response.code == "200") {
                 val orderVerifyBean = Gson().fromJson(Gson().toJson(response.data ?: ""), OrderVerifyBean::class.java)
-                isVerifyStatus = false
+                if (!mmkv.decodeBool(Constant.ORDER_QUERY, false)) isVerifyStatus = false
                 listener?.onVerifyResult(0, orderVerifyBean)
             } else {
                 isVerifyStatus = true
@@ -164,6 +164,13 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             }
             mOrderVerify.postValue(verifySuccess)
             orderVerifyList.add(verifySuccess)
+        } else {
+            val orderVerify = OrderVerify().apply {
+                verifyType = 0
+                verifyMsg = "核销失败原因：${bean.verifyFail.ErrorMessage}"
+                verifyDishList = mutableListOf()
+            }
+            mOrderVerify.postValue(orderVerify)
         }
         /*核销失败*/
         if (bean.verifyFail.verifyFailDishes.size > 0) {

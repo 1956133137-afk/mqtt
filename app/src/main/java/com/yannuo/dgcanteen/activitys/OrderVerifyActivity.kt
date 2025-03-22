@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.activitys
 import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
+import android.os.CountDownTimer
 import android.view.Display
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import java.util.concurrent.TimeUnit
 
 class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkStateManager.NetWorkListener {
     private val orderVerifyVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))[OrderVerifyVM::class.java] }
@@ -35,6 +37,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
     private var orderVerifyDisplay: OrderVerifyDisplay? = null
 
     private val orderVerify2Adapter by lazy { OrderVerify2Adapter() }
+    private var countDown: CountDownTimer? = null
 
     override fun bindLayout() {
         binding = ActivityOrderVerifyBinding.inflate(layoutInflater)
@@ -58,12 +61,18 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         orderVerifyVM.openIcCard()
         orderVerifyVM.mealTime.observe(this) { binding.mealTime.text = it }
         orderVerifyVM.mOrderVerify.observe(this) {
-            if (it.verifyType == 0) binding.verifyNameTime.visibility = View.VISIBLE
-            else {
+            if (it.verifyType == 0) {
+                countDown?.cancel()
+                binding.verifyNameTime.visibility = View.VISIBLE
+                binding.verifyNameTime.text = if (it.verifyDishList.size < 1) {
+                    onCountDownTimer()
+                    orderVerifyVM.setIsVerifyStatus(true)
+                    "${orderVerifyVM.getVerifyName()} ${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}\n${it.verifyMsg}"
+                } else "${orderVerifyVM.getVerifyName()} ${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+            } else {
                 binding.verifyNameTime.visibility = View.GONE
                 orderVerifyVM.setIsVerifyStatus(true)
             }
-            binding.verifyNameTime.text = "${orderVerifyVM.getVerifyName()} ${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
             orderVerify2Adapter.data = it.verifyDishList
         }
 
@@ -113,6 +122,21 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         super.onResume()
         mXService?.hideNavBar = true
         orderVerifyDisplay?.changeView(0)
+    }
+
+    private fun onCountDownTimer() {
+        countDown?.cancel()
+        val backTime = mmkv.decodeInt(Constant.MEAL_TIME, 10).toLong()
+        countDown = object : CountDownTimer(TimeUnit.SECONDS.toMillis(backTime), 1000) {
+            override fun onTick(mil: Long) {
+//                binding.btnBack.text = "返回 ( ${TimeUnit.MILLISECONDS.toSeconds(mil)} )"
+            }
+
+            override fun onFinish() {
+                binding.verifyNameTime.visibility = View.GONE
+            }
+        }
+        countDown?.start()
     }
 
     override fun netWorkStatus(statue: String?) {

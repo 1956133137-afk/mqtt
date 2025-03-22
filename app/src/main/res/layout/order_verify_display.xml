@@ -101,7 +101,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/order_query_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -115,7 +115,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/order_query_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="#4F4F4F"
+                    android:textSize="60sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/order_verify_view"

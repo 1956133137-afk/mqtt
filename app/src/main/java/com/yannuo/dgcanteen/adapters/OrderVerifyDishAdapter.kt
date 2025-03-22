@@ -31,7 +31,7 @@ class OrderVerifyDishAdapter : BaseAdapter<VerifyDish, ItemOrderVerifyDishBindin
         /*数据*/
         holder.binding.verifyDishName.text = bean.dishesName
         holder.binding.verifyDishPrice.text = "¥${bean.price}"
-        holder.binding.verifyDishCount.text = "${bean.dishesNum}/${bean.unit}"
+        holder.binding.verifyDishCount.text = "${bean.dishesNum}${bean.unit}"
     }
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>?) {

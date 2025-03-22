@@ -1,13 +1,9 @@
 package com.yannuo.dgcanteen.adapters
 
 import android.content.Context
-import android.os.Build
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.yannuo.dgcanteen.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.yannuo.dgcanteen.databinding.ItemVerifyQueryBinding
 import com.yannuo.dgcanteen.model.Verify
 
@@ -18,8 +14,8 @@ import com.yannuo.dgcanteen.model.Verify
  **/
 class VerifyQueryAdapter(context: Context) : BaseAdapter<Verify, ItemVerifyQueryBinding>() {
     private val mContext = context
-    private val spanWatcher = SpannableStringBuilder()
-    private val dishStr = StringBuilder()
+
+    private val adapterList: MutableList<VerifyQueryDishAdapter> = mutableListOf()
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup): ItemVerifyQueryBinding {
         return ItemVerifyQueryBinding.inflate(inflater, parent, false)
@@ -30,25 +26,13 @@ class VerifyQueryAdapter(context: Context) : BaseAdapter<Verify, ItemVerifyQuery
     }
 
     override fun bindHolder(holder: Holder, position: Int) {
-        val data = getData(position)
-        spanWatcher.clear()
-        dishStr.clear()
-        data.dishesList.forEachIndexed { index, dish ->
-            if (index != 0) dishStr.append("\n")
-            dishStr.append(dish)
-        }
-        disposalData(spanWatcher, "${data.mealName} 待核销菜品:\n${dishStr}")
-        holder.binding.verifyDish.text = spanWatcher
-    }
-
-    private fun disposalData(span: SpannableStringBuilder, content: String) {
-        val style = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ForegroundColorSpan(mContext.resources.getColor(R.color.sky_color, null))
-        } else {
-            return
-        }
-        val start = span.length + content.indexOf(":") + 1
-        span.append(content)
-        span.setSpan(style, start, span.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        val verify = getData(position)
+        holder.binding.verifyMeal.text = "${verify.mealName} 待核销菜品:"
+        /*配置适配器*/
+        if (adapterList.size <= position) adapterList.add(VerifyQueryDishAdapter()) else adapterList[position] = VerifyQueryDishAdapter()
+        holder.binding.dishListView.layoutManager = LinearLayoutManager(mContext)
+        holder.binding.dishListView.adapter = adapterList[position]
+        holder.binding.dishListView.isNestedScrollingEnabled = false
+        adapterList[position].data = verify.dishesList
     }
 }
