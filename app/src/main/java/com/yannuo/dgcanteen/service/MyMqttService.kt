@@ -365,7 +365,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
     fun upDataDishes() {
         mScope.launch() {
             while (isActive) {
-                delay(Duration.minutes(80 + Random.nextInt(30)))
+                delay(Duration.seconds(30))
 //                delay(Duration.minutes(1))
 //                delay(Duration.seconds(30))
                 LogUtil.i(TAG, "定时任务:开始同步菜品")
@@ -450,6 +450,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                 } else {
                     LogUtil.e(TAG, "菜品下载出错 ${rs.msg}")
                 }
+                delay(Duration.minutes(80 + Random.nextInt(30)))
             }
         }
     }

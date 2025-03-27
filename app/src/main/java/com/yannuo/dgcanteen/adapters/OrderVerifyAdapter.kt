@@ -36,7 +36,7 @@ class OrderVerifyAdapter(context: Context) : BaseAdapter<OrderVerify, ItemOrderV
         if (bean.verifyMsg.isNotEmpty()) {
             holder.binding.verifyMsg.visibility = View.VISIBLE
             holder.binding.verifyMsg.text = "描述：${bean.verifyMsg}"
-        }
+        } else holder.binding.verifyMsg.visibility = View.GONE
 
         adapterList[position].data = bean.verifyDishList
     }

@@ -27,57 +27,69 @@ public class DisplayUtils {
     private static float sNoncompatDensity;
     private static float sNoncompatScaledDensity;
     private static Utils utils;
+
     public static void setCustomDensity(int width, Presentation presentation, @NonNull Activity activity, @NonNull final Application application) {
-        DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
-        if (sNoncompatDensity == 0) {
-            sNoncompatDensity = appDisplayMetrics.density;
-            sNoncompatScaledDensity = appDisplayMetrics.scaledDensity;
-            // 防止系统切换后不起作用
-            application.registerComponentCallbacks(new ComponentCallbacks() {
-                @Override
-                public void onConfigurationChanged(Configuration newConfig) {
-                    if (newConfig != null && newConfig.fontScale > 0) {
-                        sNoncompatScaledDensity = application.getResources().getDisplayMetrics().scaledDensity;
-                    }
-                }
+        DisplayMetrics activityMetrics = activity.getResources().getDisplayMetrics();
+        DisplayMetrics displayMetrics = application.getResources().getDisplayMetrics();
 
-                @Override
-                public void onLowMemory() {
-
-                }
-            });
-        }
-        float targetDensity = (float) appDisplayMetrics.widthPixels / width;
-        // 防止字体变小
-        float targetScaleDensity = targetDensity * (sNoncompatScaledDensity / sNoncompatDensity);
+        /*适配 1920 * 1080 大小屏幕*/
+        float targetDensity = (float) activityMetrics.widthPixels / 1920;
         int targetDensityDpi = (int) (160 * targetDensity);
 
-        appDisplayMetrics.density = targetDensity;
-        appDisplayMetrics.scaledDensity = targetScaleDensity;
-        appDisplayMetrics.densityDpi = targetDensityDpi;
+        displayMetrics.density = activityMetrics.density = targetDensity;
+        displayMetrics.scaledDensity = activityMetrics.scaledDensity = targetDensity;
+        displayMetrics.densityDpi = activityMetrics.densityDpi = targetDensityDpi;
 
-        final DisplayMetrics activityDisplayMetrics = activity.getResources().getDisplayMetrics();
-        activityDisplayMetrics.density = targetDensity;
-        activityDisplayMetrics.scaledDensity = targetScaleDensity;
-        activityDisplayMetrics.densityDpi = 160;
+//        DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
+//        if (sNoncompatDensity == 0) {
+//            sNoncompatDensity = appDisplayMetrics.density;
+//            sNoncompatScaledDensity = appDisplayMetrics.scaledDensity;
+//            // 防止系统切换后不起作用
+//            application.registerComponentCallbacks(new ComponentCallbacks() {
+//                @Override
+//                public void onConfigurationChanged(Configuration newConfig) {
+//                    if (newConfig != null && newConfig.fontScale > 0) {
+//                        sNoncompatScaledDensity = application.getResources().getDisplayMetrics().scaledDensity;
+//                    }
+//                }
+//
+//                @Override
+//                public void onLowMemory() {
+//
+//                }
+//            });
+//        }
+//        float targetDensity = (float) appDisplayMetrics.widthPixels / width;
+//        // 防止字体变小
+//        float targetScaleDensity = targetDensity * (sNoncompatScaledDensity / sNoncompatDensity);
+//        int targetDensityDpi = (int) (160 * targetDensity);
+//
+//        appDisplayMetrics.density = targetDensity;
+//        appDisplayMetrics.scaledDensity = targetScaleDensity;
+//        appDisplayMetrics.densityDpi = targetDensityDpi;
+//
+//        final DisplayMetrics activityDisplayMetrics = activity.getResources().getDisplayMetrics();
+//        activityDisplayMetrics.density = targetDensity;
+//        activityDisplayMetrics.scaledDensity = targetScaleDensity;
+//        activityDisplayMetrics.densityDpi = 160;
 
-        utils = new Utils();
-        if (Objects.equals(utils.getDeviceName(), "rk3288")) {
-            if (presentation != null) {
-                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
-                float value = presentationDisplayMetrics.scaledDensity / appDisplayMetrics.scaledDensity;
-                presentationDisplayMetrics.densityDpi = 160; // 160
-                presentationDisplayMetrics.density = targetDensity;  // 1.0
-                presentationDisplayMetrics.scaledDensity = targetScaleDensity * value; // 1.0
-            }
-        } else {
-            if (presentation != null) {
-                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
-                presentationDisplayMetrics.densityDpi = 160; // 160
-                presentationDisplayMetrics.density = 1.0f;  // 1.0
-                presentationDisplayMetrics.scaledDensity = 1.0f; // 1.0
-            }
-        }
+//        utils = new Utils();
+//        if (Objects.equals(utils.getDeviceName(), "rk3288")) {
+//            if (presentation != null) {
+//                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+//                float value = presentationDisplayMetrics.scaledDensity / appDisplayMetrics.scaledDensity;
+//                presentationDisplayMetrics.densityDpi = 160; // 160
+//                presentationDisplayMetrics.density = targetDensity;  // 1.0
+//                presentationDisplayMetrics.scaledDensity = targetScaleDensity * value; // 1.0
+//            }
+//        } else {
+//            if (presentation != null) {
+//                final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+//                presentationDisplayMetrics.densityDpi = 160; // 160
+//                presentationDisplayMetrics.density = 1.0f;  // 1.0
+//                presentationDisplayMetrics.scaledDensity = 1.0f; // 1.0
+//            }
+//        }
     }
 
 }

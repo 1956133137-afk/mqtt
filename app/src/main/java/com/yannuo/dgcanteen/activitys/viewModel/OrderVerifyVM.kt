@@ -103,10 +103,18 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             LogUtil.d(TAG, Gson().toJson(response))
             if (response.code == "200") {
                 val orderVerifyBean = Gson().fromJson(Gson().toJson(response.data ?: ""), OrderVerifyBean::class.java)
+                verifyName = orderVerifyBean.personName
                 if (!mmkv.decodeBool(Constant.ORDER_QUERY, false)) isVerifyStatus = false
                 listener?.onVerifyResult(0, orderVerifyBean)
             } else {
                 isVerifyStatus = true
+                verifyName = ""
+                val orderVerify = OrderVerify().apply {
+                    verifyType = 0
+                    verifyMsg = response.msg
+                    verifyDishList = mutableListOf()
+                }
+                mOrderVerify.postValue(orderVerify)
                 listener?.onVerifyResult(1, OrderVerifyBean(), response.msg)
             }
             mutex.withLock { requestStatus = false }
@@ -135,19 +143,16 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
 
     fun getOrderQuery(verifyMap: HashMap<String, JsonArray>): MutableList<Verify> {
         val verifyList: MutableList<Verify> = mutableListOf()
-        val dishList = arrayListOf<String>()
         val windowList = arrayListOf<String>()
         verifyMap.forEach { (key, value) ->
             val verify = Verify()
             verify.mealName = key
-            dishList.clear()
             val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(value, object : TypeToken<MutableList<VerifyReceive>>() {}.type)
             verifyReceive.forEach { receive ->
                 windowList.clear()
                 receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
-                dishList.add("${receive.dishes}  →  ${Gson().toJson(windowList).replace("(\\[|\\]|\")".toRegex(), "")}")
+                verify.dishesList.add("${receive.dishes}  →  ${Gson().toJson(windowList).replace("(\\[|\\]|\")".toRegex(), "")}")
             }
-            verify.dishesList = dishList
             verifyList.add(verify)
         }
         return verifyList
@@ -155,11 +160,11 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
 
     fun getOrderVerify(bean: OrderVerifyBean): MutableList<OrderVerify> {
         val orderVerifyList: MutableList<OrderVerify> = mutableListOf()
-        verifyName = bean.personName
         /*核销成功*/
         if (bean.verifySuccessDishes.size > 0) {
             val verifySuccess = OrderVerify().apply {
                 verifyType = 0
+                verifyMsg = ""
                 verifyDishList = bean.verifySuccessDishes
             }
             mOrderVerify.postValue(verifySuccess)

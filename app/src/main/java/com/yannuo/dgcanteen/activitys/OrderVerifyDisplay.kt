@@ -10,6 +10,7 @@ import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderVerifyVM
@@ -20,6 +21,7 @@ import com.yannuo.dgcanteen.databinding.OrderVerifyDisplayBinding
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.views.AwaitingDialog
 import java.util.concurrent.TimeUnit
@@ -119,7 +121,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE
-                binding.successTips.text = if (!verifyQueryMode) "核销成功" else "查询成功"
+                binding.successTips.text = if (!verifyQueryMode) "订餐核销" else "订餐查询"
             }
             2 -> {
                 binding.failureView.visibility = View.VISIBLE

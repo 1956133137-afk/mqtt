@@ -197,19 +197,16 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
         verificationUI.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
 
         if (queryReceive.verify != null && queryReceive.verify.size > 0) {
-            val dishList = arrayListOf<String>()
             val windowList = arrayListOf<String>()
             queryReceive.verify.forEach { (key, value) ->
                 val verify = Verify()
                 verify.mealName = key
-                dishList.clear()
                 val verifyReceive = Gson().fromJson<MutableList<VerifyReceive>>(value, object : TypeToken<MutableList<VerifyReceive>>() {}.type)
                 verifyReceive.forEach { receive ->
                     windowList.clear()
                     receive.window.split("，").forEach { if (it.isNotEmpty() && !windowList.contains(it)) windowList.add(it) }
-                    dishList.add("${receive.dishes}  →  ${Gson().toJson(windowList).replace("(\\[|\\]|\")".toRegex(), "")}")
+                    verify.dishesList.add("${receive.dishes}  →  ${Gson().toJson(windowList).replace("(\\[|\\]|\")".toRegex(), "")}")
                 }
-                verify.dishesList = dishList
                 verificationUI.verify.add(verify)
             }
             callBackListener?.onOtherListener(0, verificationUI)
