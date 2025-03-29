@@ -3,8 +3,10 @@ package com.yannuo.dgcanteen.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.ItemSelectDishBinding
 import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
@@ -14,6 +16,7 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
  **/
 class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     private val repeatMap: HashMap<String, Int> = hashMapOf()
+    private val mmkv = MMKV.defaultMMKV()
     private var listener: SelectDishListener? = null
     private var isLimit: Boolean = false
     private var limitSize: Int = 1
@@ -68,6 +71,8 @@ class SelectDishAdapter : BaseAdapter<DishBean, ItemSelectDishBinding>() {
     }
 
     private fun judgeDishLimit(): Boolean {
+        /*是否使用限制*/
+        if (!mmkv.decodeBool(Constant.ORDER_MEAL_LIMIT, false)) return true
         /*是否限购*/
         if (!isLimit) return true
         /*是否已达餐别订餐份数上限*/

@@ -80,6 +80,8 @@ class OrderDishAdapter(val context: Context) : BaseAdapter<DishBean, ItemOrderDi
     }
 
     private fun judgeMealLimit(): Boolean {
+        /*是否使用限制*/
+        if (!mmkv.decodeBool(Constant.ORDER_MEAL_LIMIT, false)) return true
         /*是否限购*/
         if (!mmkv.decodeBool(Constant.ORDER_MEAL_LIMIT_SWITCH, false)) return true
         /*是否已达餐别订餐份数上限*/

@@ -93,11 +93,11 @@
             android:padding="10dp">
 
             <TextView
+                android:id="@+id/mode_tips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:minHeight="80dp"
-                android:text="用户核销菜品"
                 android:textColor="#4F4F4F"
                 android:textSize="50sp"
                 android:textStyle="bold" />

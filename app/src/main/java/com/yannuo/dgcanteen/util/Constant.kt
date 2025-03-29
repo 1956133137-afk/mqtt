@@ -104,8 +104,9 @@ object Constant {
     const val ORDER_ADVANCE_DAY = "orderAdvanceDay"     //订餐提前天数
     const val ORDER_DEFAULT_WAY = "orderDefaultWay"     //订餐默认方式 （自提+核销）
     const val ORDER_DISCOUNT_SWITCH = "orderDiscountSwitch" //订餐优惠开关
+    const val ORDER_MEAL_LIMIT = "orderMealLimit"               //订餐限制是否与后台一致 Boolean
     const val ORDER_MEAL_LIMIT_SWITCH = "orderMealLimitSwitch"  //订餐餐别限制开关
-    const val ORDER_MEAL_LIMIT_SIZE = "orderMealLimitSize"  //订餐餐别限制份数
+    const val ORDER_MEAL_LIMIT_SIZE = "orderMealLimitSize"      //订餐餐别限制份数
     const val ORDER_MEAL_SIZE = "orderMealSize" //已订餐别份数
     const val ORDER_VERIFY_CONFIRM = "orderVerifyConfirm"   //订餐核销确认 Boolean
 

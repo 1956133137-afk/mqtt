@@ -87,8 +87,8 @@ class DownloadVM : ViewModel() {
                                 imgUrl = dish.imgUrl ?: ""
                                 windowIdList = dish.windowIdList
                                 description = if (dish.description.isNullOrEmpty()) "" else dish.description
-                                orderMealQuota = dish.orderMealQuota
-                                orderMealQuotaNum = dish.orderMealQuotaNum
+                                orderMealQuota = if (dish.orderMealQuota.isNullOrEmpty()) "" else dish.orderMealQuota
+                                orderMealQuotaNum = if (dish.orderMealQuotaNum.isNullOrEmpty()) "" else dish.orderMealQuotaNum
                             }
                             dishList.add(bean)
                         }
@@ -150,8 +150,16 @@ class DownloadVM : ViewModel() {
         LogUtil.d(TAG, "data: $date, value: $value")
         val orderMeal: MutableList<OrderMeal> = mutableListOf()
         mealList.forEach {
+            /*餐别时间是否已过*/
+            if (!isJudgeTime("$date ${it.endTime}")) return@forEach
+            /*是否使用限制*/
+            if (!kv.decodeBool(Constant.ORDER_MEAL_LIMIT, false)) {
+                orderMeal.add(it)
+                return@forEach
+            }
+            /*判断后台限制*/
             val split = it.orderMealDay.split(", ".toRegex())
-            if (split.contains(value) && it.delFlag != "1" && isJudgeTime("$date ${it.endTime}") && isJudgeLimitTime(date, it)) orderMeal.add(it)
+            if (split.contains(value) && it.delFlag != "1" && isJudgeLimitTime(date, it)) orderMeal.add(it)
         }
         return orderMeal
     }

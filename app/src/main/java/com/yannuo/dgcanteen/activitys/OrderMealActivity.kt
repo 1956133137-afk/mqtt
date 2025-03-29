@@ -49,6 +49,7 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
         orderMealVM.getUserName().observe(this) {
             binding.tipsUser.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
             binding.btnOrderRecord.visibility = if (it.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+            binding.btnSetting.visibility = if (it.isNotEmpty()) View.INVISIBLE else View.VISIBLE
             binding.userName.text = it.toString()
         }
         NetworkStateManager.getInstance().registerObserver(this)

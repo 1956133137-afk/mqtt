@@ -292,6 +292,7 @@ class ModeSettingFragment : Fragment() {
         binding.orderDefaultWay.setOnClickListener { kv.encode(Constant.ORDER_DEFAULT_WAY, binding.orderDefaultWay.isChecked) }
         binding.orderDiscountSwitch.setOnClickListener { kv.encode(Constant.ORDER_DISCOUNT_SWITCH, binding.orderDiscountSwitch.isChecked) }
         binding.orderQuery.setOnClickListener { kv.encode(Constant.ORDER_QUERY, binding.orderQuery.isChecked) }
+        binding.orderMealLimit.setOnClickListener { kv.encode(Constant.ORDER_MEAL_LIMIT, binding.orderMealLimit.isChecked) }
         // 重复支付判断
         binding.repeatPayJudge.setOnClickListener { kv.encode(Constant.REPEAT_PAY_JUDGE, binding.repeatPayJudge.isChecked) }
 
@@ -449,6 +450,7 @@ class ModeSettingFragment : Fragment() {
         binding.orderDefaultWay.isChecked = kv.decodeBool(Constant.ORDER_DEFAULT_WAY, false)
         binding.orderDiscountSwitch.isChecked = kv.decodeBool(Constant.ORDER_DISCOUNT_SWITCH, false)
         binding.orderQuery.isChecked = kv.decodeBool(Constant.ORDER_QUERY, false)
+        binding.orderMealLimit.isChecked = kv.decodeBool(Constant.ORDER_MEAL_LIMIT, false)
 
         val verifyType = resources.getStringArray(R.array.spVerify)
         val spVerifyAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, verifyType)

@@ -121,6 +121,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
     override fun onResume() {
         super.onResume()
         mXService?.hideNavBar = true
+        binding.modeTips.text = if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) "订餐查询模式" else "订餐核销模式"
         orderVerifyDisplay?.changeView(0)
     }
 
