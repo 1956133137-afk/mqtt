@@ -189,6 +189,26 @@ interface ApiService {
     suspend fun getOrderList(@Header("dcccbauthorization") token: String, @Body bean: OrderListBean): CanteenResponse<JsonObject>
 
     /**
+     * 查询订餐列表(备餐模式)
+     */
+    @Headers("content-type: application/json")
+    @POST("android/getOrderMealList")
+    suspend fun getMealPreparaionList(@Body bean: MealPreparationBean): CanteenResponse<JsonObject>
+
+    /**
+     * 修改订单状态(备餐模式)
+     */
+    @Headers("content-type: application/json")
+    @POST("android/changeOrderStatus")
+    suspend fun ModifyTheOrderStatus(@Body bean: OrderStatusBean): CanteenResponse<JsonObject>
+
+
+    //查询所有餐别
+    @Headers("content-type: application/json")
+    @GET("android/getMealList")
+    suspend fun queryAllMeal(@Body bean: MealRequestPerson): CanteenResponse<MutableList<MealBean>>
+
+    /**
      * 退餐接口
      */
     @Headers("content-type: application/json")

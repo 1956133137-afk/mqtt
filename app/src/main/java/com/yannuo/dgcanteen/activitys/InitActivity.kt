@@ -166,7 +166,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                 Constant.ORDERING_MEAL_MODE,
                 Constant.ORDERING_VERIFY_MODE,
                 Constant.ORDERING_TWO_MODE,
-                Constant.PROCEEDS_TWO_MODE
+                Constant.PROCEEDS_TWO_MODE,
+                Constant.MEAL_PREPARATION_MODE
             )
         )
         initModeAdapter.setItemListener(object : InitModeAdapter.OnItemClickListener {
@@ -219,7 +220,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
                     when (mode) {
@@ -237,6 +238,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                                 Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
                                 Constant.ORDERING_MEAL_MODE -> Intent(this@InitActivity, OrderMealActivity::class.java)
+                                Constant.MEAL_PREPARATION_MODE -> Intent(this@InitActivity, MealPreparationActivity::class.java)
                                 else -> Intent(this@InitActivity, OrderVerifyActivity::class.java)
                             }
                         }

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activitys.MealPreparationActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:text="@string/dg_canteen"
+            android:textColor="#4095E5"
+            android:textSize="48sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/select_stopper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/server"
+            android:padding="5dp"
+            android:textColor="#4F4F4F"
+            android:textSize="24sp" />
+
+        <ImageButton
+            android:id="@+id/server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_toStartOf="@+id/network"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_server" />
+
+        <ImageButton
+            android:id="@+id/network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="50dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_wifi" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/meal_preparation"
+                android:name="com.yannuo.dgcanteen.activitys.fragment.MealPreparationFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="320dp"
+            android:layout_height="match_parent"
+            android:gravity="right"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="备餐模式"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="40sp" />
+
+            <TextClock
+                android:id="@+id/tv_clock"
+                android:layout_below="@+id/tv"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:format24Hour="MM-dd HH:mm:ss"
+                android:gravity="center"
+                android:textColor="#4F4F4F"
+                android:textSize="40sp" />
+
+            <Button
+                android:id="@+id/btn_setting"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_clock"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/bt_marg"
+                android:background="@drawable/click_button"
+                android:padding="10dp"
+                android:text="@string/setting"
+                android:textColor="#4F4F4F"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/btn_finish"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_setting"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/bt_marg"
+                android:background="@drawable/click_button"
+                android:padding="10dp"
+                android:text="已备订单"
+                android:textColor="#4F4F4F"
+                android:textSize="45sp" />
+
+            <TextView
+                android:id="@+id/serial_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:text="201235\r\ndassasdfasdfadf"
+                android:textColor="#4F4F4F"
+                android:textSize="25sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

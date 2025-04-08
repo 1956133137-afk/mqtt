@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.yannuo.dgcanteen",
+  "variantName": "inputDebug",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 71,
+      "versionName": "1.7.1",
+      "outputFile": "ccb_canteen-input-v1.7.1-debug.apk"
+    }
+  ],
+  "elementType": "File"
+}

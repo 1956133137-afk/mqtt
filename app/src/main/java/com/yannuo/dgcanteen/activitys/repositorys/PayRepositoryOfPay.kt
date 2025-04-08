@@ -194,6 +194,27 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getMealPreparaionList(bean: MealPreparationBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().getMealPreparaionList(bean)
+        }
+    }
+
+    /**
+     * 修改订单状态
+     */
+    suspend fun ModifyTheOrderStatus(bean: OrderStatusBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().ModifyTheOrderStatus(bean)
+        }
+    }
+
+    suspend fun queryAllMeal(bean: MealRequestPerson): CanteenResponse<MutableList<MealBean>> {
+        return apiCall {
+            RetrofitClient.getApi().queryAllMeal(bean)
+        }
+    }
+
     suspend fun orderDirectRefund(token: String, bean: OrderRefundBean): CanteenResponse<JsonObject> {
         return apiCall {
             RetrofitClient.getApi().orderDirectRefund(token, bean)

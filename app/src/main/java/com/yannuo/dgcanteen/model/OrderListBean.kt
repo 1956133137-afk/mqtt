@@ -21,6 +21,38 @@ class OrderListBean {
     var batchOrderStatus: MutableList<String> = mutableListOf() //订单状态 1-处理中,2-配送中,3-已完成配送,4-待核销,5-完成自提,6-已关闭,7-待配送,8-退款中,9-已退款,10-部分退款 11-已部分核销
 }
 
+class MealPreparationBean{
+    //商家id
+    var businessId: String = ""
+    //园区id
+    var campusId: String = ""
+    //姓名
+    var personName: String? = null
+    //餐别
+    var mealId: Int? = null
+    //订单状态
+    var orderStatus: String? = null
+    //页数
+    var page: Int = 1
+    //页面条数
+    var pageSize: Int = 100
+    //日期范围 ["2025-03-20","2025-03-30"]
+    var dateList: List<String>? = null
+}
+
+class OrderStatusBean{
+    //园区id
+    var campusId: String = ""
+    //商家id
+    var businessId: String = ""
+    //订单号
+    var orderId: String = ""
+    //订单状态
+    var orderStatus: String = ""
+    //备注
+    var remark: String? = null
+}
+
 class OrderListReceive {
     var page: String = ""           //查询页码
     var pageSize: String = ""       //查询条数
@@ -30,6 +62,8 @@ class OrderListReceive {
 }
 
 class Order {
+    var personName: String = ""     //订餐人
+    var payTime: String = ""        //支付时间
     var campusId: String = ""       //园区id
     var businessId: String = ""     //商家id
     var businessName: String = ""   //商家名称
@@ -52,6 +86,8 @@ class Order {
     var endTime: String = ""        //餐别结束时间
     var phone: String = ""          //手机号
     var address: String = ""        //配送地址
+    var verificationCode: String = ""        //保温箱二维码
+    var remark: String = ""        //备注
     var dcOrderDishesList: MutableList<DcOrderDishes> = mutableListOf()
 //    var dcOrderPackageList: MutableList<String> = mutableListOf()
     var updateTime: String = ""     //订单更新时间

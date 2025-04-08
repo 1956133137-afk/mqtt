@@ -73,4 +73,18 @@
 
     </style>
 
+    <style name="CustomSpinnerStyle">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/ic_app_background</item>
+        <item name="android:backgroundTint">@color/back</item>
+    </style>
+
+    <style name="SmallerCalendarText" parent="android:TextAppearance">
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textColorHint">?android:textColorHint</item>
+        <item name="android:textColorHighlight">?android:textColorHighlight</item>
+        <item name="android:textColorLink">?android:textColorLink</item>
+        <item name="android:textSize">@dimen/abc_text_size_body_1_material</item>
+    </style>
+    
 </resources>

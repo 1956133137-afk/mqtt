@@ -110,7 +110,7 @@ class ProductsVM : ViewModel() {
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
-                        if (da.mealName == null) continue
+                        if (da.mealName.isEmpty()) continue
 
                         da.startTime?.also {
                             val split = it.split(":")
@@ -179,6 +179,50 @@ class ProductsVM : ViewModel() {
                     showToastEvent.postValue("菜品下载出错 ${rs.msg}")
                 }
                 loadingEvent.postValue(false)
+            }
+        }
+
+    }
+
+    //获取全部餐别
+    fun upDataMeal(force: Boolean = false) {
+        viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
+            val check = checkIsNeedUpdate()
+            if (check.not() || force) {
+                loadingEvent.postValue(true)
+                val rs = mRespository.getDayDishes()
+                if (rs.code == "200") {
+                    val mealList = mutableListOf<MealTable>()
+                    for (da in rs.data!!) {
+                        val meal = MealTable()
+                        meal.mealId = da.mealId
+                        meal.mealName = da.mealName
+                        if (da.mealName.isEmpty()) continue
+
+                        da.startTime?.also {
+                            val split = it.split(":")
+                            val date = Date()
+                            date.hours = split[0].toInt()
+                            date.minutes = split[1].toInt()
+                            date.seconds = split[2].toInt()
+                            meal.startTime = date
+                        }
+
+                        da.endTime?.also {
+                            val split = it.split(":")
+                            val date = Date()
+                            date.hours = split[0].toInt()
+                            date.minutes = split[1].toInt()
+                            date.seconds = split[2].toInt()
+                            meal.endTime = date
+                        }
+
+                        mealList.add(meal)
+                    }
+                    LogUtil.i(TAG, "mealList: $mealList")
+                    DishesDBHelper.getInstance().clearAllMeal()
+                    DishesDBHelper.getInstance().insertMeals(mealList)
+                }
             }
         }
 

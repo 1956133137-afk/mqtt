@@ -15,7 +15,6 @@ import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
 import java.util.*
 
 /**

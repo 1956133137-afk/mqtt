@@ -175,6 +175,7 @@ class USBPrinterHelper {
                                 "0" -> printContent(it)
                                 "1" -> printerOrder(it)
                                 "2" -> printOrderContent(it)
+                                "3" -> printOrderContentQR(it)
                             }
                         }
                         var times = 3
@@ -300,6 +301,75 @@ class USBPrinterHelper {
             printContentKey("-", printFormat("合计", String.format("%.02f元", sum)))
         }
         printContentKey("-", "================================")
+        mPos?.POS_FeedLine()
+        mPos?.POS_FeedLine()
+        mPos?.POS_FeedLine()
+        mPos?.POS_FullCutPaper()
+    }
+
+    private fun printOrderContentQR(data: Any) {
+        val bean = data as OrderForUI
+        mPos?.POS_Reset() //复位打印机
+        mPos?.POS_S_Align(1) //居中对齐
+        //按照一定的格式打印字符串
+        mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_FeedLine()
+        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_AMOUNT, 1))}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_S_Align(0) //左对齐
+        printContentKey("-", "================================")
+        printContentKey(bean.custName, printFormat("用户姓名", bean.custName))
+        printContentKey(bean.accBal, printFormat("用户余额", "${bean.accBal}元"))
+        printContentKey(bean.orderId, printFormat("订单编号", bean.orderId))
+        printContentKey(bean.actualPayment, printFormat("订单金额", String.format("%.02f元", bean.actualPayment.toFloat())))
+        printContentKey(bean.orderTime, printFormat("下单时间", bean.orderTime))
+        printContentKey(bean.orderDate, printFormat("用餐日期", bean.orderDate))
+        printContentKey(bean.mealName, printFormat("餐别名称", bean.mealName))
+        printContentKey(bean.distribute, printFormat("配送方式", if (bean.distribute == "1") "配送" else "自提"))
+        if (bean.distribute == "1") {
+            printContentKey(bean.deliveryTime, printFormat("配送时间", bean.deliveryTime))
+            printContentKey(bean.address, printFormat("配送地址", bean.address))
+        }
+        printContentKey(bean.phone, printFormat("联系电话", bean.phone))
+        val dishes = bean.dishList
+        if (dishes.size > 0) {
+            var sum = 0.0
+            mPos?.POS_FeedLine()
+            printContentKey("-", printFormatMenu("名称", "数量", "小计"))
+            printContentKey("-", "--------------------------------")
+            dishes.forEach {
+                sum += it.dishCount * it.dishPrice.toDouble()
+                val i = it.dishName.length / 17
+                val substring = it.dishName.substring(0, i * 17)
+                val substring1 = it.dishName.substring(i * 17)
+                if(substring.isNotEmpty()) printContentKey("-", substring)
+                if(substring1.isNotEmpty()) printContentKey("-", printFormatMenu(substring1, it.dishCount.toString(), "${it.dishCount.toFloat() * it.dishPrice.toFloat()}"))
+            }
+            if(bean.deliveryFee.isNotEmpty() || bean.packagingFee.isNotEmpty()){
+                printContentKey("-", "---------------其他---------------")
+                if(bean.deliveryFee.isNotEmpty()) {
+                    printContentKey(bean.deliveryFee, printFormat("配送费用", bean.deliveryFee))
+                    sum += bean.deliveryFee.toDouble()
+                }
+                if(bean.packagingFee.isNotEmpty()) {
+                    printContentKey(bean.packagingFee, printFormat("打包费用", bean.packagingFee))
+                    sum += bean.packagingFee.toDouble()
+                }
+            }
+            printContentKey("-", "--------------------------------")
+            printContentKey("-", printFormat("合计", String.format("%.02f元", sum)))
+        }
+        mPos?.POS_S_Align(1)
+        if(bean.remark.isNotEmpty()){
+            printContentKey("-", "--------------------------------")
+            printContentKey("-", "备注")
+            printContentKey("-", bean.remark)
+        }
+        printContentKey("-", "================================")
+        mPos?.POS_FeedLine()
+//        if(bean.verificationCode.isNotEmpty()) {
+            mPos?.POS_S_SetQRcode(bean.verificationCode, 16, 0, 1)
+//        }
+        mPos?.POS_FeedLine()
         mPos?.POS_FeedLine()
         mPos?.POS_FeedLine()
         mPos?.POS_FeedLine()

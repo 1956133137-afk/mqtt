@@ -388,6 +388,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                         val meal = MealTable()
                         meal.mealId = da.mealId
                         meal.mealName = da.mealName
+                        if (da.mealName.isEmpty()) continue
 
                         da.startTime?.also {
                             val split = it.split(":")
@@ -409,12 +410,14 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
                         mealList.add(meal)
                         for (bean in da.selectedDishesCategoryData) {
-                            val cat = CategoryTable()
-                            cat.categoryId = bean.categoryId
-                            cat.categoryName = bean.categoryName
-                            cat.sort = bean.sort
-                            cat.mealId = da.mealId
-                            catList.add(cat)
+                            if (!bean.categoryName.isNullOrEmpty()) {
+                                val cat = CategoryTable()
+                                cat.categoryId = bean.categoryId
+                                cat.categoryName = bean.categoryName
+                                cat.sort = bean.sort
+                                cat.mealId = da.mealId
+                                catList.add(cat)
+                            }
                             bean.selectedDishesList.forEach {
                                 val dish = DishesTable()
                                 dish.dishesId = it.dishesId
@@ -555,7 +558,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         for (fi in savePath.listFiles()) {
             fi.delete()
         }
-        for (path in picList) {
+        for (path in picList) { if (path == null || path.isEmpty()) continue
             val pic = Glide.with(this)
                 .load(path)
                 .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
