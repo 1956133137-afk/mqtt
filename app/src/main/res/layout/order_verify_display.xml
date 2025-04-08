@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 失败界面 -->
     <RelativeLayout
         android:id="@+id/failure_view"
         android:layout_width="match_parent"
@@ -56,6 +57,7 @@
 
     </RelativeLayout>
 
+    <!-- 成功界面 -->
     <LinearLayout
         android:id="@+id/success_view"
         android:layout_width="match_parent"
@@ -101,6 +103,21 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
 
+            <LinearLayout
+                android:id="@+id/order_pay_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pay_recycler_view"
+                    android:layout_width="800dp"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <!-- 订餐查询 -->
             <RelativeLayout
                 android:id="@+id/order_query_view"
                 android:layout_width="match_parent"
@@ -127,6 +144,7 @@
 
             </RelativeLayout>
 
+            <!-- 订餐核销 -->
             <LinearLayout
                 android:id="@+id/order_verify_view"
                 android:layout_width="match_parent"
@@ -188,6 +206,7 @@
 
     </LinearLayout>
 
+    <!-- 初始化界面 -->
     <RelativeLayout
         android:id="@+id/init_view"
         android:layout_width="match_parent"
@@ -227,6 +246,17 @@
             android:layout_height="600dp"
             android:layout_centerInParent="true"
             android:src="@drawable/ic_order_verify" />
+
+        <TextView
+            android:id="@+id/tv_order_pay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/init_img"
+            android:gravity="center"
+            android:textColor="#FF0000"
+            android:textSize="100sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

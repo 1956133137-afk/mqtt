@@ -157,7 +157,7 @@ class SerialPortHelper() {
                         val buffer = ByteArray(read)
                         System.arraycopy(rxArray, 0, buffer, 0, read)
                         content += byteArrayToHexString(buffer)
-                        LogUtil.d(tag,"ic卡：${content}")
+//                        LogUtil.d(tag,"ic卡：${content}")
                         delay(readTime)
                         if (mBufferedInputStream?.available() == 0) {
                             content = content.replace("\r\n","")
@@ -167,17 +167,17 @@ class SerialPortHelper() {
                                 when(selectedOption){
                                     1->{
                                         val asciiContent = asciiTo10(content) //16进制转10进制
-                                        readDataListener?.numberOfIcCard(asciiContent)
                                         LogUtil.d(tag,"10进制：${asciiContent}")
+                                        readDataListener?.numberOfIcCard(asciiContent)
                                     }
                                     0->{
-                                        readDataListener?.numberOfIcCard(content)//16进制
                                         LogUtil.d(tag,"16进制：${content}")
+                                        readDataListener?.numberOfIcCard(content)//16进制
                                     }
                                     2-> {
                                         val tenContent = hexStringToTenString(content)
-                                        readDataListener?.numberOfIcCard(tenContent)
                                         LogUtil.d(tag,"反码16进制转10进制：${tenContent}")
+                                        readDataListener?.numberOfIcCard(tenContent)
                                     }
                                 }
                             }

@@ -14,16 +14,21 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderVerifyVM
+import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.OrderVerifyAdapter
 import com.yannuo.dgcanteen.adapters.VerifyQueryAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.OrderVerifyDisplayBinding
+import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
+import com.yannuo.dgcanteen.model.PayForUI
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.views.AwaitingDialog
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
 /**
@@ -41,6 +46,8 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     private val verifyQueryAdapter by lazy { VerifyQueryAdapter(getContext()) }
     private val orderVerifyAdapter by lazy { OrderVerifyAdapter(getContext()) }
 
+    private val infoAdapter by lazy { InfoAdapter() }
+
     private var awaitingDialog: AwaitingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +64,9 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
 
         binding.orderVerify.layoutManager = LinearLayoutManager(getContext())
         binding.orderVerify.adapter = orderVerifyAdapter
+
+        binding.payRecyclerView.layoutManager = LinearLayoutManager(getContext())
+        binding.payRecyclerView.adapter = infoAdapter
 
         orderVerifyVM.setVerifyListener(this)
 
@@ -99,12 +109,47 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
         }
     }
 
+    override fun onPayResult(type: Int, payForUI: PayForUI) {
+        handler.post {
+            if (awaitingDialog != null && awaitingDialog?.isShowing == true) awaitingDialog?.dismiss()
+            when (type) {
+                -1 -> {
+                    if (awaitingDialog == null) awaitingDialog = AwaitingDialog(context)
+                    awaitingDialog?.show()
+                    awaitingDialog?.updateText("加载中")
+                }
+                else -> {
+                    binding.btnBack.visibility = View.VISIBLE
+                    onCountDownTimer()
+                    if (payForUI.result == "Y") {
+                        changeView(1)
+                        binding.successName.text = payForUI.username
+                        binding.orderPayView.visibility = View.VISIBLE
+                        val infoList = mutableListOf<InfoBean>()
+                        infoList.add(InfoBean("账户余额: ", payForUI.accBal))
+                        infoList.add(InfoBean("支付时间: ", payForUI.payTime))
+                        infoList.add(InfoBean("订单金额: ", payForUI.payment))
+                        infoList.add(InfoBean("实付金额: ", payForUI.actualPayment))
+                        infoList.add(InfoBean("订单编号: ", payForUI.orderId))
+                        CommonAndDpToPxUtil.speakWork("支付成功,${DecimalFormat("#0.##").format(payForUI.actualPayment.toDouble())}元}")
+                        infoAdapter.data = infoList
+                    } else {
+                        changeView(2)
+                        binding.failureMsg.text = "失败原因：${payForUI.errMsg}"
+                        binding.failureTime.text = "失败时间：${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+                    }
+                }
+            }
+        }
+    }
+
     fun changeView(viewId: Int) {
         /*默认全部不显示*/
         binding.initView.visibility = View.GONE
         binding.successView.visibility = View.GONE
         binding.failureView.visibility = View.GONE
 
+        binding.orderPayView.visibility = View.GONE
         binding.orderQueryView.visibility = View.GONE
         binding.orderVerifyView.visibility = View.GONE
         /*选择订餐核销或者订餐查询*/
@@ -114,18 +159,25 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             0 -> {
                 binding.initView.visibility = View.VISIBLE
                 binding.btnBack.visibility = View.GONE
-                binding.initImg.setImageResource(if (!verifyQueryMode) R.drawable.ic_order_verify else R.drawable.ic_order_query)
+                binding.tvOrderPay.visibility = View.GONE
+                if (orderVerifyVM.payMode) {
+                    binding.tvOrderPay.visibility = View.VISIBLE
+                    binding.initImg.setImageResource(R.drawable.ic_order_pay)
+                    binding.tvOrderPay.text = if (orderVerifyVM.payAmount.isNotEmpty()) "¥${orderVerifyVM.payAmount}" else ""
+                } else binding.initImg.setImageResource(if (!verifyQueryMode) R.drawable.ic_order_verify else R.drawable.ic_order_query)
                 countDown?.cancel()
                 /*是否需要确认*/
                 if (!mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)) orderVerifyVM.mOrderVerify.postValue(OrderVerify())
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE
-                binding.successTips.text = if (!verifyQueryMode) "订餐核销" else "订餐查询"
+                if (orderVerifyVM.payMode) binding.successTips.text = "支付成功"
+                else binding.successTips.text = if (!verifyQueryMode) "订餐核销" else "订餐查询"
             }
             2 -> {
                 binding.failureView.visibility = View.VISIBLE
-                binding.failureTips.text = if (!verifyQueryMode) "核销失败" else "查询失败"
+                if (orderVerifyVM.payMode) binding.failureTips.text = "支付失败"
+                else binding.failureTips.text = if (!verifyQueryMode) "核销失败" else "查询失败"
             }
         }
     }

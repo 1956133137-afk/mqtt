@@ -9,14 +9,21 @@ import com.google.gson.JsonArray
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.AccListTable
+import com.yannuo.dgcanteen.greendao.entity.PayDishTable
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * Author: filowl
@@ -30,11 +37,17 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     private val mRepository by lazy { PayRepositoryOfPay() }
     private val mutex: Mutex = Mutex()
     private var requestStatus = false
+    private var statsStatus = false
+    val dishVerifyCount: MutableLiveData<MutableList<InfoBean>> = MutableLiveData<MutableList<InfoBean>>(mutableListOf())
 
     private var mCardHandle: SerialPortHelper? = null
     private var listener: VerifyCallBack? = null
 
     private var isVerifyStatus = true
+    var payMode = false
+    var isPayStatus = false
+    var payAmount = ""
+    val mOrderPay: MutableLiveData<String> = MutableLiveData<String>()
 
     private var mMealId = 0
     private var mealId = -1
@@ -78,11 +91,13 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
-        if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
-            viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
-            return
-        }
-        orderVerify(icCard)
+        if (!payMode) {
+            if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
+                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+                return
+            }
+            orderVerify(icCard)
+        } else orderPayment(icCard)
     }
 
     private fun orderVerify(cardId: String) {
@@ -119,6 +134,143 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             }
             mutex.withLock { requestStatus = false }
         }
+    }
+
+    private fun orderPayment(icCard: String) {
+        if (!isPayStatus) {
+            viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            mutex.withLock { isPayStatus = false }
+            listener?.onPayResult(-1, PayForUI())
+            /*初始化数据*/
+            val payForUI = initData("3", icCard, payAmount)
+            /*请求支付扣费*/
+            val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
+            request.cardId = payForUI.payContent
+            LogUtil.i(TAG, "支付请求: ${Gson().toJson(request)}")
+            val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
+            val response = mRepository.payByIcCard(encryption)
+            if (response.code == "200") {
+                val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
+                val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+                LogUtil.d(TAG, "支付结果: ${Gson().toJson(result)}")
+                payForUI.result = result.RESULT
+                payForUI.accType = result.ACC_TYPE
+                payForUI.accNo = result.ACC_NO
+                payForUI.accBal = result.ACC_BAL.ifEmpty { result.REMAIN_BAL }
+                result.ACC_LIST.forEach {
+                    val acclist = ACCLIST().apply {
+                        ACC_NO = it.ACC_NO
+                        ACC_BAL = it.ACC_BAL
+                        ACC_TYPE = it.ACC_TYPE
+                        TRAN_ID = it.TRAN_ID
+                        PAYMENT = it.PAYMENT
+                    }
+                    payForUI.accList.add(acclist)
+                }
+                /*查询人员姓名*/
+                if (result.CUST_ID.isNotEmpty() && payForUI.username.isEmpty()) {
+                    val persons = dbHelper.queryPersonToCustId(result.CUST_ID)
+                    if (persons != null) payForUI.username = persons.personName
+                }
+                payForUI.actualPayment = result.ACTUAL_PAYMENT
+                payForUI.orderId = result.ORDERID
+                payForUI.traceId = result.TRACEID
+                payForUI.errCode = result.ERRCODE
+                payForUI.errMsg = result.ERRMSG
+            } else {
+                payForUI.errCode = response.code
+                payForUI.errMsg = response.msg
+            }
+            if (payForUI.result == "Y") {
+                saveOrderRecord(payForUI, 1)
+                mOrderPay.postValue("${payForUI.username.ifEmpty { "" }}支付${payForUI.actualPayment}元")
+            } else mOrderPay.postValue("${payForUI.username.ifEmpty { "" }}支付失败")
+            LogUtil.d(TAG, Gson().toJson(payForUI))
+            payAmount = ""
+            listener?.onPayResult(0, payForUI)
+        }
+    }
+
+    /**
+     * 初始化消费数据
+     */
+    private fun initData(type: String, content: String, payAmount: String): PayForUI {
+        val mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+        val currentTime = System.currentTimeMillis()
+        val deviceSerial = Utils.getSN()
+        val payForUI = PayForUI().apply {
+            businessId = mPayCfg.businessId
+            businessName = mPayCfg.businessName
+            campusId = mPayCfg.campusId
+            corpId = mPayCfg.corp_id
+            vposId = mPayCfg.counterId
+            deviceId = deviceSerial
+            payType = type //刷卡支付
+            payContent = content
+            payment = payAmount
+            actualPayment = payAmount
+            payTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime)
+            payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
+            sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
+            signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
+            offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
+        }
+        return payForUI
+    }
+
+    private fun saveOrderRecord(payForUI: PayForUI, flag: Int) {
+        val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
+        payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+        payOrder.flag = flag
+        dbHelper.insertPayOrder(payOrder)
+        val order = dbHelper.queryPayOrder(payOrder.orderId)
+        payForUI.paymentDishes.forEach {
+            val dish = Gson().fromJson(Gson().toJson(it), PayDishTable::class.java)
+            dish.payOrderTable = order
+            dbHelper.insertPayDish(dish)
+        }
+        payForUI.accList.forEach {
+            val acc = Gson().fromJson(Gson().toJson(it), AccListTable::class.java)
+            acc.payOrderTable = order
+            dbHelper.insertAccList(acc)
+        }
+    }
+
+    fun getOrderStatsCount() {
+        if (statsStatus) return
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            mutex.withLock { statsStatus = true }
+            val infoBeanList: MutableList<InfoBean> = mutableListOf()
+            val mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+            val request = CountDishesOfWindowBean().apply {
+                campusId = mPayCfg.campusId
+                businessId = mPayCfg.businessId
+                deviceId = Utils.getSN()
+            }
+            request.mealId = this@OrderVerifyVM.mealId
+            LogUtil.d(TAG, "订餐核销统计：${Gson().toJson(request)}")
+            val res = mRepository.getCountDishes(request)
+            if (res.code == "200") {
+                val dishesOfWindow = Gson().fromJson(Gson().toJson(res.data), CountDishesOfWindowResponse::class.java)
+                LogUtil.d(TAG, "订餐核销统计: ${Gson().toJson(dishesOfWindow)}")
+                infoBeanList.add(InfoBean("核销人数：", "${dishesOfWindow.dcVerifyPersonNum}/${dishesOfWindow.dcTotalPersonNum}"))
+                dishesOfWindow.needVerifyTotal.forEach {
+                    infoBeanList.add(InfoBean("${it.dishesName}：", "${getVerifyDishCount(it.dishesName, dishesOfWindow.verifyTotal)}/${it.dishesNum}"))
+                }
+                LogUtil.d(TAG, "订餐核销统计: ${Gson().toJson(infoBeanList)}")
+                dishVerifyCount.postValue(infoBeanList)
+            }
+            mutex.withLock { statsStatus = false }
+        }
+    }
+
+    private fun getVerifyDishCount(dishName: String, verifyDishList: List<DishesCounts>): Int {
+        var count = 0
+        verifyDishList.forEach { if (it.dishesName == dishName) count = it.dishesNum }
+        return count
     }
 
     private fun checkTime() {
@@ -216,5 +368,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
 
     interface VerifyCallBack {
         fun onVerifyResult(type: Int, orderVerifyBean: OrderVerifyBean, errMsg: String = "")
+
+        fun onPayResult(type: Int, payForUI: PayForUI)
     }
 }

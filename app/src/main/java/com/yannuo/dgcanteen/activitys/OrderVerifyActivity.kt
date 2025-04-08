@@ -4,22 +4,29 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.CountDownTimer
+import android.os.Handler
 import android.view.Display
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderVerifyVM
+import com.yannuo.dgcanteen.adapters.DishVerifyCountAdapter
+import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.OrderVerify2Adapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityOrderVerifyBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
+import com.yannuo.dgcanteen.dialogView.KeyboardDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.concurrent.TimeUnit
@@ -38,6 +45,12 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
 
     private val orderVerify2Adapter by lazy { OrderVerify2Adapter() }
     private var countDown: CountDownTimer? = null
+
+    private val dishVerifyCountAdapter by lazy { DishVerifyCountAdapter() }
+    private var dishVerifyTime: Long = 0L
+
+    private var keyboardDialog: KeyboardDialog? = null
+    private var handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
 
     override fun bindLayout() {
         binding = ActivityOrderVerifyBinding.inflate(layoutInflater)
@@ -75,7 +88,11 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
             }
             orderVerify2Adapter.data = it.verifyDishList
         }
-
+        /*提示支付结果*/
+        orderVerifyVM.mOrderPay.observe(this) { keyboardDialog?.updateTV(it, true) }
+        binding.dishStatsCount.layoutManager = LinearLayoutManager(this)
+        binding.dishStatsCount.adapter = dishVerifyCountAdapter
+        orderVerifyVM.dishVerifyCount.observe(this) { dishVerifyCountAdapter.data = it }
         initPresentation()
     }
 
@@ -105,6 +122,34 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
             mmkv.encode(Constant.ORDER_VERIFY_CONFIRM, boolean)
         }
         binding.btnFinishVerify.setOnClickListener { orderVerifyVM.mOrderVerify.postValue(OrderVerify()) }
+        binding.btnUpdateDishCount.setOnClickListener {
+            val clickIntervalTime = System.currentTimeMillis() - dishVerifyTime
+            if (clickIntervalTime > 300000) {
+                dishVerifyTime = System.currentTimeMillis()
+                orderVerifyVM.getOrderStatsCount()
+                ToastShowUtil.show("正在刷新数据")
+            } else ToastShowUtil.show("请 ${(300000 - clickIntervalTime) / 1000}s 后再刷新数据")
+        }
+
+        binding.btnProceedsMode.setOnClickListener {
+            orderVerifyVM.payMode = true
+            orderVerifyDisplay?.changeView(0)
+            if (keyboardDialog == null) keyboardDialog = KeyboardDialog(this)
+            keyboardDialog?.show()
+            keyboardDialog?.setListener(object : KeyboardDialog.OnKeyboardCallback {
+                override fun onKeyboard(payAmount: String, status: Boolean) {
+                    handler.post {
+                        orderVerifyVM.isPayStatus = status
+                        if (!status && payAmount == "-1") orderVerifyVM.payMode = false
+                        if (status) {
+                            orderVerifyVM.payAmount = payAmount
+                            keyboardDialog?.updateTV("等待支付", false)
+                        } else orderVerifyVM.payAmount = ""
+                        orderVerifyDisplay?.changeView(0)
+                    }
+                }
+            })
+        }
     }
 
     private fun initPresentation() {
@@ -123,6 +168,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         mXService?.hideNavBar = true
         binding.modeTips.text = if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) "订餐查询模式" else "订餐核销模式"
         orderVerifyDisplay?.changeView(0)
+        orderVerifyVM.getOrderStatsCount()
     }
 
     private fun onCountDownTimer() {
