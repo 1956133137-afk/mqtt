@@ -1,6 +1,5 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
-import android.util.Log
 import androidx.annotation.Nullable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,7 +27,6 @@ class MealPreparationVM : ViewModel() {
     private var mealListener: OnMealListener? = null
     private var payCfg = PayCfg()
     private val orderList: MutableList<Order> = mutableListOf()
-    private val mealList: MutableList<MealBean> = mutableListOf()
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
@@ -59,22 +57,21 @@ class MealPreparationVM : ViewModel() {
         }
     }
 
-    fun queryAllMeal(callback: (MutableList<MealBean>) -> Unit){
+    fun queryAllMeal(callback: (HashMap<String, String>) -> Unit){
         viewModelScope.launch(Dispatchers.IO + mHandler) {
-            mealList.clear()
             var bean = MealRequestPerson().apply {
                 this.campusId = payCfg.campusId
                 this.businessId = payCfg.businessId
             }
             val response = mRepository.queryAllMeal(bean)
             if (response.code == "200") {
-                callback(response.data!!)
+                val dataMap = HashMap<String, String>()
+                for(meal : MealBean in response.data!!){
+                    dataMap[meal.mealId.toString()] = meal.mealName
+                }
+                callback(dataMap)
             }
         }
-    }
-
-    fun getMealList(): MutableList<MealBean> {
-        return mealList
     }
 
     //查询订单

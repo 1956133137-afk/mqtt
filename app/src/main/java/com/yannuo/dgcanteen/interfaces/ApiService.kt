@@ -205,7 +205,7 @@ interface ApiService {
 
     //查询所有餐别
     @Headers("content-type: application/json")
-    @GET("android/getMealList")
+    @POST("android/getMealList")
     suspend fun queryAllMeal(@Body bean: MealRequestPerson): CanteenResponse<MutableList<MealBean>>
 
     /**

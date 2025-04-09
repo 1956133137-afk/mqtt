@@ -15,6 +15,7 @@ import com.yannuo.dgcanteen.util.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -30,6 +31,7 @@ public class MyApplication extends Application {
 
 //    public static boolean openFacePay = false;
     public static String actulMealName = "";
+    public static HashMap<String,String> mealMap = new HashMap<>();
 
     @Override
     public void onCreate() {

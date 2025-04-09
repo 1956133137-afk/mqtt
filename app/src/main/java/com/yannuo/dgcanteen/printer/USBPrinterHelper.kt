@@ -345,7 +345,7 @@ class USBPrinterHelper {
                 if(substring1.isNotEmpty()) printContentKey("-", printFormatMenu(substring1, it.dishCount.toString(), "${it.dishCount.toFloat() * it.dishPrice.toFloat()}"))
             }
             if(bean.deliveryFee.isNotEmpty() || bean.packagingFee.isNotEmpty()){
-                printContentKey("-", "---------------其他---------------")
+                printContentKey("-", "--------------其他--------------")
                 if(bean.deliveryFee.isNotEmpty()) {
                     printContentKey(bean.deliveryFee, printFormat("配送费用", bean.deliveryFee))
                     sum += bean.deliveryFee.toDouble()

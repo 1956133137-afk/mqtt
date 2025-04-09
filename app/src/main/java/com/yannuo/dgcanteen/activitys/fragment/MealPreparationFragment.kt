@@ -16,14 +16,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.MealPreparationVM
-import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.MealPreparationAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentMealPreparationBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
-import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
-import com.yannuo.dgcanteen.greendao.entity.MealTable
-import com.yannuo.dgcanteen.model.MealBean
 
 
 class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), View.OnClickListener {
@@ -35,14 +31,12 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
     private val handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
     private var dataMap = HashMap<String, String>()
     private var adapter: ArrayAdapter<String>? = null
-    private var options: List<String>? = null
+    private var options: ArrayList<String>? = null
     private var spinnerTop: Int? = null
-    private val productsVM by lazy { ProductsVM() }
 
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentMealPreparationBinding.inflate(layoutInflater)
         mealPreparationVM.setUserId()
-        productsVM.upDataMeal(true)
         initObj()
         initData()
         initEvent()
@@ -64,13 +58,8 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
                 }
             }
         })
-
-        val queryAllToMeals = DishesDBHelper.getInstance().queryAllMeals()
         dataMap = HashMap()
         dataMap["全部"] = "0"
-        queryAllToMeals.forEach {
-            dataMap[it.mealName] = it.mealId.toString()
-        }
         options = ArrayList(dataMap.keys)
         adapter = ArrayAdapter(requireContext(),R.layout.item_spinner,options!!)
         binding.spinnerText.adapter = adapter
@@ -85,7 +74,6 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
                 val s = options?.get(position)
                 if(s == "全部")spinnerTop = null
                 else spinnerTop = dataMap[s]?.toInt()
-                Log.d(TAG, "onItemSelected: 选中：$spinnerTop")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -100,10 +88,18 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
         val BeginTime = binding.tvCalendarBeginTime.text.toString()
         val DeadlineTime = binding.tvCalendarDeadlineTime.text.toString()
         val listOf = listOf(BeginTime, DeadlineTime)
-        Log.d(TAG, "synMealPreparation: 时间：${listOf}")
         mealPreparationVM.queryMealList(1,name,spinnerTop,listOf,"4"){ i, orderList ->
             handler.post {
                 mealPreparationAdapter.data = orderList
+            }
+        }
+        
+        mealPreparationVM.queryAllMeal { 
+            handler.post {
+                options?.subList(1,options!!.size)?.clear()
+                options?.addAll(it.values)
+                adapter?.notifyDataSetChanged()
+                MyApplication.mealMap = it
             }
         }
     }
@@ -120,17 +116,6 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
         binding.tvSearch.setOnClickListener {
             mealPreparationVM.setUserId()
             synMealPreparation()
-            productsVM.upDataMeal(true)
-            val queryAllToMeals = DishesDBHelper.getInstance().queryAllMeals()
-            dataMap = HashMap()
-            dataMap["全部"] = "0"
-            for(meal : MealTable in queryAllToMeals){
-                dataMap[meal.mealName] = meal.mealId.toString()
-            }
-            if(queryAllToMeals != null){
-                options = ArrayList(dataMap.keys)
-                adapter?.notifyDataSetChanged()
-            }
         }
     }
 
