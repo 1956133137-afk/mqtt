@@ -982,13 +982,14 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 "2" -> {
                     val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
                     request.qrCode = payForUI.payContent
+                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
                     mRespository.payByQrCode(encryption)
                 }
                 "3" -> {
                     val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
                     request.cardId = payForUI.payContent
-                    LogUtil.i(TAG, "request: $request")
+                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
                     mRespository.payByIcCard(encryption)
                 }
