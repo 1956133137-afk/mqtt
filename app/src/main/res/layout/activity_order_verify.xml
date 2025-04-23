@@ -139,10 +139,22 @@
                 android:textSize="45sp" />
 
             <Button
-                android:id="@+id/btn_verify_confirm"
+                android:id="@+id/btn_toggle_order"
                 android:layout_width="250dp"
                 android:layout_height="100dp"
                 android:layout_below="@+id/btn_proceeds_mode"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/shape_btn_one"
+                android:text="切换点餐"
+                android:textColor="#4F4F4F"
+                android:textSize="45sp" />
+
+            <Button
+                android:id="@+id/btn_verify_confirm"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
+                android:layout_below="@+id/btn_toggle_order"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/shape_btn_one"

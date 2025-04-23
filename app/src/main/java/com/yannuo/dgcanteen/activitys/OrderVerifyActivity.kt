@@ -30,6 +30,7 @@ import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
 class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkStateManager.NetWorkListener {
     private val orderVerifyVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))[OrderVerifyVM::class.java] }
@@ -150,6 +151,14 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
                 }
             })
         }
+        binding.btnToggleOrder.setOnClickListener {
+            /*切换点餐模式*/
+            mmkv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
+            val restartIntent = MyApplication.applicationContext.packageManager.getLaunchIntentForPackage(MyApplication.applicationContext.packageName)
+            restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(restartIntent)
+            exitProcess(0)
+        }
     }
 
     private fun initPresentation() {
@@ -167,6 +176,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         super.onResume()
         mXService?.hideNavBar = true
         binding.modeTips.text = if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) "订餐查询模式" else "订餐核销模式"
+        binding.btnToggleOrder.visibility = if (mmkv.decodeBool(Constant.QUICK_SWITCH_MODE, false)) View.VISIBLE else View.GONE
         orderVerifyDisplay?.changeView(0)
         orderVerifyVM.getOrderStatsCount()
     }

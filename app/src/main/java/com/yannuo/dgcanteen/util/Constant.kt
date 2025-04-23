@@ -122,7 +122,7 @@ object Constant {
     const val MEAL_TIME_QUERY_BALANCE_TIME = "餐次模式查询余次结果展示时间"
 
     const val BTN_CONFIRM_STATE = "确认金额按钮状态" // 0：关闭  1：打开
-
+    const val QUICK_SWITCH_MODE = "quickSwitchMode" //快捷切换模式
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐

@@ -15,6 +15,7 @@ import android.os.Looper
 import android.os.Message
 import android.text.format.DateFormat
 import android.view.Display
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +29,7 @@ import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.FoodsAdapter
 import com.yannuo.dgcanteen.adapters.HostPayResultAdapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
@@ -51,6 +53,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.lang.ref.WeakReference
+import kotlin.system.exitProcess
 
 /**
  * 点餐模式
@@ -212,6 +215,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mProductsDisplay?.safeCancel()
         mProductsDisplay = DifferentDisplay(this, secondDisplays)
         mProductsDisplay?.show()
+        binding.btnToggleVerify.visibility = if (kv.decodeBool(Constant.QUICK_SWITCH_MODE, false)) View.VISIBLE else View.GONE
 //        initPresentation()  这里含有回调，会显示
     }
 
@@ -288,6 +292,14 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
         }
 
+        binding.btnToggleVerify.setOnClickListener {
+            /*切换点餐模式*/
+            kv.encode(Constant.APP_MODE, Constant.ORDERING_VERIFY_MODE)
+            val restartIntent = MyApplication.applicationContext.packageManager.getLaunchIntentForPackage(MyApplication.applicationContext.packageName)
+            restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            startActivity(restartIntent)
+            exitProcess(0)
+        }
     }
 
 

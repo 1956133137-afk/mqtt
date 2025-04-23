@@ -96,13 +96,15 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     }
 
     private fun initEvent() {
-        if (kv.decodeBool(Constant.ORDER_DEFAULT_WAY, false)) {
+        val defaultWayStatus = kv.decodeBool(Constant.ORDER_DEFAULT_WAY, false)
+        binding.orderWayView.visibility = if (defaultWayStatus) View.GONE else View.VISIBLE
+        if (defaultWayStatus) {
             orderForUI.distribute = "2"
             binding.radioGroup.check(R.id.btn_two)
             binding.verifyValue.isChecked = true
         } else if (orderForUI.distribute != "0") binding.radioGroup.check(if (orderForUI.distribute == "1") R.id.btn_one else R.id.btn_two)
 
-        if (binding.radioGroup.checkedRadioButtonId == R.id.btn_two) binding.verifyStatus.visibility = View.VISIBLE
+        if (binding.radioGroup.checkedRadioButtonId == R.id.btn_two && !defaultWayStatus) binding.verifyStatus.visibility = View.VISIBLE
         binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkId ->
             when (checkId) {
                 R.id.btn_one -> {
