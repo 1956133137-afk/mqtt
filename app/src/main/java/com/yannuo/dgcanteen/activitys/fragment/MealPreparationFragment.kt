@@ -72,8 +72,13 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
                 id: Long
             ) {
                 val s = options?.get(position)
-                if(s == "全部")spinnerTop = null
-                else spinnerTop = dataMap[s]?.toInt()
+                if(s == "全部") {
+                    spinnerTop = null
+                } else {
+                    MyApplication.mealMap.forEach{
+                        if(it.value.equals(s)) spinnerTop = it.key.toInt()
+                    }
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -84,7 +89,7 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
 
     private fun synMealPreparation() {
         showAwaitDialog("订单查询中")
-        var name = binding.nameText.text.toString()
+        val name = binding.nameText.text.toString()
         val BeginTime = binding.tvCalendarBeginTime.text.toString()
         val DeadlineTime = binding.tvCalendarDeadlineTime.text.toString()
         val listOf = listOf(BeginTime, DeadlineTime)

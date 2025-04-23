@@ -33,8 +33,8 @@ class MealPreparationAdapter(private val requireContext: MealPreparationFragment
         val fromHtml = Html.fromHtml("<s>${String.format("%.02f", bean.payment.toDouble())}元</s> <font color='#FF0000'>${money}元</font>")
         holder.binding.orderPayment.text = if (money.toDouble() != bean.payment.toDouble()) fromHtml else "${money}元"
         holder.binding.mealName.text = bean.personName
-        val queryToMeals = DishesDBHelper.getInstance().queryToMeals(bean.mealId.toInt())
-        if(queryToMeals != null) holder.binding.mealId.text = queryToMeals.mealName ?: ""
+        val mealId = MyApplication.mealMap[bean.mealId]
+        holder.binding.mealId.text = if(mealId.isNullOrEmpty()) "未知" else MyApplication.mealMap[bean.mealId]
         holder.binding.orderType.text = if(bean.orderType == "1") "配送" else "自提"
         holder.binding.orderTime.text = bean.payTime
         holder.binding.useMealTime.text = bean.mealDate

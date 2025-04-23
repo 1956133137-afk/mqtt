@@ -23,7 +23,6 @@ import java.util.*
 class MealPreparationFinishAdapter(private val context: Context) : BaseAdapter<Order, ItemMealPreparationFinishBinding>() {
     private val mealPreparationDialog by lazy { MealPreparationDialog(context) }
     private var currentTime: Long = 0
-    private val mealMap = MyApplication.mealMap
 
     override fun getB(inflater: LayoutInflater, parent: ViewGroup?): ItemMealPreparationFinishBinding {
         return ItemMealPreparationFinishBinding.inflate(inflater, parent, false)
@@ -37,8 +36,8 @@ class MealPreparationFinishAdapter(private val context: Context) : BaseAdapter<O
         val fromHtml = Html.fromHtml("<s>${String.format("%.02f", bean.payment.toDouble())}元</s> <font color='#FF0000'>${money}元</font>")
         holder.binding.orderPayment.text = if (money.toDouble() != bean.payment.toDouble()) fromHtml else "${money}元"
         holder.binding.mealName.text = bean.personName
-        val containsKey = mealMap[bean.mealId]
-        holder.binding.windows.text = containsKey ?: "未知"
+        val containsKey = MyApplication.mealMap[bean.mealId]
+        holder.binding.windows.text = if(containsKey.isNullOrEmpty()) "未知" else containsKey
         holder.binding.orderType.text = if(bean.orderType == "1") "配送" else "自提"
         holder.binding.orderTime.text = bean.payTime
         holder.binding.useMealTime.text = bean.mealDate

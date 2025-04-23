@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "com.yannuo.dgcanteen"
         minSdk 21
-        targetSdk 30
+        targetSdk 31
         versionCode 2
         versionName "1.0.1"
 
@@ -80,8 +80,8 @@ android {
 
         //手动输入金额版本
         input {
-            versionCode 71
-            versionName "1.7.1"
+            versionCode 72
+            versionName "1.7.2"
             buildConfigField "int", "CHANNEL", "1"
         }
 
