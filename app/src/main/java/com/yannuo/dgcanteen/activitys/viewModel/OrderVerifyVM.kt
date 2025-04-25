@@ -70,6 +70,10 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         checkTime()
     }
 
+    fun getpayState(): Boolean {
+        return payMode && !isPayStatus
+    }
+
     fun getVerifyName(): String = verifyName
 
     fun setIsVerifyStatus(status: Boolean) {
@@ -114,7 +118,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
             override fun onFaceQuery(bean: CcbFacePayResultBean) {
                 if (!payMode) {
                     if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
-                        viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+                        viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                         return
                     }
                     orderVerify(bean.CUST_ID)
@@ -129,7 +133,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
         if (!payMode) {
             if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
-                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                 return
             }
             orderVerify(icCard)
@@ -142,7 +146,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         if(icCard.isEmpty()) return
         if (!payMode) {
             if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
-                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效扫码") }
+                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                 return
             }
             orderVerify(icCard)
@@ -193,7 +197,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
      */
     private fun orderPayment(icCard: String, type: String) {
         if (!isPayStatus) {
-            viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+            viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
             return
         }
         viewModelScope.launch(Dispatchers.IO + mHandler) {

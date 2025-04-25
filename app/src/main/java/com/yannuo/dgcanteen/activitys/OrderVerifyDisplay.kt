@@ -82,19 +82,21 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
 
     private fun initEvent(){
         binding.codeVerify.setOnClickListener {
-
+            if(orderVerifyVM.getpayState()) return@setOnClickListener
             orderVerifyVM.openScan()
             scanType = true
             showText("请出示二维码")
         }
         binding.cardVerify.setOnClickListener {
+            if(orderVerifyVM.getpayState()) return@setOnClickListener
             orderVerifyVM.openIcCard()
             cardType = true
             showText("请出示实体卡")
         }
         binding.faceVerify.setOnClickListener {
+            if(orderVerifyVM.getpayState()) return@setOnClickListener
             orderVerifyVM.faceVerification()
-            handler.postDelayed({dismiss()},500)
+            handler.postDelayed({ dismiss() }, 500)
         }
     }
 

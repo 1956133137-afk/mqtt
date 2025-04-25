@@ -29,6 +29,7 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
@@ -153,6 +154,10 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
                         orderVerifyVM.isPayStatus = status
                         if (!status && payAmount == "-1") orderVerifyVM.payMode = false
                         if (status) {
+                            if(BigDecimal(payAmount).compareTo(BigDecimal(0.00)) < 1){
+                                ToastShowUtil.show("无效金额")
+                                return@post
+                            }
                             orderVerifyVM.payAmount = payAmount
                             keyboardDialog?.updateTV("等待支付", false)
                         } else {
