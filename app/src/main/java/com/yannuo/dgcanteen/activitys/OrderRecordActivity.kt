@@ -5,14 +5,19 @@ import android.os.Handler
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.OrderRecordVM
 import com.yannuo.dgcanteen.adapters.OrderRecordAdapter
+import com.yannuo.dgcanteen.adapters.SelectDateAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityOrderRecordBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
+import com.yannuo.dgcanteen.model.SelectDateBean
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.concurrent.TimeUnit
 
@@ -23,7 +28,9 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
     private val handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
     private var awaitingDialog: AwaitingDialog? = null
     private var confirmDialog: ConfirmDialog? = null
-//    private var windowStr = StringBuilder()
+
+    //    private var windowStr = StringBuilder()
+    private val selectDateAdapter by lazy { SelectDateAdapter() }
 
     private var countDown: CountDownTimer? = null
 
@@ -38,13 +45,19 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
     }
 
     private fun initObject() {
-        orderRecordVM.setListener(object : OrderRecordVM.OnOrderListener {
-            override fun onOrder(type: Int, data: Any) {
-                handler.post {
-                    if (type == 0) awaitingDialog?.dismiss()
-                }
+        /*显示日期*/
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.HORIZONTAL
+        binding.dateWeekView.layoutManager = layoutManager
+        binding.dateWeekView.adapter = selectDateAdapter
+        selectDateAdapter.data = orderRecordVM.getDateWeek()
+        selectDateAdapter.setDateListener(object : SelectDateAdapter.SelectDateListener {
+            override fun onSelectDate(bean: SelectDateBean) {
+                LogUtil.d(TAG, Gson().toJson(bean))
+                orderRecordVM.getOrderDate(bean.date)
             }
         })
+        /*显示订餐记录*/
         binding.orderListView.layoutManager = GridLayoutManager(this, 3)
         binding.orderListView.adapter = orderRecordAdapter
         orderRecordAdapter.setItemListener(orderRecordVM.getWindowList(), object : OrderRecordAdapter.OnItemClickListener {
@@ -64,6 +77,17 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
 //                }
 //            }
         })
+        /*选择日志显示的记录*/
+        orderRecordVM.getOrderList().observe(this) { orderRecordAdapter.data = it }
+
+        orderRecordVM.setListener(object : OrderRecordVM.OnOrderListener {
+            override fun onOrder(type: Int, data: Any) {
+                handler.post {
+                    if (type == 0) awaitingDialog?.dismiss()
+                }
+            }
+        })
+
         synOrderRecord()
         if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) onCountDownTimer(binding.btnBack, 30L)
     }

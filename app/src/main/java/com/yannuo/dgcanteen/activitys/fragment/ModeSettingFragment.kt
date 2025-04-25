@@ -299,6 +299,10 @@ class ModeSettingFragment : Fragment() {
         binding.quickSwitchMode.setOnClickListener { kv.encode(Constant.QUICK_SWITCH_MODE, binding.quickSwitchMode.isChecked) }
         //订餐核销默认刷卡
         binding.orderVerification.setOnClickListener { kv.encode(Constant.ORDER_VERIFY_IC_CARD, binding.orderVerification.isChecked) }
+        /*订餐登录方式*/
+        binding.faceMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_FACE, binding.faceMode.isChecked) }
+        binding.qrCodeMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_CODE, binding.qrCodeMode.isChecked) }
+        binding.icCardMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_CARD, binding.icCardMode.isChecked) }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
 //            if (!this::awaitingDialog.isInitialized)
@@ -457,6 +461,10 @@ class ModeSettingFragment : Fragment() {
         binding.orderDiscountSwitch.isChecked = kv.decodeBool(Constant.ORDER_DISCOUNT_SWITCH, false)
         binding.orderQuery.isChecked = kv.decodeBool(Constant.ORDER_QUERY, false)
         binding.orderMealLimit.isChecked = kv.decodeBool(Constant.ORDER_MEAL_LIMIT, false)
+        /*登录方式*/
+        binding.faceMode.isChecked = kv.decodeBool(Constant.ORDER_LOGIN_FACE, true)
+        binding.qrCodeMode.isChecked = kv.decodeBool(Constant.ORDER_LOGIN_CODE, true)
+        binding.icCardMode.isChecked = kv.decodeBool(Constant.ORDER_LOGIN_CARD, true)
 
         val verifyType = resources.getStringArray(R.array.spVerify)
         val spVerifyAdapter = ArrayAdapter<String>(requireContext(), R.layout.item_text, verifyType)
@@ -472,8 +480,6 @@ class ModeSettingFragment : Fragment() {
         binding.repeatPayJudge.isChecked = kv.decodeBool(Constant.REPEAT_PAY_JUDGE, true)
         /*快捷切换模式*/
         binding.quickSwitchMode.isChecked = kv.decodeBool(Constant.QUICK_SWITCH_MODE, false)
-        //订餐核销默认刷卡
-        binding.orderVerification.isChecked = kv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false)
     }
 
     private fun amountJudgment(view: EditText, name: String): Boolean {

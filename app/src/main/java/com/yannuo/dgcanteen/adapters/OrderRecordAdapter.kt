@@ -54,7 +54,7 @@ class OrderRecordAdapter(context: Context) : BaseAdapter<Order, ItemOrderRecordB
         holder.binding.orderTime.text = bean.orderTime
         if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) {
             holder.binding.btnRefund.visibility = View.GONE
-            holder.binding.btnPrinter.visibility = View.GONE
+//            holder.binding.btnPrinter.visibility = View.GONE
         }
     }
 

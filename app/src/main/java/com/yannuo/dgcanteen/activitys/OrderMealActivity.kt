@@ -26,7 +26,8 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     private var mXService: MyService? = null
     private var passwordDialog: PasswordDialog? = null
     private var awaitingDialog: AwaitingDialog? = null
-    private var navigation = true
+    private var clickTimes: Int = 0
+    private var currentTime: Long = 0L
 
     override fun bindLayout() {
         binding = ActivityOrderMealBinding.inflate(layoutInflater)
@@ -56,11 +57,17 @@ class OrderMealActivity : BaseActivity<ActivityOrderMealBinding>(), NetworkState
     }
 
     private fun initEvent() {
-        binding.tvTitle.setOnLongClickListener {
-            navigation = !navigation
-            mXService?.hideNavBar = navigation
-            if (!navigation) ToastShowUtil.show("导航可用")
-            true
+        binding.imServer.setOnClickListener {
+            if (System.currentTimeMillis() - currentTime < 1000) {
+                clickTimes++
+                if (clickTimes == 4) {
+                    mXService?.hideNavBar = false
+                    ToastShowUtil.show("导航可用")
+                }
+            } else {
+                currentTime = System.currentTimeMillis()
+                clickTimes = 0
+            }
         }
         binding.btnOrderRecord.setOnClickListener {
             val intent = Intent(this, OrderRecordActivity::class.java)

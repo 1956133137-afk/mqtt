@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.OrderRecordActivity
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.databinding.FragmentVerifyUserBinding
@@ -24,6 +25,7 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     private var hintDialog: HintDialog? = null
     private var countDown: CountDownTimer? = null
     private var orderType: String = "0"
+    private val mmkv = MMKV.defaultMMKV()
 
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentVerifyUserBinding.inflate(inflater, container, false)
@@ -35,6 +37,9 @@ class VerifyUserFragment : BaseFragment<FragmentVerifyUserBinding>() {
     }
 
     private fun initObject() {
+        binding.btnFaceScan.visibility = if (mmkv.decodeBool(Constant.ORDER_LOGIN_FACE, true)) View.VISIBLE else View.GONE
+        binding.btnQrCode.visibility = if (mmkv.decodeBool(Constant.ORDER_LOGIN_CODE, true)) View.VISIBLE else View.GONE
+        binding.btnIcCard.visibility = if (mmkv.decodeBool(Constant.ORDER_LOGIN_CARD, true)) View.VISIBLE else View.GONE
         orderMealVM.setOrderListener(object : OrderMealVM.OrderMealListener {
             override fun onOrderResult(type: Int, any: Any) {
                 handler.post {

@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.adapters
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.yannuo.dgcanteen.R
@@ -30,12 +31,21 @@ class SelectDateAdapter : BaseAdapter<SelectDateBean, ItemSelectDateBinding>() {
         val bean = getData(position)
         holder.binding.tvDate.text = bean.date
         holder.binding.tvWeek.text = getWeekName(bean.value)
+        if (bean.date != "-1") {
+            holder.binding.allView.visibility = View.GONE
+            holder.binding.dateView.visibility = View.VISIBLE
+        } else {
+            holder.binding.allView.visibility = View.VISIBLE
+            holder.binding.dateView.visibility = View.GONE
+        }
         if (position == selectPos) {
             holder.binding.llView.setBackgroundResource(R.drawable.shape_bg_blue_1)
+            holder.binding.allView.setTextColor(Color.parseColor("#FFFFFF"))
             holder.binding.tvDate.setTextColor(Color.parseColor("#FFFFFF"))
             holder.binding.tvWeek.setTextColor(Color.parseColor("#FFFFFF"))
         } else {
             holder.binding.llView.setBackgroundResource(R.drawable.shape_bg_white_1)
+            holder.binding.allView.setTextColor(Color.parseColor("#4F4F4F"))
             holder.binding.tvDate.setTextColor(Color.parseColor("#4F4F4F"))
             holder.binding.tvWeek.setTextColor(Color.parseColor("#4F4F4F"))
         }

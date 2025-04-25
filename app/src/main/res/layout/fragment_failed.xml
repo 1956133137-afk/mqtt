@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FF2323">
 
     <TextView
         android:id="@+id/back_auto_verify"
@@ -17,10 +18,10 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="60dp"
-        android:background="@drawable/click_button_blue"
+        android:background="@drawable/click_button_white"
         android:gravity="center"
         android:text="@string/btn_back"
-        android:textColor="#FFFFFF"
+        android:textColor="#4F4F4F"
         android:textSize="40sp" />
 
 <!--    <Button-->
@@ -59,17 +60,18 @@
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
                 android:text="核销失败"
-                android:textColor="#AA2A2A"
-                android:textSize="70sp" />
+                android:textColor="#FFFFFF"
+                android:textSize="70sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="1200dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp">
+            android:layout_marginTop="35dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/tv_title_reason"
@@ -77,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="50dp"
                 android:text="@string/pay_failure_reason"
-                android:textColor="#6C6C6C"
+                android:textColor="#FFFFFF"
                 android:textSize="50sp" />
 
             <TextView
@@ -89,7 +91,7 @@
                 android:gravity="right"
                 android:minHeight="50dp"
                 android:text=""
-                android:textColor="#6C6C6C"
+                android:textColor="#FFFFFF"
                 android:textSize="50sp" />
 
         </LinearLayout>
@@ -97,14 +99,15 @@
         <LinearLayout
             android:layout_width="1200dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="50dp"
                 android:text="当前时间"
-                android:textColor="#6C6C6C"
+                android:textColor="#FFFFFF"
                 android:textSize="50sp" />
 
             <TextView
@@ -116,7 +119,7 @@
                 android:gravity="right"
                 android:minHeight="50dp"
                 android:text=""
-                android:textColor="#6C6C6C"
+                android:textColor="#FFFFFF"
                 android:textSize="50sp" />
 
         </LinearLayout>

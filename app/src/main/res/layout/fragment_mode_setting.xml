@@ -791,6 +791,78 @@
                 android:layout_height="40dp"
                 android:layout_marginStart="45dp"
                 android:layout_weight="1"
+                android:text="订餐登录方式"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/face_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/select_btn_checkbox_check"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50dp"
+                android:text="刷脸"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/qr_code_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/select_btn_checkbox_check"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="50dp"
+                android:text="扫码"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+            <CheckBox
+                android:id="@+id/ic_card_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/select_btn_checkbox_check"
+                android:button="@null"
+                android:checked="false"
+                android:padding="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="45dp"
+                android:text="刷卡"
+                android:textColor="#4F4F4F"
+                android:textSize="28sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="35dp"
+            android:background="@drawable/shape_btn_bg_white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="45dp"
+                android:layout_weight="1"
                 android:text="订餐查询"
                 android:textColor="#4F4F4F"
                 android:textSize="28sp" />

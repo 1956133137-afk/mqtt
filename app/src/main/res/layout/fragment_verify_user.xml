@@ -84,55 +84,59 @@
         android:textColor="#4F4F4F"
         android:textSize="70sp" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/select_login_mode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp">
+        android:layout_marginBottom="100dp"
+        android:gravity="center">
 
         <Button
             android:id="@+id/btn_face_scan"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_toStartOf="@+id/btn_qr_code"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
             android:background="@drawable/select_btn_blue_press_round"
             android:drawableStart="@drawable/ic_face_scan"
             android:padding="10dp"
             android:stateListAnimator="@null"
             android:text="刷脸"
             android:textColor="#FFFFFF"
-            android:textSize="70sp" />
+            android:textSize="70sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_qr_code"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="100dp"
-            android:layout_marginEnd="100dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
             android:background="@drawable/select_btn_blue_press_round"
             android:drawableStart="@drawable/ic_qr_code"
             android:padding="10dp"
             android:stateListAnimator="@null"
             android:text="扫码"
             android:textColor="#FFFFFF"
-            android:textSize="70sp" />
+            android:textSize="70sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_ic_card"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:layout_centerInParent="true"
-            android:layout_toEndOf="@+id/btn_qr_code"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
             android:background="@drawable/select_btn_blue_press_round"
             android:drawableStart="@drawable/ic_ic_card"
             android:padding="10dp"
             android:stateListAnimator="@null"
             android:text="刷卡"
             android:textColor="#FFFFFF"
-            android:textSize="70sp" />
+            android:textSize="70sp"
+            android:visibility="gone" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>

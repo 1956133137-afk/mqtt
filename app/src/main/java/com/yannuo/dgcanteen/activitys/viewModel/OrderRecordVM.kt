@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -9,9 +10,11 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  * Author: filowl
@@ -23,11 +26,13 @@ class OrderRecordVM : ViewModel() {
     private val kv = MMKV.defaultMMKV()
     private val mRepository: PayRepositoryOfPay = PayRepositoryOfPay()
     private var listener: OnOrderListener? = null
+    private val DAY_TIME: Long = 86400000L
 
     private var currentCcbToken: String = ""
     private var currentCustId: String = ""
     private var payCfg = PayCfg()
-    private val orderList: MutableList<Order> = mutableListOf()
+    private val mOrderList: MutableList<Order> = mutableListOf()
+    private val orderList: MutableLiveData<MutableList<Order>> = MutableLiveData<MutableList<Order>>()
     private val windowList: MutableList<WindowBean> = mutableListOf()
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -36,6 +41,8 @@ class OrderRecordVM : ViewModel() {
         listener?.onOrder(0, "")
     }
 
+    fun getOrderList(): MutableLiveData<MutableList<Order>> = orderList
+
     fun getWindowList(): MutableList<WindowBean> = windowList
 
     fun setListener(listener: OnOrderListener?) {
@@ -43,7 +50,7 @@ class OrderRecordVM : ViewModel() {
     }
 
     fun setUserId(ccbToken: String, custId: String) {
-        orderList.clear()
+        mOrderList.clear()
         currentCcbToken = ccbToken
         currentCustId = custId
         payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
@@ -78,11 +85,58 @@ class OrderRecordVM : ViewModel() {
             val response = mRepository.getOrderList(currentCcbToken, bean)
             if (response.code == "200") {
                 val receive = Gson().fromJson(response.data.toString(), OrderListReceive::class.java)
-                orderList.addAll(receive.list)
-                if (page >= receive.totalPage.toInt() || page * pageSize >= receive.totalRecord.toInt()) callback(1, orderList)
-                else queryOrderList(page + 1, pageSize) { type, orderList -> callback(1, orderList) }
-            } else callback(3, orderList)
+                mOrderList.addAll(receive.list)
+                if (page >= receive.totalPage.toInt() || page * pageSize >= receive.totalRecord.toInt()) {
+                    mOrderList.sortBy { it.mealDate }
+                    callback(1, mOrderList)
+                } else queryOrderList(page + 1, pageSize) { type, orderList -> callback(1, orderList) }
+            } else {
+                mOrderList.sortBy { it.mealDate }
+                callback(3, mOrderList)
+            }
         }
+    }
+
+    fun getDateWeek(): MutableList<SelectDateBean> {
+        val beanList = mutableListOf<SelectDateBean>()
+        beanList.add(SelectDateBean("-1"))
+        for (i in 0..kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6)) {
+            val millis = System.currentTimeMillis() + i * DAY_TIME
+            val dateFormat = TimeUtil.timeFormat("yyyy-MM-dd", millis)
+            beanList.add(SelectDateBean(dateFormat, getWeekDay(dateFormat)))
+        }
+        return beanList
+    }
+
+    private fun getWeekDay(date: String): String {
+        if (!isValidDate(date)) return ""
+        val split = date.split("-".toRegex())
+        val calendar = Calendar.getInstance()
+        calendar.set(split[0].toInt(), split[1].toInt() - 1, split[2].toInt())
+        return when (calendar[Calendar.DAY_OF_WEEK]) {
+            Calendar.SUNDAY -> "7"
+            Calendar.MONDAY -> "1"
+            Calendar.TUESDAY -> "2"
+            Calendar.WEDNESDAY -> "3"
+            Calendar.THURSDAY -> "4"
+            Calendar.FRIDAY -> "5"
+            Calendar.SATURDAY -> "6"
+            else -> "0"
+        }
+    }
+
+    private fun isValidDate(dateFormat: String): Boolean {
+        // yyyy-MM-dd
+        val regex = Regex("""^\d{4}-\d{2}-\d{2}$""", RegexOption.IGNORE_CASE)
+        return regex.matches(dateFormat)
+    }
+
+    fun getOrderDate(mealDate: String) {
+        if (mealDate != "-1") {
+            val orders = mOrderList.filter { it.mealDate == mealDate }.toMutableList()
+            orders.sortBy { it.mealId }
+            orderList.value = orders
+        } else orderList.value = mOrderList
     }
 
     fun orderRefund(order: Order, result: (Boolean) -> Unit) {
@@ -100,7 +154,9 @@ class OrderRecordVM : ViewModel() {
             }
             if (refundMoney >= 0) {
                 refundBean.money = String.format("%.02f", refundMoney)
+                LogUtil.d(TAG, Gson().toJson(refundBean))
                 val refundRes = mRepository.orderDirectRefund(currentCcbToken, refundBean)
+                LogUtil.d(TAG, Gson().toJson(refundRes))
                 result(refundRes.code == "200")
             } else result(false)
         }
