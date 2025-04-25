@@ -62,6 +62,17 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         initEvent()
     }
 
+
+    override fun onStart() {
+        super.onStart()
+        orderVerifyVM.closeIcCard()
+        //根据开关决定是否默认开启读卡
+        if(mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false)){
+            orderVerifyVM.openIcCard()
+        }
+        orderVerifyDisplay?.show()
+    }
+
     private fun initObject() {
         mXService = MyService(this)
         NetworkStateManager.getInstance().registerObserver(this)
@@ -72,7 +83,6 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
         binding.verifyDishView.layoutManager = GridLayoutManager(this, 2)
         binding.verifyDishView.adapter = orderVerify2Adapter
 
-        orderVerifyVM.openIcCard()
         orderVerifyVM.mealTime.observe(this) { binding.mealTime.text = it }
         orderVerifyVM.mOrderVerify.observe(this) {
             if (it.verifyType == 0) {
@@ -145,7 +155,10 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
                         if (status) {
                             orderVerifyVM.payAmount = payAmount
                             keyboardDialog?.updateTV("等待支付", false)
-                        } else orderVerifyVM.payAmount = ""
+                        } else {
+                            orderVerifyVM.payAmount = ""
+                            orderVerifyDisplay?.reset()
+                        }
                         orderVerifyDisplay?.changeView(0)
                     }
                 }
@@ -214,7 +227,6 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
     override fun onDestroy() {
         super.onDestroy()
         orderVerifyDisplay?.safeCancel()
-        orderVerifyVM.closeIcCard()
         passwordDialog?.cancel()
         awaitingDialog?.cancel()
         NetworkStateManager.getInstance().unRegisterObserver(this)

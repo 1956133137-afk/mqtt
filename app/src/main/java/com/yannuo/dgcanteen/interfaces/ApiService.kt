@@ -129,6 +129,13 @@ interface ApiService {
     suspend fun payByIcCard(@Body bean: RequestPay): CanteenResponse<String>
 
     /**
+     * 刷脸支付
+     */
+    @Headers("content-type: application/json")
+    @POST("android/scanFacePayment")
+    suspend fun payByFace(@Body bean: RequestPay): CanteenResponse<String>
+
+    /**
      * 获取TOKEN
      */
     @Headers("content-type: application/json")

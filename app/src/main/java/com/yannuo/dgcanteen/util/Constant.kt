@@ -98,6 +98,8 @@ object Constant {
     const val DISPLAY_CARD_VERIFY = "displayCardVerify" //副屏刷卡核销按钮
     const val VERIFY_PERSON_STATISTIC = "verifyPersonStatistic" //核销人数统计
 
+    const val ORDER_VERIFY_IC_CARD = "order_verify_ic_card" //订餐核销默认刷卡
+
     const val REPEAT_PAY_JUDGE = "repeatPayJudge"   //是否判断重复支付 默认开启
 
     const val ORDER_QUERY = "orderQuery"    //订餐查询 Boolean

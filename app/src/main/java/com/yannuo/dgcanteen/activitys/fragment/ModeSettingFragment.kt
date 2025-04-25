@@ -297,6 +297,8 @@ class ModeSettingFragment : Fragment() {
         binding.repeatPayJudge.setOnClickListener { kv.encode(Constant.REPEAT_PAY_JUDGE, binding.repeatPayJudge.isChecked) }
         /*快捷切换模式*/
         binding.quickSwitchMode.setOnClickListener { kv.encode(Constant.QUICK_SWITCH_MODE, binding.quickSwitchMode.isChecked) }
+        //订餐核销默认刷卡
+        binding.orderVerification.setOnClickListener { kv.encode(Constant.ORDER_VERIFY_IC_CARD, binding.orderVerification.isChecked) }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
 //            if (!this::awaitingDialog.isInitialized)
@@ -470,6 +472,8 @@ class ModeSettingFragment : Fragment() {
         binding.repeatPayJudge.isChecked = kv.decodeBool(Constant.REPEAT_PAY_JUDGE, true)
         /*快捷切换模式*/
         binding.quickSwitchMode.isChecked = kv.decodeBool(Constant.QUICK_SWITCH_MODE, false)
+        //订餐核销默认刷卡
+        binding.orderVerification.isChecked = kv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false)
     }
 
     private fun amountJudgment(view: EditText, name: String): Boolean {

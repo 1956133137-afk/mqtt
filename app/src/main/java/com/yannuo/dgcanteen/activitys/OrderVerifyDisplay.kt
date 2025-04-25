@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
@@ -19,6 +20,7 @@ import com.yannuo.dgcanteen.adapters.OrderVerifyAdapter
 import com.yannuo.dgcanteen.adapters.VerifyQueryAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.OrderVerifyDisplayBinding
+import com.yannuo.dgcanteen.dialogView.ShowTextDailog
 import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
@@ -28,6 +30,7 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.views.AwaitingDialog
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
@@ -49,6 +52,9 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     private val infoAdapter by lazy { InfoAdapter() }
 
     private var awaitingDialog: AwaitingDialog? = null
+    private var showTextDailog: ShowTextDailog? = null
+    private var cardType = false
+    private var scanType = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
@@ -56,6 +62,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
         binding = OrderVerifyDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initObject()
+        initEvent()
     }
 
     private fun initObject() {
@@ -73,6 +80,40 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
         binding.btnBack.setOnClickListener { changeView(0) }
     }
 
+    private fun initEvent(){
+        binding.codeVerify.setOnClickListener {
+
+            orderVerifyVM.openScan()
+            scanType = true
+            showText("请出示二维码")
+        }
+        binding.cardVerify.setOnClickListener {
+            orderVerifyVM.openIcCard()
+            cardType = true
+            showText("请出示实体卡")
+        }
+        binding.faceVerify.setOnClickListener {
+            orderVerifyVM.faceVerification()
+            handler.postDelayed({dismiss()},500)
+        }
+    }
+
+    private fun showText(text: String){
+        Log.d(TAG, "showText: 显示弹窗")
+        if (showTextDailog != null && showTextDailog?.isShowing == true) showTextDailog?.dismiss()
+        if (showTextDailog == null) showTextDailog = ShowTextDailog(context)
+        showTextDailog?.show()
+        showTextDailog?.showText(text)
+    }
+
+    fun reset(){
+        if (showTextDailog != null && showTextDailog?.isShowing == true) showTextDailog?.dismiss()
+        if(!mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD) && cardType) orderVerifyVM.closeIcCard()
+        if(scanType) orderVerifyVM.closeScan()
+        cardType = false
+        scanType = false
+    }
+
     override fun onVerifyResult(type: Int, orderVerifyBean: OrderVerifyBean, errMsg: String) {
         handler.post {
             if (awaitingDialog != null && awaitingDialog?.isShowing == true) awaitingDialog?.dismiss()
@@ -83,6 +124,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                     awaitingDialog?.updateText("加载中")
                 }
                 else -> {
+                    reset()
                     binding.btnBack.visibility = View.VISIBLE
                     onCountDownTimer()
                     if (type == 0) { /*成功*/
@@ -110,6 +152,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     }
 
     override fun onPayResult(type: Int, payForUI: PayForUI) {
+        reset()
         handler.post {
             if (awaitingDialog != null && awaitingDialog?.isShowing == true) awaitingDialog?.dismiss()
             when (type) {
@@ -129,6 +172,18 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                         infoList.add(InfoBean("账户余额: ", payForUI.accBal))
                         infoList.add(InfoBean("支付时间: ", payForUI.payTime))
                         infoList.add(InfoBean("订单金额: ", payForUI.payment))
+                        payForUI.accList.forEach {
+                            val payType = when(it.ACC_TYPE){
+                                "01" ->"现金账户"
+                                "02" ->"账户1"
+                                "03" ->"账户2"
+                                "04" ->"账户3"
+                                "05" ->"账户4"
+                                "06" ->"账户5"
+                                else -> "其他账户"
+                            }
+                            infoList.add(InfoBean(payType, it.PAYMENT))
+                        }
                         infoList.add(InfoBean("实付金额: ", payForUI.actualPayment))
                         infoList.add(InfoBean("订单编号: ", payForUI.orderId))
                         CommonAndDpToPxUtil.speakWork("支付成功,${DecimalFormat("#0.##").format(payForUI.actualPayment.toDouble())}元}")
@@ -168,6 +223,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 countDown?.cancel()
                 /*是否需要确认*/
                 if (!mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)) orderVerifyVM.mOrderVerify.postValue(OrderVerify())
+                binding.orderVerifyType.visibility = if(mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD)) View.GONE else View.VISIBLE
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE

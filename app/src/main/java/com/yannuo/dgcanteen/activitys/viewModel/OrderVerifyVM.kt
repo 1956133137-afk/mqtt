@@ -10,6 +10,8 @@ import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.common.NTScanHelp
+import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.AccListTable
@@ -22,6 +24,7 @@ import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -30,7 +33,7 @@ import kotlin.collections.HashMap
  * Description: ***
  * Date: 2025/3/18 10:53
  **/
-class OrderVerifyVM : ViewModel(), OnReadDataListener {
+class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
     private val TAG = javaClass.simpleName
     private val mmkv = MMKV.defaultMMKV()
     private val dbHelper = DishesDBHelper.getInstance()
@@ -40,7 +43,9 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     private var statsStatus = false
     val dishVerifyCount: MutableLiveData<MutableList<InfoBean>> = MutableLiveData<MutableList<InfoBean>>(mutableListOf())
 
-    private var mCardHandle: SerialPortHelper? = null
+    private val mCardHandle = SerialPortHelper()
+    private val mScanHandle = ScanDevice()
+    private val mNTHandle = NTScanHelp()
     private var listener: VerifyCallBack? = null
 
     private var isVerifyStatus = true
@@ -76,18 +81,49 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
     }
 
     fun openIcCard() {
-        mCardHandle = SerialPortHelper()
-        mCardHandle?.readDataListener = this
-        mCardHandle?.openSerialPort("/dev/ttyS4")
-//        mCardHandle?.openSerialPort("/dev/ttyXRUSB0")
+        mCardHandle.readDataListener = this
+        mCardHandle.openSerialPort("/dev/ttyS4")
     }
 
     fun closeIcCard() {
-        mCardHandle?.readDataListener = null
-        mCardHandle?.closeSerialPort()
-        mCardHandle = null
+        mCardHandle.readDataListener = null
+        mCardHandle.closeSerialPort()
     }
 
+    fun openScan(){
+        mNTHandle.OpenScanCode(this,MyApplication.applicationContext)
+        mScanHandle.setCallbackListener(this)
+        mScanHandle.openScan()
+    }
+
+    fun closeScan(){
+        mNTHandle.CloseScanCode()
+        mScanHandle.closeScan()
+    }
+
+    //通过人脸查询人员信息
+    fun faceVerification() {
+        LogUtil.d(TAG, "查询人脸信息~")
+        FaceScanVM.instance.bindService()
+        FaceScanVM.instance.startFacePay(true)
+        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+            override fun onFacePay(payForUI: PayForUI) {
+
+            }
+
+            override fun onFaceQuery(bean: CcbFacePayResultBean) {
+                if (!payMode) {
+                    if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
+                        viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
+                        return
+                    }
+                    orderVerify(bean.CUST_ID)
+                }else orderPayment(bean.CUST_ID,"1")
+            }
+        })
+    }
+
+    //刷卡回调
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
@@ -97,9 +133,25 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
                 return
             }
             orderVerify(icCard)
-        } else orderPayment(icCard)
+        } else orderPayment(icCard,"3")
     }
 
+    //扫码回调
+    override fun onData(data: String) {
+        val icCard = data.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim()
+        if(icCard.isEmpty()) return
+        if (!payMode) {
+            if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
+                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效扫码") }
+                return
+            }
+            orderVerify(icCard)
+        } else orderPayment(icCard,"2")
+    }
+
+    /**
+     * 订餐核销
+     */
     private fun orderVerify(cardId: String) {
         /*加锁防止触发多次请求*/
         if (requestStatus) return
@@ -136,7 +188,10 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
         }
     }
 
-    private fun orderPayment(icCard: String) {
+    /**
+     * 收款模式
+     */
+    private fun orderPayment(icCard: String, type: String) {
         if (!isPayStatus) {
             viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效刷卡") }
             return
@@ -145,21 +200,37 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
             mutex.withLock { isPayStatus = false }
             listener?.onPayResult(-1, PayForUI())
             /*初始化数据*/
-            val payForUI = initData("3", icCard, payAmount)
+            val payForUI = initData(type, icCard, payAmount)
             /*请求支付扣费*/
-            val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
-            request.cardId = payForUI.payContent
-            LogUtil.i(TAG, "支付请求: ${Gson().toJson(request)}")
-            val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-            val response = mRepository.payByIcCard(encryption)
+            val requestCard = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
+            val requestCode = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
+            when(type){
+                "1" -> {
+                    requestCard.custId = payForUI.payContent
+                }
+                "2" -> {
+                    requestCode.qrCode = payForUI.payContent
+                }
+                else -> {
+                    requestCard.cardId = payForUI.payContent
+                }
+            }
+            LogUtil.i(TAG, "支付请求: ${Gson().toJson(if(type == "2") requestCode else requestCard)}")
+            val encryption = DES3CBCUtil.encryption(Gson().toJson(if(type == "2") requestCode else requestCard))
+            val response = when(type){
+                "1" -> {mRepository.payByFace(encryption)}
+                "2" -> {mRepository.payByQrCode(encryption)}
+                else -> {mRepository.payByIcCard(encryption)}
+            }
             if (response.code == "200") {
+                var totalBalance = BigDecimal(0.00)
                 val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
                 val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
                 LogUtil.d(TAG, "支付结果: ${Gson().toJson(result)}")
                 payForUI.result = result.RESULT
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
-                payForUI.accBal = result.ACC_BAL.ifEmpty { result.REMAIN_BAL }
+                payForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                 result.ACC_LIST.forEach {
                     val acclist = ACCLIST().apply {
                         ACC_NO = it.ACC_NO
@@ -169,13 +240,14 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener {
                         PAYMENT = it.PAYMENT
                     }
                     payForUI.accList.add(acclist)
+                    totalBalance = totalBalance.add(BigDecimal(it.PAYMENT))
                 }
                 /*查询人员姓名*/
                 if (result.CUST_ID.isNotEmpty() && payForUI.username.isEmpty()) {
                     val persons = dbHelper.queryPersonToCustId(result.CUST_ID)
                     if (persons != null) payForUI.username = persons.personName
                 }
-                payForUI.actualPayment = result.ACTUAL_PAYMENT
+                payForUI.actualPayment = if(totalBalance.compareTo(BigDecimal(0.00)) == 1) totalBalance.toEngineeringString() else payForUI.actualPayment
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID
                 payForUI.errCode = result.ERRCODE

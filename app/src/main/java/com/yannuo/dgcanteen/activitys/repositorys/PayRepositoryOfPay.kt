@@ -140,6 +140,13 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun payByFace(encryptedData: String): CanteenResponse<String> {
+        return apiCall {
+            val request = RequestPay(encryptedData)
+            RetrofitClient.getApi().payByFace(request)
+        }
+    }
+
     suspend fun getToken(campusId: String, encryptStr: String): CanteenResponse<TokenReceive> {
         return apiCall {
             RetrofitClient.getApi().getToken(TokenBean(campusId, encryptStr))

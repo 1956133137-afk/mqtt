@@ -116,6 +116,30 @@ public class CanteenEncryptionUtil {
         return "";
     }
 
+    /**
+     * 请求报文解密方法
+     * @param param
+     */
+    public static void decryption(String param){
+        try {
+            Log.d("TAG", "encryption: " + param);
+            //创建加密对象，向构造函数传入密钥
+            MCipherDecryptor ccbEncryptor = new MCipherDecryptor(STR_KEY);
+
+            //执行加密
+            String ccbSafeParam = ccbEncryptor.doDecrypt(param);
+
+            Log.d("TAG", "a: "+ccbSafeParam);
+        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
+                 ShortBufferException | IllegalBlockSizeException | BadPaddingException |
+                 NoSuchProviderException | InvalidAlgorithmParameterException |
+                 UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //将字符串拆分为键值对，同时存储到HashMap中
     private static HashMap<String, String> storeInfo(String ccbSafeParam) {
         String[] pairs = ccbSafeParam.split("&");
