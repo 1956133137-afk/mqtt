@@ -91,7 +91,7 @@ class CameraLogic {
                         actualPayment = payResult.ACTUAL_PAYMENT  //非离线用实际支付值
                         accType = payResult.ACC_TYPE
                         accNo = payResult.ACC_NO
-                        accBal = payResult.ACC_BAL
+                        accBal = payResult.REMAIN_BAL.ifEmpty { payResult.ACC_BAL }
                         traceId = payResult.TRACEID
                         errCode = payResult.ERRCODE
                         errMsg = payResult.ERRMSG

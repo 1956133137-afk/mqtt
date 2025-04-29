@@ -97,7 +97,7 @@ class OfflineOrderFragment : BaseFragment<FragmentOfflineOrderBinding>() {
                         payForUI.result = result.RESULT
                         payForUI.accType = result.ACC_TYPE
                         payForUI.accNo = result.ACC_NO
-                        payForUI.accBal = result.ACC_BAL
+                        payForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                         result.ACC_LIST.forEach {
                             val acclist = ACCLIST().apply {
                                 ACC_NO = it.ACC_NO

@@ -383,7 +383,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         orderForUI.errCode = result.ERRCODE
                         orderForUI.errMsg = result.ERRMSG
                         orderForUI.actualPayment = result.ACTUAL_PAYMENT
-                        orderForUI.accBal = result.REMAIN_BAL
+                        orderForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                         saveOrderRecord(orderForUI, result)
                         listener?.onOrderResult(4, orderForUI)
                     } else {
@@ -402,7 +402,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         orderForUI.errCode = result.ERRCODE
                         orderForUI.errMsg = result.ERRMSG
                         orderForUI.actualPayment = result.ACTUAL_PAYMENT
-                        orderForUI.accBal = result.REMAIN_BAL
+                        orderForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                         saveOrderRecord(orderForUI, result)
                         listener?.onOrderResult(4, orderForUI)
                     } else {
@@ -463,7 +463,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     orderForUI.errCode = result.ERRCODE
                     orderForUI.errMsg = result.ERRMSG
                     orderForUI.actualPayment = result.ACTUAL_PAYMENT
-                    orderForUI.accBal = result.REMAIN_BAL
+                    orderForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                     saveOrderRecord(orderForUI, result)
                     orderResult(3)
                 } else {

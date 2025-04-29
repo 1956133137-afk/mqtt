@@ -178,7 +178,7 @@ class FaceScanVM {
             actualPayment = bean.ACTUAL_PAYMENT  //非离线用实际支付值
             accType = bean.ACC_TYPE
             accNo = bean.ACC_NO
-            accBal = bean.ACC_BAL
+            accBal = bean.REMAIN_BAL.ifEmpty { bean.ACC_BAL }
             traceId = bean.TRACEID
             errCode = bean.ERRCODE
             errMsg = bean.ERRMSG

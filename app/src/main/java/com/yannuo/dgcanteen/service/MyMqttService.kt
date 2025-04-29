@@ -100,6 +100,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
     private suspend fun getPayCfg() {
         val result = mRespository.getPayCfg()
+        LogUtil.d(TAG, "${Gson().toJson(result)} -> ${CommonAndDpToPxUtil.getDeviceSerial()}")
         if (result.code == "200") {
             val mv = MMKV.defaultMMKV()
             mv.encode(Constant.PAY_CONFIG, result.data)
@@ -228,7 +229,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                             payForUI.result = result.RESULT
                             payForUI.accType = result.ACC_TYPE
                             payForUI.accNo = result.ACC_NO
-                            payForUI.accBal = result.ACC_BAL
+                            payForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
                             result.ACC_LIST.forEach {
                                 val acclist = ACCLIST().apply {
                                     ACC_NO = it.ACC_NO
@@ -558,7 +559,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         for (fi in savePath.listFiles()) {
             fi.delete()
         }
-        for (path in picList) { if (path == null || path.isEmpty()) continue
+        for (path in picList) {
+            if (path == null || path.isEmpty()) continue
             val pic = Glide.with(this)
                 .load(path)
                 .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
