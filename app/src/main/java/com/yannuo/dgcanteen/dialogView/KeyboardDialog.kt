@@ -5,6 +5,7 @@ import android.os.Handler
 import androidx.recyclerview.widget.GridLayoutManager
 import com.yannuo.dgcanteen.adapters.KeyboardAdapter
 import com.yannuo.dgcanteen.databinding.DialogKeyboardBinding
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.*
 
@@ -15,6 +16,7 @@ import java.util.*
  **/
 class KeyboardDialog(context: Context) : BaseDialog<DialogKeyboardBinding>(context) {
     private val mContext = context
+    private val text: ShowTextDailog = ShowTextDailog(context)
     private val handler: Handler = Handler(mContext.mainLooper)
     private val keyboardAdapter by lazy { KeyboardAdapter() }
     private val payStr: StringBuilder = StringBuilder()
@@ -61,7 +63,18 @@ class KeyboardDialog(context: Context) : BaseDialog<DialogKeyboardBinding>(conte
     }
 
     fun updateTV(str: String, boolean: Boolean) {
-        binding.mvControl.text = str
+        if(boolean){
+            text.show()
+            text.showText(str)
+            if(str.contains("元") && str.contains("支付")){
+                text.setBack(1)
+            }else{
+                text.setBack(2)
+            }
+            CommonAndDpToPxUtil.speakWork(str)
+        }else{
+            binding.mvControl.text = str
+        }
         if (boolean) clearStr(false)
     }
 
@@ -74,7 +87,7 @@ class KeyboardDialog(context: Context) : BaseDialog<DialogKeyboardBinding>(conte
         }
     }
 
-    private fun clearStr(boolean: Boolean) {
+    fun clearStr(boolean: Boolean) {
         payStr.clear()
         binding.inputAmount.text = payStr
         if (boolean) dismiss()

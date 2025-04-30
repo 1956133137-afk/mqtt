@@ -64,7 +64,7 @@ public class DES3CBCUtil {
     }
 
     /**
-     * 3DES 解密
+     * 3DES
      */
     private static String decode(String decryption) {
         try {

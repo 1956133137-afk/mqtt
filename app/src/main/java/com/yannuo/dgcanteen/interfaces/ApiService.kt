@@ -230,7 +230,7 @@ interface ApiService {
     suspend fun countDishesOfWindow(@Body bean: CountDishesOfWindowBean): CanteenResponse<CountDishesOfWindowResponse>
 
     /**
-     * 订餐核销
+     * 预订餐核销
      */
     @Headers("content-type: application/json")
     @POST("android/preOrderMealVerify")

@@ -4,12 +4,13 @@ import android.os.Handler
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
-import com.yannuo.dgcanteen.activitys.fragment.MealPreparationFragment
 import com.yannuo.dgcanteen.activitys.viewModel.MealPreparationVM
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ItemMealPreparationBinding
+import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.MealPreparationDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.DcOrderDishes
@@ -20,11 +21,12 @@ import com.yannuo.dgcanteen.model.OrderStatusBean
 import com.yannuo.dgcanteen.model.WindowBean
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
 
-class MealPreparationAdapter(private val requireContext: MealPreparationFragment) : BaseAdapter<Order,ItemMealPreparationBinding>() {
+class MealPreparationAdapter(private val requireContext: FragmentActivity) : BaseAdapter<Order,ItemMealPreparationBinding>() {
+    private var awaitingDialog: AwaitingDialog? = null
     private var windowList: MutableList<WindowBean> = mutableListOf()
-    private val mealPreparationDialog by lazy { MealPreparationDialog(requireContext.requireActivity()) }
+    private val mealPreparationDialog by lazy { MealPreparationDialog(requireContext) }
     private val handler: Handler = Handler(MyApplication.applicationContext.mainLooper)
-    private val mealPreparationVM by lazy { ViewModelProvider(requireContext, ViewModelProvider.AndroidViewModelFactory(requireContext.requireActivity().application))[MealPreparationVM::class.java] }
+    private val mealPreparationVM by lazy { ViewModelProvider(requireContext, ViewModelProvider.AndroidViewModelFactory(requireContext.application))[MealPreparationVM::class.java] }
 
     override fun bindHolder(holder: Holder, position: Int) {
         val bean = getData(position)
@@ -60,8 +62,11 @@ class MealPreparationAdapter(private val requireContext: MealPreparationFragment
         }
         //完成备餐
         holder.binding.btnPrinter.setOnClickListener {
+            if (awaitingDialog == null) awaitingDialog = AwaitingDialog(requireContext)
             val position = holder.adapterPosition
-            var myData = data
+            if(position == -1) return@setOnClickListener
+            awaitingDialog?.show()
+            val myData = data
             //修改订单状态
             val bean = OrderStatusBean().apply {
                 this.businessId = data[position].businessId
@@ -77,8 +82,10 @@ class MealPreparationAdapter(private val requireContext: MealPreparationFragment
                             printer(myData[position])
                             notifyItemRemoved(position)
                             myData.removeAt(position)
+                            mealPreparationVM.setInfoBeanList(getData())
                         }
                     }
+                    if(awaitingDialog != null) awaitingDialog?.dismiss()
                 }
             })
             //发起状态变更

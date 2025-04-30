@@ -35,7 +35,7 @@ class MealPreparationBean{
     //页数
     var page: Int = 1
     //页面条数
-    var pageSize: Int = 100
+    var pageSize: Int = 500
     //日期范围 ["2025-03-20","2025-03-30"]
     var dateList: List<String>? = null
 }

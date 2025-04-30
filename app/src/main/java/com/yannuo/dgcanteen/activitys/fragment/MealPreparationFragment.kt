@@ -3,7 +3,6 @@ package com.yannuo.dgcanteen.activitys.fragment
 import android.graphics.Color
 import android.os.Handler
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import android.widget.CalendarView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.MealPreparationVM
 import com.yannuo.dgcanteen.adapters.MealPreparationAdapter
@@ -23,8 +21,8 @@ import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 
 
 class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), View.OnClickListener {
-    private val mealPreparationVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[MealPreparationVM::class.java] }
-    private val mealPreparationAdapter by lazy { MealPreparationAdapter(this) }
+    private val mealPreparationVM by lazy { ViewModelProvider(requireActivity(), ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[MealPreparationVM::class.java] }
+    private val mealPreparationAdapter by lazy { MealPreparationAdapter(requireActivity()) }
     private var inputPosition: Byte = 0
     private var mView: CalendarView? = null
     private var awaitingDialog: AwaitingDialog? = null
@@ -93,7 +91,8 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
         val BeginTime = binding.tvCalendarBeginTime.text.toString()
         val DeadlineTime = binding.tvCalendarDeadlineTime.text.toString()
         val listOf = listOf(BeginTime, DeadlineTime)
-        mealPreparationVM.queryMealList(1,name,spinnerTop,listOf,"4"){ i, orderList ->
+        mealPreparationVM.closeList()
+        mealPreparationVM.queryMealList(true,1,name,spinnerTop,listOf,"4"){ i, orderList ->
             handler.post {
                 mealPreparationAdapter.data = orderList
             }

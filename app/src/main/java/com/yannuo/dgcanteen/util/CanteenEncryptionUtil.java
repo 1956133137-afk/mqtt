@@ -120,16 +120,13 @@ public class CanteenEncryptionUtil {
      * 请求报文解密方法
      * @param param
      */
-    public static void decryption(String param){
+    public static String decryption(String param){
         try {
-            Log.d("TAG", "encryption: " + param);
             //创建加密对象，向构造函数传入密钥
             MCipherDecryptor ccbEncryptor = new MCipherDecryptor(STR_KEY);
-
             //执行加密
             String ccbSafeParam = ccbEncryptor.doDecrypt(param);
-
-            Log.d("TAG", "a: "+ccbSafeParam);
+            return ccbSafeParam;
         } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException |
                  ShortBufferException | IllegalBlockSizeException | BadPaddingException |
                  NoSuchProviderException | InvalidAlgorithmParameterException |
@@ -138,6 +135,7 @@ public class CanteenEncryptionUtil {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return "";
     }
 
     //将字符串拆分为键值对，同时存储到HashMap中

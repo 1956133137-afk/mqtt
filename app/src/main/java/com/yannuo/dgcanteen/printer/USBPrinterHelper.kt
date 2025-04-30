@@ -312,9 +312,9 @@ class USBPrinterHelper {
         mPos?.POS_Reset() //复位打印机
         mPos?.POS_S_Align(1) //居中对齐
         //按照一定的格式打印字符串
-        mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 8)
         mPos?.POS_FeedLine()
-        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_AMOUNT, 1))}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_AMOUNT, 1))}\r\n", 0, 0, 1, 1, 0, 8)
         mPos?.POS_S_Align(0) //左对齐
         printContentKey("-", "================================")
         printContentKey(bean.custName, printFormat("用户姓名", bean.custName))
@@ -474,7 +474,7 @@ class USBPrinterHelper {
     }
 
     private fun printContentKey(key: String, content: String) {
-        if (key.isNotEmpty()) mPos?.POS_TextOut("${content}\r\n", 0, 0, 0, 0, 0, 0)
+        if (key.isNotEmpty()) mPos?.POS_TextOut("${content}\r\n", 0, 0, 0, 0, 0, 8)
     }
 
     private fun printFormat(msg: String, value: String): String {

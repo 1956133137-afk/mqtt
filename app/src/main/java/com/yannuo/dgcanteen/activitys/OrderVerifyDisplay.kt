@@ -82,19 +82,23 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
 
     private fun initEvent(){
         binding.codeVerify.setOnClickListener {
-            if(orderVerifyVM.getpayState()) return@setOnClickListener
-            orderVerifyVM.openScan()
-            scanType = true
+            if(orderVerifyVM.getPayState()) return@setOnClickListener
+            if(!scanType){
+                orderVerifyVM.openScan()
+                scanType = true
+            }
             showText("请出示二维码")
         }
         binding.cardVerify.setOnClickListener {
-            if(orderVerifyVM.getpayState()) return@setOnClickListener
-            orderVerifyVM.openIcCard()
-            cardType = true
+            if(orderVerifyVM.getPayState()) return@setOnClickListener
+            if(!cardType){
+                orderVerifyVM.openIcCard()
+                cardType = true
+            }
             showText("请出示实体卡")
         }
         binding.faceVerify.setOnClickListener {
-            if(orderVerifyVM.getpayState()) return@setOnClickListener
+            if(orderVerifyVM.getPayState()) return@setOnClickListener
             orderVerifyVM.faceVerification()
             handler.postDelayed({ dismiss() }, 500)
         }
@@ -110,7 +114,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
 
     fun reset(){
         if (showTextDailog != null && showTextDailog?.isShowing == true) showTextDailog?.dismiss()
-        if(!mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD) && cardType) orderVerifyVM.closeIcCard()
+        if(!mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false) && cardType) orderVerifyVM.closeIcCard()
         if(scanType) orderVerifyVM.closeScan()
         cardType = false
         scanType = false
@@ -142,6 +146,12 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                         } else {
                             binding.orderVerifyView.visibility = View.VISIBLE
                             orderVerifyAdapter.data = orderVerifyVM.getOrderVerify(orderVerifyBean)
+                            var bigDecimal = BigDecimal(0)
+                            orderVerifyBean.verifySuccessDishes.forEach {
+                                bigDecimal = bigDecimal.add(BigDecimal(it.price).multiply(BigDecimal(it.dishesNum)))
+                            }
+                            CommonAndDpToPxUtil.speakWork("核销成功${bigDecimal}元")
+                            binding.allMoney.text = "总消费金额\n$bigDecimal"
                         }
                     } else { /*失败*/
                         changeView(2)
@@ -225,7 +235,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 countDown?.cancel()
                 /*是否需要确认*/
                 if (!mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)) orderVerifyVM.mOrderVerify.postValue(OrderVerify())
-                binding.orderVerifyType.visibility = if(mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD)) View.GONE else View.VISIBLE
+                binding.orderVerifyType.visibility = if(mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false)) View.GONE else View.VISIBLE
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE

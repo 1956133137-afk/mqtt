@@ -78,7 +78,7 @@
         <RelativeLayout
             android:layout_width="320dp"
             android:layout_height="match_parent"
-            android:gravity="right"
+            android:gravity="end"
             android:padding="10dp">
 
             <TextView
@@ -127,6 +127,13 @@
                 android:text="已备订单"
                 android:textColor="#4F4F4F"
                 android:textSize="45sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dish_stats_count"
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:layout_below="@+id/btn_finish"
+                android:layout_marginTop="20dp" />
 
             <TextView
                 android:id="@+id/serial_number"

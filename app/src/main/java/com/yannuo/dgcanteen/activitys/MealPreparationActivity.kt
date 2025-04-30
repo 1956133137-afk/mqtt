@@ -2,8 +2,12 @@ package com.yannuo.dgcanteen.activitys
 
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.proembed.service.MyService
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.viewModel.MealPreparationVM
+import com.yannuo.dgcanteen.adapters.DishVerifyCountAdapter
 import com.yannuo.dgcanteen.databinding.ActivityMealPreparationBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
@@ -21,7 +25,8 @@ class MealPreparationActivity : BaseActivity<ActivityMealPreparationBinding>(), 
     private lateinit var passwordDialog: PasswordDialog
     private var mXService: MyService? = null
     private var navigation = true
-
+    private val dishVerifyCountAdapter by lazy { DishVerifyCountAdapter() }
+    private val mealPreparationVM by lazy { ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(application))[MealPreparationVM::class.java] }
     override fun bindLayout() {
         binding = ActivityMealPreparationBinding.inflate(layoutInflater)
     }
@@ -38,6 +43,13 @@ class MealPreparationActivity : BaseActivity<ActivityMealPreparationBinding>(), 
         NetworkStateManager.getInstance().registerObserver(this)
         //显示版本号和序列号
         binding.serialNumber.text = "${CommonAndDpToPxUtil.getDeviceSerial()}\nv${packageManager.getPackageInfo(packageName, 0).versionName}"
+        binding.dishStatsCount.layoutManager = LinearLayoutManager(this)
+        binding.dishStatsCount.adapter = dishVerifyCountAdapter
+        //订阅订单列表
+        mealPreparationVM.orderDishCount.observe(this) {
+            val newList = it.sortedByDescending { i -> i.content.toInt() }
+            dishVerifyCountAdapter.data = newList
+        }
     }
 
     private fun initData() {

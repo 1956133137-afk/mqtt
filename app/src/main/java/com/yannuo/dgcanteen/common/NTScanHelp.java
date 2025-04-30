@@ -2,9 +2,12 @@ package com.yannuo.dgcanteen.common;
 
 import android.content.Context;
 import android.hardware.usb.UsbManager;
+import android.os.SystemClock;
 
 import com.niu_tu.scanclient.UARTDriver;
 import com.yannuo.dgcanteen.util.LogUtil;
+
+import java.nio.charset.StandardCharsets;
 
 public class NTScanHelp {
     private static final String TAG = "NTScanHelp";
@@ -24,7 +27,7 @@ public class NTScanHelp {
      */
     public void OpenScanCode(ScanDevice.DataCallBack callback, Context context) {
         this.callback = callback;
-        thread = new readThread();
+        thread = new newReadThread();
         uartDriver = new UARTDriver((UsbManager) context.getSystemService(Context.USB_SERVICE), context, ACTION_USB_PERMISSION);
         if (!uartDriver.UsbFeatureSupported()) {
             LogUtil.e(TAG, "你的设备不支持USB HOST，请更换设备重试！");
@@ -77,7 +80,41 @@ public class NTScanHelp {
                         LogUtil.d(TAG, "二维码数据: "+recv);
                         if (callback != null) {
                             callback.onData(recv);
+                            buffer.clone();
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * （新）读取扫码数据线程
+     */
+    private class newReadThread extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+                if (uartDriver!= null) {
+                    if(System.currentTimeMillis() - currentTime > 100){
+                        byte[] buffer = new byte[4096];
+                        int bufferSize = 0;
+                        while (true) {
+                            SystemClock.sleep(50);
+                            byte[] data = new byte[512];
+                            int size = uartDriver.ReadData(data, data.length);
+                            if (size < 1) break;
+                            System.arraycopy(data, 0, buffer, bufferSize, bufferSize+size);
+                            bufferSize += size;
+                        }
+                        if (bufferSize > 0) {
+                            String recv = new String(buffer, 0, bufferSize, StandardCharsets.UTF_8);        //以字符串形式输出
+                            callback.onData(recv);
+                            return;
+                        }
+                    }else{
+                        byte[] data = new byte[4096];
+                        uartDriver.ReadData(data, data.length);
                     }
                 }
             }

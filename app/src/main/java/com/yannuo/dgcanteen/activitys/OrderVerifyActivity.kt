@@ -25,6 +25,7 @@ import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
@@ -156,8 +157,10 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
                         if (status) {
                             if(BigDecimal(payAmount).compareTo(BigDecimal(0.00)) < 1){
                                 ToastShowUtil.show("无效金额")
+                                keyboardDialog?.clearStr(false)
                                 return@post
                             }
+                            CommonAndDpToPxUtil.speakWork("请支付${payAmount}元")
                             orderVerifyVM.payAmount = payAmount
                             keyboardDialog?.updateTV("等待支付", false)
                         } else {

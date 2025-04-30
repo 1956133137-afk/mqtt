@@ -1,11 +1,13 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import androidx.annotation.Nullable
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.MealBean
 import com.yannuo.dgcanteen.model.MealPreparationBean
 import com.yannuo.dgcanteen.model.MealRequestPerson
@@ -26,8 +28,10 @@ class MealPreparationVM : ViewModel() {
     private var listener: OnMealListener? = null
     private var mealListener: OnMealListener? = null
     private var payCfg = PayCfg()
+    private val infoBeanList: MutableList<InfoBean> = mutableListOf()
     private val orderList: MutableList<Order> = mutableListOf()
-    private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val orderDishCount: MutableLiveData<MutableList<InfoBean>> = MutableLiveData<MutableList<InfoBean>>(mutableListOf())
+    private val mHandler = CoroutineExceptionHandler { _, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
         listener?.onMeal(0,"")
@@ -74,8 +78,13 @@ class MealPreparationVM : ViewModel() {
         }
     }
 
+    fun closeList(){
+        infoBeanList.clear()
+    }
+    
     //查询订单
     fun queryMealList(
+        type: Boolean,
         page: Int,
         @Nullable personName: String? = null,
         @Nullable spinnerText: Int? = null,
@@ -84,7 +93,7 @@ class MealPreparationVM : ViewModel() {
         callback: (Int, MutableList<Order>) -> Unit
     ){
         viewModelScope.launch(Dispatchers.IO + mHandler) {
-            var bean = MealPreparationBean().apply {
+            val bean = MealPreparationBean().apply {
                 this.page = page
                 businessId = payCfg.businessId
                 campusId = payCfg.campusId
@@ -97,11 +106,49 @@ class MealPreparationVM : ViewModel() {
             if (response.code == "200") {
                 val receive = Gson().fromJson(response.data.toString(), OrderListReceive::class.java)
                 orderList.addAll(receive.list)
-                if(receive.totalRecord.toInt() > orderList.size) queryMealList(page + 1,personName,spinnerText,dateList,orderStatus,callback)
-                else callback(3, orderList)
-                listener?.onMeal(0,"")
+                if(receive.totalRecord.toInt() > orderList.size) {
+                    queryMealList(
+                        type,
+                        page + 1,
+                        personName,
+                        spinnerText,
+                        dateList,
+                        orderStatus,
+                        callback
+                    )
+                } else {
+                    callback(3, orderList)
+                    if(type){
+                        dishCount(orderList)
+                    }
+                    orderDishCount.postValue(infoBeanList)
+                    listener?.onMeal(0,"")
+                }
             }
         }
+    }
+
+    fun dishCount(list: MutableList<Order>){
+        list.forEach {
+            it.dcOrderDishesList.forEach { dc ->
+                var typr = false
+                infoBeanList.forEach { order ->
+                    if(order.describe == dc.dishesName){
+                        typr = true
+                        order.content = "${order.content.toInt() + dc.dishesNum.toInt()}"
+                    }
+                }
+                if(!typr){
+                    infoBeanList.add(InfoBean(dc.dishesName,dc.dishesNum))
+                }
+            }
+        }
+    }
+
+    fun setInfoBeanList(list: MutableList<Order>){
+        infoBeanList.clear()
+        dishCount(list)
+        orderDishCount.postValue(infoBeanList)
     }
 
     interface OnMealListener {

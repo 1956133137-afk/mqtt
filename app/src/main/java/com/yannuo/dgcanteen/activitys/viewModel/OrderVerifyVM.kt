@@ -18,15 +18,41 @@ import com.yannuo.dgcanteen.greendao.entity.AccListTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
-import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.model.ACCLIST
+import com.yannuo.dgcanteen.model.CardPayBean
+import com.yannuo.dgcanteen.model.CcbFacePayResultBean
+import com.yannuo.dgcanteen.model.CodePayBean
+import com.yannuo.dgcanteen.model.CountDishesOfWindowBean
+import com.yannuo.dgcanteen.model.CountDishesOfWindowResponse
+import com.yannuo.dgcanteen.model.DishesCounts
+import com.yannuo.dgcanteen.model.InfoBean
+import com.yannuo.dgcanteen.model.OrderVerify
+import com.yannuo.dgcanteen.model.OrderVerifyBean
+import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.model.PayForUI
+import com.yannuo.dgcanteen.model.ResponsePay
+import com.yannuo.dgcanteen.model.VerificationRequest
+import com.yannuo.dgcanteen.model.Verify
+import com.yannuo.dgcanteen.model.VerifyReceive
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
-import com.yannuo.dgcanteen.util.*
-import kotlinx.coroutines.*
+import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
+import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.DES3CBCUtil
+import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.TimeUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
+import com.yannuo.dgcanteen.util.Utils
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.math.BigDecimal
-import java.util.*
-import kotlin.collections.HashMap
+import java.util.Random
+
 
 /**
  * Author: filowl
@@ -70,7 +96,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         checkTime()
     }
 
-    fun getpayState(): Boolean {
+    fun getPayState(): Boolean {
         return payMode && !isPayStatus
     }
 
@@ -121,7 +147,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                         viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                         return
                     }
-                    orderVerify(bean.CUST_ID)
+                    orderVerify(bean.CUST_ID,1)
                 }else orderPayment(bean.CUST_ID,"1")
             }
         })
@@ -136,7 +162,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                 viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                 return
             }
-            orderVerify(icCard)
+            orderVerify(icCard,3)
         } else orderPayment(icCard,"3")
     }
 
@@ -149,24 +175,53 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                 viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
                 return
             }
-            orderVerify(icCard)
+            orderVerify(icCard,2)
         } else orderPayment(icCard,"2")
+    }
+
+    fun parseParameters(input: String): Map<String, String> {
+        val result: MutableMap<String, String> = HashMap()
+        val pairs = input.split("&".toRegex()).dropLastWhile { it.isEmpty() }
+            .toTypedArray()
+        for (pair in pairs) {
+            val keyValue = pair.split("=".toRegex(), limit = 2).toTypedArray()
+            if (keyValue.size == 2) {
+                result[keyValue[0]] = keyValue[1]
+            } else if (keyValue.size == 1) {
+                result[keyValue[0]] = ""
+            }
+        }
+        return result
     }
 
     /**
      * 订餐核销
      */
-    private fun orderVerify(cardId: String) {
+    private fun orderVerify(cardId: String,type: Int) {
         /*加锁防止触发多次请求*/
         if (requestStatus) return
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             mutex.withLock { requestStatus = true }
             listener?.onVerifyResult(-1, OrderVerifyBean())
             /*查询人员信息*/
-            val persons = dbHelper.queryPersonToCardId(cardId)
+            val persons = when(type){
+                1 -> {dbHelper.queryPersonToCustId(cardId)}
+                else -> {dbHelper.queryPersonToCardId(cardId)}
+            }
             /*获取请求参数*/
             val request = VerificationRequest().apply {
-                dcEncryptParam = getCavEncryptParam(if (persons != null) persons.personName else "", cardId)
+                dcEncryptParam = when(type){
+                    1 -> {
+                        getCavEncryptParam(if (persons != null) persons.custId else "","",1)
+                    }
+                    2 -> {
+                        val str = CanteenEncryptionUtil.decryption(cardId)
+                        val custId = parseParameters(str)["CUST_ID"]
+                        val orderId = parseParameters(str)["ORDER_ID"]
+                        getCavEncryptParam(custId ?: "",orderId ?: "",2)
+                    }
+                    else -> {getCavEncryptParam(cardId,"",3)}
+                }
                 flag = if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) 1 else 0
             }
             LogUtil.d(TAG, Gson().toJson(request))
@@ -426,17 +481,32 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         return orderVerifyList
     }
 
-    private fun getCavEncryptParam(custId: String, cardId: String): String {
+    private fun getCavEncryptParam(custId: String,orderId: String,type: Int): String {
         /*获取设备商户信息*/
         val mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         val encryptStr = StringBuilder()
         /*拼接加密参数*/
-        encryptStr.append("CAMPUS_ID=${mPayCfg.campusId}")
-            .append("&BUSINESS_ID=${mPayCfg.businessId}")
-            .append("&CUST_ID=${custId}")
-            .append("&ORDER_ID=")
-            .append("&DEVICE_ID=${Utils.getSN()}")
-            .append("&CARD_ID=${cardId}")
+        when(type){
+            1 -> {
+                encryptStr.append("CAMPUS_ID=${mPayCfg.campusId}")
+                    .append("&BUSINESS_ID=${mPayCfg.businessId}")
+                    .append("&CUST_ID=${custId}")
+                    .append("&DEVICE_ID=${Utils.getSN()}")
+            }
+            2 -> {
+                encryptStr.append("CAMPUS_ID=${mPayCfg.campusId}")
+                    .append("&BUSINESS_ID=${mPayCfg.businessId}")
+                    .append("&CUST_ID=${custId}")
+                    .append("&ORDER_ID=${orderId}")
+                    .append("&DEVICE_ID=${Utils.getSN()}")
+            }
+            else -> {
+                encryptStr.append("CAMPUS_ID=${mPayCfg.campusId}")
+                    .append("&BUSINESS_ID=${mPayCfg.businessId}")
+                    .append("&CARD_ID=${custId}")
+                    .append("&DEVICE_ID=${Utils.getSN()}")
+            }
+        }
         LogUtil.d(TAG, encryptStr.toString())
         /*参数加密返回*/
         return CanteenEncryptionUtil.encryption(encryptStr.toString())
