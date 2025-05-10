@@ -114,11 +114,21 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
             override fun confirmCallback(flag: Boolean) {
                 if (flag) {
                     showAwaitDialog("退款中•••")
-                    orderRecordVM.orderRefund(orderRecordAdapter.data[position]) {
-                        handler.post {
-                            awaitingDialog?.dismiss()
-                            if (it) orderRecordAdapter.removeData(position)
-                            ToastShowUtil.show(if (it) "退餐成功" else "退餐失败")
+                    orderRecordVM.DCRefundIsOverTime(orderRecordAdapter.data[position]){
+                        if(!it){
+                            handler.post {
+                                awaitingDialog?.dismiss()
+                                ToastShowUtil.show("超过了退款时间")
+                            }
+                            return@DCRefundIsOverTime
+                        }else{
+                            orderRecordVM.orderRefund(orderRecordAdapter.data[position]) {
+                                handler.post {
+                                    awaitingDialog?.dismiss()
+                                    if (it) orderRecordAdapter.removeData(position)
+                                    ToastShowUtil.show(if (it) "退餐成功" else "退餐失败")
+                                }
+                            }
                         }
                     }
                 }

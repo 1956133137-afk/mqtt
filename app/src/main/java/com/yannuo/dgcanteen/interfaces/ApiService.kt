@@ -216,6 +216,13 @@ interface ApiService {
     suspend fun queryAllMeal(@Body bean: MealRequestPerson): CanteenResponse<MutableList<MealBean>>
 
     /**
+     * 检查是否超过退款时间
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/isOverTimeOfRefund")
+    suspend fun DCRefundIsOverTime(@Header("dcccbauthorization") token: String,@Body bean: DCRefundIsOverTimeBean): CanteenResponse<JsonObject>
+
+    /**
      * 退餐接口
      */
     @Headers("content-type: application/json")

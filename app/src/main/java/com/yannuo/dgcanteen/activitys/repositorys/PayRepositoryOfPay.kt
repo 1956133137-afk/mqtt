@@ -222,6 +222,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun DCRefundIsOverTime(token: String, bean: DCRefundIsOverTimeBean): CanteenResponse<JsonObject> {
+        return apiCall {
+            RetrofitClient.getApi().DCRefundIsOverTime(token,bean)
+        }
+    }
+
     suspend fun orderDirectRefund(token: String, bean: OrderRefundBean): CanteenResponse<JsonObject> {
         return apiCall {
             RetrofitClient.getApi().orderDirectRefund(token, bean)

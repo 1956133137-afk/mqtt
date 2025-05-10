@@ -162,6 +162,27 @@ class OrderRecordVM : ViewModel() {
         }
     }
 
+    fun DCRefundIsOverTime(order: Order, result: (Boolean) -> Unit){
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            //获取商家配置
+            val businessConfig = mRepository.getBusinessConfig(currentCcbToken, payCfg.campusId, payCfg.businessId)
+            LogUtil.d(TAG, Gson().toJson(businessConfig))
+            val busCigBean = Gson().fromJson(Gson().toJson(businessConfig.data), DCRefundIsOverTimeBean::class.java)
+            val bean = DCRefundIsOverTimeBean().apply {
+                campusId = payCfg.campusId
+                businessId = payCfg.businessId
+                isNeedRefundDate = busCigBean.isNeedRefundDate
+                limitRefundDay = busCigBean.limitRefundDay
+                limitRefundTime = busCigBean.limitRefundTime
+                mealDate = order.mealDate
+                mealId = order.mealId.toInt()
+            }
+            //判断
+            val refundRes = mRepository.DCRefundIsOverTime(currentCcbToken,bean)
+            result(refundRes.code == "200")
+        }
+    }
+
     interface OnOrderListener {
         fun onOrder(type: Int, data: Any)
     }
