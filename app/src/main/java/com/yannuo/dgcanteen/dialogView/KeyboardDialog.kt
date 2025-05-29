@@ -71,6 +71,7 @@ class KeyboardDialog(context: Context) : BaseDialog<DialogKeyboardBinding>(conte
             }else{
                 text.setBack(2)
             }
+            binding.mvControl.text = str
             CommonAndDpToPxUtil.speakWork(str)
         }else{
             binding.mvControl.text = str

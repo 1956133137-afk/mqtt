@@ -11,7 +11,6 @@ import android.view.WindowManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.viewModel.OrderVerifyVM
@@ -25,10 +24,12 @@ import com.yannuo.dgcanteen.model.InfoBean
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
 import com.yannuo.dgcanteen.model.PayForUI
+import com.yannuo.dgcanteen.networkstate.NetworkStateManager
+import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
-import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
+import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.AwaitingDialog
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -98,6 +99,10 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             showText("请出示实体卡")
         }
         binding.faceVerify.setOnClickListener {
+            if(!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) {
+                ToastShowUtil.show("无网络，无法使用人脸")
+                return@setOnClickListener
+            }
             if(orderVerifyVM.getPayState()) return@setOnClickListener
             orderVerifyVM.faceVerification()
             handler.postDelayed({ dismiss() }, 500)
@@ -152,6 +157,8 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                             }
                             CommonAndDpToPxUtil.speakWork("核销成功${bigDecimal}元")
                             binding.allMoney.text = "总消费金额\n$bigDecimal"
+                            //打印
+                            printVerify(orderVerifyBean)
                         }
                     } else { /*失败*/
                         changeView(2)
@@ -161,6 +168,10 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 }
             }
         }
+    }
+
+    private fun printVerify(bean: OrderVerifyBean){
+        USBPrinterHelper.instance.printTicket("4", bean)
     }
 
     override fun onPayResult(type: Int, payForUI: PayForUI) {
@@ -199,6 +210,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                         infoList.add(InfoBean("实付金额: ", payForUI.actualPayment))
                         infoList.add(InfoBean("订单编号: ", payForUI.orderId))
                         CommonAndDpToPxUtil.speakWork("支付成功,${DecimalFormat("#0.##").format(payForUI.actualPayment.toDouble())}元}")
+                        if(payForUI.offline == "1") CommonAndDpToPxUtil.speakWork("当前为离线订单后续补扣")
                         infoAdapter.data = infoList
                     } else {
                         changeView(2)
@@ -239,12 +251,18 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE
-                if (orderVerifyVM.payMode) binding.successTips.text = "支付成功"
+                if (orderVerifyVM.payMode) {
+                    binding.successTips.text = "支付成功"
+                    binding.allMoney.text = ""
+                }
                 else binding.successTips.text = if (!verifyQueryMode) "订餐核销" else "订餐查询"
             }
             2 -> {
                 binding.failureView.visibility = View.VISIBLE
-                if (orderVerifyVM.payMode) binding.failureTips.text = "支付失败"
+                if (orderVerifyVM.payMode) {
+                    binding.failureTips.text = "支付失败"
+                    binding.allMoney.text = ""
+                }
                 else binding.failureTips.text = if (!verifyQueryMode) "核销失败" else "查询失败"
             }
         }

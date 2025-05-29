@@ -122,11 +122,11 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
                             }
                             return@DCRefundIsOverTime
                         }else{
-                            orderRecordVM.orderRefund(orderRecordAdapter.data[position]) {
+                            orderRecordVM.orderRefund(orderRecordAdapter.data[position]) { type,str ->
                                 handler.post {
                                     awaitingDialog?.dismiss()
-                                    if (it) orderRecordAdapter.removeData(position)
-                                    ToastShowUtil.show(if (it) "退餐成功" else "退餐失败")
+                                    if (type) orderRecordAdapter.removeData(position)
+                                    ToastShowUtil.show(if (type) "退餐成功" else str)
                                 }
                             }
                         }

@@ -13,12 +13,16 @@ import com.csnprintersdk.csnio.csnbase.CSNIOCallBack
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.model.OrderForUI
+import com.yannuo.dgcanteen.model.OrderVerifyBean
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import kotlinx.coroutines.*
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.util.Arrays
 import java.util.concurrent.ArrayBlockingQueue
 
 /**
@@ -39,7 +43,7 @@ class USBPrinterHelper {
     private var connectStatus = false
     private var connectTimes = 0
 
-    // 0-点餐、收款打印 1-订餐按天打印 2-订餐餐别打印
+    // 0-点餐、收款打印 1-订餐按天打印 2-订餐餐别打印 3-备餐模式打印 4-预订餐核销打印
     private var printType: String = "0"
 
     private lateinit var mScope: CoroutineScope
@@ -140,6 +144,7 @@ class USBPrinterHelper {
             if (kv.decodeString(Constant.PRINTER_UPDATE_TIME) != dateFormat) {
                 kv.encode(Constant.PRINTER_UPDATE_TIME, dateFormat)
                 kv.encode(Constant.PRINTER_AMOUNT, 1)
+                kv.encode(Constant.PRINTER_VERIFY, 1)
             }
             printType = type
             // 入队
@@ -176,6 +181,7 @@ class USBPrinterHelper {
                                 "1" -> printerOrder(it)
                                 "2" -> printOrderContent(it)
                                 "3" -> printOrderContentQR(it)
+                                "4" -> printVerify(it)
                             }
                         }
                         var times = 3
@@ -188,7 +194,11 @@ class USBPrinterHelper {
                             }
                             if (times == 0 && queryPrintState() == 0) {
                                 printQueue.poll()
-                                kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
+                                when(printType){
+                                    "3" -> kv.encode(Constant.PRINTER_AMOUNT, kv.decodeInt(Constant.PRINTER_AMOUNT, 1) + 1)
+                                    "4" -> kv.encode(Constant.PRINTER_VERIFY, kv.decodeInt(Constant.PRINTER_VERIFY, 1) + 1)
+                                }
+
                             }
                         }
                     }
@@ -200,6 +210,57 @@ class USBPrinterHelper {
             isInterrupt = true
             super.interrupt()
         }
+    }
+
+    private fun printVerify(data: Any){
+        val payForUI = data as OrderVerifyBean
+        mPos?.POS_Reset() //复位打印机
+        mPos?.POS_S_Align(1) //居中对齐
+        //按照一定的格式打印字符串
+        mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_FeedLine()
+        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_VERIFY, 1))}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_S_Align(0) //左对齐
+        mPos?.POS_TextOut("================================\r\n", 0, 0, 0, 0, 0, 0)
+        if (payForUI.personName.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("用户姓名", payForUI.personName)}\r\n", 0, 0, 0, 0, 0, 0)
+        }
+        if (payForUI.personName.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("手机号", payForUI.phone)}\r\n", 0, 0, 0, 0, 0, 0)
+        }
+        if (payForUI.personName.isNotEmpty()) {
+            mPos?.POS_TextOut("${printFormat("核销时间", TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis()))}\r\n", 0, 0, 0, 0, 0, 0)
+        }
+        val dishes = payForUI.verifySuccessDishes
+        if (dishes.size > 0) {
+            var sum = 0.0
+            mPos?.POS_FeedLine()
+            mPos?.POS_TextOut("${printFormatMenu("名称", "数量", "小计")}\r\n", 0, 0, 0, 0, 0, 0)
+            mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
+            dishes.forEach {
+                sum += it.dishesNum.toFloat() * it.price.toFloat()
+                val strSize = countBytesASCII(it.dishesName)
+                if((strSize % 32) > 16){
+                    printContentKey("-", it.dishesName)
+                    printContentKey("-", printFormatMenu("", it.dishesNum, "${it.dishesNum.toFloat() * it.price.toFloat()}"))
+                }else{
+                    if(strSize <= 16){
+                        printContentKey("-", printFormatMenu(it.dishesName, it.dishesNum, "${it.dishesNum.toFloat() * it.price.toFloat()}"))
+                    }else{
+                        val splitString = splitString(it.dishesNum)
+                        printContentKey("-", it.dishesName.substring(0,splitString))
+                        printContentKey("-", printFormatMenu(it.dishesName.substring(splitString), it.dishesNum, "${it.dishesNum.toFloat() * it.price.toFloat()}"))
+                    }
+                }
+            }
+            mPos?.POS_TextOut("--------------------------------\r\n", 0, 0, 0, 0, 0, 0)
+            mPos?.POS_TextOut("${printFormat("合计", String.format("%.02f元", sum))}\r\n", 0, 0, 0, 0, 0, 0)
+        }
+        mPos?.POS_TextOut("================================\r\n", 0, 0, 0, 0, 0, 0)
+        mPos?.POS_FeedLine()
+        mPos?.POS_FeedLine()
+        mPos?.POS_FeedLine()
+        mPos?.POS_FullCutPaper()
     }
 
     private fun printContent(data: Any) {
@@ -542,6 +603,19 @@ class USBPrinterHelper {
         } else return 5
 
         return 0
+    }
+
+    //获取超出一行的字符串位置
+    fun splitString(input: String, charset: Charset = Charsets.UTF_8): Int {
+        var remaining = input
+        var chunk = remaining
+        while (remaining.toByteArray(charset).size > 32) {
+            while (chunk.toByteArray(charset).size > 32) {
+                chunk = chunk.dropLast(1)
+            }
+            remaining = remaining.substring(chunk.length)
+        }
+        return chunk.length
     }
 
     // 状态详情

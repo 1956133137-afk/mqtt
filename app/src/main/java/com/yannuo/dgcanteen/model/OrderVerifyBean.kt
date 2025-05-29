@@ -10,6 +10,8 @@ import com.google.gson.JsonArray
 class OrderVerifyBean {
     var personName: String = ""
 
+    var phone: String = ""
+
     /*核销查询回调参数*/
     var verify: HashMap<String, JsonArray> = hashMapOf()
 

@@ -102,7 +102,9 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
             orderVerify2Adapter.data = it.verifyDishList
         }
         /*提示支付结果*/
-        orderVerifyVM.mOrderPay.observe(this) { keyboardDialog?.updateTV(it, true) }
+        orderVerifyVM.mOrderPay.observe(this) {
+            keyboardDialog?.updateTV(it, true)
+        }
         binding.dishStatsCount.layoutManager = LinearLayoutManager(this)
         binding.dishStatsCount.adapter = dishVerifyCountAdapter
         orderVerifyVM.dishVerifyCount.observe(this) { dishVerifyCountAdapter.data = it }

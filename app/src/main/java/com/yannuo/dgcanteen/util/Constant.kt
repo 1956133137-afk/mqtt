@@ -168,6 +168,8 @@ object Constant {
     const val PRINTER_TICKET_NAME = "printerTicketName" //票名
     const val PRINTER_CASHIER_NAME = "printerCashierName"   //收银名
 
+    const val PRINTER_VERIFY = "printerVerify"          //核销打印小票序号
+
     //手输入金额使用的配置
     //1)状态码
     const val NO_ERROR = 1000

@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import com.yannuo.dgcanteen.common.ScanDevice
 import com.yannuo.dgcanteen.common.SerialPortHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.AccListTable
+import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
@@ -36,7 +38,6 @@ import com.yannuo.dgcanteen.model.Verify
 import com.yannuo.dgcanteen.model.VerifyReceive
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CanteenEncryptionUtil
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
@@ -50,6 +51,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.lang.Exception
 import java.math.BigDecimal
 import java.util.Random
 
@@ -153,7 +155,6 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         })
     }
 
-    //刷卡回调
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
@@ -166,7 +167,6 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         } else orderPayment(icCard,"3")
     }
 
-    //扫码回调
     override fun onData(data: String) {
         val icCard = data.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim()
         if(icCard.isEmpty()) return
@@ -206,6 +206,11 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
             /*查询人员信息*/
             val persons = when(type){
                 1 -> {dbHelper.queryPersonToCustId(cardId)}
+                2 -> {
+                    val str = CanteenEncryptionUtil.decryption(cardId)
+                    val custId = parseParameters(str)["CUST_ID"]
+                    dbHelper.queryPersonToCustId(custId)
+                }
                 else -> {dbHelper.queryPersonToCardId(cardId)}
             }
             /*获取请求参数*/
@@ -231,6 +236,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                 val orderVerifyBean = Gson().fromJson(Gson().toJson(response.data ?: ""), OrderVerifyBean::class.java)
                 verifyName = orderVerifyBean.personName
                 if (!mmkv.decodeBool(Constant.ORDER_QUERY, false)) isVerifyStatus = false
+                orderVerifyBean.phone = if(persons != null) persons.phone else ""
                 listener?.onVerifyResult(0, orderVerifyBean)
             } else {
                 isVerifyStatus = true
@@ -260,22 +266,64 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
             listener?.onPayResult(-1, PayForUI())
             /*初始化数据*/
             val payForUI = initData(type, icCard, payAmount)
+            //离线支付
+            if(payForUI.offline == "1"){
+                try {
+                    val offlineOrder = Gson().fromJson(Gson().toJson(payForUI), OfflineOrderTable::class.java)
+                    val user = when(type){
+                        "1" -> {
+                            dbHelper.queryPersonToCustId(payForUI.payContent)
+                        }
+                        "2" -> {
+                            val plainText = DES3CBCUtil.transDecryption(payForUI.payContent)
+                            val cidNo = plainText.substring(0, plainText.indexOf("@"))
+                            dbHelper.queryPersonToCidNo(cidNo)
+                        }
+                        else -> {
+                            DishesDBHelper.getInstance().queryPersonToCardId(payForUI.payContent)
+                        }
+                    }
+                    if(user == null){
+                        payForUI.errCode = "0x000001"
+                        payForUI.errMsg = "找不到该人员"
+                    }else{
+                        offlineOrder.custId = user.custId
+                        offlineOrder.username = user.personName
+                        dbHelper.insertOfflineOrder(offlineOrder)
+                        payForUI.result = "Y"
+                        saveOrderRecord(payForUI, 1)
+                        mOrderPay.postValue("${payForUI.username.ifEmpty { "" }}支付${payForUI.actualPayment}元")
+                    }
+                }catch (e: Exception){
+                    e.printStackTrace()
+                    payForUI.errCode = "0x000000"
+                    payForUI.errMsg = "离线支付失败"
+                    mOrderPay.postValue("${payForUI.username.ifEmpty { "" }}支付失败")
+                }
+                listener?.onPayResult(0, payForUI)
+                payAmount = ""
+                return@launch
+            }
             /*请求支付扣费*/
-            val requestCard = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
-            val requestCode = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
-            when(type){
+            val request = when(type){
                 "1" -> {
-                    requestCard.custId = payForUI.payContent
+                    Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java).apply {
+                        custId = payForUI.payContent
+                    }
                 }
                 "2" -> {
-                    requestCode.qrCode = payForUI.payContent
+                    Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java).apply {
+                        qrCode = payForUI.payContent
+                    }
                 }
                 else -> {
-                    requestCard.cardId = payForUI.payContent
+                    Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java).apply {
+                        cardId = payForUI.payContent
+                    }
                 }
             }
-            LogUtil.i(TAG, "支付请求: ${Gson().toJson(if(type == "2") requestCode else requestCard)}")
-            val encryption = DES3CBCUtil.encryption(Gson().toJson(if(type == "2") requestCode else requestCard))
+            LogUtil.i(TAG, "支付请求: ${Gson().toJson(request)}")
+            val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
             val response = when(type){
                 "1" -> {mRepository.payByFace(encryption)}
                 "2" -> {mRepository.payByQrCode(encryption)}
@@ -482,6 +530,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
     }
 
     private fun getCavEncryptParam(custId: String,orderId: String,type: Int): String {
+        Log.d(TAG, "getCavEncryptParam: 传入的参数 $custId $orderId $type")
         /*获取设备商户信息*/
         val mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         val encryptStr = StringBuilder()

@@ -139,7 +139,7 @@ class OrderRecordVM : ViewModel() {
         } else orderList.value = mOrderList
     }
 
-    fun orderRefund(order: Order, result: (Boolean) -> Unit) {
+    fun orderRefund(order: Order, result: (Boolean,String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val refundBean = OrderRefundBean().apply {
                 campusId = payCfg.campusId
@@ -157,8 +157,9 @@ class OrderRecordVM : ViewModel() {
                 LogUtil.d(TAG, Gson().toJson(refundBean))
                 val refundRes = mRepository.orderDirectRefund(currentCcbToken, refundBean)
                 LogUtil.d(TAG, Gson().toJson(refundRes))
-                result(refundRes.code == "200")
-            } else result(false)
+                if(refundRes.code == "200") result(true,"")
+                else result(true,refundRes.msg)
+            } else result(false,"退款金额超过支付金额")
         }
     }
 
