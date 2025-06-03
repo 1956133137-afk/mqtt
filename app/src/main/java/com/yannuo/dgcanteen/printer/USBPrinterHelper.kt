@@ -214,12 +214,13 @@ class USBPrinterHelper {
 
     private fun printVerify(data: Any){
         val payForUI = data as OrderVerifyBean
+        val orderId = payForUI.orderIdList[0]
         mPos?.POS_Reset() //复位打印机
         mPos?.POS_S_Align(1) //居中对齐
         //按照一定的格式打印字符串
         mPos?.POS_TextOut("${kv.decodeString(Constant.PRINTER_TICKET_NAME, "电子发票联")}\r\n", 0, 0, 1, 1, 0, 0)
         mPos?.POS_FeedLine()
-        mPos?.POS_TextOut("${String.format("%04d", kv.decodeInt(Constant.PRINTER_VERIFY, 1))}\r\n", 0, 0, 1, 1, 0, 0)
+        mPos?.POS_TextOut("${orderId.substring(orderId.length - 4)}\r\n", 0, 0, 1, 1, 0, 0)
         mPos?.POS_S_Align(0) //左对齐
         mPos?.POS_TextOut("================================\r\n", 0, 0, 0, 0, 0, 0)
         if (payForUI.personName.isNotEmpty()) {

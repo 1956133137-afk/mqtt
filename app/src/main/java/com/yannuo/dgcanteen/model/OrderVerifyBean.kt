@@ -15,6 +15,8 @@ class OrderVerifyBean {
     /*核销查询回调参数*/
     var verify: HashMap<String, JsonArray> = hashMapOf()
 
+    var orderIdList : MutableList<String> = mutableListOf()
+
     /*订餐核销回调参数*/
     var verifySuccessDishes: MutableList<VerifyDish> = mutableListOf()
     var verifyFail: VerifyFailure = VerifyFailure()
