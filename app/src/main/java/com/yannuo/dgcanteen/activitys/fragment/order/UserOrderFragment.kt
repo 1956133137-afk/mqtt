@@ -10,11 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.adapters.DateMenuAdapter
+import com.yannuo.dgcanteen.adapters.MealCategoryAdapter
 import com.yannuo.dgcanteen.adapters.OrderDishAdapter
 import com.yannuo.dgcanteen.adapters.SelectDateAdapter
 import com.yannuo.dgcanteen.adapters.SelectMealAdapter
 import com.yannuo.dgcanteen.databinding.FragmentUserOrderBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.CategoryBean
 import com.yannuo.dgcanteen.model.DishBean
 import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.model.OrderMeal
@@ -31,9 +33,13 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
     private val selectMealAdapter by lazy { SelectMealAdapter() }
     //菜单
     private val orderDishAdapter by lazy { OrderDishAdapter(requireContext()) }
+    //类别
+    private val mealCatrgoryAdapter by lazy { MealCategoryAdapter() }
+
     private val dateMenuAdapter by lazy { DateMenuAdapter(requireContext()) }
     private var currentDateBean: SelectDateBean = SelectDateBean()
     private var currentMealBean: OrderMeal? = null
+    private var categoryType = ""
     private val dbHelper = DishesDBHelper.getInstance()
     private var orderForUI: OrderForUI = OrderForUI()
     private var isFirst: Boolean = true
@@ -71,6 +77,11 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         // 显示餐别
         binding.mealView.layoutManager = LinearLayoutManager(requireContext())
         binding.mealView.adapter = selectMealAdapter
+        //显示类别
+        val categoryManager = LinearLayoutManager(requireContext())
+        categoryManager.orientation = LinearLayoutManager.HORIZONTAL
+        binding.mealCategory.layoutManager = categoryManager
+        binding.mealCategory.adapter = mealCatrgoryAdapter
         // 购物车
         binding.productView.layoutManager = LinearLayoutManager(requireContext())
         binding.productView.adapter = dateMenuAdapter
@@ -91,10 +102,13 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                 }
             }
         }
-
     }
 
     private fun initEvent() {
+        binding.categoryAll.setOnClickListener {
+            categoryType = ""
+            showDish(currentDateBean, currentMealBean)
+        }
         //日期回调
         selectDateAdapter.setDateListener(object : SelectDateAdapter.SelectDateListener {
             override fun onSelectDate(bean: SelectDateBean) {
@@ -143,6 +157,16 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
                 }
             }
         })
+        //类别回调
+        mealCatrgoryAdapter.setCategoryListener(object : MealCategoryAdapter.MealCategoryListener{
+            override fun onMealCategory(bean: CategoryBean) {
+                handler.post {
+                    categoryType = bean.categoryId
+                    showDish(currentDateBean, currentMealBean)
+                }
+            }
+        })
+
         binding.igBtnClear.setOnClickListener { clearSelectDish() }
         //取消订餐
         binding.btnBack.setOnClickListener {
@@ -175,11 +199,24 @@ class UserOrderFragment : BaseFragment<FragmentUserOrderBinding>() {
         kv.encode(Constant.ORDER_MEAL_LIMIT_SIZE, mealBean.orderQuotaNum.toInt())
         /*获取当前菜品数据*/
         downloadVM.synOrderDish(orderForUI.ccbToken, dateBean.date, mealBean.mealId, orderForUI.custId) { boolean, dishList ->
+            val dishesList = mutableListOf<DishBean>()
+            val categoryList = arrayListOf<String>()
+            dishList.forEach {
+                if(!categoryList.contains(it.categoryId) && !it.categoryId.isNullOrEmpty()) categoryList.add(it.categoryId)
+                if(categoryType.isNotEmpty()){
+                    if(it.categoryId == categoryType) dishesList.add(it)
+                }
+            }
             handler.post {
                 if (!boolean) orderMealVM.getAwaitStatus().value = "同步菜品中"
                 else {
                     orderMealVM.getAwaitStatus().value = ""
-                    orderDishAdapter.data = dishList
+                    orderDishAdapter.data = if(categoryType == "") dishList else dishesList
+                    downloadVM.queryCategoryIdList(orderForUI.ccbToken,categoryList,dateBean.date){
+                        handler.post {
+                            mealCatrgoryAdapter.data = it
+                        }
+                    }
                 }
             }
         }

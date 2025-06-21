@@ -1,7 +1,6 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
@@ -9,15 +8,29 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.model.*
+import com.yannuo.dgcanteen.model.CategoryBean
+import com.yannuo.dgcanteen.model.DateMenu
+import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.model.MealMenu
+import com.yannuo.dgcanteen.model.MealSizeBean
+import com.yannuo.dgcanteen.model.MealSizeReceive
+import com.yannuo.dgcanteen.model.OrderMeal
+import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.model.RequeCategoryIdBean
+import com.yannuo.dgcanteen.model.SelectDateBean
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 /**
  * Author: filowl
@@ -53,7 +66,7 @@ class DownloadVM : ViewModel() {
             boolean(false)
             mealList.clear()
             val orderMeal = mRepository.queryOrderMeal(ccbToken, payCfg.campusId, payCfg.businessId)
-            LogUtil.d(TAG, Gson().toJson(orderMeal))
+            LogUtil.d(TAG, "云端获取菜品信息："+Gson().toJson(orderMeal))
             if (orderMeal.code == "200") {
                 val orderMealList = orderMeal.data?.orderMealList
                 val delFlag = orderMeal.data?.delFlag ?: "1"
@@ -63,6 +76,9 @@ class DownloadVM : ViewModel() {
         }
     }
 
+    /**
+     * 获取菜品列表
+     */
     fun synOrderDish(ccbToken: String, date: String, mealId: String, custId: String, res: (Boolean, MutableList<DishBean>) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             if (payCfg.businessId.isEmpty()) return@launch
@@ -89,6 +105,7 @@ class DownloadVM : ViewModel() {
                                 description = if (dish.description.isNullOrEmpty()) "" else dish.description
                                 orderMealQuota = if (dish.orderMealQuota.isNullOrEmpty()) "" else dish.orderMealQuota
                                 orderMealQuotaNum = if (dish.orderMealQuotaNum.isNullOrEmpty()) "" else dish.orderMealQuotaNum
+                                categoryId = if(!dish.categoryId.isNullOrEmpty()) dish.categoryId else ""
                             }
                             dishList.add(bean)
                         }
@@ -101,6 +118,29 @@ class DownloadVM : ViewModel() {
         }
     }
 
+    /**
+     * 获取类别Id列表
+     */
+    fun queryCategoryIdList(ccbToken: String, idList: MutableList<String>,queryDate: String, function: (MutableList<CategoryBean>) -> Unit){
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            val bean = RequeCategoryIdBean().apply {
+                businessId = payCfg.businessId
+                campusId = payCfg.campusId
+                date = queryDate
+                categoryIdList = idList
+            }
+            val categoryIdList = mRepository.getCategoryIdList(ccbToken, bean)
+            if (categoryIdList.code == "200"){
+                val data = categoryIdList.data
+                val list = mutableListOf<CategoryBean>()
+                data?.forEach {
+                    val categoryBean = Gson().fromJson(it, CategoryBean::class.java)
+                    list.add(categoryBean)
+                }
+                function(list)
+            }
+        }
+    }
     fun queryMealOrderSize(ccbToken: String, date: String, mealId: String, custId: String) {
         orderSize = runBlocking(Dispatchers.IO + mHandler) {
             val bean = MealSizeBean(payCfg.campusId, date, mealId, custId)

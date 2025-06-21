@@ -164,6 +164,13 @@ interface ApiService {
     suspend fun getMealOrderSize(@Header("dcccbauthorization") token: String, @Body bean: MealSizeBean): CanteenResponse<JsonObject>
 
     /**
+     * 获取类别ID列表
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dishesCategory/categoryListById")
+    suspend fun getCategoryIdList(@Header("dcccbauthorization") token: String, @Body bean: RequeCategoryIdBean): CanteenResponse<JsonArray>
+
+    /**
      * 查询餐别信息
      */
     @Headers("content-type: application/json")

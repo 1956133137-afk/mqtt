@@ -171,6 +171,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun getCategoryIdList(token: String, bean: RequeCategoryIdBean): CanteenResponse<JsonArray> {
+        return apiCall {
+            RetrofitClient.getApi().getCategoryIdList(token, bean)
+        }
+    }
+
     suspend fun queryOrderMeal(token: String, campusId: String, businessId: String): CanteenResponse<OrderMealReceive> {
         return apiCall {
             RetrofitClient.getApi().queryOrderMeal(token, OrderMealBean(campusId, businessId))

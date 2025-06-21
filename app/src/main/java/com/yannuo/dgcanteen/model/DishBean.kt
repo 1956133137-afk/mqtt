@@ -34,4 +34,5 @@ class DishBean {
     var description: String = "" //菜品描述
     var orderMealQuota: String = "" //是否限购 1限购 2不限购
     var orderMealQuotaNum: String = ""  //限购数量
+    var categoryId: String = "" //菜品类别
 }
