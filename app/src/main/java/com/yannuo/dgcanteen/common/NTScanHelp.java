@@ -22,6 +22,7 @@ public class NTScanHelp {
 
     /**
      * 初始化并打开扫描功能，与指定的回调进行关联
+     *
      * @param callback
      * @param context
      */
@@ -55,9 +56,9 @@ public class NTScanHelp {
      */
     public void CloseScanCode() {
         LogUtil.d(TAG, "扫码设备已关闭！");
+        thread.interrupt();
         uartDriver.CloseDevice();
         uartDriver = null;
-        thread.interrupt();
         callback = null;
         readBuffer = null;
         writeBuffer = null;
@@ -72,12 +73,12 @@ public class NTScanHelp {
         public void run() {
             byte[] buffer = new byte[4096];
             while (true) {
-                if (uartDriver!= null) {
+                if (uartDriver != null) {
                     int length = uartDriver.ReadData(buffer, 4096);
                     if (System.currentTimeMillis() - currentTime < 200) continue;
                     if (length > 0) {
                         String recv = new String(buffer, 0, length);        //以字符串形式输出
-                        LogUtil.d(TAG, "二维码数据: "+recv);
+                        LogUtil.d(TAG, "二维码数据: " + recv);
                         if (callback != null) {
                             callback.onData(recv);
                             buffer.clone();
@@ -94,29 +95,33 @@ public class NTScanHelp {
     private class newReadThread extends Thread {
         @Override
         public void run() {
-            while (true) {
-                if (uartDriver!= null) {
-                    if(System.currentTimeMillis() - currentTime > 100){
-                        byte[] buffer = new byte[4096];
-                        int bufferSize = 0;
-                        while (true) {
-                            SystemClock.sleep(50);
-                            byte[] data = new byte[512];
-                            int size = uartDriver.ReadData(data, data.length);
-                            if (size < 1) break;
-                            System.arraycopy(data, 0, buffer, bufferSize, bufferSize+size);
-                            bufferSize += size;
+            try {
+                while (true) {
+                    if (uartDriver != null) {
+                        if (System.currentTimeMillis() - currentTime > 100) {
+                            byte[] buffer = new byte[4096];
+                            int bufferSize = 0;
+                            while (true) {
+                                SystemClock.sleep(50);
+                                byte[] data = new byte[512];
+                                int size = uartDriver.ReadData(data, data.length);
+                                if (size < 1) break;
+                                System.arraycopy(data, 0, buffer, bufferSize, bufferSize + size);
+                                bufferSize += size;
+                            }
+                            if (bufferSize > 0) {
+                                String recv = new String(buffer, 0, bufferSize, StandardCharsets.UTF_8);        //以字符串形式输出
+                                callback.onData(recv);
+                                return;
+                            }
+                        } else {
+                            byte[] data = new byte[4096];
+                            uartDriver.ReadData(data, data.length);
                         }
-                        if (bufferSize > 0) {
-                            String recv = new String(buffer, 0, bufferSize, StandardCharsets.UTF_8);        //以字符串形式输出
-                            callback.onData(recv);
-                            return;
-                        }
-                    }else{
-                        byte[] data = new byte[4096];
-                        uartDriver.ReadData(data, data.length);
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
