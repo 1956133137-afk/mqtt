@@ -18,6 +18,7 @@ import com.yannuo.dgcanteen.adapters.MealPreparationAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentMealPreparationBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 
 class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), View.OnClickListener {
@@ -92,7 +93,14 @@ class MealPreparationFragment : BaseFragment<FragmentMealPreparationBinding>(), 
         val DeadlineTime = binding.tvCalendarDeadlineTime.text.toString()
         val listOf = listOf(BeginTime, DeadlineTime)
         mealPreparationVM.closeList()
-        mealPreparationVM.queryMealList(true,1,name,spinnerTop,listOf,"4"){ i, orderList ->
+        mealPreparationVM.queryMealList(true,1,name,spinnerTop,listOf,"4"){ i, orderList, msg ->
+            if(i == -1){
+                awaitingDialog?.dismiss()
+                Handler(MyApplication.applicationContext.mainLooper).post {
+                    ToastShowUtil.show("异常：$msg")
+                }
+                return@queryMealList
+            }
             handler.post {
                 mealPreparationAdapter.data = orderList
             }

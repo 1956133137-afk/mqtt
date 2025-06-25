@@ -70,7 +70,7 @@ class MealPreparationFinishActivity : BaseActivity<ActivityMealPreparationFinish
         day = calendar[Calendar.DAY_OF_MONTH]
         var day1 = "$year-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}"
         val listOf = listOf(day1, day2)
-        mealPreparationVM.queryMealList(false,1,null,null,listOf,"1"){ _, orderList ->
+        mealPreparationVM.queryMealList(false,1,null,null,listOf,"1"){ _, orderList, msg ->
             handler.post {
                 mealPreparationFinishAdapter.data = orderList
             }

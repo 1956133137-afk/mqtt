@@ -90,7 +90,7 @@ class MealPreparationVM : ViewModel() {
         @Nullable spinnerText: Int? = null,
         dateList: List<String>,
         @Nullable orderStatus: String? = null,
-        callback: (Int, MutableList<Order>) -> Unit
+        callback: (Int, MutableList<Order>, String) -> Unit
     ){
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val bean = MealPreparationBean().apply {
@@ -117,13 +117,15 @@ class MealPreparationVM : ViewModel() {
                         callback
                     )
                 } else {
-                    callback(3, orderList)
+                    callback(3, orderList, response.msg)
                     if(type){
                         dishCount(orderList)
                     }
                     orderDishCount.postValue(infoBeanList)
                     listener?.onMeal(0,"")
                 }
+            }else{
+                callback(-1,mutableListOf(),response.msg)
             }
         }
     }
