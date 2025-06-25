@@ -11,12 +11,13 @@ def releaseTime() {
 }
 
 android {
-    compileSdk 31
+    compileSdk 34
 //    buildToolsVersion '30.0.0'
     defaultConfig {
         applicationId "com.yannuo.dgcanteen"
         minSdk 21
-        targetSdk 31
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 29
         versionCode 2
         versionName "1.0.1"
 
@@ -80,8 +81,8 @@ android {
 
         //手动输入金额版本
         input {
-            versionCode 78
-            versionName "1.7.8"
+            versionCode 79
+            versionName "1.7.9"
             buildConfigField "int", "CHANNEL", "1"
         }
 

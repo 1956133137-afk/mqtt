@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
+import android.view.WindowManager
 import com.yannuo.dgcanteen.databinding.DialogPasswordBinding
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.util.ToastShowUtil

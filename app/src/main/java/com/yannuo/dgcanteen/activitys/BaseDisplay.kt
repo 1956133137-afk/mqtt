@@ -3,8 +3,10 @@ package com.yannuo.dgcanteen.activitys
 import android.app.Activity
 import android.app.Presentation
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.Display
+import android.view.WindowManager
 import com.yannuo.dgcanteen.util.DisplayUtils
 import com.yannuo.dgcanteen.util.LogUtil
 
@@ -14,11 +16,14 @@ import com.yannuo.dgcanteen.util.LogUtil
  * @Date    2024/8/19 15:42
  * @Version 1.0
  */
-open class BaseDisplay(private val context: Context, display: Display): Presentation(context, display) {
+open class BaseDisplay(private val context: Context, display: Display) : Presentation(context, display) {
 
     private var isCancel: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1)
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        else window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT or WindowManager.LayoutParams.TYPE_PHONE)
         if (context is Activity) {
             DisplayUtils.setCustomDensity(1920, this, context, context.application)
         } else {

@@ -58,7 +58,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     private var scanType = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         super.onCreate(savedInstanceState)
         binding = OrderVerifyDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)

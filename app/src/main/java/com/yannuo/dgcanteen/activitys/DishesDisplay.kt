@@ -1,6 +1,5 @@
 package com.yannuo.dgcanteen.activitys
 
-import android.app.Presentation
 import android.content.Context
 import android.os.Bundle
 import android.view.Display
@@ -25,13 +24,12 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
     private val TAG = javaClass.simpleName
     private lateinit var binding: DishesDisplayBinding
     private lateinit var kv: MMKV
-    private lateinit var mAdapter :DishListAdapter
-    private var secondLoadingDialog :LoadingDialog ?= null
-
+    private lateinit var mAdapter: DishListAdapter
+    private var secondLoadingDialog: LoadingDialog? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         super.onCreate(savedInstanceState)
         binding = DishesDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -41,22 +39,20 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
     }
 
 
-
-
     private fun initView() {
         kv = MMKV.defaultMMKV()
         var strText = kv.decodeString(Constant.TITLE_CONTENT, "")
-        if (strText.isNullOrEmpty().not())strText +="•"
+        if (strText.isNullOrEmpty().not()) strText += "•"
         binding.tvFpTitle.text = "${strText}智慧食堂"
 
-        val gridLayoutManager = GridLayoutManager(context,6)
+        val gridLayoutManager = GridLayoutManager(context, 6)
         mAdapter = DishListAdapter(context)
         binding.rvFoods.layoutManager = gridLayoutManager
         binding.rvFoods.adapter = mAdapter
         //        binding.btPayFace.requestFocus();
         if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
             binding.tvVerification.text = "  刷脸核销  "
-        }else {
+        } else {
             binding.tvVerification.text = "  订餐核销  "
         }
         if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
@@ -71,13 +67,13 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
         binding.tvVerification.setOnClickListener {
             if (kv.decodeInt(Constant.VERIFY_MODE) == 0) {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_FACE, null))
-            }else {
+            } else {
                 EventBus.getDefault().post(MessageEvent(Constant.EVENT_CODE, null))
             }
         }
     }
 
-    fun showLoading(){
+    fun showLoading() {
         if (secondLoadingDialog == null) {
             secondLoadingDialog = LoadingDialog(this.context)
             secondLoadingDialog!!.window
@@ -86,7 +82,7 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
         secondLoadingDialog?.show()
     }
 
-    fun closeLoading(){
+    fun closeLoading() {
         secondLoadingDialog?.dismiss()
     }
 
@@ -95,8 +91,8 @@ class DishesDisplay(context: Context, display: Display) : BaseDisplay(context, d
         super.dismiss()
     }
 
-    fun showWaitHit(show: Boolean){
-        when(show){
+    fun showWaitHit(show: Boolean) {
+        when (show) {
             true -> binding.tvPayWait.visibility = View.VISIBLE
             else -> binding.tvPayWait.visibility = View.GONE
         }

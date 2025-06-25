@@ -21,10 +21,13 @@ import com.yannuo.dgcanteen.model.DishesInfo;
 import com.yannuo.dgcanteen.model.MessageEvent;
 import com.yannuo.dgcanteen.util.Constant;
 import com.yannuo.dgcanteen.util.DisplayUtils;
+import com.yannuo.dgcanteen.util.TimeUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -32,7 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class DishManageActivity extends AppCompatActivity implements DishesManageAdapter.WorkListener,AdapterView.OnItemClickListener {
+public class DishManageActivity extends AppCompatActivity implements DishesManageAdapter.WorkListener, AdapterView.OnItemClickListener {
 
     private ActivityDishManageBinding binding;
     private List<MealTable> mealTables;
@@ -52,21 +55,21 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
         initEvent();
     }
 
-    private void initView(){
+    private void initView() {
         binding = ActivityDishManageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
     }
 
-    private void initObject(){
+    private void initObject() {
         listView = new ListView(this);
         listView.setDivider(null);
         listView.setVerticalScrollBarEnabled(false);
-        listView.setAdapter(new DropDownAdapter(this,dataMeal));
+        listView.setAdapter(new DropDownAdapter(this, dataMeal));
         listView.setOnItemClickListener(this);
 
         adapterDishes = new DishesManageAdapter(this);
         adapterDishes.setListener(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,6);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 6);
         binding.rvGridManage.setLayoutManager(gridLayoutManager);
         binding.rvGridManage.setAdapter(adapterDishes);
         binding.rvGridManage.addItemDecoration(new RecyclerView.ItemDecoration() {
@@ -76,43 +79,45 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
                 outRect.bottom = 35;
             }
         });
-        dishesData(0);
+        int mealId = TimeUtil.CurrentTimeSection();
+        MealTable mealTable = DishesDBHelper.getInstance().queryToMeals(mealId);
+        if (mealTable != null) binding.spinnerText.setText(mealTable.getMealName());
+        dishesData(mealId);
     }
 
-    private void initEvent(){
-        binding.spinnerText.setOnClickListener(view -> {
-            popupWindow();
-        });
-        binding.spinnerImg.setOnClickListener(view -> {
-            popupWindow();
-        });
+    private void initEvent() {
+        binding.spinnerText.setOnClickListener(view -> popupWindow());
+        binding.spinnerImg.setOnClickListener(view -> popupWindow());
 
         binding.ibtBack.setOnClickListener(view -> {
-            Intent intent ;
-            if(MMKV.defaultMMKV().decodeString(Constant.APP_MODE).equals(Constant.ORDERING_FOOD_MODE))
-                intent = new Intent(this,CommodityActivity.class);
-            else intent = new Intent(this,OrderMenuActivity.class);
+            Intent intent;
+            if (MMKV.defaultMMKV().decodeString(Constant.APP_MODE).equals(Constant.ORDERING_FOOD_MODE))
+                intent = new Intent(this, CommodityActivity.class);
+            else intent = new Intent(this, OrderMenuActivity.class);
             startActivity(intent);
             finish();
         });
     }
 
-    private void initData(){
+    private void initData() {
         mealTables = new ArrayList<>();
         dataMeal = new ArrayList<>();
         mealTables = DishesDBHelper.getInstance().queryAllMeals();
-        for (MealTable u : mealTables){
+        for (MealTable u : mealTables) {
             dataMeal.add(u.getMealName());
         }
     }
 
-    private void popupWindow(){
-        popup = new PopupWindow();
-        popup.setWidth(binding.spinnerText.getWidth() + binding.spinnerImg.getWidth() - 15);
-        popup.setHeight(600);
-        popup.setContentView(listView);
-        popup.setOutsideTouchable(true);
-        popup.showAsDropDown(binding.spinnerText,0,0);
+    private void popupWindow() {
+        if (popup == null) popup = new PopupWindow();
+        if (popup.isShowing()) popup.dismiss();
+        else {
+            popup.setWidth(binding.spinnerText.getWidth() + binding.spinnerImg.getWidth() - 15);
+            popup.setHeight(600);
+            popup.setContentView(listView);
+            popup.setOutsideTouchable(true);
+            popup.showAsDropDown(binding.spinnerText, 0, 0);
+        }
     }
 
     @Override
@@ -126,8 +131,8 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
         popup.dismiss();
         runOnUiThread(() -> {
             int mealId = 0;
-            for (MealTable u : mealTables){
-                if (dataMeal.get(position).equals(u.getMealName())){
+            for (MealTable u : mealTables) {
+                if (dataMeal.get(position).equals(u.getMealName())) {
                     mealId = u.getMealId();
                 }
             }
@@ -135,15 +140,15 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
         });
     }
 
-    private void dishesData(int mealId){
+    private void dishesData(int mealId) {
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list = new ArrayList<>();
-        if (mealId == 0){
+        if (mealId == 0) {
             list = DishesDBHelper.getInstance().queryDishes();
-        }else {
+        } else {
             list = DishesDBHelper.getInstance().queryDishesByMealId(mealId);
         }
-        for (DishesTable u : list){
+        for (DishesTable u : list) {
             String imgUrl = (u.getImgUrl() == null || u.getImgUrl().isEmpty()) ? "" : u.getImgUrl();
             Integer status = u.getStatus();
             if (status == null) status = 1;
@@ -159,10 +164,19 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
                     0
             ));
         }
+        /* 按价格排序 */
+        Collections.sort(dataList, new Comparator<DishesInfo>() {
+            @Override
+            public int compare(DishesInfo p1, DishesInfo p2) {
+                int compareOne = String.valueOf(p1.getPrice()).compareTo(String.valueOf(p2.getPrice()));
+                if (compareOne != 0) return compareOne;
+                return p1.getDishesName().compareTo(p2.getDishesName());
+            }
+        });
         adapterDishes.setData(dataList);
     }
 
-    private void initScreen(){
+    private void initScreen() {
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_FULLSCREEN;
         getWindow().setAttributes(params);

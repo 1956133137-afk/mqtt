@@ -21,7 +21,7 @@ class ConfirmDialog(context: Context) : BaseDialog<DialogConfirmBinding>(context
     }
 
     override fun initOperation() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
 
         binding.cancel.setOnClickListener { //取消
             mListener.confirmCallback(false)

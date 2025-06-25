@@ -5,6 +5,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
 public class Utils {
@@ -30,23 +33,45 @@ public class Utils {
     public static String getSN() {
         String serial = "";
         //通过android.os获取sn号
-        try {
-            serial = Build.SERIAL;
-            if (!serial.equals("")&&!serial.equals("unknown"))return serial;
-        }catch (Exception e){
-            serial="";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            serial = getWlanMac().replace(":", "");
+            return serial;
+        } else {
+            try {
+                serial = Build.SERIAL;
+                if (!serial.equals("") && !serial.equals("unknown")) return serial;
+            } catch (Exception e) {
+                serial = "";
+            }
         }
 
         //通过反射获取sn号
         try {
-            Class<?> c =Class.forName("android.os.SystemProperties");
-            Method get =c.getMethod("get", String.class);
-            serial = (String)get.invoke(c, "ro.serialno");
-            if (!serial.equals("")&&!serial.equals("unknown"))return serial;
+            Class<?> c = Class.forName("android.os.SystemProperties");
+            Method get = c.getMethod("get", String.class);
+            serial = (String) get.invoke(c, "ro.serialno");
+            if (!serial.equals("") && !serial.equals("unknown")) return serial;
         } catch (Exception e) {
-            serial="";
+            serial = "";
         }
         return serial;
+    }
+
+    /**
+     * 获取 WLAN MAC 地址
+     */
+    public static String getWlanMac() {
+        String macSerial = "";
+        try {
+            /*通过反射获取MAC地址*/
+            Process process = Runtime.getRuntime().exec("cat /sys/class/net/wlan0/address");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            macSerial = reader.readLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        /*转大写*/
+        return macSerial.trim().toUpperCase();
     }
 
     public String getDeviceName() {

@@ -49,7 +49,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         Manifest.permission.INTERNET,
         Manifest.permission.ACCESS_NETWORK_STATE,
         Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.SYSTEM_ALERT_WINDOW
+        Manifest.permission.SYSTEM_ALERT_WINDOW,
+        Manifest.permission.WRITE_SETTINGS
     )
 
     private val kv = MMKV.defaultMMKV()

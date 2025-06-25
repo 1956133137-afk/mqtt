@@ -19,7 +19,7 @@ class AwaitingDialog(context: Context) : BaseDialog<DialogAwaitBinding>(context)
     }
 
     override fun initOperation() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         binding.tvState.setOnLongClickListener {
             dismiss()
             return@setOnLongClickListener true

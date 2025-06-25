@@ -14,7 +14,7 @@ class AwaitingDialog(context: Context) : BaseDialog(context, R.layout.dialog_awa
     private lateinit var tvState: TextView
 
     override fun initViewAndEvent() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         tvState = findViewById(R.id.tv_state)
         tvState.setOnLongClickListener {
             dismiss()

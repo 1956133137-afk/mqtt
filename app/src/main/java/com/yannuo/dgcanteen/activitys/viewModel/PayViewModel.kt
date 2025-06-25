@@ -997,6 +997,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             }
             if (response.code == "200") {
                 val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
+                LogUtil.d(TAG, "支付结果:$decryptStr")
                 val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
                 LogUtil.d(TAG, "支付结果:${Gson().toJson(result)}")
                 payForUI.result = result.RESULT
@@ -1018,6 +1019,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val persons = dbHelper.queryPersonToCustId(result.CUST_ID)
                     if (persons != null) payForUI.username = persons.personName
                 }
+                payForUI.discountMsg = result.discountMsg
                 payForUI.actualPayment = result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID

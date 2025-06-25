@@ -1,8 +1,8 @@
 package com.yannuo.dgcanteen.activitys;
 
-import android.app.Presentation;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -16,10 +16,12 @@ import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel;
 import com.yannuo.dgcanteen.adapters.ShopsAdapter;
 import com.yannuo.dgcanteen.databinding.ChooseSecondDisplayBinding;
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog;
 import com.yannuo.dgcanteen.interfaces.CallbackListener;
 import com.yannuo.dgcanteen.interfaces.CloseEvent;
 import com.yannuo.dgcanteen.interfaces.ReadCardListener;
 import com.yannuo.dgcanteen.model.MessageEvent;
+import com.yannuo.dgcanteen.model.PayForUI;
 import com.yannuo.dgcanteen.model.ProductsDetail;
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager;
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil;
@@ -44,10 +46,13 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
     private PayViewModel payViewModel;
     private volatile boolean sendCancel = false;
     private MMKV kv = MMKV.defaultMMKV();
+    private ConfirmDialog confirmDialog = null;
+    private PayForUI payData = new PayForUI();
+    private Handler handler = new Handler();
 
     public ChooseDisplay(Context outerContext, ProductsDetail dishes, Display display) {
         super(outerContext, display);
-        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+//        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         mDishes = dishes;
         payViewModel = new ViewModelProvider((ViewModelStoreOwner) outerContext).get(PayViewModel.class);
     }
@@ -69,7 +74,6 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
     }
 
 
-
     private void initData() {
 
         mShopsAdapter = new ShopsAdapter(getContext());
@@ -78,6 +82,16 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
 
         //设置菜品数据
         payViewModel.setMDishes(mDishes);
+
+        confirmDialog = new ConfirmDialog(this.getContext());
+        confirmDialog.setListener(new ConfirmDialog.OnConfirmCallback() {
+            @Override
+            public void confirmCallback(boolean flag) {
+                if (flag) payViewModel.confirmPay(payData);
+                else payViewModel.setPayState(PayViewModel.PayStatus.PAY);
+                if (confirmDialog.isShowing()) confirmDialog.dismiss();
+            }
+        });
     }
 
     private void initView() {
@@ -134,6 +148,7 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
     @Override
     public void onOtherListener(int event, @Nullable Object any) {
         LogUtil.i(TAG, "扫码处理code: " + event);
+        payData = new PayForUI();
         switch (event) {
             case 1:
                 Observable.just(1)
@@ -141,7 +156,7 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
                         .subscribe(integer -> {
                             if (loadingDialog != null) loadingDialog.cancel();
                             if (loadingDialog == null) {
-                                loadingDialog = new LoadingDialog(getContext());
+                                loadingDialog = new LoadingDialog(this.getContext());
                                 loadingDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
                             }
                             if (waitForPayDialog != null) waitForPayDialog.cancel();
@@ -190,6 +205,13 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
                             waitForPayDialog.show();
                             payViewModel.setPayState(PayViewModel.PayStatus.PAY);
                         });
+                break;
+            case 8:
+                handler.post(() -> {
+                    payData = (PayForUI) any;
+                    if (!confirmDialog.isShowing()) confirmDialog.show();
+                    confirmDialog.setTextMsg("重复支付，您是否确定继续支付？");
+                });
                 break;
         }
     }

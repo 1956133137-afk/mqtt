@@ -8,11 +8,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.text.format.DateFormat
 import android.view.Display
 import android.view.View
@@ -35,7 +31,6 @@ import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
-import com.yannuo.dgcanteen.interfaces.CallbackListener
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
@@ -479,19 +474,18 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
 
     @SuppressLint("SetTextI18n")
     private fun refreshSuccessState(payForUI: PayForUI) {
-
-//        CommonAndDpToPxUtil.speakWork(payForUI.payment + "元")
-        successBinding!!.tvTransNumber.text = payForUI.traceId.ifEmpty { payForUI.orderId }
-        val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
-        if (persons != null && persons.grade != null) successBinding!!.tvClass.text = "${persons.grade}(${persons.userClass})"
+        val actualPayment: String = payForUI.actualPayment.ifEmpty { payForUI.payment }
+        successBinding!!.tvActualPayment.text = String.format("￥ %s 元", actualPayment)
         successBinding!!.tvName.text = payForUI.username
-        successBinding!!.tvBalance.text = if (payForUI.accBal.isNotEmpty()) payForUI.accBal + "元" else ""
+        successBinding!!.tvBalance.text = if (payForUI.accBal.isEmpty()) "" else payForUI.accBal + "元"
+        successBinding!!.tvPayment.text = if (payForUI.payment.isEmpty()) "" else payForUI.payment + "元"
+        successBinding!!.tvDiscount.text = payForUI.discountMsg.ifEmpty { "" }
         successBinding!!.tvPayTime.text = payForUI.payTime
+        successBinding!!.tvTransNumber.text = if (payForUI.orderId.isEmpty()) payForUI.traceId else payForUI.orderId
 
         //更新数据
         (successBinding!!.rvDishList.adapter as HostPayResultAdapter).data = payForUI.paymentDishes
         successBinding!!.tvSum.text = " ${payForUI.paymentDishes.size} 件"
-        successBinding!!.payTotalMoney.text = "￥ ${payForUI.payment} 元"
 
         PrinterOperator.printerFoodsList(payForUI)
         if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket("0", payForUI)

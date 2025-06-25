@@ -21,7 +21,7 @@ class WaitForPayDialog(context :Context) :BaseDialog(context, R.layout.dialog_wa
 
 
     override fun initViewAndEvent() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         tv_close = findViewById(R.id.ib_close)
         tv_count = findViewById(R.id.tv_count_down)
 

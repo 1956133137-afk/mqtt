@@ -28,6 +28,7 @@ class ResponsePay {
     var ACC_LIST: MutableList<ACCLIST> = mutableListOf()
     var REMARK = ""
     var TRAN_RESULT = ""
+    var discountMsg: String = ""    //优惠信息
     var ERRCODE = ""
     var ERRMSG = ""
     override fun toString(): String {

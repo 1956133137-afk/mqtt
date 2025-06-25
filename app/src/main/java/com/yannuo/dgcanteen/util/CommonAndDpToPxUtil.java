@@ -13,6 +13,9 @@ import androidx.annotation.RequiresApi;
 
 import com.yannuo.dgcanteen.common.MyApplication;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
@@ -42,17 +45,18 @@ public class CommonAndDpToPxUtil {
      */
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static String getDeviceSerial(){
+    public static String getDeviceSerial() {
         String serial = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            serial = getWlanMac().replace(":", "");
+            return serial;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             serial = Build.getSerial();
 //            LogUtil.d("CommonAndDpToPxUtil", "SDK_INT >= 8.0 --> "+serial);
             return serial;
-        }
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (MyApplication.applicationContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED){
-                LogUtil.d("CommonAndDpToPxUtil","PERMISSION_GRANTED is get fail");
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (MyApplication.applicationContext.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                LogUtil.d("CommonAndDpToPxUtil", "PERMISSION_GRANTED is get fail");
                 return "no permission";
             }
         }
@@ -67,6 +71,23 @@ public class CommonAndDpToPxUtil {
         }
 
         return serial;
+    }
+
+    /**
+     * 获取 WLAN MAC 地址
+     */
+    public static String getWlanMac() {
+        String macSerial = "";
+        try {
+            /*通过反射获取MAC地址*/
+            Process process = Runtime.getRuntime().exec("cat /sys/class/net/wlan0/address");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            macSerial = reader.readLine();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        /*转大写*/
+        return macSerial.trim().toUpperCase();
     }
 
     public static String getHttpCodeMessage(byte code){

@@ -107,19 +107,21 @@ public class PayResultDisplay extends BaseDisplay {
     private void initView() {
         mPayResultAdapter.setData(mPayForUI.getPaymentDishes());
         mBinding.tvSum.setText("" + mPayForUI.getPaymentDishes().size() + "件");
-        mBinding.payTotalMoney.setText(String.format("￥ %s 元", mPayForUI.getPayment()));
+
+        String actualPayment = mPayForUI.getActualPayment().isEmpty() ? mPayForUI.getPayment() : mPayForUI.getActualPayment();
+        mBinding.tvActualPayment.setText(String.format("￥ %s 元", actualPayment));
         String str = "";
         if (mPayForUI.getPayType().equals("1")) str = "刷脸支付";
         else if (mPayForUI.getPayType().equals("2")) str = "扫码支付";
         else str = "刷卡支付";
-        CommonAndDpToPxUtil.speakWork(str + mPayForUI.getPayment() + "元");
-        mBinding.tvTransNumber.setText(mPayForUI.getOrderId().isEmpty() ? mPayForUI.getTraceId() : mPayForUI.getOrderId());
+        CommonAndDpToPxUtil.speakWork(str + actualPayment + "元");
 
-        Persons persons = DishesDBHelper.getInstance().queryPersonToCustId(mPayForUI.getCustId());
-        if (persons != null && persons.getGrade() != null) mBinding.tvClass.setText(persons.getGrade() + "(" + persons.getUserClass() + ")");
         mBinding.tvName.setText(mPayForUI.getUsername());
         mBinding.tvBalance.setText(mPayForUI.getAccBal().isEmpty() ? "" : mPayForUI.getAccBal() + "元");
+        mBinding.tvPayment.setText(mPayForUI.getPayment().isEmpty() ? "" : mPayForUI.getPayment() + "元");
+        mBinding.tvDiscount.setText(mPayForUI.getDiscountMsg().isEmpty() ? "" : mPayForUI.getDiscountMsg());
         mBinding.tvPayTime.setText(mPayForUI.getPayTime());
+        mBinding.tvTransNumber.setText(mPayForUI.getOrderId().isEmpty() ? mPayForUI.getTraceId() : mPayForUI.getOrderId());
     }
 
     private void initEvent() {

@@ -271,6 +271,8 @@ class ProductsVM : ViewModel() {
                         deviceId = CommonAndDpToPxUtil.getDeviceSerial()
                         payType = "1"
                         payment = payResult.PAYMENT.ifEmpty { bean.PAYMENT }
+                        discountAmt = payResult.DISCOUNTAMT
+                        discountMsg = payResult.DISCOUNTMSG
                         orderId = payResult.ORDER_ID.ifEmpty { bean.ORDER_ID }
                         payTime = payResult.PAYTIME.ifEmpty { TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime) }
                         payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)

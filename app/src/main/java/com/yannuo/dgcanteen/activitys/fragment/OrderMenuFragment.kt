@@ -25,6 +25,7 @@ import com.yannuo.dgcanteen.adapters.CategoryAdapter
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderMenuBinding
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.CategoryTable
 import com.yannuo.dgcanteen.greendao.entity.DishesTable
@@ -52,7 +53,7 @@ import org.greenrobot.eventbus.ThreadMode
  * 点餐模式2：左侧购物车栏
  */
 open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
-    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener{
+    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener {
     private lateinit var mAdapter: ProductsAdapter
     private lateinit var mCategory: CategoryAdapter
     private lateinit var model: ProductsVM
@@ -69,6 +70,10 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private var state_opened = false
     private var mHintDialog: HintDialog? = null
     private var mFacePayService: ZHSTFacePayService? = null
+
+    private val handler = Handler()
+    private val confirmDialog by lazy { ConfirmDialog(requireContext()) }
+    private var payData: PayForUI = PayForUI()
 
     private val mServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -121,8 +126,15 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         binding.rvManInfo.layoutManager = gridLayoutManager
         mAdapter.setImgSize(gridLayoutManager)
 
-        val categoryLayoutManager = LinearLayoutManager(requireContext(),RecyclerView.HORIZONTAL,false)
+        val categoryLayoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
         binding.rvCategory.layoutManager = categoryLayoutManager
+
+        confirmDialog.setListener(object : ConfirmDialog.OnConfirmCallback {
+            override fun confirmCallback(flag: Boolean) {
+                if (flag) payViewModel.confirmPay(payData) else payViewModel.setPayState(PayViewModel.PayStatus.PAY)
+                if (confirmDialog.isShowing) confirmDialog.dismiss()
+            }
+        })
     }
 
     private fun openIcQr() {
@@ -168,7 +180,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         model.menuChange.observe(this) {
             mealIds = it
             mPresenter.dishesData(mAdapter, it, this)
-            mPresenter.categoryData(mCategory,it)
+            mPresenter.categoryData(mCategory, it)
             //同步菜品
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 //                model.upDataDishes()
@@ -226,6 +238,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     }
 
     fun setDishesInfoList(dataList: MutableList<DishesInfo>) {
+        /* 按价格排序 */
+        dataList.sortWith(compareBy({ it.price }, { it.dishesName }))
         this.dishesInfoList = dataList
     }
 
@@ -275,7 +289,7 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     //购物车菜品回调
     override fun onEventClick(data: DishesInfo) {
         dishesInfoList?.forEach {
-            if(it.dishesId == data.dishesId) it.count = data.count
+            if (it.dishesId == data.dishesId) it.count = data.count
         }
         mAdapter.setData(dishesInfoList)
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
@@ -305,56 +319,64 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
 
     @SuppressLint("CheckResult")
     override fun onOtherListener(event: Int, any: Any?) {
-        LogUtil.i(TAG, "扫码处理code: $event")
-        when (event) {
-            1 -> Observable.just(1)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { integer: Int? ->
-                    model.getDisplay()?.showLoading()
-                    mHintDialog?.dismiss()
-                    closeIcQr()
-                    model.getDisplay()?.showWaitHit(false)
-                    model.loadingEvent.value = true
-                }
-            2 -> Observable.just(1)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { integer: Int? ->
-                    model.loadingEvent.value = false
-                    model.getDisplay()?.closeLoading()
-                    closeIcQr()
-                    Toast.makeText(context, any as String?, Toast.LENGTH_SHORT).show()
-                }
-            3, 4 -> {
-                Observable.just(1)
+        handler.post {
+            payData = PayForUI()
+            LogUtil.i(TAG, "扫码处理code: $event")
+            when (event) {
+                1 -> Observable.just(1)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { integer: Int? ->
+                        model.getDisplay()?.showLoading()
+                        mHintDialog?.dismiss()
+                        closeIcQr()
+                        model.getDisplay()?.showWaitHit(false)
+                        model.loadingEvent.value = true
+                    }
+                2 -> Observable.just(1)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { integer: Int? ->
                         model.loadingEvent.value = false
                         model.getDisplay()?.closeLoading()
-                        mHintDialog?.dismiss()
                         closeIcQr()
-                        model.getDisplay()?.showWaitHit(false)
-                        clearShoppingCart()
-                        model.getDisplay()?.dismiss()
-                        model.tab.postValue(1)
-                        model.uiData.postValue(any as PayForUI)
+                        Toast.makeText(context, any as String?, Toast.LENGTH_SHORT).show()
                     }
-            }
-            5 -> Observable.just(1)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { integer: Int? ->
-                    if (any as Int == 1) {
-                        CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
-                    } else if (any == 2) {
-                        CommonAndDpToPxUtil.speakWork("请检查网络,不支持离线聚合支付!")
-                    } else if (any == 3) {
-                        CommonAndDpToPxUtil.speakWork("非本园区人员")
-                    } else {
-                        CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
-                    }
-                    model.loadingEvent.value = false
-                    model.getDisplay()?.closeLoading()
-                    closeIcQr()
+                3, 4 -> {
+                    Observable.just(1)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { integer: Int? ->
+                            model.loadingEvent.value = false
+                            model.getDisplay()?.closeLoading()
+                            mHintDialog?.dismiss()
+                            closeIcQr()
+                            model.getDisplay()?.showWaitHit(false)
+                            clearShoppingCart()
+                            model.getDisplay()?.dismiss()
+                            model.tab.postValue(1)
+                            model.uiData.postValue(any as PayForUI)
+                        }
                 }
+                5 -> Observable.just(1)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { integer: Int? ->
+                        if (any as Int == 1) {
+                            CommonAndDpToPxUtil.speakWork("无效码，请刷新付款码再支付")
+                        } else if (any == 2) {
+                            CommonAndDpToPxUtil.speakWork("请检查网络,不支持离线聚合支付!")
+                        } else if (any == 3) {
+                            CommonAndDpToPxUtil.speakWork("非本园区人员")
+                        } else {
+                            CommonAndDpToPxUtil.speakWork("请切换离线码再支付")
+                        }
+                        model.loadingEvent.value = false
+                        model.getDisplay()?.closeLoading()
+                        closeIcQr()
+                    }
+                8 -> {
+                    payData = any as PayForUI
+                    if (!confirmDialog.isShowing) confirmDialog.show()
+                    confirmDialog.setTextMsg("重复支付，您是否确定继续支付？")
+                }
+            }
         }
     }
 
@@ -362,14 +384,14 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~")
         Handler(Looper.getMainLooper()).postDelayed({
             clearShoppingCart()
-            
+
             model.getDisplay()?.dismiss()
             model.tab.postValue(1)
             model.uiData.postValue(data)
         }, 300)
     }
 
-    private fun updateMenu(){
+    private fun updateMenu() {
         val list = DishesDBHelper.getInstance(context).queryDishesByMealIdAneStatus(mealIds, 1)
         val tabelToInfo = tabelToInfo(list)
         this.dishesInfoList = tabelToInfo
@@ -382,14 +404,14 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
             Constant.EVENT_FIFTH -> {
                 Log.d(TAG, "eventArrive: 更新菜品")
                 // 清空购物车
-                if (mAdapterPayFor.data.size >= 1){
+                if (mAdapterPayFor.data.size >= 1) {
                     clearShoppingCart()
                 }
                 // 更新菜品页面
                 updateMenu()
 
                 //更新类目
-                mPresenter.categoryData(mCategory,mealIds)
+                mPresenter.categoryData(mCategory, mealIds)
             }
         }
     }
@@ -407,8 +429,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         if (list != null) {
             for (u in list) {
                 var count = 0
-                for(n in dishesList){
-                    if(u.dishesId == n.dishesId) count = n.count
+                for (n in dishesList) {
+                    if (u.dishesId == n.dishesId) count = n.count
                 }
                 val imgUrl = if (u.imgUrl == null || u.imgUrl.isEmpty()) "" else u.imgUrl
                 dataList.add(
@@ -426,6 +448,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
                 )
             }
         }
+        /* 按价格排序 */
+        dataList.sortWith(compareBy({ it.price }, { it.dishesName }))
         mAdapter.setData(dataList)
         return dataList
     }

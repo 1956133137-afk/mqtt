@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.dialogView
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
@@ -22,14 +23,21 @@ import kotlinx.coroutines.cancel
  * Date: 2023/6/8 10:02
  **/
 abstract class BaseDialog<T : ViewBinding>(context: Context) : Dialog(context) {
+    private val TAG = javaClass.simpleName
     lateinit var binding: T
+    private val mContext = context
 
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        LogUtil.e("Dialog", "CoroutineExceptionHandler $throwable ${throwable.message}")
+        LogUtil.e(TAG, "CoroutineExceptionHandler $throwable ${throwable.message}")
     }
     var mScope = CoroutineScope(Dispatchers.Main + mHandler)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (mContext !is Activity) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1)
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            else window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT or WindowManager.LayoutParams.TYPE_PHONE)
+        }
         super.onCreate(savedInstanceState)
         initDialogView()
         setContentView(binding.root)

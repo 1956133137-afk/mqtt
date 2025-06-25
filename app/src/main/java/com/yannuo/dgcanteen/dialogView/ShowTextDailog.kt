@@ -12,7 +12,7 @@ class ShowTextDailog(context: Context): BaseDialog<DialogTextBinding>(context) {
     }
 
     override fun initOperation() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         binding.showText.setOnClickListener {
             dismiss()
         }

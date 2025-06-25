@@ -29,6 +29,8 @@ class OrderMenuPresenter(context: Context) {
                 )
             )
         }
+        /* 按价格排序 */
+        dataList.sortWith(compareBy({ it.price }, { it.dishesName }))
         adapter?.data = dataList
         orderMenuFragment.setDishesInfoList(dataList)
     }

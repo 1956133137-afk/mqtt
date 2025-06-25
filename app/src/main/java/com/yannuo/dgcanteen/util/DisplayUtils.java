@@ -40,6 +40,13 @@ public class DisplayUtils {
         displayMetrics.scaledDensity = activityMetrics.scaledDensity = targetDensity;
         displayMetrics.densityDpi = activityMetrics.densityDpi = targetDensityDpi;
 
+        if (presentation != null) {
+            final DisplayMetrics presentationDisplayMetrics = presentation.getResources().getDisplayMetrics();
+            presentationDisplayMetrics.density = targetDensity;  // 1.0
+            presentationDisplayMetrics.scaledDensity = targetDensity; // 1.0
+            presentationDisplayMetrics.densityDpi = targetDensityDpi; // 160
+        }
+
 //        DisplayMetrics appDisplayMetrics = application.getResources().getDisplayMetrics();
 //        if (sNoncompatDensity == 0) {
 //            sNoncompatDensity = appDisplayMetrics.density;

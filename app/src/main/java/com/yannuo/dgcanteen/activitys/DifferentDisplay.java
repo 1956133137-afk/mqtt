@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys;
 
 import android.app.Presentation;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -37,9 +38,10 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
-import kotlinx.coroutines.CoroutineScope;
+import java.util.stream.Collectors;
 
 public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.WorkListener, PayForAdapter.WorkListener {
     private String TAG = getClass().getSimpleName();
@@ -71,7 +73,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+//        getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         super.onCreate(savedInstanceState);
         binding = DifferrentDialogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -137,7 +139,25 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
                     0
             ));
         }
-        adapterDishes.setData(dataList);
+//        adapterDishes.setData(dataList);
+        /* 按价格排序 */
+        List<DishesInfo> dishSortList = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            dishSortList = dataList.stream()
+                    .sorted(Comparator.comparing(DishesInfo::getPrice).thenComparing(DishesInfo::getDishesName))
+                    .collect(Collectors.toList());
+        } else {
+            Collections.sort(dataList, new Comparator<DishesInfo>() {
+                @Override
+                public int compare(DishesInfo p1, DishesInfo p2) {
+                    int compareOne = String.valueOf(p1.getPrice()).compareTo(String.valueOf(p2.getPrice()));
+                    if (compareOne != 0) return compareOne;
+                    return p1.getDishesName().compareTo(p2.getDishesName());
+                }
+            });
+            dishSortList = dataList;
+        }
+        adapterDishes.setData(dishSortList);
     }
 
 

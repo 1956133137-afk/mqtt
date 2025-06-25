@@ -162,6 +162,8 @@ class FaceScanVM {
             deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             payType = "1"
             payment = bean.PAYMENT.ifEmpty { ccbFacePayBean.PAYMENT }
+            discountAmt = bean.DISCOUNTAMT
+            discountMsg = bean.DISCOUNTMSG
             orderId = bean.ORDER_ID.ifEmpty { ccbFacePayBean.ORDER_ID }
             payTime = bean.PAYTIME.ifEmpty { TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", currentTime) }
             payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)

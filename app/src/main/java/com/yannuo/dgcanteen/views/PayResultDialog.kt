@@ -24,7 +24,7 @@ class PayResultDialog(context :Context) :BaseDialog(context, R.layout.dialog_pay
     private var countDown : CountDownTimer ?= null
 
     override fun initViewAndEvent() {
-        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         tv_close = findViewById(R.id.ib_close)
         tv_count = findViewById(R.id.tv_count_down)
         tvPayResult = findViewById(R.id.pay_result)

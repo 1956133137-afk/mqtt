@@ -52,7 +52,7 @@ class SimpleDisplay(context: Context, display: Display) : BaseDisplay(context, d
     private var currentDate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         super.onCreate(savedInstanceState)
         binding = SimpleDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)

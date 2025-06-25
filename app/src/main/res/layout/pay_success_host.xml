@@ -9,8 +9,8 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_weight="4"
         android:layout_height="match_parent"
+        android:layout_weight="4"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -18,153 +18,184 @@
             android:layout_width="350dp"
             android:layout_height="350dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_pay_success"/>
+            android:src="@drawable/ic_pay_success" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="-70dp"
             android:text="@string/pay_success_title"
-            android:textSize="48sp"
-            android:textColor="#347CAF"/>
+            android:textColor="#347CAF"
+            android:textSize="48sp" />
+
         <TextView
-            android:id="@+id/pay_total_money"
+            android:id="@+id/tv_actual_payment"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:gravity="center"
-            android:textSize="48sp"
-            android:textColor="#4F4F4F"/>
+            android:textColor="#4F4F4F"
+            android:textSize="56sp" />
 
         <LinearLayout
             android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="49dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="姓名"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
+                android:text="用户姓名："
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+
             <TextView
                 android:id="@+id/tv_name"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="right|center_vertical"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="班级"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
-            <TextView
-                android:id="@+id/tv_class"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
+                android:text="账户余额："
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
 
+            <TextView
+                android:id="@+id/tv_balance"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="订单金额："
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tv_payment"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="550dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="优惠信息："
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+
+            <TextView
+                android:id="@+id/tv_discount"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="550dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/pay_time"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+
             <TextView
                 android:id="@+id/tv_pay_time"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
-
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="550dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/trans_run_number"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
+
             <TextView
                 android:id="@+id/tv_trans_number"
-                android:layout_width="0dp"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="550dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="账户余额"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
-            <TextView
-                android:id="@+id/tv_balance"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
-                android:textSize="28sp"
-                android:textColor="#6C6C6C"/>
-
+                android:ellipsize="end"
+                android:gravity="right"
+                android:maxLines="2"
+                android:textColor="#6C6C6C"
+                android:textSize="32sp" />
         </LinearLayout>
 
-<!--        <Button-->
-<!--            android:id="@+id/bt_back"-->
-<!--            android:layout_width="180px"-->
-<!--            android:layout_height="50px"-->
-<!--            android:layout_marginTop="40px"-->
-<!--            android:background="@drawable/shape_btn_bg"-->
-<!--            android:text="@string/btn_back"-->
-<!--            android:textSize="20px"-->
-<!--            android:textColor="#215476"/>-->
+        <!--        <Button-->
+        <!--            android:id="@+id/bt_back"-->
+        <!--            android:layout_width="180px"-->
+        <!--            android:layout_height="50px"-->
+        <!--            android:layout_marginTop="40px"-->
+        <!--            android:background="@drawable/shape_btn_bg"-->
+        <!--            android:text="@string/btn_back"-->
+        <!--            android:textSize="20px"-->
+        <!--            android:textColor="#215476"/>-->
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="6"
-        android:orientation="vertical"
-        android:layout_height="match_parent">
+        android:orientation="vertical">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -241,8 +272,8 @@
                 android:id="@+id/rv_dish_list"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
                 android:overScrollMode="never"
                 app:layout_constraintBottom_toTopOf="@+id/v_line2"
                 app:layout_constraintEnd_toEndOf="parent"

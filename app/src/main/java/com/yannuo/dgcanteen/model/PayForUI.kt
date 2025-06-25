@@ -25,6 +25,8 @@ class PayForUI {
     var payContent = ""         //支付内容  payType: 1-刷脸 2-二维码 3-卡号
     var payment = ""            //订单金额
     var actualPayment = ""      //实际支付金额
+    var discountAmt: String = ""    //优惠价格
+    var discountMsg: String = ""    //优惠名称
     var payTime = ""            //支付时间 yyyy-MM-dd HH:mm:ss
     var payDate = ""            //支付日期
     var sessionId = ""          //订单唯一随机标记位

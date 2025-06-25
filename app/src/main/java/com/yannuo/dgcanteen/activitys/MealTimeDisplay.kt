@@ -74,7 +74,7 @@ class MealTimeDisplay(private val mContext: Context, display: Display): BaseDisp
 
     override fun onCreate(savedInstanceState: Bundle?) {
         LogUtil.i(TAG, "MealTimeDisplay onCreate...")
-        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+//        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         super.onCreate(savedInstanceState)
         binding = DisplayMealTimeBinding.inflate(layoutInflater)
         setContentView(binding.root)
