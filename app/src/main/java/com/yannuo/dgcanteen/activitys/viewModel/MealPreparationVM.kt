@@ -57,6 +57,9 @@ class MealPreparationVM : ViewModel() {
             if (response.code == "200") {
                 mealListener?.onMeal(1,"")
                 mealListener = null
+            }else{
+                mealListener?.onMeal(-1,response.msg)
+                mealListener = null
             }
         }
     }

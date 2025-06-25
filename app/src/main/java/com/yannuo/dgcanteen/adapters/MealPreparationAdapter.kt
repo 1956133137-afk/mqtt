@@ -20,6 +20,7 @@ import com.yannuo.dgcanteen.model.OrderForUI
 import com.yannuo.dgcanteen.model.OrderStatusBean
 import com.yannuo.dgcanteen.model.WindowBean
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
+import com.yannuo.dgcanteen.util.ToastShowUtil
 
 class MealPreparationAdapter(private val requireContext: FragmentActivity) : BaseAdapter<Order,ItemMealPreparationBinding>() {
     private var awaitingDialog: AwaitingDialog? = null
@@ -84,8 +85,10 @@ class MealPreparationAdapter(private val requireContext: FragmentActivity) : Bas
                             myData.removeAt(position)
                             mealPreparationVM.setInfoBeanList(getData())
                         }
+                        if(awaitingDialog != null) awaitingDialog?.dismiss()
+                    }else{
+                        ToastShowUtil.show(data as String)
                     }
-                    if(awaitingDialog != null) awaitingDialog?.dismiss()
                 }
             })
             //发起状态变更
