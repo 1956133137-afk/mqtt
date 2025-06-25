@@ -87,6 +87,7 @@ class MealPreparationAdapter(private val requireContext: FragmentActivity) : Bas
                         }
                         if(awaitingDialog != null) awaitingDialog?.dismiss()
                     }else{
+                        if(awaitingDialog != null) awaitingDialog?.dismiss()
                         ToastShowUtil.show(data as String)
                     }
                 }
