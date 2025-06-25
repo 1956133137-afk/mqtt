@@ -2,10 +2,10 @@ package com.yannuo.dgcanteen.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.yannuo.dgcanteen.databinding.ItemSelectMealBinding
+import com.yannuo.dgcanteen.databinding.ItemSelectCategoryBinding
 import com.yannuo.dgcanteen.model.CategoryBean
 
-class MealCategoryAdapter : BaseAdapter<CategoryBean, ItemSelectMealBinding>()  {
+class MealCategoryAdapter : BaseAdapter<CategoryBean, ItemSelectCategoryBinding>()  {
     private var listener: MealCategoryListener? = null
 
     fun setCategoryListener(listener: MealCategoryListener) {
@@ -17,8 +17,8 @@ class MealCategoryAdapter : BaseAdapter<CategoryBean, ItemSelectMealBinding>()  
         holder.binding.tvMealName.text = bean.categoryName.ifEmpty { "未知" }
     }
 
-    override fun getB(inflater: LayoutInflater, parent: ViewGroup?): ItemSelectMealBinding {
-        return ItemSelectMealBinding.inflate(inflater, parent, false)
+    override fun getB(inflater: LayoutInflater, parent: ViewGroup?): ItemSelectCategoryBinding {
+        return ItemSelectCategoryBinding.inflate(inflater, parent, false)
     }
 
     override fun addEventListener(holder: Holder) {
