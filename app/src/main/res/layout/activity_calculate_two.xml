@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp"
-            android:src="@mipmap/ccb_logo" />
+            android:src="@drawable/ic_logo_hor" />
 
         <TextView
             android:id="@+id/select_stopper"

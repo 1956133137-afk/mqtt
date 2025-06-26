@@ -36,7 +36,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginStart="10dp"
         android:background="@drawable/fp_bg_white"
-        android:drawableBottom="@mipmap/ccb_logo"
+        android:drawableBottom="@drawable/ic_logo_hor"
         android:format24Hour="MM-dd HH:mm:ss"
         android:gravity="center"
         android:padding="15dp"

@@ -57,6 +57,8 @@ class SuccessFragment : Fragment() {
 
     private fun initData() {
         val data: SuccessFragmentArgs by navArgs()
+        val decodeBool = kv.decodeBool(Constant.WHETHER_SHOW_PAYMENT, true)
+        binding.payTotalMoney.visibility = if (decodeBool) View.VISIBLE else View.GONE
         data.simpleForUI.apply {
             when (way!!.toInt()) {
                 20, 21 -> {

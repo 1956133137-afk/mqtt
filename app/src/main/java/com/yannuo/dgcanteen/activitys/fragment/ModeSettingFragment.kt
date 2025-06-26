@@ -295,6 +295,8 @@ class ModeSettingFragment : Fragment() {
         binding.orderMealLimit.setOnClickListener { kv.encode(Constant.ORDER_MEAL_LIMIT, binding.orderMealLimit.isChecked) }
         // 重复支付判断
         binding.repeatPayJudge.setOnClickListener { kv.encode(Constant.REPEAT_PAY_JUDGE, binding.repeatPayJudge.isChecked) }
+        /* 是否显示金额信息 */
+        binding.cbWhetherShowPayment.setOnClickListener { kv.encode(Constant.WHETHER_SHOW_PAYMENT, binding.cbWhetherShowPayment.isChecked) }
         /*快捷切换模式*/
         binding.quickSwitchMode.setOnClickListener { kv.encode(Constant.QUICK_SWITCH_MODE, binding.quickSwitchMode.isChecked) }
         //订餐核销默认刷卡
@@ -478,6 +480,9 @@ class ModeSettingFragment : Fragment() {
         binding.spVerify.setSelection(kv.decodeInt(Constant.VERIFY_MODE))
         // 重复支付判断
         binding.repeatPayJudge.isChecked = kv.decodeBool(Constant.REPEAT_PAY_JUDGE, true)
+        /* 是否显示金额信息 */
+        binding.llShowPayment.visibility = if (kv.decodeString(Constant.APP_MODE) == Constant.PROCEEDS_MODE) View.VISIBLE else View.GONE
+        binding.cbWhetherShowPayment.isChecked = kv.decodeBool(Constant.WHETHER_SHOW_PAYMENT, true)
         /*快捷切换模式*/
         binding.quickSwitchMode.isChecked = kv.decodeBool(Constant.QUICK_SWITCH_MODE, false)
     }

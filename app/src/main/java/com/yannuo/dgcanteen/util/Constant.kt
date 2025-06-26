@@ -129,6 +129,8 @@ object Constant {
     const val BTN_CONFIRM_STATE = "确认金额按钮状态" // 0：关闭  1：打开
     const val QUICK_SWITCH_MODE = "quickSwitchMode" //快捷切换模式
 
+    const val WHETHER_SHOW_PAYMENT = "whetherShowPayment"   //是否显示交易金额信息 Boolean
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付

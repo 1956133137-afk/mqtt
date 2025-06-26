@@ -241,10 +241,10 @@
 
             <ImageView
                 android:id="@+id/ccb_logo"
-                android:layout_width="358dp"
+                android:layout_width="290dp"
                 android:layout_height="80dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/img_ccb_logo" />
+                android:background="@drawable/ic_logo_hor" />
 
             <TextClock
                 android:id="@+id/clock"
