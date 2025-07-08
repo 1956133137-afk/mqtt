@@ -162,7 +162,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 businessId = payCfg.businessId
                 businessName = payCfg.businessName
                 vposId = payCfg.counterId
-                corpId = payCfg.corp_id
+                corpId = payCfg.corpId
                 orderType = type
                 orderContent = content
                 offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
@@ -196,7 +196,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     when {
                         orderForUI.orderContent.contains("CT0001") -> {
                             val analysisRes = runBlocking {
-                                val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(payCfg.campusId, "PAY002", payCfg.corp_id, content)
+                                val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(payCfg.campusId, "PAY002", payCfg.corpId, content)
                                 val analysisResult = mRepository.getCcbData(qrCodeMap).body()?.string() ?: ""
                                 Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
                             }

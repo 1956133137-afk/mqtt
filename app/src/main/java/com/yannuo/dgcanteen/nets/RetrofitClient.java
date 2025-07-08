@@ -5,6 +5,9 @@ import android.graphics.Typeface;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.interfaces.ApiService;
 import com.yannuo.dgcanteen.util.Constant;
+import com.yannuo.dgcanteen.util.LogUtil;
+
+import java.util.Objects;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -62,7 +65,11 @@ public class RetrofitClient {
             synchronized (RetrofitClient.class) {
 //                String basePath = "https://dining.icenter.ccb.com/CCBIS/"; //生产
 //                String basePath = "http://121.40.54.232:8090/CCBIS/"; //测试
-                String basePath = Constant.CCB_API_PATH; //测试
+//                String basePath = Constant.CCB_API_PATH; //测试
+                String basePath = "";
+                int ccbCorpType = MMKV.defaultMMKV().decodeInt(Constant.CCB_CORP_TYPE, 0);
+                if (Constant.ENVIRONMENT_TYPE.equals("01")) basePath = ccbCorpType == 0 ? "https://dining.icenter.ccb.com/CCBIS/" : "https://dining.ccblife.ccb.com/CCBIS/";
+                else basePath = ccbCorpType == 0 ? "http://124.127.94.58:28880/CCBIS/" : "";
                 mCcbService = new Retrofit.Builder()
                         .client(OkHttpUtils.Companion.getInstance())
                         .baseUrl(basePath)

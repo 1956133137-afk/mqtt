@@ -160,7 +160,7 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
     //判断商家信息
     private fun judgePayCfg(): Boolean {
         val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
-        return payCfg?.campusId != null && payCfg.corp_id != null && payCfg.businessId != null && payCfg.counterId != null
+        return payCfg?.campusId != null && payCfg.corpId != null && payCfg.businessId != null && payCfg.counterId != null
     }
 
     private fun btnClickable(boolean: Boolean) {

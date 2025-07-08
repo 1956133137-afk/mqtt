@@ -41,7 +41,7 @@
             android:text="提示: 本餐别餐标总次 / 本餐别餐标外延次"
             android:textAlignment="center"
             android:textColor="#333333"
-            android:textSize="20sp" />
+            android:textSize="36sp" />
 
             <TextView
                 android:id="@+id/tip2"
@@ -52,7 +52,7 @@
                 android:text="无补贴不计次！"
                 android:textAlignment="center"
                 android:textColor="#333333"
-                android:textSize="20sp" />
+                android:textSize="36sp" />
 
             <LinearLayout
                 android:id="@+id/meal01_info"

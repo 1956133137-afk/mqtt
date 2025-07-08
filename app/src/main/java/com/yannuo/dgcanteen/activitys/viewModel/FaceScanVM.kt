@@ -96,7 +96,7 @@ class FaceScanVM {
         currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
         ccbFacePayBean.apply {
             CAMPUS_ID = mPayCfg.campusId
-            CORP_ID = mPayCfg.corp_id        // "1046"
+            CORP_ID = mPayCfg.corpId        // "1046"
             PAYMENT = payment
             ORDER_ID = orderId.ifEmpty { "${mPayCfg.counterId}${System.currentTimeMillis()}" }
             BUSINESS_ID = mPayCfg.businessId // "SJ2022022500004"
@@ -157,7 +157,7 @@ class FaceScanVM {
             businessId = mPayCfg.businessId
             businessName = mPayCfg.businessName
             campusId = mPayCfg.campusId
-            corpId = mPayCfg.corp_id
+            corpId = mPayCfg.corpId
             vposId = mPayCfg.counterId
             deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             payType = "1"

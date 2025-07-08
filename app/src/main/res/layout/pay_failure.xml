@@ -2,15 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activitys.CommodityActivity"
-
-
-    >
-<!--    android:layout_width="1280px"-->
-<!--    android:layout_height="800px"-->
+    tools:context=".activitys.CommodityActivity">
 
     <ImageView
         android:id="@+id/iv_hit_pic"
@@ -24,10 +18,10 @@
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         android:text="@string/pay_failure_title"
         android:textColor="#AA2A2A"
-        android:textSize="48sp"
+        android:textSize="60sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_hit_pic" />
@@ -35,7 +29,7 @@
 
     <LinearLayout
         android:id="@+id/ll_a"
-        android:layout_width="500dp"
+        android:layout_width="800dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="42dp"
         app:layout_constraintEnd_toEndOf="@+id/textView3"
@@ -44,11 +38,11 @@
 
         <TextView
             android:id="@+id/tv_title_reason"
-            android:layout_width="80dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pay_failure_reason"
             android:textColor="#6C6C6C"
-            android:textSize="20sp" />
+            android:textSize="36sp" />
 
         <TextView
             android:id="@+id/pay_fail_msg"
@@ -59,31 +53,31 @@
             android:maxLines="2"
             android:text="失败原因"
             android:textColor="#6C6C6C"
-            android:textSize="20sp" />
+            android:textSize="36sp" />
 
     </LinearLayout>
 
 
     <TextView
         android:id="@+id/tv_title_time"
-        android:layout_width="80dp"
-        android:layout_height="29dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         android:text="@string/pay_time"
         android:textColor="#6C6C6C"
-        android:textSize="20sp"
+        android:textSize="36sp"
         app:layout_constraintStart_toStartOf="@+id/ll_a"
         app:layout_constraintTop_toBottomOf="@+id/ll_a" />
 
     <Button
         android:id="@+id/bt_back"
-        android:layout_width="180dp"
-        android:layout_height="50dp"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="50dp"
         android:background="@drawable/shape_btn_bg"
         android:text="@string/btn_back"
         android:textColor="#215476"
-        android:textSize="20sp"
+        android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.49"
@@ -95,10 +89,8 @@
         android:layout_height="wrap_content"
         android:gravity="right"
         android:textColor="#6C6C6C"
-        android:textSize="20sp"
+        android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_time"
         app:layout_constraintEnd_toEndOf="@+id/ll_a" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -55,6 +55,15 @@ class BasicSettingFragment : Fragment() {
     }
 
     private fun initEvent() {
+        val ccbCorpType = kv.decodeInt(Constant.CCB_CORP_TYPE, 0)
+        binding.radioGroup.check(if (ccbCorpType == 0) R.id.btn_one else R.id.btn_two)
+        binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkId ->
+            when (checkId) {
+                R.id.btn_one -> kv.encode(Constant.CCB_CORP_TYPE, 0)
+                R.id.btn_two -> kv.encode(Constant.CCB_CORP_TYPE, 1)
+            }
+        }
+
         binding.switchLine.setOnClickListener { //离线模式
             kv.encode(Constant.SWITCH, binding.switchLine.isChecked)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
@@ -201,7 +210,7 @@ class BasicSettingFragment : Fragment() {
 
     private fun isValidUrl(url: String): Boolean {
         val regex = Regex(
-            """^(https|tcp|http)://(\w{2,6}\.\w{1,61}\.[a-zA-Z]{2,6}|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d+)?/?(?:\w+/)*$""",
+            """^(https|tcp|http)://(\w{2,10}\.\w{1,61}\.[a-zA-Z]{2,6}|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?::\d+)?/?(?:\w+/)*$""",
             RegexOption.IGNORE_CASE
         )
         return regex.matches(url)

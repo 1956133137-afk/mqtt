@@ -42,7 +42,7 @@
                 android:text="提示: 本餐别付款总金额 / 本餐别实付总金额"
                 android:textAlignment="center"
                 android:textColor="#333333"
-                android:textSize="20sp" />
+                android:textSize="36sp" />
 
             <LinearLayout
                 android:id="@+id/meal01_info"

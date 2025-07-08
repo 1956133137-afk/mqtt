@@ -12,7 +12,7 @@ class PayCfg() : Parcelable {
 //    var vpos_id :String ?= "V00463775" //柜台号
 
     var campusId: String = ""       //园区ID
-    var corp_id: String = Constant.CORP_ID //合作方ID  生产:1046 测试:1041
+    var corpId: String = ""         //合作方ID  生产:1046 测试:1041
     var businessId: String = ""     //商家ID
     var businessName: String = ""   //商家名称
     var counterId: String = ""      //柜台号
@@ -21,7 +21,7 @@ class PayCfg() : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         campusId = parcel.readString().toString()
-        corp_id = parcel.readString().toString()
+        corpId = parcel.readString().toString()
         businessId = parcel.readString().toString()
         businessName = parcel.readString().toString()
         counterId = parcel.readString().toString()
@@ -31,7 +31,7 @@ class PayCfg() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(campusId)
-        parcel.writeString(corp_id)
+        parcel.writeString(corpId)
         parcel.writeString(businessId)
         parcel.writeString(businessName)
         parcel.writeString(counterId)

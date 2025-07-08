@@ -102,7 +102,7 @@ class SelfHelpPresenter : OnReadDataListener {
             hashMap.put("PT_LANGUAGE","CN")
             hashMap.put("CAMPUS_ID", mPayCfg?.campusId!!)
             hashMap.put("TXCODE","VIAC05")
-            hashMap.put("CORP_ID",mPayCfg!!.corp_id!!)
+            hashMap.put("CORP_ID",mPayCfg!!.corpId!!)
             hashMap.put("ccbSafeParam",prikey)
 
             val res = mRespository.ccbPersonBanlance(hashMap)

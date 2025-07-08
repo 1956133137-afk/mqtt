@@ -80,9 +80,10 @@ public class MyApplication extends Application {
             if (kv.decodeString(Constant.MQTT_ACCOUNT) == null) kv.encode(Constant.MQTT_ACCOUNT, "acms");
             if (kv.decodeString(Constant.MQTT_PASSWORD) == null) kv.encode(Constant.MQTT_PASSWORD, "ACMS2022~!@");
 
-            Constant.CORP_ID = "1041";
-            Constant.CCB_API_PATH = "http://124.127.94.58:28880/CCBIS/"; //测试
-            Constant.STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试
+            Constant.ENVIRONMENT_TYPE = "00";
+//            Constant.CORP_ID = "1041";
+//            Constant.CCB_API_PATH = "http://124.127.94.58:28880/CCBIS/"; //测试
+//            Constant.STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试
             Constant.CIPHER = "JfP81cjP2QYHjKsrmRKG49v0"; //测试
             Constant.ENCRYPTION_VECTOR = "6Zt1MTo6"; //测试
 
@@ -94,9 +95,10 @@ public class MyApplication extends Application {
             if (kv.decodeString(Constant.MQTT_ACCOUNT) == null) kv.encode(Constant.MQTT_ACCOUNT, "acms");
             if (kv.decodeString(Constant.MQTT_PASSWORD) == null) kv.encode(Constant.MQTT_PASSWORD, "ACMS2022~!@");
 
-            Constant.CORP_ID = "1046";
-            Constant.CCB_API_PATH = "https://dining.icenter.ccb.com/CCBIS/"; //生产
-            Constant.STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu"; //生产
+            Constant.ENVIRONMENT_TYPE = "01";
+//            Constant.CORP_ID = "1046";
+//            Constant.CCB_API_PATH = "https://dining.icenter.ccb.com/CCBIS/"; //生产 https://dining.ccblife.ccb.com/CCBIS/
+//            Constant.STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu"; //生产
             Constant.CIPHER = "siclrkuYnJMEwGIy4bGGneqc"; //生产
             Constant.ENCRYPTION_VECTOR = "sps49NVv"; //生产
         }

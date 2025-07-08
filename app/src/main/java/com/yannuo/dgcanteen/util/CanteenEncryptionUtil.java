@@ -2,6 +2,8 @@ package com.yannuo.dgcanteen.util;
 
 import android.util.Log;
 
+import com.tencent.mmkv.MMKV;
+import com.yannuo.dgcanteen.model.PayCfg;
 import com.yannuo.dgcanteen.model.PayForUI;
 
 import java.io.IOException;
@@ -26,9 +28,30 @@ public class CanteenEncryptionUtil {
     private final static String CCB_IBSVersion = "V6";
     private final static String PT_STYLE = "8";
     private final static String PT_LANGUAGE = "CN";
-    private final static String STR_KEY = Constant.STR_KEY;
-//    private final static String STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试
-//    private final static String STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu"; //生产
+//    private final static String STR_KEY = Constant.STR_KEY;
+//    private final static String STR_KEY = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG"; //测试 1041
+//    private final static String STR_KEY = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu"; //生产 1046
+//    private final static String STR_KEY = "WhkBQZI44xWP6EerWRAcA6y1y2uyCw5n"; //1132
+
+    private static String getStrKey() {
+        String strKey = "";
+        PayCfg mPayCfg = MMKV.defaultMMKV().decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
+        if (mPayCfg == null) return "";
+        switch (mPayCfg.getCorpId()) {
+            case "1041": /* 测试 */
+                strKey = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG";
+                break;
+            case "1046": /* 生产 */
+                strKey = "RReTnEXt6ebGdVfMybRrWU5CC46pJ9Mu";
+                break;
+            case "1132":
+                strKey = "WhkBQZI44xWP6EerWRAcA6y1y2uyCw5n";
+                break;
+            default:
+                break;
+        }
+        return strKey;
+    }
 
     /**
      * @param CAMPUS_ID
@@ -72,7 +95,7 @@ public class CanteenEncryptionUtil {
     public static HashMap<String, String> getAnalysisCode(String code) {
         HashMap<String, String> ccbParam = new HashMap<>();
         try {
-            MCipherDecryptor ccbDecryptor = new MCipherDecryptor(STR_KEY);
+            MCipherDecryptor ccbDecryptor = new MCipherDecryptor(getStrKey());
             StringBuilder ccbSafeParam = new StringBuilder(ccbDecryptor.doDecrypt(code));
             String sn = Utils.getSN();
             String cardId = "";
@@ -100,7 +123,7 @@ public class CanteenEncryptionUtil {
         try {
             Log.d("TAG", "encryption: " + param);
             //创建加密对象，向构造函数传入密钥
-            MCipherEncryptor ccbEncryptor = new MCipherEncryptor(STR_KEY);
+            MCipherEncryptor ccbEncryptor = new MCipherEncryptor(getStrKey());
 
             //执行加密
             String ccbSafeParam = ccbEncryptor.doEncrypt(param);
@@ -118,12 +141,13 @@ public class CanteenEncryptionUtil {
 
     /**
      * 请求报文解密方法
+     *
      * @param param
      */
-    public static String decryption(String param){
+    public static String decryption(String param) {
         try {
             //创建加密对象，向构造函数传入密钥
-            MCipherDecryptor ccbEncryptor = new MCipherDecryptor(STR_KEY);
+            MCipherDecryptor ccbEncryptor = new MCipherDecryptor(getStrKey());
             //执行加密
             String ccbSafeParam = ccbEncryptor.doDecrypt(param);
             return ccbSafeParam;

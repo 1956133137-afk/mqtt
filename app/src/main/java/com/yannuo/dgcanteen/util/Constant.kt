@@ -75,9 +75,11 @@ object Constant {
     const val ORDERING_VERIFY_MODE = "订餐核销"
     const val MEAL_PREPARATION_MODE = "备餐模式"
 
-    lateinit var CORP_ID: String  //合作方ID
-    lateinit var CCB_API_PATH: String  //ccb开放平台接口地址
-    lateinit var STR_KEY: String  //扫码解码密码
+    const val CCB_CORP_TYPE = "ccbCorpType" //园区选择类型 0-旧园区 1-创信园区
+    lateinit var ENVIRONMENT_TYPE: String
+//    lateinit var CORP_ID: String  //合作方ID
+//    lateinit var CCB_API_PATH: String  //ccb开放平台接口地址
+//    lateinit var STR_KEY: String  //扫码解码密码
     lateinit var CIPHER: String  //离线码解码密码
     lateinit var ENCRYPTION_VECTOR: String  //离线码加密向量
 

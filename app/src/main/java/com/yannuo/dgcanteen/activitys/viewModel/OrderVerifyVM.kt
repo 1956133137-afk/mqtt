@@ -384,7 +384,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
             businessId = mPayCfg.businessId
             businessName = mPayCfg.businessName
             campusId = mPayCfg.campusId
-            corpId = mPayCfg.corp_id
+            corpId = mPayCfg.corpId
             vposId = mPayCfg.counterId
             deviceId = deviceSerial
             payType = type //刷卡支付

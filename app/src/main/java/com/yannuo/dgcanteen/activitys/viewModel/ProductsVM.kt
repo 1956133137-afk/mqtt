@@ -248,7 +248,7 @@ class ProductsVM : ViewModel() {
             service!!.stopFacePay()
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg.campusId
-            bean.CORP_ID = mPayCfg.corp_id
+            bean.CORP_ID = mPayCfg.corpId
             bean.PAYMENT = detail.totalMoney.replace('元', ' ')
             bean.ORDER_ID = "${mPayCfg.counterId}${System.currentTimeMillis()}"
             bean.BUSINESS_ID = mPayCfg.businessId
@@ -266,7 +266,7 @@ class ProductsVM : ViewModel() {
                         businessId = mPayCfg.businessId
                         businessName = mPayCfg.businessName
                         campusId = mPayCfg.campusId
-                        corpId = mPayCfg.corp_id
+                        corpId = mPayCfg.corpId
                         vposId = mPayCfg.counterId
                         deviceId = CommonAndDpToPxUtil.getDeviceSerial()
                         payType = "1"
@@ -339,7 +339,7 @@ class ProductsVM : ViewModel() {
 
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg.campusId
-            bean.CORP_ID = mPayCfg.corp_id
+            bean.CORP_ID = mPayCfg.corpId
             bean.PAYMENT = String.format("%.2f", amount)
             bean.ORDER_ID = "${mPayCfg.counterId}${System.currentTimeMillis()}"
             bean.BUSINESS_ID = mPayCfg.businessId
@@ -355,7 +355,7 @@ class ProductsVM : ViewModel() {
                         businessId = mPayCfg.businessId
                         businessName = mPayCfg.businessName
                         campusId = mPayCfg.campusId
-                        corpId = mPayCfg.corp_id
+                        corpId = mPayCfg.corpId
                         vposId = mPayCfg.counterId
                         deviceId = CommonAndDpToPxUtil.getDeviceSerial()
                         payType = "1"

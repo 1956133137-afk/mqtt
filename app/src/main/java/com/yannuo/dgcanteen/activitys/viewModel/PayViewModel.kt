@@ -277,7 +277,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             businessId = mPayCfg.businessId
             businessName = mPayCfg.businessName
             campusId = mPayCfg.campusId
-            corpId = mPayCfg.corp_id
+            corpId = mPayCfg.corpId
             vposId = mPayCfg.counterId
             deviceId = deviceSerial
             payContent = payContent.replace("\n", "").replace("\r", "")
@@ -339,7 +339,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 }
                 if (content.startsWith("CT0001")) {
                     val analysisRes = runBlocking {
-                        val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(mPayCfg.campusId ?: "", "PAY002", mPayCfg.corp_id ?: "", content)
+                        val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(mPayCfg.campusId ?: "", "PAY002", mPayCfg.corpId ?: "", content)
                         val analysisResult = mRespository.getCcbData(qrCodeMap).body()?.string() ?: ""
                         Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
                     }
@@ -701,7 +701,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         hashMap.put("PT_LANGUAGE","CN")
         hashMap.put("CAMPUS_ID", mPayCfg.campusId)
         hashMap.put("TXCODE","VIAC05")
-        hashMap.put("CORP_ID", mPayCfg.corp_id)
+        hashMap.put("CORP_ID", mPayCfg.corpId)
         hashMap.put("ccbSafeParam",prikey)
 
         val res = mRespository.ccbPersonBanlance(hashMap)
