@@ -31,17 +31,29 @@
             android:drawableStart="@drawable/ic_noodles"/>
 
         <TextView
+            android:id="@+id/sort"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_marginStart="30dp"
+            android:gravity="center"
+            android:text=" 排序 "
+            android:textSize="28sp"
+            android:paddingStart="27dp"
+            android:paddingEnd="20dp"
+            android:background="@drawable/shape_tv_bg"
+            android:drawableStart="@drawable/ic_sort"/>
 
+        <TextView
             android:id="@+id/tv_title"
             android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:gravity="center"
+            android:gravity="center_vertical"
+            android:paddingStart="100dp"
             android:text="@string/dg_canteen"
             android:textStyle="bold"
             android:textColor="#4095E5"
-
             android:textSize="48sp"/>
 
         <TextView

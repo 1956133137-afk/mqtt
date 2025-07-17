@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -49,6 +50,8 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
     private DifferrentDialogBinding binding;
     private int mealIds = 0;
     private ProductsAdapter adapterDishes;
+
+    private int dishSort = 1;
 
     private DataPresenter presenter;
     private PayForAdapter adapterPayFor;
@@ -139,24 +142,17 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
                     0
             ));
         }
-//        adapterDishes.setData(dataList);
         /* 按价格排序 */
-        List<DishesInfo> dishSortList = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            dishSortList = dataList.stream()
-                    .sorted(Comparator.comparing(DishesInfo::getPrice).thenComparing(DishesInfo::getDishesName))
-                    .collect(Collectors.toList());
-        } else {
+        List<DishesInfo> dishSortList;
             Collections.sort(dataList, new Comparator<DishesInfo>() {
                 @Override
                 public int compare(DishesInfo p1, DishesInfo p2) {
                     int compareOne = String.valueOf(p1.getPrice()).compareTo(String.valueOf(p2.getPrice()));
-                    if (compareOne != 0) return compareOne;
-                    return p1.getDishesName().compareTo(p2.getDishesName());
+                    if (compareOne != 0) return compareOne * dishSort;
+                    return - p1.getDishesName().compareTo(p2.getDishesName());
                 }
             });
             dishSortList = dataList;
-        }
         adapterDishes.setData(dishSortList);
     }
 
@@ -168,6 +164,10 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
             clearShoppingCart();
         });
 
+        binding.sort.setOnClickListener(view -> {
+            dishSort = - dishSort;
+            dishesData();
+        });
 
         binding.btSureMeal.setOnClickListener(v -> {
             if (adapterPayFor.getData().size() < 1) {
