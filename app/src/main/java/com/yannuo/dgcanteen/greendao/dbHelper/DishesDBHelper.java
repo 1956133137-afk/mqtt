@@ -184,6 +184,16 @@ public class DishesDBHelper {
 
         return mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status))
+                .orderAsc(DishesTableDao.Properties.Price)
+                .build()
+                .list();
+    }
+
+    public List<DishesTable> queryDishesByMealIdAneStatusDesc(int MealId, int Status) {
+
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status))
+                .orderDesc(DishesTableDao.Properties.Price)
                 .build()
                 .list();
     }

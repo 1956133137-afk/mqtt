@@ -125,7 +125,13 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
 
     public void dishesData() {
         List<DishesInfo> dataList = new ArrayList<>();
-        List<DishesTable> list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
+        List<DishesTable> list;
+        if(dishSort == 1){
+            list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
+        }else{
+            list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatusDesc(mealIds, 1);
+        }
+
         for (DishesTable u : list) {
             String imgUrl = (u.getImgUrl() == null || u.getImgUrl().isEmpty()) ? "" : u.getImgUrl();
             Integer status = u.getStatus();
@@ -142,20 +148,8 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
                     0
             ));
         }
-        /* 按价格排序 */
-        List<DishesInfo> dishSortList;
-            Collections.sort(dataList, new Comparator<DishesInfo>() {
-                @Override
-                public int compare(DishesInfo p1, DishesInfo p2) {
-                    int compareOne = String.valueOf(p1.getPrice()).compareTo(String.valueOf(p2.getPrice()));
-                    if (compareOne != 0) return compareOne * dishSort;
-                    return - p1.getDishesName().compareTo(p2.getDishesName());
-                }
-            });
-            dishSortList = dataList;
-        adapterDishes.setData(dishSortList);
+        adapterDishes.setData(dataList);
     }
-
 
     private void initEvent() {
         binding.ibDelAll.setOnClickListener(view -> {
@@ -203,8 +197,6 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
             }
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
         });
-
-
     }
 
     //清空购物车
@@ -230,7 +222,6 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
     }
-
 
     //EvenBus事件监听处理
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -262,7 +253,6 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
         if (foodsCallback != null)
             foodsCallback.onFoodsUpdate(adapterPayFor.getData());
     }
-
 
     //根据餐别时间，更新餐别
     public void subScreenView(int mealId, StringBuilder str) {

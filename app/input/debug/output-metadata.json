@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 78,
-      "versionName": "1.7.8",
-      "outputFile": "ccb_canteen-input-v1.7.8-debug.apk"
+      "versionCode": 82,
+      "versionName": "1.8.2",
+      "outputFile": "ccb_canteen-input-v1.8.2-debug.apk"
     }
   ],
   "elementType": "File"
