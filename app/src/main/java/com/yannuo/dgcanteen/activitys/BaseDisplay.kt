@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Display
 import android.view.WindowManager
+import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.util.DisplayUtils
 import com.yannuo.dgcanteen.util.LogUtil
 

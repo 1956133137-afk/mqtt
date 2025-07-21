@@ -51,6 +51,9 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
     private int mealIds = 0;
     private ProductsAdapter adapterDishes;
 
+    private MMKV kv;
+
+    //排序状态
     private int dishSort = 1;
 
     private DataPresenter presenter;
@@ -87,6 +90,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
     }
 
     private void initObject() {
+        kv = MMKV.defaultMMKV();
         refreshMeal();
         adapterDishes = new ProductsAdapter(getContext());
         adapterDishes.setListener(this);
@@ -107,12 +111,11 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
 
     private void initView() {
         binding.rvSelectItem.setAdapter(adapterPayFor);
-        MMKV mv = MMKV.defaultMMKV();
-        PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
+        PayCfg payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
         if (payCfg != null) {
             binding.selectStopper.setText(payCfg.getWindowName());
         }
-        if (mv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
+        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
             binding.btVerification.setVisibility(View.VISIBLE);
         } else {
             binding.btVerification.setVisibility(View.GONE);
@@ -126,6 +129,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
     public void dishesData() {
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list;
+        dishSort = kv.decodeInt(Constant.DISH_SORT,1);
         if(dishSort == 1){
             list = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatus(mealIds, 1);
         }else{
@@ -160,6 +164,7 @@ public class DifferentDisplay extends BaseDisplay implements ProductsAdapter.Wor
 
         binding.sort.setOnClickListener(view -> {
             dishSort = - dishSort;
+            kv.encode(Constant.DISH_SORT, - kv.decodeInt(Constant.DISH_SORT,1));
             dishesData();
         });
 

@@ -133,6 +133,8 @@ object Constant {
 
     const val WHETHER_SHOW_PAYMENT = "whetherShowPayment"   //是否显示交易金额信息 Boolean
 
+    const val DISH_SORT = "dishSort" //点餐模式菜品排序状态
+
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐
     const val EVENT_SECOND = 2 // 刷脸支付
