@@ -68,6 +68,7 @@ object Constant {
 
     const val APP_MODE = "appMode" //点餐模式 、付款模式、未设置
     const val ORDERING_FOOD_MODE = "点餐模式"
+    const val NO_PIC_MODE = "双栏点餐模式"
     const val PROCEEDS_MODE = "收款模式"
     const val ORDERING_TWO_MODE = "点餐模式2"
     const val ORDERING_MEAL_MODE = "订餐模式"

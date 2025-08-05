@@ -51,9 +51,9 @@ import java.lang.ref.WeakReference
 import kotlin.system.exitProcess
 
 /**
- * 点餐模式
+ * 双栏点餐模式
  */
-class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
+class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -74,7 +74,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private var delayTime = 20L
 
     @Volatile
-    private var mProductsDisplay: DifferentDisplay? = null  //点餐界面
+    private var mProductsDisplay: DifferentOnDisplay? = null  //点餐界面
 
     @Volatile
     private var mChooseDisplay: ChooseDisplay? = null  //付款选择界面
@@ -110,9 +110,12 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         }
     }
 
+
     override fun bindLayout() {
         binding = ActivityCommodityBinding.inflate(layoutInflater)
+
     }
+
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onInit() {
@@ -134,13 +137,14 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         }
     }
 
+
     private fun initPresentation() {
         val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
         displayManager?.displays?.also {
             secondDisplays = it[1]
 //            mProductsDisplay?.cancel()
             mProductsDisplay?.safeCancel()
-            mProductsDisplay = DifferentDisplay(this, secondDisplays)
+            mProductsDisplay = DifferentOnDisplay(this, secondDisplays)
             mProductsDisplay?.foodsCallback = this
             LogUtil.i(TAG, "foodsCallback: ${mProductsDisplay?.foodsCallback}")
             clearFoods()
@@ -152,6 +156,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             mChooseDisplay = null
         }
     }
+
 
     private fun initObj() {
         handler = MyHandler(this)
@@ -201,7 +206,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         mXService?.hideNavBar = true
 //        mProductsDisplay?.cancel()
         mProductsDisplay?.safeCancel()
-        mProductsDisplay = DifferentDisplay(this, secondDisplays)
+        mProductsDisplay = DifferentOnDisplay(this, secondDisplays)
         mProductsDisplay?.show()
         binding.btnToggleVerify.visibility = if (kv.decodeBool(Constant.QUICK_SWITCH_MODE, false)) View.VISIBLE else View.GONE
 //        initPresentation()  这里含有回调，会显示
@@ -225,7 +230,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 }
 //                mProductsDisplay?.cancel()
                 mProductsDisplay?.safeCancel()
-                mProductsDisplay = DifferentDisplay(this, secondDisplays)
+                mProductsDisplay = DifferentOnDisplay(this, secondDisplays)
                 mProductsDisplay?.setFoodsCallback(this)
                 clearFoods()
                 mProductsDisplay?.show()
@@ -256,7 +261,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
                 binding.tvBack.text = "输入密码"
                 setListener(object : CloseEvent {
                     override fun onEvent(code: Int, msg: String?) {
-                        startActivity(Intent(this@CommodityActivity, SettingActivity::class.java))
+                        startActivity(Intent(this@CommodityOnActivity, SettingActivity::class.java))
                     }
                 })
             }
@@ -657,7 +662,7 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     private fun startDishDisplay() {
 //        mProductsDisplay?.cancel()
         mProductsDisplay?.safeCancel()
-        mProductsDisplay = DifferentDisplay(this, secondDisplays)
+        mProductsDisplay = DifferentOnDisplay(this, secondDisplays)
         mProductsDisplay?.setFoodsCallback(this)
         clearFoods()
         mProductsDisplay?.show()
@@ -679,8 +684,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
 
-    inner class MyHandler(context: CommodityActivity) : Handler() {
-        private var reference: WeakReference<CommodityActivity> = WeakReference(context)
+    inner class MyHandler(context: CommodityOnActivity) : Handler() {
+        private var reference: WeakReference<CommodityOnActivity> = WeakReference(context)
 
         override fun handleMessage(msg: Message) {
             val ref = reference.get() ?: return

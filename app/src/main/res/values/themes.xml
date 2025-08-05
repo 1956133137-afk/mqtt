@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
 <!--    <style name="Theme.CommodityPay" parent="Theme.MaterialComponents.DayNight.DarkActionBar.Bridge">-->
 <!--    <style name="Theme.CommodityPay" parent="Theme.AppCompat.Light.NoActionBar">-->
-    <style name="Theme.CommodityPay" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
+    <style name="Theme.CommodityPay" parent="Theme.AppCompat.Light.NoActionBar">
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">#4095E5</item>

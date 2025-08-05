@@ -65,6 +65,9 @@
             android:name=".activitys.CommodityActivity"
             android:exported="false" />
         <activity
+            android:name=".activitys.CommodityOnActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.CalculateActivity"
             android:exported="false" />
         <activity

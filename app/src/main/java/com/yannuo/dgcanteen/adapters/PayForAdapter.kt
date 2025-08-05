@@ -25,15 +25,20 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
 
         holder.binding.tvItemName.text = data.get(position).dishesName
         holder.binding.tvThisMoney.text = "￥${data.get(position).price}"
-        holder.binding.adAddSubtract.setCount(data.get(position).count)
+        holder.binding.adAddSubtract.setCount(data[position].count)
     }
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
-        map.set(data[position].dishesId,position) //维护数据位置
+        map[data[position].dishesId] = position //维护数据位置
         if (payloads.isEmpty().not()){
-            holder.binding.tvThisMoney.text = "￥${data.get(position).price}"
-            holder.binding.adAddSubtract.setCount(data.get(position).count)
-            LogUtil.d(TAG,"update payload:  ${payloads.get(0)}")
+            holder.binding.tvThisMoney.text = "￥${data[position].price}"
+            if(data[position].count > 0) {
+                holder.binding.adAddSubtract.setCount(data[position].count)
+            }
+            else{
+                map.remove(data[position].dishesId)
+                mData.removeAt(position)
+            }
         }
         else{
             bindHolder(holder, position)
@@ -52,11 +57,11 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
     //操作同一个商品对象，手选择商品不进行累加，直接就可以更新界面；扫码选择商品的时候，需要进行数量累加操作
     fun insertedData(data: DishesInfo?,accumulation :Boolean) {
         data?.apply {
-            val position = map.get(this.dishesId)
+            val position = map[this.dishesId]
             if (position == null) {
                 if (accumulation) this.count +=1
                 mData.add(this)
-                notifyItemInserted(getItemCount()-1)
+                notifyItemInserted(itemCount -1)
             }else{
                 if (accumulation) mData.get(position).count +=1
                 notifyItemChanged(position,"count")

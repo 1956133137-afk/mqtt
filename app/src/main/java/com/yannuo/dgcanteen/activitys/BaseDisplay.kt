@@ -11,6 +11,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.util.DisplayUtils
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.adaptScreenUtil
 
 /**
  * @dsc     简介
@@ -18,7 +19,7 @@ import com.yannuo.dgcanteen.util.LogUtil
  * @Date    2024/8/19 15:42
  * @Version 1.0
  */
-open class BaseDisplay(private val context: Context, display: Display) : Presentation(context, display) {
+open class BaseDisplay(context: Context, display: Display) : Presentation(context, display) {
 
     private var isCancel: Boolean = false
 
@@ -26,11 +27,7 @@ open class BaseDisplay(private val context: Context, display: Display) : Present
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY - 1)
         else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         else window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT or WindowManager.LayoutParams.TYPE_PHONE)
-        if (context is Activity) {
-            DisplayUtils.setCustomDensity(1920, this, context, context.application)
-        } else {
-            LogUtil.i(this::class.simpleName, "Display's context is not activity!!!")
-        }
+        adaptScreenUtil.instance.adaptScreen(this.context,1920)
         super.onCreate(savedInstanceState)
     }
 

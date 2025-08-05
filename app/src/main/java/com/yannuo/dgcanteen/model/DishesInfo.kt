@@ -10,4 +10,7 @@ data class DishesInfo(
     var unit:String,            //菜品单位
     var imgUrl:String,         //菜品图片
     var status:Int,             //菜品上下架情况
-    var count:Int  = 0)          //产品数量
+    var count:Int  = 0             //产品数量
+){
+    var categoryName:String? = null
+}

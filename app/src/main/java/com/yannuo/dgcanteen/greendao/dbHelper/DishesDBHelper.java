@@ -202,6 +202,7 @@ public class DishesDBHelper {
 
         return mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.MealId.eq(MealId), DishesTableDao.Properties.Status.eq(Status), DishesTableDao.Properties.CategoryName.eq(Category))
+                .orderAsc(DishesTableDao.Properties.Price)
                 .build()
                 .list();
     }

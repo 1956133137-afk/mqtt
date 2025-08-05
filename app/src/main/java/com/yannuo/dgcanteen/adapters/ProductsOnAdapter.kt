@@ -12,15 +12,17 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.databinding.ProductOnShowBinding
 import com.yannuo.dgcanteen.databinding.ProductShowBinding
 import com.yannuo.dgcanteen.model.DishesInfo
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.PictureUtil
 
 
-class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBinding> (){
+class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,ProductOnShowBinding> (){
     private var listener: WorkListener ?= null
     private var cnt = context
+    private var type = type
     private var wh: GridLayoutManager? = null
     private var sizeWH = 200
     private var firstCaclulate = true
@@ -29,7 +31,7 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
     fun update(da :DishesInfo){
         var result = false
         for(index in data.indices){
-            result = data[index].dishesId.equals(da.dishesId)
+            result = data[index].dishesId == da.dishesId
             if (result) {
                 data[index].count = da.count
                 notifyItemChanged(index, "count")
@@ -38,9 +40,9 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
         }
     }
 
-    override fun getB(inflater: LayoutInflater, parent: ViewGroup): ProductShowBinding {
+    override fun getB(inflater: LayoutInflater, parent: ViewGroup): ProductOnShowBinding {
         holdWidth = parent.width
-        return ProductShowBinding.inflate(inflater, parent, false)
+        return ProductOnShowBinding.inflate(inflater, parent, false)
     }
 
     override fun bindHolder(holder: Holder, position: Int) {
@@ -48,8 +50,7 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
         val data = mData.get(position)
         holder.binding.tvName.text = data.dishesName
         holder.binding.tvNumber.text = "￥${data.price}"
-        holder.binding.cvCountAdd.updateValue(data.count)
-        val layoutParams = holder.binding.ivPic.layoutParams
+        holder.binding.countText.text = data.count.toString()
 
         if (firstCaclulate) {
             wh?.let {
@@ -61,17 +62,12 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
                 firstCaclulate = false
             }
         }
-        layoutParams.height = sizeWH
-        layoutParams.width = sizeWH
-        holder.binding.ivPic.layoutParams = layoutParams
-        cnt?.let { Glide.with(it).load(PictureUtil.getPictureName(data.imgUrl, cnt)).diskCacheStrategy(DiskCacheStrategy.NONE).placeholder(R.drawable.no_picture)
-            .transform(CenterCrop(), GranularRoundedCorners(10f,10f,0f,0f)).into(holder.binding.ivPic) }
     }
 
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty().not()){
-            holder.binding.cvCountAdd.updateValue(data[position].count)
-            LogUtil.d(TAG,"update payload:  ${payloads.get(0)}")
+            holder.binding.countText.text = data[position].count.toString()
+            LogUtil.d(TAG,"update payload:  ${payloads[0]}")
         }
         else{
           bindHolder(holder, position)
@@ -79,13 +75,23 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
     }
 
     override fun addEventListener(holder :Holder) {
-        holder.itemView.setOnClickListener {
+        holder.binding.cvCountAdd.setOnClickListener {
             val position = holder.adapterPosition
-            LogUtil.d(TAG,"添加 $position")
             if (position == RecyclerView.NO_POSITION)return@setOnClickListener
-            mData.get(position).count +=1
+            mData[position].count += 1
+            holder.binding.countText.text  = mData[position].count.toString()
             notifyItemChanged(position,"count")
-            listener?.onEventClick(position)
+            listener?.onEventClick(position,type)
+        }
+        holder.binding.cvCountSubtract.setOnClickListener {
+            val position = holder.adapterPosition
+            if (position == RecyclerView.NO_POSITION)return@setOnClickListener
+            if(mData[position].count > 0){
+                mData[position].count -= 1
+                holder.binding.countText.text  = mData[position].count.toString()
+                notifyItemChanged(position,"count")
+                listener?.onEventClick(position,type)
+            }
         }
     }
 
@@ -98,6 +104,6 @@ class ProductsAdapter(context :Context?) : BaseAdapter<DishesInfo,ProductShowBin
     }
 
     interface WorkListener{
-        fun onEventClick(position :Int)
+        fun onEventClick(position :Int,type: Int)
     }
 }

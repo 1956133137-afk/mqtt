@@ -163,6 +163,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         initModeAdapter.addData(
             mutableListOf(
                 Constant.ORDERING_FOOD_MODE,
+                Constant.NO_PIC_MODE,
                 Constant.PROCEEDS_MODE,
                 Constant.ORDERING_MEAL_MODE,
                 Constant.ORDERING_VERIFY_MODE,
@@ -221,7 +222,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
                     when (mode) {
@@ -235,6 +236,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
                         else -> {
                             when (mode) {
                                 Constant.ORDERING_FOOD_MODE -> Intent(this@InitActivity, CommodityActivity::class.java)
+                                Constant.NO_PIC_MODE -> Intent(this@InitActivity, CommodityOnActivity::class.java)
                                 Constant.ORDERING_TWO_MODE -> Intent(this@InitActivity, OrderMenuActivity::class.java)
                                 Constant.PROCEEDS_MODE -> Intent(this@InitActivity, CalculateActivity::class.java)
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)

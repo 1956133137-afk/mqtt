@@ -69,7 +69,7 @@ public class RetrofitClient {
                 String basePath = "";
                 int ccbCorpType = MMKV.defaultMMKV().decodeInt(Constant.CCB_CORP_TYPE, 0);
                 if (Constant.ENVIRONMENT_TYPE.equals("01")) basePath = ccbCorpType == 0 ? "https://dining.icenter.ccb.com/CCBIS/" : "https://dining.ccblife.ccb.com/CCBIS/";
-                else basePath = ccbCorpType == 0 ? "http://124.127.94.58:28880/CCBIS/" : "";
+                else basePath = ccbCorpType == 0 ? "http://124.127.94.38:28880/CCBIS/" : "";
                 mCcbService = new Retrofit.Builder()
                         .client(OkHttpUtils.Companion.getInstance())
                         .baseUrl(basePath)

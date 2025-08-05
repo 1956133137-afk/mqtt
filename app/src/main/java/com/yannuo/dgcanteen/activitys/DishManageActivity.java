@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -91,9 +92,20 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
 
         binding.ibtBack.setOnClickListener(view -> {
             Intent intent;
-            if (MMKV.defaultMMKV().decodeString(Constant.APP_MODE).equals(Constant.ORDERING_FOOD_MODE))
-                intent = new Intent(this, CommodityActivity.class);
-            else intent = new Intent(this, OrderMenuActivity.class);
+//            if (MMKV.defaultMMKV().decodeString(Constant.APP_MODE).equals(Constant.ORDERING_FOOD_MODE))
+//                intent = new Intent(this, CommodityActivity.class);
+//            else intent = new Intent(this, OrderMenuActivity.class);
+            switch (Objects.requireNonNull(MMKV.defaultMMKV().decodeString(Constant.APP_MODE))){
+                case Constant.ORDERING_FOOD_MODE:
+                    intent = new Intent(this, CommodityActivity.class);
+                    break;
+                case Constant.NO_PIC_MODE:
+                    intent = new Intent(this, CommodityOnActivity.class);
+                    break;
+                default:
+                    intent = new Intent(this, OrderMenuActivity.class);
+                    break;
+            }
             startActivity(intent);
             finish();
         });

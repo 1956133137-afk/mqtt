@@ -352,6 +352,7 @@ class ModeSettingFragment : Fragment() {
     private fun changeConsumeMode() {
         val array = arrayOf(
             Constant.ORDERING_FOOD_MODE,
+            Constant.NO_PIC_MODE,
             Constant.ORDERING_TWO_MODE,
             Constant.PROCEEDS_MODE,
             Constant.PROCEEDS_TWO_MODE,
@@ -367,7 +368,8 @@ class ModeSettingFragment : Fragment() {
             array[3] -> 3
             array[4] -> 4
             array[5] -> 5
-            else -> 6
+            array[6] -> 6
+            else -> 7
         }
         val builder = AlertDialog.Builder(requireContext())
         builder.setCancelable(false)

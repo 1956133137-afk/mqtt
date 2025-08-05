@@ -1,6 +1,9 @@
 package com.yannuo.dgcanteen.activitys
 
+import android.content.Context
 import android.graphics.Color
+import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -12,6 +15,7 @@ import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DisplayUtils
 import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.adaptScreenUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +35,8 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
 
         super.onCreate(savedInstanceState)
 
-        DisplayUtils.setCustomDensity(1920, null, this, application)
+//        DisplayUtils.setCustomDensity(1920, null, this, application)
+        adaptScreenUtil.instance.adaptScreen(this,1920)
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -67,9 +72,6 @@ abstract class BaseActivity<T :ViewBinding> : AppCompatActivity()  {
         onInit()
 
     }
-
-
-
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
