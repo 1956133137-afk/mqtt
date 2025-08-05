@@ -1,10 +1,7 @@
 package com.yannuo.dgcanteen.activitys;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;

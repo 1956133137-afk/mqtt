@@ -5,9 +5,11 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -263,23 +265,31 @@ class ModeSettingFragment : Fragment() {
                 sdcardPath = f.absolutePath + "/device-record/pay/log"
             }
             CoroutineScope(Dispatchers.IO).launch {
-                EmailSender.sendEmail(
-                    "zhangzhanmian@yannuozhineng.com",
-                    "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
-                    "序列号：${serial}", object : EmailSender.CallbackListener {
-                        override fun onStare(code: Int, msg: String?) {
-                            requireActivity().runOnUiThread(Runnable {
-                                when (code) {
-                                    0 -> {
-                                        awaitingDialog.cancel()
-                                        ToastShowUtil.show("上送成功")
+                try {
+                    EmailSender.sendEmail(
+                        "zhangzhanmian@yannuozhineng.com",
+                        "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
+                        "序列号：${serial}", object : EmailSender.CallbackListener {
+                            override fun onStare(code: Int, msg: String?) {
+                                requireActivity().runOnUiThread(Runnable {
+                                    when (code) {
+                                        0 -> {
+                                            awaitingDialog.cancel()
+                                            ToastShowUtil.show("上送成功")
+                                        }
+                                        10 -> awaitingDialog.show()
+                                        else -> awaitingDialog.cancel()
                                     }
-                                    10 -> awaitingDialog.show()
-                                    else -> awaitingDialog.cancel()
-                                }
-                            })
+                                })
+                            }
                         }
-                    })
+                    )
+                }catch (th: Throwable){
+                    withContext(Dispatchers.Main){
+                        awaitingDialog.cancel()
+                        ToastShowUtil.show("上传异常，请重试")
+                    }
+                }
             }
         }
         binding.orderPrinterFormat.setOnClickListener { //切换支付

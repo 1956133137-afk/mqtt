@@ -50,7 +50,7 @@ class ProductsVM : ViewModel() {
     private val dishesList: MutableList<DishesInfo> = mutableListOf()
 
     private val mRespository: PayRepositoryOfPay = PayRepositoryOfPay()
-    private val mPayCfg: PayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
+    private var mPayCfg: PayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
     private var mDishesDisplay: DishesDisplay? = null
     var listener: IProductsVM? = null
 
@@ -236,6 +236,7 @@ class ProductsVM : ViewModel() {
      * @throws RemoteException
      */
     fun startPayWithFace(service: ZHSTFacePayService?, detail: ProductsDetail) {
+        mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         viewModelScope.launch(exceptionHandler + Dispatchers.IO) {
             if (TextUtils.isEmpty(mPayCfg.campusId) || TextUtils.isEmpty(mPayCfg.businessId) || TextUtils.isEmpty(mPayCfg.counterId)) {
                 LogUtil.e(TAG, "未配置支付环境")
