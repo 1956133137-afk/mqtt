@@ -483,7 +483,11 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
         successBinding!!.tvName.text = payForUI.username
         successBinding!!.tvBalance.text = if (payForUI.accBal.isEmpty()) "" else payForUI.accBal + "元"
         successBinding!!.tvPayment.text = if (payForUI.payment.isEmpty()) "" else payForUI.payment + "元"
-        successBinding!!.tvDiscount.text = payForUI.discountMsg.ifEmpty { "" }
+        if (payForUI.discountMsg.isEmpty()) successBinding!!.tvDiscount.visibility = View.GONE
+        else {
+            successBinding!!.tvDiscount.visibility = View.VISIBLE
+            successBinding!!.tvDiscount.text = payForUI.discountMsg
+        }
         successBinding!!.tvPayTime.text = payForUI.payTime
         successBinding!!.tvTransNumber.text = if (payForUI.orderId.isEmpty()) payForUI.traceId else payForUI.orderId
 

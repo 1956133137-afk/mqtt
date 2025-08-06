@@ -101,6 +101,20 @@ class PayRepositoryOfPay {
         return RetrofitClient.getApiCcb().ccbRequestNet(map)
     }
 
+    suspend fun getCcbServlet(map: Map<String, String>): String {
+        val response = apiCall2 { RetrofitClient.getApiCcb().ccbRequestNet(map) }
+        var params: String = ""
+        if (response.code == "200") params = response.data?.body()?.string() ?: ""
+        else {
+            val errorMap = HashMap<String, String>()
+            errorMap["RESULT"] = "N"
+            errorMap["ERRCODE"] = response.code
+            errorMap["ERRMSG"] = response.msg
+            params = Gson().toJson(errorMap)
+        }
+        return params.trim().replace("(\r\n|\n\r|\n|\r)".toRegex(), "")
+    }
+
     suspend fun getConsumeStatus(data: SpendLimitBean): CanteenResponse<LimitBean> {
         return apiCall {
             return@apiCall RetrofitClient.getApi().spendLimit(data)
@@ -337,6 +351,20 @@ class PayRepositoryOfPay {
                 return@withContext ApiException.build(e).toResponse<T>()
             }
             res
+        }
+    }
+
+    private suspend fun <T> apiCall2(call: suspend CoroutineScope.() -> T): CanteenResponse<T> {
+        return withContext(Dispatchers.IO) {
+            val res: CanteenResponse<T>
+            try {
+                res = CanteenResponse()
+                res.data = call()
+            } catch (e: Throwable) {
+                // 请求出错，将状态码和消息封装为 ResponseResult
+                return@withContext ApiException.build(e).toResponse<T>()
+            }
+            return@withContext res
         }
     }
 }

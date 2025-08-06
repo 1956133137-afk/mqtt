@@ -210,10 +210,10 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                             payForUI.payContent.contains("CT0001") -> {
                                 val res = runBlocking(Dispatchers.IO + mHandler) {
                                     val map = CanteenEncryptionUtil.getAnalysisQr(payForUI.campusId, "PAY002", payForUI.corpId, payForUI.payContent)
-                                    val analysisResult = mRespository.getCcbData(map).body()?.string() ?: ""
-                                    Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
+                                    val analysisResult = mRespository.getCcbServlet(map)
+                                    Gson().fromJson(analysisResult, ScanAnalysisBean::class.java)
                                 }
-                                if (res != null) {
+                                if (res != null && res.CUST_ID.isNotEmpty()) {
                                     val person = dbHelper.queryPersonToCustId(res.CUST_ID)
                                     if (person != null) custId = person.custId
                                 }
@@ -340,8 +340,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 if (content.startsWith("CT0001")) {
                     val analysisRes = runBlocking {
                         val qrCodeMap = CanteenEncryptionUtil.getAnalysisQr(mPayCfg.campusId ?: "", "PAY002", mPayCfg.corpId ?: "", content)
-                        val analysisResult = mRespository.getCcbData(qrCodeMap).body()?.string() ?: ""
-                        Gson().fromJson(analysisResult.replace("\r\n", ""), ScanAnalysisBean::class.java)
+                        val analysisResult = mRespository.getCcbServlet(qrCodeMap)
+                        Gson().fromJson(analysisResult, ScanAnalysisBean::class.java)
                     }
                     if (analysisRes.RESULT != "Y") {
                         LogUtil.e(TAG, "在线二维码解析失败！")

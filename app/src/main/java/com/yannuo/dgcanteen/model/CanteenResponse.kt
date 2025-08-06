@@ -1,6 +1,6 @@
 package com.yannuo.dgcanteen.model
 
-class CanteenResponse<T>(code: String = "", message: String = "") {
+class CanteenResponse<T>(code: String = "200", message: String = "") {
     var code: String = code
     var msg: String = message
     var data: T? = null

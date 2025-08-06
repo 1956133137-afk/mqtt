@@ -29,6 +29,7 @@ import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityCommodityBinding
 import com.yannuo.dgcanteen.databinding.PayFailureHostBinding
 import com.yannuo.dgcanteen.databinding.PaySuccessHostBinding
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CloseEvent
@@ -96,6 +97,7 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
     private var successBinding: PaySuccessHostBinding? = null
     private var failBinding: PayFailureHostBinding? = null
     private var adapterDishes: FoodsAdapter? = null
+    private val confirmDialog by lazy { ConfirmDialog(this) }
     private val viewModel by lazy {
         VerificationVM()
     }
@@ -387,6 +389,15 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
                 CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
                 val i = Intent(this, CardVerificationActivity::class.java)
                 startActivity(i)
+            }
+
+            Constant.EVENT_NETWORK_EXCEPTION -> handler.post {
+                val status: Int = event.any as Int
+                binding.ivNetExc.visibility = if (status == 0) View.GONE else View.VISIBLE
+                if (status == 1 && !confirmDialog.isShowing) {
+                    confirmDialog.show()
+                    confirmDialog.setBackTime("网络异常，订单将转离线！", 5L)
+                }
             }
         }
     }

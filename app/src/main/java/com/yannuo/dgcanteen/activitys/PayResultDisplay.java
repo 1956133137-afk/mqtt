@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -119,7 +120,11 @@ public class PayResultDisplay extends BaseDisplay {
         mBinding.tvName.setText(mPayForUI.getUsername());
         mBinding.tvBalance.setText(mPayForUI.getAccBal().isEmpty() ? "" : mPayForUI.getAccBal() + "元");
         mBinding.tvPayment.setText(mPayForUI.getPayment().isEmpty() ? "" : mPayForUI.getPayment() + "元");
-        mBinding.tvDiscount.setText(mPayForUI.getDiscountMsg().isEmpty() ? "" : mPayForUI.getDiscountMsg());
+        if (mPayForUI.getDiscountMsg().isEmpty()) mBinding.tvDiscount.setVisibility(View.GONE);
+        else {
+            mBinding.tvDiscount.setVisibility(View.VISIBLE);
+            mBinding.tvDiscount.setText(mPayForUI.getDiscountMsg());
+        }
         mBinding.tvPayTime.setText(mPayForUI.getPayTime());
         mBinding.tvTransNumber.setText(mPayForUI.getOrderId().isEmpty() ? mPayForUI.getTraceId() : mPayForUI.getOrderId());
     }
