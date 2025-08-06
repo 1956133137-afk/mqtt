@@ -222,6 +222,14 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                         }
                     } else EventBus.getDefault().post(MessageEvent(Constant.EVENT_OTHER_PAY, event.any))
                 }
+                Constant.EVENT_NETWORK_EXCEPTION -> {
+                    val status: Int = event.any as Int
+                    binding.ivNetExc.visibility = if (status == 0) View.GONE else View.VISIBLE
+                    if (status == 1 && !confirmDialog.isShowing) {
+                        confirmDialog.show()
+                        confirmDialog.setBackTime("网络异常，订单将转离线！", 10L)
+                    }
+                }
             }
         }
     }

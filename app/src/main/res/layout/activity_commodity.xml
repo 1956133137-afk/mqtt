@@ -55,6 +55,15 @@
             android:background="@color/transparency"
             android:src="@drawable/ic_drama" />
 
+        <ImageView
+            android:id="@+id/iv_net_exc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_net_exc"
+            android:visibility="gone" />
+
         <ImageButton
             android:id="@+id/server"
             android:layout_width="wrap_content"

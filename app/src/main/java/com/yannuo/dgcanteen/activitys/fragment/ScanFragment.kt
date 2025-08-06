@@ -167,6 +167,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                         if (!this::awaitPayDialog.isInitialized) awaitPayDialog = AwaitingDialog(requireActivity())
                         awaitPayDialog.show()
                         awaitPayDialog.updateText("支付中")
+                        countDown?.cancel()
                     }
                     2 -> { //异常
                         ToastShowUtil.show("支付异常：$any")

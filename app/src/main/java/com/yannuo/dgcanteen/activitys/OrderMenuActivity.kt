@@ -29,6 +29,7 @@ import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
 import com.yannuo.dgcanteen.adapters.ScreenSlidePagerAdapter
 import com.yannuo.dgcanteen.databinding.ActivityOrderMenueBinding
+import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CallbackListener
@@ -69,7 +70,7 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
     private var secondDisplays: Display? = null
     private var mFacePayService: ZHSTFacePayService? = null
     private var delayTime = 20L
-
+    private val confirmDialog by lazy { ConfirmDialog(this) }
 
     private var loadingDialog: LoadingDialog? = null //后台加载框
     private lateinit var passwordDialog: PasswordDialog
@@ -312,6 +313,15 @@ class OrderMenuActivity : BaseActivity<ActivityOrderMenueBinding>(), IProductsVM
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启刷脸核销事件")
                 CommonAndDpToPxUtil.speakWork("请刷脸进行核销")
                 runOnUiThread { faceVerification() }
+            }
+
+            Constant.EVENT_NETWORK_EXCEPTION -> handler.post {
+                val status: Int = event.any as Int
+                binding.ivNetExc.visibility = if (status == 0) View.GONE else View.VISIBLE
+                if (status == 1 && !confirmDialog.isShowing) {
+                    confirmDialog.show()
+                    confirmDialog.setBackTime("网络异常，订单将转离线！", 5L)
+                }
             }
         }
     }

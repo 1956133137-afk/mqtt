@@ -16,11 +16,11 @@
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:background="@color/white"
             android:gravity="center"
-            android:paddingLeft="20dp"
             android:text="@string/dg_canteen"
             android:textColor="#4095E5"
             android:textSize="48sp"
@@ -29,7 +29,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:src="@drawable/ic_logo_hor" />
 
@@ -37,15 +37,28 @@
             android:id="@+id/select_stopper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/server"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/iv_net_exc"
             android:padding="5dp"
             android:textColor="#4F4F4F"
             android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/iv_net_exc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/server"
+            android:layout_marginStart="30dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_net_exc"
+            android:visibility="gone"/>
 
         <ImageButton
             android:id="@+id/server"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:layout_marginStart="30dp"
             android:layout_toStartOf="@+id/network"
             android:background="@color/transparency"
@@ -56,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="50dp"
             android:background="@color/transparency"

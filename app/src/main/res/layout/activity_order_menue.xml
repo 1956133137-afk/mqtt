@@ -25,6 +25,18 @@
             android:background="@color/transparency"
             android:src="@drawable/ic_drama"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_net_exc"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_net_exc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:background="@color/transparency"
+            android:src="@drawable/ic_net_exc"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/server"
             app:layout_constraintTop_toTopOf="parent" />
 

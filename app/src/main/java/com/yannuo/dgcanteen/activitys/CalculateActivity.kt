@@ -689,6 +689,14 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                 binding.btnMealTimeMode.visibility = if (boolean) View.VISIBLE else View.GONE
                 binding.btnSetting.width = if (boolean) WindowManager.LayoutParams.WRAP_CONTENT else WindowManager.LayoutParams.MATCH_PARENT
             }
+            Constant.EVENT_NETWORK_EXCEPTION -> handler.post {
+                val status: Int = event.any as Int
+                binding.ivNetExc.visibility = if (status == 0) View.GONE else View.VISIBLE
+                if (status == 1 && !confirmDialog.isShowing) {
+                    confirmDialog.show()
+                    confirmDialog.setBackTime("网络异常，订单将转离线！", 10L)
+                }
+            }
         }
     }
 

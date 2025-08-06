@@ -167,6 +167,10 @@ object Constant {
     const val UPDATE_MEAL_TIME_BILL = 43 // 更新calculate activity的订单量信息
     const val EVENT_MEAL_TIME_SWITCH = 44   //餐次按钮状态
 
+    @JvmStatic
+    var NRE_TIMES: Int = 0  //网络请求异常次数
+    const val EVENT_NETWORK_EXCEPTION = 50 //网络异常改变
+
     const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径
     const val PRINTER_BAUD_SET = "printer_baud"  //打印机波特率

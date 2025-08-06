@@ -135,6 +135,10 @@ interface ApiService {
     @POST("android/scanFacePayment")
     suspend fun payByFace(@Body bean: RequestPay): CanteenResponse<String>
 
+    @Headers("content-type: application/json")
+    @POST("android/{pathUrl}")
+    suspend fun payYnServlet(@Path("pathUrl") pathUrl: String, @Body bean: RequestPay): CanteenResponse<String>
+
     /**
      * 获取TOKEN
      */

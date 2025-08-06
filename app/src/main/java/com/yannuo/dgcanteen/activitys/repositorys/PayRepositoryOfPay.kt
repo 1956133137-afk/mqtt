@@ -1,17 +1,17 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
+import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.nets.RetrofitClient
-import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
-import com.yannuo.dgcanteen.util.ApiException
-import com.yannuo.dgcanteen.util.LogUtil
+import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
+import org.greenrobot.eventbus.EventBus
 import retrofit2.Response
 
 class PayRepositoryOfPay {
@@ -147,6 +147,39 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun payYnServlet(payType: String, payParams: String): String {
+        val pathUrl = when (payType) {
+            "2" -> "qrCodePayment"
+            else -> "cardPayment"
+        }
+        LogUtil.d(TAG, "支付请求参数: $payParams")
+        val request = RequestPay(DES3CBCUtil.encryption(payParams))
+        val response = apiCall { RetrofitClient.getApi().payYnServlet(pathUrl, request) }
+        var params: String = ""
+        judgeNetworkException(response.code == "200")
+        if (response.code == "200") params = DES3CBCUtil.decryptRSA(response.data ?: "")
+        else {
+            val errorMap = HashMap<String, String>()
+            errorMap["RESULT"] = "N"
+            errorMap["ERRCODE"] = response.code
+            errorMap["ERRMSG"] = response.msg
+            params = Gson().toJson(errorMap)
+        }
+        LogUtil.d(TAG, "${Constant.NRE_TIMES}")
+        LogUtil.d(TAG, "支付响应参数: $params")
+        return params
+    }
+
+    private fun judgeNetworkException(boolean: Boolean) {
+        if (boolean && Constant.NRE_TIMES > 0) {
+            if (Constant.NRE_TIMES > 1) EventBus.getDefault().post(MessageEvent(Constant.EVENT_NETWORK_EXCEPTION, 0))
+            Constant.NRE_TIMES = 0
+        } else if (!boolean && Constant.NRE_TIMES < 10) {
+            Constant.NRE_TIMES++
+            if (Constant.NRE_TIMES == 2) EventBus.getDefault().post(MessageEvent(Constant.EVENT_NETWORK_EXCEPTION, 1))
+        }
+    }
+
     suspend fun getToken(campusId: String, encryptStr: String): CanteenResponse<TokenReceive> {
         return apiCall {
             RetrofitClient.getApi().getToken(TokenBean(campusId, encryptStr))
@@ -230,7 +263,7 @@ class PayRepositoryOfPay {
 
     suspend fun DCRefundIsOverTime(token: String, bean: DCRefundIsOverTimeBean): CanteenResponse<JsonObject> {
         return apiCall {
-            RetrofitClient.getApi().DCRefundIsOverTime(token,bean)
+            RetrofitClient.getApi().DCRefundIsOverTime(token, bean)
         }
     }
 

@@ -64,9 +64,8 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         }
         mScope = CoroutineScope(Dispatchers.Default + mHandle)
 
+        mRespository = PayRepositoryOfPay()
         mScope.launch {
-
-            mRespository = PayRepositoryOfPay()
             mDataPresenter = DataPresenter()
             binder = InteractionBinder(this@MyMqttService)
             mqttStateListener = MqttConnectState()

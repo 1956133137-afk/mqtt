@@ -40,6 +40,7 @@ public class MyApplication extends Application {
         applicationContext = this;
         LogManager.initLog();
         LogUtil.setLev(LogLevel.DEBUG);
+        Constant.setNRE_TIMES(0);
 
         CrashReport.initCrashReport(this, "fd7e9dd24e", false); //初始化Bugly
 

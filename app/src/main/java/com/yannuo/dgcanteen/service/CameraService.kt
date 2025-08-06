@@ -73,9 +73,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 LogUtil.currentLev = 3
         }
 
+        mRespository = PayRepositoryOfPay()
         mScope.launch {
-
-            mRespository = PayRepositoryOfPay()
             mDataPresenter = DataPresenter()
             binder = InteractionBinder(this@CameraService)
 

@@ -84,5 +84,6 @@ public class RetrofitClient {
 
     public static void overLoad() {
         mService = null;
+        mCcbService = null;
     }
 }

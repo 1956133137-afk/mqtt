@@ -62,6 +62,7 @@ class BasicSettingFragment : Fragment() {
                 R.id.btn_one -> kv.encode(Constant.CCB_CORP_TYPE, 0)
                 R.id.btn_two -> kv.encode(Constant.CCB_CORP_TYPE, 1)
             }
+            RetrofitClient.overLoad()
         }
 
         binding.switchLine.setOnClickListener { //离线模式

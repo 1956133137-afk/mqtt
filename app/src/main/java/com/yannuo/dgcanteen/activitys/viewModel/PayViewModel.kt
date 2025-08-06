@@ -978,29 +978,44 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
     private fun onLinePay(payForUI: PayForUI) {
         runBlocking(mHandler) {
             LogUtil.d(TAG, Gson().toJson(payForUI))
-            val response = when (payForUI.payType) {
+            val decryptStr = when (payForUI.payType) {
                 "2" -> {
                     val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
                     request.qrCode = payForUI.payContent
-                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
-                    val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.payByQrCode(encryption)
+//                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
+//                    val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
+//                    mRespository.payByQrCode(encryption)
+                    mRespository.payYnServlet(payForUI.payType, Gson().toJson(request))
                 }
                 "3" -> {
                     val request = Gson().fromJson(Gson().toJson(payForUI), CardPayBean::class.java)
                     request.cardId = payForUI.payContent
-                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
-                    val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.payByIcCard(encryption)
+//                    LogUtil.i(TAG, "request: ${Gson().toJson(request)}")
+//                    val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
+//                    mRespository.payByIcCard(encryption)
+                    mRespository.payYnServlet(payForUI.payType, Gson().toJson(request))
                 }
-                else -> CanteenResponse<String>()
+                else -> ""
+//                else -> CanteenResponse<String>()
             }
-            if (response.code == "200") {
-                val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
-                LogUtil.d(TAG, "支付结果:$decryptStr")
+//            if (response.code == "200") {
+//                val decryptStr = DES3CBCUtil.decryptRSA(response.data ?: "")
+//                LogUtil.d(TAG, "支付结果:$decryptStr")
                 val result = Gson().fromJson(decryptStr, ResponsePay::class.java)
+
+            if (result.RESULT == "N" && Constant.NRE_TIMES > 2) {
+                payForUI.offline = "1"
+                when {
+                    payForUI.payType == "2" && !payForUI.payContent.contains("CCB") -> listener?.onOtherListener(5, 0)
+                    else -> offLinePay(payForUI)
+                }
+                return@runBlocking
+            }
+
                 LogUtil.d(TAG, "支付结果:${Gson().toJson(result)}")
                 payForUI.result = result.RESULT
+                payForUI.errCode = result.ERRCODE
+                payForUI.errMsg = result.ERRMSG
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
                 payForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
@@ -1023,12 +1038,10 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 payForUI.actualPayment = result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID
-                payForUI.errCode = result.ERRCODE
-                payForUI.errMsg = result.ERRMSG
-            } else {
-                payForUI.errCode = response.code
-                payForUI.errMsg = response.msg
-            }
+//            } else {
+//                payForUI.errCode = response.code
+//                payForUI.errMsg = response.msg
+//            }
             if (payForUI.result == "Y") saveOrderRecord(payForUI, 1)
             LogUtil.d(TAG, Gson().toJson(payForUI))
             listener?.onOtherListener(3, payForUI)

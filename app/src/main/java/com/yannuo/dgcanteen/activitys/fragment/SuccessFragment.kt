@@ -73,7 +73,7 @@ class SuccessFragment : Fragment() {
                     binding.tradTime.text = timestamp
                     binding.tradNumber.text = tranId
                     binding.orderNumber.text = orderId
-                    binding.orderBalance.text = (acc_bal ?: "") + " 元"
+                    binding.orderBalance.text = if(acc_bal != null && acc_bal!!.isNotEmpty()) "$acc_bal 元" else ""
                 }
             }
 
