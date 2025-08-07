@@ -267,7 +267,7 @@ class ModeSettingFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     EmailSender.sendEmail(
-                        "zhangzhanmian@yannuozhineng.com",
+                        "log@yannuozhineng.com",
                         "建行开放平台13.3+10.1双屏设备软件日志", sdcardPath,
                         "序列号：${serial}", object : EmailSender.CallbackListener {
                             override fun onStare(code: Int, msg: String?) {

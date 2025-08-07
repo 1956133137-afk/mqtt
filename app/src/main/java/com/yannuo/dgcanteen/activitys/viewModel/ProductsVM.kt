@@ -279,7 +279,7 @@ class ProductsVM : ViewModel() {
                         payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
                         sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
                         signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-                        this.offline = offline.toString()
+                        this.offline = payResult.OFFLINE.ifEmpty { offline.toString() }
                     }
                     detail.products.forEach {
                         val dish = Dish().apply {
@@ -366,7 +366,7 @@ class ProductsVM : ViewModel() {
                         payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
                         sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
                         signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-                        this.offline = offline.toString()
+                        this.offline = payResult.OFFLINE.ifEmpty { offline.toString() }
                     }
                     payForUI.apply {
                         this.result = payResult.RESULT

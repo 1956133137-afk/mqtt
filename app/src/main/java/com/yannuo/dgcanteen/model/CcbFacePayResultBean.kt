@@ -35,7 +35,7 @@ class CcbFacePayResultBean {
     var REMAIN_BAL: String = ""
     var DISCOUNTAMT: String = ""
     var DISCOUNTMSG: String = ""
-    var OFFLINE: String = "0"
+    var OFFLINE: String = ""
     var ORDER_ID: String = ""
     var PAYMENT: String = ""
     var PAYTIME: String = ""

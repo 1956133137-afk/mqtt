@@ -169,7 +169,7 @@ class FaceScanVM {
             payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
             sessionId = "${CommonAndDpToPxUtil.getDeviceSerial()}$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-            offline = currentOffline
+            offline = bean.OFFLINE.ifEmpty { currentOffline }
             paymentDishes.addAll(dishList)
         }
         dishList.clear()
