@@ -2,6 +2,8 @@ package com.yannuo.dgcanteen.activitys;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -61,6 +63,8 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
     private PayForAdapter adapterPayFor;
     private boolean flag = false;
 
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     public void setFoodsCallback(FoodsCallback foodsCallback) {
         LogUtil.d(TAG, "原本 foodsCallback: " + foodsCallback);
         if (this.foodsCallback == null) this.foodsCallback = foodsCallback;
@@ -96,13 +100,10 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
         adapterCategory  = new DifferentCategoryAdapter(getContext());
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 1);
         GridLayoutManager gridLayoutManager2 = new GridLayoutManager(getContext(), 1);
-        GridLayoutManager categoryManager = new GridLayoutManager(getContext(), 1);
         binding.rvManInfo.setLayoutManager(gridLayoutManager);
         binding.rvManInfo.setAdapter(adapterDishes);
         binding.rvManInfo2.setLayoutManager(gridLayoutManager2);
         binding.rvManInfo2.setAdapter(adapterDishes2);
-        binding.categoryInfo.setLayoutManager(categoryManager);
-        binding.categoryInfo.setAdapter(adapterCategory);
         adapterCategory.setListener(this);
         adapterDishes.setImgSize(gridLayoutManager);
         adapterDishes2.setImgSize(gridLayoutManager2);
@@ -141,8 +142,11 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
         List<DishesInfo> list = dishMap.get(name);
         if(id == 0){
             adapterDishes.setData(list);
+            handler.post(() ->
+                binding.dishType1.setText(name));
         }else{
             adapterDishes2.setData(list);
+            handler.post(() -> binding.dishType2.setText(name));
         }
     }
 

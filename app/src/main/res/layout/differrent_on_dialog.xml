@@ -62,14 +62,41 @@
         android:paddingEnd="18dp"
         android:orientation="horizontal">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/category_info"
+        <LinearLayout
             android:background="@drawable/shape_tv_bg_15"
+            android:orientation="vertical"
             android:padding="15dp"
-            android:minWidth="130dp"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="match_parent"
-            android:overScrollMode="never"/>
+            android:overScrollMode="never">
+
+            <TextView
+                android:id="@+id/dish_type1"
+                android:gravity="center"
+                android:text="菜品"
+                android:textStyle="bold"
+                android:textSize="70sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_press_bt_bg_green"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/dish_type2"
+                android:gravity="center"
+                android:text="主食"
+                android:textStyle="bold"
+                android:textSize="70sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/common_bt_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
