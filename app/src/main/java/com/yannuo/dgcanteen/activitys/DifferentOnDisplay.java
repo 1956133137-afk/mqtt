@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.R;
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter;
@@ -154,6 +155,8 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
     private void getDishesData(){
         //获取数据
         List<DishesTable> disheTables = DishesDBHelper.getInstance(getContext()).queryDishesByMealIdAneStatusDesc(mealIds, 1);
+        Log.d(TAG, "getDishesData: 分装前数据："+new Gson().toJson(disheTables));
+        Log.d(TAG, "getDishesData: 分装前数据量："+disheTables.size());
         dishList = toDishesInfo(disheTables);
         //重置map
         dishMap.clear();
@@ -172,6 +175,7 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
                 }
             }
         }
+        Log.d(TAG, "getDishesData: 分装后数据量："+dishMap.size());
     }
 
     private List<DishesInfo> toDishesInfo(List<DishesTable> list){
@@ -200,6 +204,7 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
      */
     private void categoryData(){
         categoryTables = DishesDBHelper.getInstance(getContext()).queryCategoryByMealId(mealIds);
+        Log.d(TAG, "categoryData: 获取到菜品类别个数："+categoryTables.size());
         adapterCategory.setData(categoryTables);
     }
 
