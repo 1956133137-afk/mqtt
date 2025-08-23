@@ -137,10 +137,8 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
     }
 
     private fun initPresentation() {
-        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
-        displayManager?.displays?.also {
-            secondDisplays = it[1]
-//            mProductsDisplay?.cancel()
+        secondDisplays = displayAvailable()
+        if (secondDisplays != null) {
             mProductsDisplay?.safeCancel()
             mProductsDisplay = DifferentDisplay(this, secondDisplays)
             mProductsDisplay?.foodsCallback = this
@@ -153,6 +151,38 @@ class CommodityActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM,
             mPayResultDisplay = null
             mChooseDisplay = null
         }
+
+//        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager?
+//        displayManager?.displays?.also {
+//            secondDisplays = it[1]
+////            mProductsDisplay?.cancel()
+//            mProductsDisplay?.safeCancel()
+//            mProductsDisplay = DifferentDisplay(this, secondDisplays)
+//            mProductsDisplay?.foodsCallback = this
+//            LogUtil.i(TAG, "foodsCallback: ${mProductsDisplay?.foodsCallback}")
+//            clearFoods()
+//            mProductsDisplay?.show()
+////            mPayResultDisplay?.cancel()
+//            mPayResultDisplay?.safeCancel()
+//            mChooseDisplay?.safeCancel()
+//            mPayResultDisplay = null
+//            mChooseDisplay = null
+//        }
+    }
+
+    private fun displayAvailable(): Display? {
+        val displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        if (displayManager == null) return null
+        val displays = displayManager!!.displays
+        /*无副屏*/
+        if (displays == null || displays.size < 2) return null
+        val defaultDisplay = displayManager!!.getDisplay(Display.DEFAULT_DISPLAY)
+        displays.forEach { display ->
+            if (display.displayId == defaultDisplay.displayId) return@forEach
+            /*有效 激活 适合扩展*/
+            if (display.isValid && display.state == Display.STATE_ON && (display.flags and Display.FLAG_PRESENTATION !== 0)) return display
+        }
+        return null
     }
 
     private fun initObj() {

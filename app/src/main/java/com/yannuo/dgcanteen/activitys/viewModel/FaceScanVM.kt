@@ -200,7 +200,11 @@ class FaceScanVM {
         if (payForUI.accBal.isEmpty()) payForUI.accBal = String.format("%.02f", remainBal)
         LogUtil.d(TAG, Gson().toJson(payForUI))
         /*保存记录*/
-        saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        if (bean.RESULT == "Y") saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        else when (bean.ERRMSG) {
+            "-2活体检测超时", "-3活体检测取消", "-3支付取消", "ZCMTS1700393识别失败，请重试或更新人脸信息。", "ZCMTS1703917 1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+            else -> saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        }
         listener?.onFacePay(payForUI)
     }
 
