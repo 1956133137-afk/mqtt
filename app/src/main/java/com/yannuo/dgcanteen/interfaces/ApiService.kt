@@ -44,8 +44,12 @@ interface ApiService {
     suspend fun downPerson(@Body request: PersonRequest): CanteenResponse<String>
 
     @Headers("content-type: application/json")
-    @POST("deviceData/selectUserData2")
-    suspend fun downPerson2(@Body request: PersonRequest): CanteenResponse<String>
+    @POST("deviceData/selectUserDataV2")
+    suspend fun downPerson2(
+        @Query("campusId") campusId: String,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int
+    ): CanteenResponse<String>
 
     // 获取菜品
     @Headers("content-type: application/json")
@@ -231,7 +235,7 @@ interface ApiService {
      */
     @Headers("content-type: application/json")
     @POST("dcCcb/dcOrderRecord/isOverTimeOfRefund")
-    suspend fun DCRefundIsOverTime(@Header("dcccbauthorization") token: String,@Body bean: DCRefundIsOverTimeBean): CanteenResponse<JsonObject>
+    suspend fun DCRefundIsOverTime(@Header("dcccbauthorization") token: String, @Body bean: DCRefundIsOverTimeBean): CanteenResponse<JsonObject>
 
     /**
      * 退餐接口

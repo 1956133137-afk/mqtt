@@ -142,4 +142,31 @@ public class DES3CBCUtil {
         }
         return encrypString;
     }
+
+    public static String decryptRSA2(String result) {
+        String res = "";
+
+        try {
+            byte[] rsaDeBytes = Base64.decode(PRIVATE_KEY.getBytes(), Base64.NO_WRAP);
+            PKCS8EncodedKeySpec rsaDeKeySpec = new PKCS8EncodedKeySpec(rsaDeBytes);
+            KeyFactory rsaDeFactory = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = rsaDeFactory.generatePrivate(rsaDeKeySpec);
+            Cipher rsaDeCipher = Cipher.getInstance("RSA/ECB/NoPadding");
+            rsaDeCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] rsaDeMsgBytes = rsaDeCipher.doFinal(Base64.decode(result.substring(result.length() - 172), Base64.NO_WRAP));
+            String ppk = new String(rsaDeMsgBytes, "utf-8").replace("\u0000", "").trim();
+
+            // dse解密
+            Cipher deCipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+            KeySpec deKeySpec = new DESKeySpec(ppk.getBytes());
+            SecretKeyFactory deDecretKeyFactory = SecretKeyFactory.getInstance("DES");
+            SecretKey deSecretKey = deDecretKeyFactory.generateSecret(deKeySpec);
+            deCipher.init(Cipher.DECRYPT_MODE, deSecretKey, new SecureRandom());
+            byte[] deMsgBytes = deCipher.doFinal(Base64.decode(result.substring(0, result.length() - 172), Base64.NO_WRAP));
+            res = new String(deMsgBytes);
+        } catch (Exception e) {
+            LogUtil.e("decryptRSA", e.getMessage());
+        }
+        return res;
+    }
 }

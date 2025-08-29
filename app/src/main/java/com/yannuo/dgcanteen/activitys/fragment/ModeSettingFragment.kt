@@ -29,6 +29,7 @@ import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PersonList
 import com.yannuo.dgcanteen.util.*
 import kotlinx.coroutines.*
@@ -284,8 +285,8 @@ class ModeSettingFragment : Fragment() {
                             }
                         }
                     )
-                }catch (th: Throwable){
-                    withContext(Dispatchers.Main){
+                } catch (th: Throwable) {
+                    withContext(Dispatchers.Main) {
                         awaitingDialog.cancel()
                         ToastShowUtil.show("上传异常，请重试")
                     }
@@ -562,11 +563,12 @@ class ModeSettingFragment : Fragment() {
             var failTime = 0
             DishesDBHelper.getInstance().deleteAllPersons()
             LogUtil.d(TAG, "准备全量更新人员")
+            val mPayCfg = MMKV.defaultMMKV().decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
             do {
-                val res = repository.downPerson(500, currentPage)
+                val res = repository.downPerson2(500, currentPage, mPayCfg.campusId)
                 try {
                     if (res.code == "200") {
-                        val result = DES3CBCUtil.decryptRSA(res.data)
+                        val result = DES3CBCUtil.decryptRSA2(res.data)
                         val bean = Gson().fromJson(result, PersonList::class.java)
                         DishesDBHelper.getInstance().insertPersons(bean.list)
                         if (currentPage >= bean.totalPage) {

@@ -316,7 +316,7 @@ class ProductsVM : ViewModel() {
                     /*保存记录*/
                     if (payResult.RESULT == "Y") saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     else when (payResult.ERRMSG) {
-                        "-2活体检测超时", "-3活体检测取消", "-3支付取消", "ZCMTS1700393识别失败，请重试或更新人脸信息。", "ZCMTS1703917 1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+                        "活体检测超时", "活体检测取消", "支付取消", "识别失败，请重试或更新人脸信息。", "1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
                         else -> saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     }
                     listener?.onFacePayResult(payForUI)
@@ -399,7 +399,7 @@ class ProductsVM : ViewModel() {
                     /*保存记录*/
                     if (payResult.RESULT == "Y") saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     else when (payResult.ERRMSG) {
-                        "-2活体检测超时", "-3活体检测取消", "-3支付取消", "ZCMTS1700393识别失败，请重试或更新人脸信息。", "ZCMTS1703917 1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+                        "活体检测超时", "活体检测取消", "支付取消", "识别失败，请重试或更新人脸信息。", "1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
                         else -> saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
                     }
                     listener?.onFacePayResult(payForUI)
