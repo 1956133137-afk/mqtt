@@ -62,12 +62,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="50dp"
-                android:paddingEnd="100dp">
+                android:padding="50dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -82,14 +82,15 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textColor="#FFFFFF"
-                        android:textSize="50sp" />
+                        android:textSize="80sp" />
                 </LinearLayout>
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -104,13 +105,14 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textColor="#FFFFFF"
-                        android:textSize="50sp" />
+                        android:textSize="80sp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="20dp"
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -125,7 +127,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textColor="#FFFFFF"
-                        android:textSize="50sp" />
+                        android:textSize="80sp" />
                 </LinearLayout>
 
                 <LinearLayout
