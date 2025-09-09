@@ -125,6 +125,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                         orderId = payForUI.orderId
                         errorMsg = payForUI.errMsg
                         acc_bal = payForUI.accBal
+                        accList = payForUI.accList
                     }
                     if (payForUI.result == "Y") {
                         CommonAndDpToPxUtil.speakWork("支付成功")
@@ -186,6 +187,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                             orderId = payForUI.orderId
                             errorMsg = payForUI.errMsg
                             acc_bal = payForUI.accBal
+                            accList = payForUI.accList
                         }
                         if (payForUI.result == "Y") {
                             CommonAndDpToPxUtil.speakWork("支付成功")

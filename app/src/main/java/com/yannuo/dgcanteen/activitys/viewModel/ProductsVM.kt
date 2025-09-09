@@ -537,4 +537,15 @@ class ProductsVM : ViewModel() {
         }
         return dishesList
     }
+
+    fun deleteDishCountToZero(dish: DishesInfo) {
+        var flag = -1
+        dishesList.forEachIndexed { index, dishesInfo ->
+            if (dishesInfo.dishesId == dish.dishesId) {
+                dishesInfo.count = dish.count
+                if (dish.count <= 0) flag = index
+            }
+        }
+        if (flag != -1 && dishesList.size > flag) dishesList.removeAt(flag)
+    }
 }

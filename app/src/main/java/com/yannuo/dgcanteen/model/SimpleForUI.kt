@@ -7,22 +7,22 @@ import android.os.Parcelable
  * 返回UI类 成功或者失败
  * @property
  */
-class SimpleForUI() :Parcelable {
-    var custName  :String ?= ""  //姓名
+class SimpleForUI() : Parcelable {
+    var custName: String? = ""  //姓名
     var payment = ""  //支付金额
     var accNo = ""      //支付账户
     var timestamp = ""  //支付时间
     var tranId = ""     //流水号
     var orderId = ""    //订单号
     var errorMsg = ""   //错误信息
-    var acc_bal: String ?= ""  //虚拟账户余额
-    var way:String ?= "-1"
+    var acc_bal: String? = ""  //虚拟账户余额
+    var accList: MutableList<ACCLIST> = mutableListOf()
+    var way: String? = "-1"
     var state = 1
 
     constructor(parcel: Parcel) : this() {
         custName = parcel.readString()
         payment = parcel.readString().toString()
-        state = parcel.readInt()
         accNo = parcel.readString().toString()
         timestamp = parcel.readString().toString()
         tranId = parcel.readString().toString()
@@ -30,12 +30,12 @@ class SimpleForUI() :Parcelable {
         errorMsg = parcel.readString().toString()
         acc_bal = parcel.readString()
         way = parcel.readString()
+        state = parcel.readInt()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(custName)
         parcel.writeString(payment)
-        parcel.writeInt(state)
         parcel.writeString(accNo)
         parcel.writeString(timestamp)
         parcel.writeString(tranId)
@@ -43,6 +43,7 @@ class SimpleForUI() :Parcelable {
         parcel.writeString(errorMsg)
         parcel.writeString(acc_bal)
         parcel.writeString(way)
+        parcel.writeInt(state)
     }
 
     override fun describeContents(): Int {
@@ -58,6 +59,4 @@ class SimpleForUI() :Parcelable {
             return arrayOfNulls(size)
         }
     }
-
-
 }
