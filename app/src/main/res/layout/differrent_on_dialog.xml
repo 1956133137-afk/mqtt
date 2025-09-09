@@ -63,72 +63,157 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:layout_weight="1"
+            android:weightSum="8"
             android:background="@drawable/shape_tv_bg_15"
             android:orientation="vertical"
             android:padding="15dp"
-            android:layout_width="130dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:overScrollMode="never">
 
             <TextView
                 android:id="@+id/dish_type1"
-                android:gravity="center"
-                android:text="菜品"
-                android:textStyle="bold"
-                android:textSize="70sp"
-                android:textColor="@color/white"
-                android:layout_weight="7"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/shape_press_bt_bg_green"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <TextView
-                android:id="@+id/dish_type2"
-                android:gravity="center"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
                 android:text="主食"
                 android:textStyle="bold"
                 android:textSize="70sp"
                 android:textColor="@color/white"
-                android:layout_weight="5"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/common_bt_bg"
+                android:layout_weight="1"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_press_bt_bg_green"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="500dp"
-            android:layout_weight="2"
-            android:layout_marginStart="10dp"
-            android:layout_height="match_parent">
+                android:layout_height="0dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_man_info"
                 android:background="@drawable/shape_tv_bg_15"
                 android:padding="15dp"
                 android:layout_marginBottom="5dp"
-                android:layout_width="match_parent"
                 android:layout_weight="7"
-                android:layout_height="match_parent"
-                android:overScrollMode="never"/>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_man_info2"
-                android:background="@drawable/shape_tv_bg_15"
-                android:padding="15dp"
-                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
-                android:layout_weight="5"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:overScrollMode="never"/>
 
         </LinearLayout>
 
         <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:weightSum="8"
+            android:padding="15dp"
+            android:background="@drawable/shape_tv_bg_15"
+            android:layout_marginStart="10dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/dish_type2"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="菜品"
+                android:textStyle="bold"
+                android:textSize="70sp"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:background="@drawable/common_bt_bg"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_man_info2"
+                android:background="@drawable/shape_tv_bg_15"
+                android:padding="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="5"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:overScrollMode="never"/>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/shape_tv_bg_15"
+                android:layout_height="0dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="合计金额："
+                        android:textColor="#101010"
+                        android:textSize="40sp" />
+
+                    <TextView
+                        android:id="@+id/tv_total_money"
+                        android:layout_width="0px"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="@string/init_money"
+                        android:textColor="@color/red"
+                        android:textSize="40sp" />
+
+                    <TextView
+                        android:layout_marginStart="30dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/total_title"
+                        android:textColor="#101010"
+                        android:textSize="40sp" />
+
+                    <TextView
+                        android:layout_marginHorizontal="10dp"
+                        android:id="@+id/tv_total_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="@color/red"
+                        android:text="@string/init_count"
+                        android:textSize="40sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/a_copy"
+                        android:textColor="#101010"
+                        android:textSize="40sp" />
+                </LinearLayout>
+
+                <Button
+                    android:layout_marginTop="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="40dp"
+                    android:paddingVertical="20dp"
+                    android:background="@drawable/common_bt_bg"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:text="@string/meal_sure"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="40sp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0px"
-            android:layout_weight="3"
+            android:layout_weight="0"
             android:layout_height="match_parent"
             android:layout_marginStart="20dp"
             android:background="@drawable/shape_layout_bg"
@@ -195,56 +280,7 @@
                 android:layout_margin="8px"
                 android:background="@color/common_line" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="110px"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/total_price"
-                    android:textColor="#101010"
-                    android:textSize="23px" />
-
-                <TextView
-                    android:id="@+id/tv_total_money"
-                    android:layout_width="0px"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:text="@string/init_money"
-                    android:textColor="@color/red"
-                    android:textSize="23px" />
-
-                <TextView
-                    android:layout_width="40px"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/total_title"
-                    android:textColor="#101010"
-                    android:textSize="23px" />
-
-                <TextView
-                    android:id="@+id/tv_total_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textColor="@color/red"
-                    android:text="@string/init_count"
-                    android:textSize="23px" />
-
-                <TextView
-                    android:layout_width="40px"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/a_copy"
-                    android:textColor="#101010"
-                    android:textSize="23px" />
-            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

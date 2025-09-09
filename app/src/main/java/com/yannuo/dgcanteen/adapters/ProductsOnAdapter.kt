@@ -46,8 +46,7 @@ class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,Pr
     }
 
     override fun bindHolder(holder: Holder, position: Int) {
-
-        val data = mData.get(position)
+        val data = mData[position]
         holder.binding.tvName.text = data.dishesName
         holder.binding.tvNumber.text = "￥${data.price}"
         holder.binding.countText.text = data.count.toString()
@@ -81,7 +80,7 @@ class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,Pr
             mData[position].count += 1
             holder.binding.countText.text  = mData[position].count.toString()
             notifyItemChanged(position,"count")
-            listener?.onEventClick(position,type)
+            listener?.onEventClickAdd(position,type)
         }
         holder.binding.cvCountSubtract.setOnClickListener {
             val position = holder.adapterPosition
@@ -90,7 +89,7 @@ class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,Pr
                 mData[position].count -= 1
                 holder.binding.countText.text  = mData[position].count.toString()
                 notifyItemChanged(position,"count")
-                listener?.onEventClick(position,type)
+                listener?.onEventClickSub(position,type)
             }
         }
     }
@@ -104,6 +103,7 @@ class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,Pr
     }
 
     interface WorkListener{
-        fun onEventClick(position :Int,type: Int)
+        fun onEventClickAdd(position :Int,type: Int)
+        fun onEventClickSub(position :Int,type: Int)
     }
 }

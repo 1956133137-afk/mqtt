@@ -292,7 +292,7 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
     }
 
     @Override
-    public void onEventClick(int position,int type) {
+    public void onEventClickAdd(int position,int type) {
         //选择菜品加入购物车
         DishesInfo data;
         if(type == 1){
@@ -301,6 +301,24 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
             data = adapterDishes2.getData(position);
         }
         updateUiItems(data, false);
+        if (foodsCallback != null) foodsCallback.onFoodsUpdate(adapterPayFor.getData());
+
+    }
+
+    @Override
+    public void onEventClickSub(int position,int type) {
+        //选择菜品加入购物车
+        DishesInfo data;
+        if(type == 1){
+            data = adapterDishes.getData(position);
+        }else{
+            data = adapterDishes2.getData(position);
+        }
+        adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(data), "count");
+        adapterDishes2.notifyItemChanged(adapterDishes2.getData().indexOf(data), "count");
+        float[] res = presenter.calculate(adapterPayFor.getData());
+        binding.tvTotalMoney.setText(String.valueOf(res[0]));
+        binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
         if (foodsCallback != null) foodsCallback.onFoodsUpdate(adapterPayFor.getData());
 
     }
