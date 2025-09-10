@@ -143,11 +143,19 @@ class FaceScanVM {
 
     private inner class OnPayResultListener : PayResultListener.Stub() {
         override fun onResult(result: String) {
-            runBlocking { mutex.withLock { isFaceStatus = false } }
-            LogUtil.d(TAG, result)
-            val responseStr = result.replace("\"[", "[").replace("]\"", "]")
-            val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
-            if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
+            mScope.launch {
+                delay(100)
+                mutex.withLock { isFaceStatus = false }
+                LogUtil.d(TAG, result)
+                val responseStr = result.replace("\"[", "[").replace("]\"", "]")
+                val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
+                if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
+            }
+//            runBlocking { mutex.withLock { isFaceStatus = false } }
+//            LogUtil.d(TAG, result)
+//            val responseStr = result.replace("\"[", "[").replace("]\"", "]")
+//            val bean = Gson().fromJson(responseStr, CcbFacePayResultBean::class.java)
+//            if (modeStatus) listener?.onFaceQuery(bean) else facePay(bean)
         }
     }
 
@@ -200,12 +208,16 @@ class FaceScanVM {
         if (payForUI.accBal.isEmpty()) payForUI.accBal = String.format("%.02f", remainBal)
         LogUtil.d(TAG, Gson().toJson(payForUI))
         /*保存记录*/
-        saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        if (bean.RESULT == "Y") saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        else when (bean.ERRMSG) {
+            "活体检测超时", "活体检测取消", "支付取消", "识别失败，请重试或更新人脸信息。", "1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+            else -> saveOrSynOrder(payForUI, bean.TRAN_RESULT)
+        }
         listener?.onFacePay(payForUI)
     }
 
     private fun saveOrSynOrder(payForUI: PayForUI, tranResult: String) {
-        mScope.launch(Dispatchers.IO + mHandler) {
+        mScope.launch {
             //保存记录
             val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
             payOrder.tranResult = tranResult.ifEmpty { "2" } //1：待支付，2：支付失败，3：支付成功

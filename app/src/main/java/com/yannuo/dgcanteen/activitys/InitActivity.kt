@@ -54,8 +54,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     )
 
     private val kv = MMKV.defaultMMKV()
-    private lateinit var displayManager: DisplayManager
-    private lateinit var secondDisplays: Display
+    private var displayManager: DisplayManager? = null
+    private var secondDisplays: Display? = null
     private lateinit var settingDisplay: SettingDisplay
 
     private var mode: String? = null
@@ -143,12 +143,32 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     }
 
     private fun initPresentation() {
-        if (!this::displayManager.isInitialized) {
-            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-            displayManager.displays.also { secondDisplays = it[1] }
+        secondDisplays = displayAvailable()
+        if (secondDisplays != null) {
+            settingDisplay = SettingDisplay(this, secondDisplays!!)
+            settingDisplay.show()
         }
-        settingDisplay = SettingDisplay(this, secondDisplays)
-        settingDisplay.show()
+//        if (!this::displayManager.isInitialized) {
+//            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+//            displayManager.displays.also { secondDisplays = it[1] }
+//        }
+//        settingDisplay = SettingDisplay(this, secondDisplays)
+//        settingDisplay.show()
+    }
+
+    private fun displayAvailable(): Display? {
+        displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        if (displayManager == null) return null
+        val displays = displayManager!!.displays
+        /*无副屏*/
+        if (displays == null || displays.size < 2) return null
+        val defaultDisplay = displayManager!!.getDisplay(Display.DEFAULT_DISPLAY)
+        displays.forEach { display ->
+            if (display.displayId == defaultDisplay.displayId) return@forEach
+            /*有效 激活 适合扩展*/
+            if (display.isValid && display.state == Display.STATE_ON && (display.flags and Display.FLAG_PRESENTATION !== 0)) return display
+        }
+        return null
     }
 
     override fun onStop() {

@@ -1019,6 +1019,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 payForUI.accType = result.ACC_TYPE
                 payForUI.accNo = result.ACC_NO
                 payForUI.accBal = result.REMAIN_BAL.ifEmpty { result.ACC_BAL }
+                var totalPayment = 0F
                 result.ACC_LIST.forEach {
                     val acclist = ACCLIST().apply {
                         ACC_NO = it.ACC_NO
@@ -1027,6 +1028,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                         TRAN_ID = it.TRAN_ID
                         PAYMENT = it.PAYMENT
                     }
+                    totalPayment += it.PAYMENT.ifEmpty { "0.00" }.toFloat()
                     payForUI.accList.add(acclist)
                 }
                 // 查询人员姓名
@@ -1035,7 +1037,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     if (persons != null) payForUI.username = persons.personName
                 }
                 payForUI.discountMsg = result.discountMsg
-                payForUI.actualPayment = result.ACTUAL_PAYMENT
+                payForUI.actualPayment = if (totalPayment > 0F) String.format("%.02f", totalPayment) else result.ACTUAL_PAYMENT
                 payForUI.orderId = result.ORDERID
                 payForUI.traceId = result.TRACEID
 //            } else {

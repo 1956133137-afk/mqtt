@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.databinding.FragmentSuccessBinding
 import com.yannuo.dgcanteen.util.Constant
@@ -59,6 +60,7 @@ class SuccessFragment : Fragment() {
         val data: SuccessFragmentArgs by navArgs()
         val decodeBool = kv.decodeBool(Constant.WHETHER_SHOW_PAYMENT, true)
         binding.payTotalMoney.visibility = if (decodeBool) View.VISIBLE else View.GONE
+        LogUtil.d(TAG, Gson().toJson(data.simpleForUI))
         data.simpleForUI.apply {
             when (way!!.toInt()) {
                 20, 21 -> {
@@ -67,13 +69,30 @@ class SuccessFragment : Fragment() {
                     binding.tradNumber.text = tranId
                 }
                 else -> {
+                    if (accList.size > 0) {
+                        val str = StringBuilder()
+                        binding.payDetailsView.visibility = View.VISIBLE
+                        accList.forEachIndexed { index, acc ->
+                            val type = when (acc.ACC_TYPE) {
+                                "01" -> "现金账户"
+                                "02" -> "餐补账户1"
+                                "03" -> "餐补账户2"
+                                "04" -> "餐补账户3"
+                                "05" -> "餐补账户4"
+                                "06" -> "餐补账户5"
+                                else -> "其他虚拟账户"
+                            }
+                            str.append("${if (index > 0) "\n" else ""}$type 支付 ${acc.PAYMENT} 元")
+                        }
+                        binding.payDetails.text = str.toString()
+                    } else binding.payDetailsView.visibility = View.GONE
                     binding.tvName.text = custName
                     binding.payTotalMoney.text = "￥$payment"
                     binding.tvAccount.text = accNo
                     binding.tradTime.text = timestamp
                     binding.tradNumber.text = tranId
                     binding.orderNumber.text = orderId
-                    binding.orderBalance.text = if(acc_bal != null && acc_bal!!.isNotEmpty()) "$acc_bal 元" else ""
+                    binding.orderBalance.text = if (acc_bal != null && acc_bal!!.isNotEmpty()) "$acc_bal 元" else ""
                 }
             }
 

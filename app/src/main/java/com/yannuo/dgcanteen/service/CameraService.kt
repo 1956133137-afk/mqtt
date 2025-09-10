@@ -503,11 +503,12 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 var failTime = 0
                 if (timeout) {
                     LogUtil.d(TAG, "准备全量更新人员")
+                    val mPayCfg = MMKV.defaultMMKV().decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
                     do {
-                        val res = mRespository.downPerson(500, currentPage)
+                        val res = mRespository.downPerson2(500, currentPage, mPayCfg.campusId)
                         try {
                             if (res.code == "200") {
-                                val result = DES3CBCUtil.decryptRSA(res.data)
+                                val result = DES3CBCUtil.decryptRSA2(res.data)
 //                                LogUtil.d(TAG,"更新人员 : $result")
                                 val bean = Gson().fromJson(result, PersonList::class.java)
                                 bean.list?.forEach {

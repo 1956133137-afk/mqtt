@@ -291,6 +291,8 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         dishesInfoList?.forEach {
             if (it.dishesId == data.dishesId) it.count = data.count
         }
+        /* 删除购物车为零商品 */
+        model.deleteDishCountToZero(data)
         mAdapter.setData(dishesInfoList)
         val res: FloatArray = mPresenter.calculate(mAdapterPayFor.data)
         binding.tvTotalMoney.text = res[0].toString()

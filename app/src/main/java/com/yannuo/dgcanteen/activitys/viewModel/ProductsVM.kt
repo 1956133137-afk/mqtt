@@ -314,7 +314,11 @@ class ProductsVM : ViewModel() {
                     }
                     LogUtil.d(TAG, Gson().toJson(payForUI))
                     /*保存记录*/
-                    saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    if (payResult.RESULT == "Y") saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    else when (payResult.ERRMSG) {
+                        "活体检测超时", "活体检测取消", "支付取消", "识别失败，请重试或更新人脸信息。", "1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+                        else -> saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    }
                     listener?.onFacePayResult(payForUI)
                 }
             })
@@ -393,7 +397,11 @@ class ProductsVM : ViewModel() {
 
                     LogUtil.d(TAG, Gson().toJson(payForUI))
                     /*保存记录*/
-                    saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    if (payResult.RESULT == "Y") saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    else when (payResult.ERRMSG) {
+                        "活体检测超时", "活体检测取消", "支付取消", "识别失败，请重试或更新人脸信息。", "1:N人脸库识别失败！提取人脸特征值失败，人脸检测不合格2" -> {}
+                        else -> saveOrSynOrder(payForUI, payResult.TRAN_RESULT)
+                    }
                     listener?.onFacePayResult(payForUI)
                 }
             })
@@ -528,5 +536,16 @@ class ProductsVM : ViewModel() {
             dishesList.add(data)
         }
         return dishesList
+    }
+
+    fun deleteDishCountToZero(dish: DishesInfo) {
+        var flag = -1
+        dishesList.forEachIndexed { index, dishesInfo ->
+            if (dishesInfo.dishesId == dish.dishesId) {
+                dishesInfo.count = dish.count
+                if (dish.count <= 0) flag = index
+            }
+        }
+        if (flag != -1 && dishesList.size > flag) dishesList.removeAt(flag)
     }
 }

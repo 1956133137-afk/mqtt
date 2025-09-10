@@ -95,6 +95,7 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
                     accNo = payForUI.accNo
                     acc_bal = payForUI.accBal
                     orderId = payForUI.orderId
+                    accList = payForUI.accList
                 }
                 CommonAndDpToPxUtil.speakWork("支付成功")
                 val action = FacFragmentDirections.actionScanToSuccess(bean)
