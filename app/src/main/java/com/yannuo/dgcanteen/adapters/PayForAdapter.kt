@@ -57,14 +57,10 @@ class PayForAdapter : BaseAdapter<DishesInfo,ItemPayListBinding> (){
     //操作同一个商品对象，手选择商品不进行累加，直接就可以更新界面；扫码选择商品的时候，需要进行数量累加操作
     fun insertedData(data: DishesInfo?,accumulation :Boolean) {
         data?.apply {
-            val position = map[this.dishesId]
-            if (position == null) {
+            if (!getData().contains(data)) {
                 if (accumulation) this.count +=1
                 mData.add(this)
                 notifyItemInserted(itemCount -1)
-            }else{
-                if (accumulation) mData.get(position).count +=1
-                notifyItemChanged(position,"count")
             }
         }
     }

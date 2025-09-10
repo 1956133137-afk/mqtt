@@ -118,20 +118,13 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
         adapterPayFor = new PayForAdapter();
         adapterPayFor.setListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        binding.rvSelectItem.setLayoutManager(linearLayoutManager);
         initData();
     }
 
     private void initView() {
-        binding.rvSelectItem.setAdapter(adapterPayFor);
         PayCfg payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
         if (payCfg != null) {
             binding.selectStopper.setText(payCfg.getWindowName());
-        }
-        if (kv.decodeBool(Constant.CODE_VERIFICATION_SET, false)) {
-            binding.btVerification.setVisibility(View.VISIBLE);
-        } else {
-            binding.btVerification.setVisibility(View.GONE);
         }
     }
 
@@ -210,13 +203,11 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
 
     private void initEvent() {
 
-        binding.ibDelAll.setOnClickListener(view -> {
-            if (adapterPayFor.getData().size() < 1)
-                return;
-            clearShoppingCart();
+        binding.confirm.setOnClickListener(view -> {
+            binding.oneView.setVisibility(View.GONE);
         });
 
-        binding.btSureMeal.setOnClickListener(v -> {
+        binding.confirm.setOnClickListener(v -> {
             if (adapterPayFor.getData().size() < 1) {
                 CommonAndDpToPxUtil.speakWork("请添加菜品");
                 return;
@@ -232,23 +223,8 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
             }
             if (flag) return;
             flag = true;
-//            binding.btSureMeal.setEnabled(false);
             ProductsDetail prods = new ProductsDetail(adapterPayFor.getData(), binding.tvTotalMoney.getText().toString(), binding.tvTotalCount.getText().toString());
             EventBus.getDefault().post(new MessageEvent(Constant.EVENT_FIRST, prods));
-
-        });
-
-        binding.btVerification.setOnClickListener(v -> {
-            MMKV mv = MMKV.defaultMMKV();
-            PayCfg payCfg = mv.decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
-            if (payCfg == null || TextUtils.isEmpty(payCfg.getCampusId()) ||
-                    TextUtils.isEmpty(payCfg.getBusinessId()) || TextUtils.isEmpty(payCfg.getCounterId())
-            ) {
-                CommonAndDpToPxUtil.speakWork("请配置支付环境");
-                LogUtil.e(TAG, "请配置支付环境");
-                return;
-            }
-            EventBus.getDefault().post(new MessageEvent(Constant.EVENT_CODE, null));
         });
     }
 
@@ -269,7 +245,6 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
     //更新购物车UI
     private void updateUiItems(DishesInfo it, Boolean accumulation) {
         adapterPayFor.insertedData(it, accumulation);
-        binding.rvSelectItem.scrollToPosition(adapterPayFor.getData().size() - 1); //插入数据后滑动到底部
         float[] res = presenter.calculate(adapterPayFor.getData());
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));

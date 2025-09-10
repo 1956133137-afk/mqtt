@@ -78,7 +78,7 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
     private var mProductsDisplay: DifferentOnDisplay? = null  //点餐界面
 
     @Volatile
-    private var mChooseDisplay: ChooseDisplay? = null  //付款选择界面
+    private var mChooseDisplay: DoubleChooseDisplay? = null  //付款选择界面
 
     @Volatile
     private var mPayResultDisplay: PayResultDisplay? = null  //支付结果界面
@@ -604,7 +604,7 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
      */
     private fun dealWith(list: ProductsDetail) {
         mChooseDisplay?.safeCancel()
-        mChooseDisplay = ChooseDisplay(this, list, secondDisplays)
+        mChooseDisplay = DoubleChooseDisplay(this, list, secondDisplays)
         mChooseDisplay?.show()
 //        mPayResultDisplay?.cancel()
         mPayResultDisplay?.safeCancel()
