@@ -47,6 +47,9 @@ public class CanteenEncryptionUtil {
             case "1132":
                 strKey = "WhkBQZI44xWP6EerWRAcA6y1y2uyCw5n";
                 break;
+            case "1048":
+                strKey = "iRfw8cIPNqAYGbH1PielXJ7qA0F03Dtm";
+                break;
             default:
                 break;
         }
