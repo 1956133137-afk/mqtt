@@ -66,7 +66,6 @@ class ProductsOnAdapter(context :Context?,type: Int) : BaseAdapter<DishesInfo,Pr
     override fun bindHolder(holder: Holder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty().not()){
             holder.binding.countText.text = data[position].count.toString()
-            LogUtil.d(TAG,"update payload:  ${payloads[0]}")
         }
         else{
           bindHolder(holder, position)

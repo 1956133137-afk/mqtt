@@ -203,10 +203,6 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
 
     private void initEvent() {
 
-        binding.confirm.setOnClickListener(view -> {
-            binding.oneView.setVisibility(View.GONE);
-        });
-
         binding.confirm.setOnClickListener(v -> {
             if (adapterPayFor.getData().size() < 1) {
                 CommonAndDpToPxUtil.speakWork("请添加菜品");
@@ -244,7 +240,7 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
 
     //更新购物车UI
     private void updateUiItems(DishesInfo it, Boolean accumulation) {
-        adapterPayFor.insertedData(it, accumulation);
+        adapterPayFor.insertedOnData(it, accumulation);
         float[] res = presenter.calculate(adapterPayFor.getData());
         binding.tvTotalMoney.setText(String.valueOf(res[0]));
         binding.tvTotalCount.setText(String.valueOf(res[1]).replace(".0", ""));
@@ -289,6 +285,7 @@ public class DifferentOnDisplay extends BaseDisplay implements ProductsOnAdapter
         }else{
             data = adapterDishes2.getData(position);
         }
+        adapterPayFor.removeOnData(data);
         adapterDishes.notifyItemChanged(adapterDishes.getData().indexOf(data), "count");
         adapterDishes2.notifyItemChanged(adapterDishes2.getData().indexOf(data), "count");
         float[] res = presenter.calculate(adapterPayFor.getData());
