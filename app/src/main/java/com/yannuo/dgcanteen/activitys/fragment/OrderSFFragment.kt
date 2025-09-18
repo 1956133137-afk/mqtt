@@ -131,7 +131,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         if (payForUI.payType == "1") {
             if (payForUI.result != "Y") binding.subF.btBack.isEnabled = false
             else binding.subS.btBack.isEnabled = false
-            if (totalTime < 3) totalTime = 3
+//            if (totalTime < 3) totalTime = 3
         }
         dida(totalTime, payForUI)
     }

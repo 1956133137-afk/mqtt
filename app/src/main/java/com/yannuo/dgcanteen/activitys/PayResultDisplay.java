@@ -71,7 +71,7 @@ public class PayResultDisplay extends BaseDisplay {
             if (mPayForUI.getResult().equals("N"))
                 mFailBinding.btBack.setEnabled(false);
             else mBinding.btBack.setEnabled(false);
-            if (time < 3) totalTime = 3;
+//            if (time < 3) totalTime = 3;
         }
         dida(totalTime);
     }
