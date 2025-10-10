@@ -30,6 +30,8 @@ class OrderMeal {
     var orderDelineDate: String = ""    //截止多少天前 0-7
     var orderDelineTime: String = ""    //截止时间 HH:mm:ss
 
+    var customizeRefund:String = ""
+
     var isLimitDeliveryTime: String = ""    //限制配送时间 1-开 2-关
     var limitDeliveryStart: String = ""     //限制开始时间 HH:mm
     var limitDeliveryEnd: String = ""       //限制结束时间 HH:mm

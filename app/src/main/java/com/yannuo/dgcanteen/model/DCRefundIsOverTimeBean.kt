@@ -8,5 +8,5 @@ class DCRefundIsOverTimeBean {
     var limitRefundTime = ""    //限制退款时间
     var mealDate = ""   //餐别时间
     var mealId = 0     //餐别ID
-//    var customizeRefundType = 0
+    var customizeRefundType = ""
 }

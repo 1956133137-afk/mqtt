@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -85,6 +86,7 @@ class OrderRecordVM : ViewModel() {
             val response = mRepository.getOrderList(currentCcbToken, bean)
             if (response.code == "200") {
                 val receive = Gson().fromJson(response.data.toString(), OrderListReceive::class.java)
+                Log.d(TAG, "queryOrderList: 订餐列表查询：${Gson().toJson(receive.list)}")
                 mOrderList.addAll(receive.list)
                 if (page >= receive.totalPage.toInt() || page * pageSize >= receive.totalRecord.toInt()) {
                     mOrderList.sortBy { it.mealDate }
@@ -163,11 +165,32 @@ class OrderRecordVM : ViewModel() {
         }
     }
 
-    fun DCRefundIsOverTime(order: Order, result: (Boolean) -> Unit){
+    fun DCRefundIsOverTime(order: Order, result: (String) -> Unit){
         viewModelScope.launch(Dispatchers.IO + mHandler) {
+            val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, payCfg::class.java)
+            if(payCfg == null) {
+                LogUtil.e(TAG,"未获取到支付信息，退款失败")
+                result("-1")
+                return@launch
+            }
             //获取商家配置
             val businessConfig = mRepository.getBusinessConfig(currentCcbToken, payCfg.campusId, payCfg.businessId)
-            LogUtil.d(TAG, Gson().toJson(businessConfig))
+            //获取自定义退款信息
+            val queryOrderMeal = mRepository.queryOrderMeal(
+                currentCcbToken,
+                payCfg.campusId,
+                payCfg.businessId
+            )
+            var customizeRefund = ""
+            queryOrderMeal.data?.orderMealList?.forEach {
+                if(it.mealId == order.mealId) customizeRefund = it.customizeRefund
+            }
+            if(customizeRefund.isEmpty()){
+                LogUtil.e(TAG,"未获取到自定义退款信息，退款失败")
+                result("-1")
+                return@launch
+            }
+            LogUtil.d(TAG, "商家配置：${Gson().toJson(businessConfig)}")
             val busCigBean = Gson().fromJson(Gson().toJson(businessConfig.data), DCRefundIsOverTimeBean::class.java)
             val bean = DCRefundIsOverTimeBean().apply {
                 campusId = payCfg.campusId
@@ -177,10 +200,11 @@ class OrderRecordVM : ViewModel() {
                 limitRefundTime = busCigBean.limitRefundTime
                 mealDate = order.mealDate
                 mealId = order.mealId.toInt()
+                customizeRefundType = customizeRefund
             }
             //判断
             val refundRes = mRepository.DCRefundIsOverTime(currentCcbToken,bean)
-            result(refundRes.code == "200")
+            result(refundRes.code)
         }
     }
 

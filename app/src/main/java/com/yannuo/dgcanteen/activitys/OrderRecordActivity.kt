@@ -115,18 +115,28 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
                 if (flag) {
                     showAwaitDialog("退款中•••")
                     orderRecordVM.DCRefundIsOverTime(orderRecordAdapter.data[position]){
-                        if(!it){
-                            handler.post {
-                                awaitingDialog?.dismiss()
-                                ToastShowUtil.show("超过了退款时间")
-                            }
-                            return@DCRefundIsOverTime
-                        }else{
-                            orderRecordVM.orderRefund(orderRecordAdapter.data[position]) { type,str ->
+                        when(it){
+                            "-1" -> {
                                 handler.post {
                                     awaitingDialog?.dismiss()
-                                    if (type) orderRecordAdapter.removeData(position)
-                                    ToastShowUtil.show(if (type) "退餐成功" else str)
+                                    ToastShowUtil.show("未获取到支付信息")
+                                }
+                                return@DCRefundIsOverTime
+                            }
+                            "200" -> {
+                                handler.post {
+                                    awaitingDialog?.dismiss()
+                                    ToastShowUtil.show("超过了退款时间")
+                                }
+                                return@DCRefundIsOverTime
+                            }
+                            else -> {
+                                orderRecordVM.orderRefund(orderRecordAdapter.data[position]) { type,str ->
+                                    handler.post {
+                                        awaitingDialog?.dismiss()
+                                        if (type) orderRecordAdapter.removeData(position)
+                                        ToastShowUtil.show(if (type) "退餐成功" else str)
+                                    }
                                 }
                             }
                         }
