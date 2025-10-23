@@ -194,9 +194,9 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun getToken(campusId: String, encryptStr: String): CanteenResponse<TokenReceive> {
+    suspend fun getToken(campusId: String, corpId: String, encryptStr: String): CanteenResponse<TokenReceive> {
         return apiCall {
-            RetrofitClient.getApi().getToken(TokenBean(campusId, encryptStr))
+            RetrofitClient.getApi().getToken(TokenBean(campusId, corpId, encryptStr))
         }
     }
 

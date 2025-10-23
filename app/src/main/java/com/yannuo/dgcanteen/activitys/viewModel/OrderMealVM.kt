@@ -273,7 +273,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val encryptStr = getCavEncryptParam(orderForUI)
             LogUtil.d(TAG, encryptStr)
-            val tokenRes = mRepository.getToken(orderForUI.campusId, encryptStr)
+            val tokenRes = mRepository.getToken(orderForUI.campusId, orderForUI.corpId, encryptStr)
             LogUtil.d(TAG, Gson().toJson(tokenRes))
             if (tokenRes.code == "200") {
                 orderForUI.ccbToken = tokenRes.data?.dcccbToken ?: ""
