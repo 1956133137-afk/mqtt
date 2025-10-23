@@ -7,44 +7,27 @@ import org.greenrobot.greendao.annotation.Id;
 
 @Entity
 public class CategoryTable {
-    @Id(autoincrement = true)
-    private Long id;
+    @Id
     private String categoryId;
     private String categoryName;
     private String sort;
     private int mealId;
 
-    @Generated(hash = 1679078959)
-    public CategoryTable() {
-    }
-
-    @Generated(hash = 816922273)
-    public CategoryTable(Long id, String categoryId, String categoryName, String sort, int mealId) {
-        this.id = id;
+    @Generated(hash = 901610798)
+    public CategoryTable(String categoryId, String categoryName, String sort,
+            int mealId) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.sort = sort;
         this.mealId = mealId;
     }
 
-    public int getMealId() {
-        return mealId;
-    }
-
-    public void setMealId(int mealId) {
-        this.mealId = mealId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    @Generated(hash = 1679078959)
+    public CategoryTable() {
     }
 
     public String getCategoryId() {
-        return categoryId;
+        return this.categoryId;
     }
 
     public void setCategoryId(String categoryId) {
@@ -52,7 +35,7 @@ public class CategoryTable {
     }
 
     public String getCategoryName() {
-        return categoryName;
+        return this.categoryName;
     }
 
     public void setCategoryName(String categoryName) {
@@ -60,21 +43,18 @@ public class CategoryTable {
     }
 
     public String getSort() {
-        return sort;
+        return this.sort;
     }
 
     public void setSort(String sort) {
         this.sort = sort;
     }
 
-    @Override
-    public String toString() {
-        return "CategoryTable{" +
-                "id=" + id +
-                ", categoryId='" + categoryId + '\'' +
-                ", categoryName='" + categoryName + '\'' +
-                ", sort='" + sort + '\'' +
-                ", mealId=" + mealId +
-                '}';
+    public int getMealId() {
+        return this.mealId;
+    }
+
+    public void setMealId(int mealId) {
+        this.mealId = mealId;
     }
 }

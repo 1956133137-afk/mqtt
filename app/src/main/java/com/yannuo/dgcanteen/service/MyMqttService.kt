@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.text.format.DateFormat
+import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
@@ -14,6 +15,7 @@ import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.download.CheckVersionWorker
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -386,7 +388,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId
+                        meal.mealId = da.mealId.toString()
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 
@@ -481,7 +483,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
             val catList = mutableListOf<CategoryTable>() //菜品类别
             for (da in dishes) {
                 val meal = MealTable()
-                meal.mealId = da.mealId
+                meal.mealId = da.mealId.toString()
                 meal.mealName = da.mealName
 
                 da.startTime?.also {

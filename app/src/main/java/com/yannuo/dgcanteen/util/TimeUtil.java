@@ -19,7 +19,7 @@ public class TimeUtil {
         if (mealTables != null && mealTables.size() > 0) {
             for (MealTable u : mealTables) {
                 if (isCurrentInTimeScope(u)) {
-                    result = u.getMealId();
+                    result = Integer.parseInt(u.getMealId());
                     break;
                 }
             }

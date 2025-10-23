@@ -415,7 +415,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     LogUtil.i(TAG, "剩余餐次：$restTimeMap")
                     var no = -1  // 计算当前餐别的序号
                     for ((i,v) in queryAllMeals.withIndex()) {
-                        if (v.mealId == TimeUtil.CurrentTimeSection()) {
+                        if (v.mealId == TimeUtil.CurrentTimeSection().toString()) {
                             no = i + 1
                             break
                         }
@@ -464,7 +464,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         val res = hashMapOf<String, String>()
         val queryAllMeals = dbHelper.queryAllMeals()
 
-        val actualMealTimeRule = getActualMealTimeRule(person.custId, currentMeal.mealId)
+        val actualMealTimeRule = getActualMealTimeRule(person.custId, currentMeal.mealId.toInt())
         LogUtil.i(TAG, "actualMealTimeRule: $actualMealTimeRule")
         if (actualMealTimeRule == null) {
             // 无补贴，用当前餐别餐标单价，以原价
@@ -484,8 +484,8 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             payForUI.payment = res["payment"] ?: "0.00"
             payForUI.actualPayment = res["actualPayment"] ?: "0.00"
 
-            actualMealId = currentMeal.mealId
-            mealId = currentMeal.mealId
+            actualMealId = currentMeal.mealId.toInt()
+            mealId = currentMeal.mealId.toInt()
 
             payForUI.swForUI.apply {
                 username = person.personName
@@ -542,7 +542,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 actualMealName = currentMeal.mealName
                 if (hasExclusiveRule) actualPrice = mealTimeRuleMap[no]?.price.toString()
                 for (v in queryAllMeals) {
-                    if (v.mealId == actualMealTimeRule.mealId) {
+                    if (v.mealId == actualMealTimeRule.mealId.toString()) {
                         this.standardMealId = v.mealId.toString()
                         standardMealName = v.mealName ?: ""
                         break
@@ -922,7 +922,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val request = Gson().fromJson(Gson().toJson(payDetail), CodePayBean::class.java)
                     request.qrCode = payForUI.payContent
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
-                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,(mealId ?: actualMealId) ?: mealTable.mealId, useRuleId)
+                    mRespository.swPayByQrCode(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId.toInt(),(mealId ?: actualMealId) ?: mealTable.mealId.toInt(), useRuleId)
                 }
                 "3" -> {
                     val payDetail = Gson().fromJson(Gson().toJson(payForUI), PayForUI::class.java)
@@ -932,7 +932,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     LogUtil.i(TAG, "request: $request")
                     val encryption = DES3CBCUtil.encryption(Gson().toJson(request))
                     LogUtil.i(TAG, "刷卡餐次：mealId --> ${mealId ?: mealTable.mealId}, useRuleId --> $useRuleId")
-                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId,(mealId ?: actualMealId) ?: mealTable.mealId, useRuleId)
+                    mRespository.swPayByIcCard(encryption, "sw", isAllowance.toString(), actualMealId ?: mealTable.mealId.toInt(),(mealId ?: actualMealId) ?: mealTable.mealId.toInt(), useRuleId)
                 }
                 else -> CanteenResponse<String>()
             }

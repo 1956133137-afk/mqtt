@@ -37,6 +37,7 @@ public class CanteenEncryptionUtil {
         String strKey = "";
         PayCfg mPayCfg = MMKV.defaultMMKV().decodeParcelable(Constant.PAY_CONFIG, PayCfg.class);
         if (mPayCfg == null) return "";
+        Log.d("TAG", "getStrKey: 加密密钥："+mPayCfg.getCorpId());
         switch (mPayCfg.getCorpId()) {
             case "1041": /* 测试 */
                 strKey = "MKnzkGMRe08NmPv2TP6YbEzMOdjZzeEG";

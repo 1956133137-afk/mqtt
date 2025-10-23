@@ -145,7 +145,7 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
             int mealId = 0;
             for (MealTable u : mealTables) {
                 if (dataMeal.get(position).equals(u.getMealName())) {
-                    mealId = u.getMealId();
+                    mealId = Integer.parseInt(u.getMealId());
                 }
             }
             dishesData(mealId);

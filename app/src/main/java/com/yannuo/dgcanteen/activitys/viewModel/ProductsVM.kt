@@ -98,9 +98,17 @@ class ProductsVM : ViewModel() {
                     //提取下架菜品
                     val dishMap = DishesDBHelper.getInstance().queryDishes().stream().filter {
                         it.status == 0
-                    }.collect(Collectors.toMap({
-                        "${it.mealId}:${it.dishesId}:${it.dishesName}"
-                    }) { t -> t.status })
+                    }.collect(Collectors.toMap(
+                        { "${it.mealId}:${it.dishesId}:${it.dishesName}" }, //键生成器
+                        { it.status }   //值生成器
+                    ))
+
+                    //提取下架菜品
+//                    val dishMap = DishesDBHelper.getInstance().queryDishes().stream().filter {
+//                        it.status == 0
+//                    }.collect(Collectors.toMap({
+//                        "${it.mealId}:${it.dishesId}:${it.dishesName}"
+//                    }) { t -> t.status })
                     LogUtil.i(TAG, "未更新时已下架菜品总数: ${dishMap.size}")
                     dishMap.forEach { t, u ->
                         LogUtil.i(TAG, "下架的菜品 $t $u")
@@ -108,7 +116,7 @@ class ProductsVM : ViewModel() {
 
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId
+                        meal.mealId = da.mealId.toString()
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 
@@ -195,7 +203,7 @@ class ProductsVM : ViewModel() {
                     val mealList = mutableListOf<MealTable>()
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId
+                        meal.mealId = da.mealId.toString()
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 
