@@ -116,7 +116,7 @@ class MealTimeVM: ViewModel() {
                 var no = -1
                 val queryAllMeals = dbHelper.queryAllMeals()
                 for ((i,v) in queryAllMeals.withIndex()) {
-                    if (v.mealId == it.mealId.toString()) {
+                    if (v.mealId == it.mealId) {
                         no = i + 1
                         break
                     }

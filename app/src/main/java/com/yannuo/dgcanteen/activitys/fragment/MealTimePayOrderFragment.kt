@@ -97,13 +97,13 @@ class MealTimePayOrderFragment: BaseFragment<FragmentMealTimePayOrderBinding>() 
         for ((i,v) in queryAllMeals.withIndex()) {
             var allTime = 0
             var mealTime = 0
-            val standard = DishesDBHelper.getInstance().querySwPayOrderByStandardMealId(v.mealId.toInt(), date)
+            val standard = DishesDBHelper.getInstance().querySwPayOrderByStandardMealId(v.mealId, date)
             val list1 = mutableListOf<SwPayOrderTable>()
             standard.forEach {
                 if (it.standardNum.trim().toInt() > 0) list1.add(it)
                 allTime += it.standardNum.trim().toInt()
             }
-            val actual = DishesDBHelper.getInstance().querySwPayOrderByActualMealId(v.mealId.toInt(), date)
+            val actual = DishesDBHelper.getInstance().querySwPayOrderByActualMealId(v.mealId, date)
             val list2 = mutableListOf<SwPayOrderTable>()
             actual.forEach {
                 if (it.standardNum.trim().toInt() > 0) list2.add(it)
@@ -120,7 +120,7 @@ class MealTimePayOrderFragment: BaseFragment<FragmentMealTimePayOrderBinding>() 
         for ((i,v) in queryAllMeals.withIndex()) {
             var payment = 0.0
             var actualPayment = 0.0
-            DishesDBHelper.getInstance().querySwPayOrderByActualMealId(v.mealId.toInt(), date).forEach {
+            DishesDBHelper.getInstance().querySwPayOrderByActualMealId(v.mealId, date).forEach {
                 payment += it.payment.toDouble()
                 actualPayment += it.actualPayment.toDouble()
             }

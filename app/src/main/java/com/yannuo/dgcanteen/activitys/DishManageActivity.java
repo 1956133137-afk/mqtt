@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
+import com.google.gson.Gson;
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.adapters.DishesManageAdapter;
 import com.yannuo.dgcanteen.adapters.DropDownAdapter;
@@ -139,13 +141,14 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Log.d("TAG", "onItemClick: position："+position);
         binding.spinnerText.setText(dataMeal.get(position));
         popup.dismiss();
         runOnUiThread(() -> {
-            int mealId = 0;
+            int mealId = -1;
             for (MealTable u : mealTables) {
                 if (dataMeal.get(position).equals(u.getMealName())) {
-                    mealId = Integer.parseInt(u.getMealId());
+                    mealId = u.getMealId();
                 }
             }
             dishesData(mealId);
@@ -155,7 +158,7 @@ public class DishManageActivity extends AppCompatActivity implements DishesManag
     private void dishesData(int mealId) {
         List<DishesInfo> dataList = new ArrayList<>();
         List<DishesTable> list = new ArrayList<>();
-        if (mealId == 0) {
+        if (mealId == -1) {
             list = DishesDBHelper.getInstance().queryDishes();
         } else {
             list = DishesDBHelper.getInstance().queryDishesByMealId(mealId);

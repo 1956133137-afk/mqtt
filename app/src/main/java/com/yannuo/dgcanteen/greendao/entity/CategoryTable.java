@@ -7,54 +7,74 @@ import org.greenrobot.greendao.annotation.Id;
 
 @Entity
 public class CategoryTable {
-    @Id
-    private String categoryId;
-    private String categoryName;
-    private String sort;
-    private int mealId;
+        @Id(autoincrement = true)
+        private Long id;
+        private String categoryId;
+        private String categoryName;
+        private String sort;
+        private int mealId;
 
-    @Generated(hash = 901610798)
-    public CategoryTable(String categoryId, String categoryName, String sort,
-            int mealId) {
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.sort = sort;
-        this.mealId = mealId;
-    }
+        @Generated(hash = 1679078959)
+        public CategoryTable() {
+        }
 
-    @Generated(hash = 1679078959)
-    public CategoryTable() {
-    }
+        @Generated(hash = 816922273)
+        public CategoryTable(Long id, String categoryId, String categoryName, String sort, int mealId) {
+            this.id = id;
+            this.categoryId = categoryId;
+            this.categoryName = categoryName;
+            this.sort = sort;
+            this.mealId = mealId;
+        }
 
-    public String getCategoryId() {
-        return this.categoryId;
-    }
+        public int getMealId() {
+            return mealId;
+        }
 
-    public void setCategoryId(String categoryId) {
-        this.categoryId = categoryId;
-    }
+        public void setMealId(int mealId) {
+            this.mealId = mealId;
+        }
 
-    public String getCategoryName() {
-        return this.categoryName;
-    }
+        public Long getId() {
+            return id;
+        }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
+        public void setId(Long id) {
+            this.id = id;
+        }
 
-    public String getSort() {
-        return this.sort;
-    }
+        public String getCategoryId() {
+            return categoryId;
+        }
 
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
+        public void setCategoryId(String categoryId) {
+            this.categoryId = categoryId;
+        }
 
-    public int getMealId() {
-        return this.mealId;
-    }
+        public String getCategoryName() {
+            return categoryName;
+        }
 
-    public void setMealId(int mealId) {
-        this.mealId = mealId;
-    }
+        public void setCategoryName(String categoryName) {
+            this.categoryName = categoryName;
+        }
+
+        public String getSort() {
+            return sort;
+        }
+
+        public void setSort(String sort) {
+            this.sort = sort;
+        }
+
+        @Override
+        public String toString() {
+            return "CategoryTable{" +
+                    "id=" + id +
+                    ", categoryId='" + categoryId + '\'' +
+                    ", categoryName='" + categoryName + '\'' +
+                    ", sort='" + sort + '\'' +
+                    ", mealId=" + mealId +
+                    '}';
+        }
 }

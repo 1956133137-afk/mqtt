@@ -89,6 +89,7 @@ class ProductsVM : ViewModel() {
             if (check.not() || force) {
                 loadingEvent.postValue(true)
                 val rs = mRespository.getDayDishes()
+                LogUtil.d(TAG,"同步菜品数据：${Gson().toJson(rs)}")
                 if (rs.code == "200") {
                     val mealList = mutableListOf<MealTable>()
                     val dishList = mutableListOf<DishesTable>()
@@ -102,13 +103,6 @@ class ProductsVM : ViewModel() {
                         { "${it.mealId}:${it.dishesId}:${it.dishesName}" }, //键生成器
                         { it.status }   //值生成器
                     ))
-
-                    //提取下架菜品
-//                    val dishMap = DishesDBHelper.getInstance().queryDishes().stream().filter {
-//                        it.status == 0
-//                    }.collect(Collectors.toMap({
-//                        "${it.mealId}:${it.dishesId}:${it.dishesName}"
-//                    }) { t -> t.status })
                     LogUtil.i(TAG, "未更新时已下架菜品总数: ${dishMap.size}")
                     dishMap.forEach { t, u ->
                         LogUtil.i(TAG, "下架的菜品 $t $u")
@@ -116,12 +110,12 @@ class ProductsVM : ViewModel() {
 
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId.toString()
+                        meal.mealId = da.mealId
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 
                         da.startTime?.also {
-                            val split = it.split(":")
+                            val split =it.split(":")
                             val date = Date()
                             date.hours = split[0].toInt()
                             date.minutes = split[1].toInt()
@@ -130,7 +124,7 @@ class ProductsVM : ViewModel() {
                         }
 
                         da.endTime?.also {
-                            val split = it.split(":")
+                            val split =it.split(":")
                             val date = Date()
                             date.hours = split[0].toInt()
                             date.minutes = split[1].toInt()
@@ -203,7 +197,7 @@ class ProductsVM : ViewModel() {
                     val mealList = mutableListOf<MealTable>()
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId.toString()
+                        meal.mealId = da.mealId
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 

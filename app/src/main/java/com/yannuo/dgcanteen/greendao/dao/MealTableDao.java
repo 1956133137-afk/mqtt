@@ -15,7 +15,7 @@ import com.yannuo.dgcanteen.greendao.entity.MealTable;
 /** 
  * DAO for table "MEAL_TABLE".
 */
-public class MealTableDao extends AbstractDao<MealTable, String> {
+public class MealTableDao extends AbstractDao<MealTable, Long> {
 
     public static final String TABLENAME = "MEAL_TABLE";
 
@@ -24,10 +24,11 @@ public class MealTableDao extends AbstractDao<MealTable, String> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property MealId = new Property(0, String.class, "mealId", true, "MEAL_ID");
-        public final static Property MealName = new Property(1, String.class, "mealName", false, "MEAL_NAME");
-        public final static Property StartTime = new Property(2, java.util.Date.class, "startTime", false, "START_TIME");
-        public final static Property EndTime = new Property(3, java.util.Date.class, "endTime", false, "END_TIME");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property MealId = new Property(1, int.class, "mealId", false, "MEAL_ID");
+        public final static Property MealName = new Property(2, String.class, "mealName", false, "MEAL_NAME");
+        public final static Property StartTime = new Property(3, java.util.Date.class, "startTime", false, "START_TIME");
+        public final static Property EndTime = new Property(4, java.util.Date.class, "endTime", false, "END_TIME");
     }
 
 
@@ -43,10 +44,11 @@ public class MealTableDao extends AbstractDao<MealTable, String> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"MEAL_TABLE\" (" + //
-                "\"MEAL_ID\" TEXT PRIMARY KEY NOT NULL ," + // 0: mealId
-                "\"MEAL_NAME\" TEXT NOT NULL ," + // 1: mealName
-                "\"START_TIME\" INTEGER NOT NULL ," + // 2: startTime
-                "\"END_TIME\" INTEGER);"); // 3: endTime
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"MEAL_ID\" INTEGER NOT NULL UNIQUE ," + // 1: mealId
+                "\"MEAL_NAME\" TEXT NOT NULL ," + // 2: mealName
+                "\"START_TIME\" INTEGER NOT NULL ," + // 3: startTime
+                "\"END_TIME\" INTEGER);"); // 4: endTime
     }
 
     /** Drops the underlying database table. */
@@ -59,16 +61,17 @@ public class MealTableDao extends AbstractDao<MealTable, String> {
     protected final void bindValues(DatabaseStatement stmt, MealTable entity) {
         stmt.clearBindings();
  
-        String mealId = entity.getMealId();
-        if (mealId != null) {
-            stmt.bindString(1, mealId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindString(2, entity.getMealName());
-        stmt.bindLong(3, entity.getStartTime().getTime());
+        stmt.bindLong(2, entity.getMealId());
+        stmt.bindString(3, entity.getMealName());
+        stmt.bindLong(4, entity.getStartTime().getTime());
  
         java.util.Date endTime = entity.getEndTime();
         if (endTime != null) {
-            stmt.bindLong(4, endTime.getTime());
+            stmt.bindLong(5, endTime.getTime());
         }
     }
 
@@ -76,52 +79,56 @@ public class MealTableDao extends AbstractDao<MealTable, String> {
     protected final void bindValues(SQLiteStatement stmt, MealTable entity) {
         stmt.clearBindings();
  
-        String mealId = entity.getMealId();
-        if (mealId != null) {
-            stmt.bindString(1, mealId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindString(2, entity.getMealName());
-        stmt.bindLong(3, entity.getStartTime().getTime());
+        stmt.bindLong(2, entity.getMealId());
+        stmt.bindString(3, entity.getMealName());
+        stmt.bindLong(4, entity.getStartTime().getTime());
  
         java.util.Date endTime = entity.getEndTime();
         if (endTime != null) {
-            stmt.bindLong(4, endTime.getTime());
+            stmt.bindLong(5, endTime.getTime());
         }
     }
 
     @Override
-    public String readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public MealTable readEntity(Cursor cursor, int offset) {
         MealTable entity = new MealTable( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // mealId
-            cursor.getString(offset + 1), // mealName
-            new java.util.Date(cursor.getLong(offset + 2)), // startTime
-            cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)) // endTime
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.getInt(offset + 1), // mealId
+            cursor.getString(offset + 2), // mealName
+            new java.util.Date(cursor.getLong(offset + 3)), // startTime
+            cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)) // endTime
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, MealTable entity, int offset) {
-        entity.setMealId(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setMealName(cursor.getString(offset + 1));
-        entity.setStartTime(new java.util.Date(cursor.getLong(offset + 2)));
-        entity.setEndTime(cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setMealId(cursor.getInt(offset + 1));
+        entity.setMealName(cursor.getString(offset + 2));
+        entity.setStartTime(new java.util.Date(cursor.getLong(offset + 3)));
+        entity.setEndTime(cursor.isNull(offset + 4) ? null : new java.util.Date(cursor.getLong(offset + 4)));
      }
     
     @Override
-    protected final String updateKeyAfterInsert(MealTable entity, long rowId) {
-        return entity.getMealId();
+    protected final Long updateKeyAfterInsert(MealTable entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     @Override
-    public String getKey(MealTable entity) {
+    public Long getKey(MealTable entity) {
         if(entity != null) {
-            return entity.getMealId();
+            return entity.getId();
         } else {
             return null;
         }
@@ -129,7 +136,7 @@ public class MealTableDao extends AbstractDao<MealTable, String> {
 
     @Override
     public boolean hasKey(MealTable entity) {
-        return entity.getMealId() != null;
+        return entity.getId() != null;
     }
 
     @Override

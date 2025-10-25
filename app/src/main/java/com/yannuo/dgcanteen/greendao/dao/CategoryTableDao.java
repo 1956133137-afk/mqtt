@@ -15,7 +15,7 @@ import com.yannuo.dgcanteen.greendao.entity.CategoryTable;
 /** 
  * DAO for table "CATEGORY_TABLE".
 */
-public class CategoryTableDao extends AbstractDao<CategoryTable, String> {
+public class CategoryTableDao extends AbstractDao<CategoryTable, Long> {
 
     public static final String TABLENAME = "CATEGORY_TABLE";
 
@@ -24,10 +24,11 @@ public class CategoryTableDao extends AbstractDao<CategoryTable, String> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property CategoryId = new Property(0, String.class, "categoryId", true, "CATEGORY_ID");
-        public final static Property CategoryName = new Property(1, String.class, "categoryName", false, "CATEGORY_NAME");
-        public final static Property Sort = new Property(2, String.class, "sort", false, "SORT");
-        public final static Property MealId = new Property(3, int.class, "mealId", false, "MEAL_ID");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property CategoryId = new Property(1, String.class, "categoryId", false, "CATEGORY_ID");
+        public final static Property CategoryName = new Property(2, String.class, "categoryName", false, "CATEGORY_NAME");
+        public final static Property Sort = new Property(3, String.class, "sort", false, "SORT");
+        public final static Property MealId = new Property(4, int.class, "mealId", false, "MEAL_ID");
     }
 
 
@@ -43,10 +44,11 @@ public class CategoryTableDao extends AbstractDao<CategoryTable, String> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"CATEGORY_TABLE\" (" + //
-                "\"CATEGORY_ID\" TEXT PRIMARY KEY NOT NULL ," + // 0: categoryId
-                "\"CATEGORY_NAME\" TEXT," + // 1: categoryName
-                "\"SORT\" TEXT," + // 2: sort
-                "\"MEAL_ID\" INTEGER NOT NULL );"); // 3: mealId
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"CATEGORY_ID\" TEXT," + // 1: categoryId
+                "\"CATEGORY_NAME\" TEXT," + // 2: categoryName
+                "\"SORT\" TEXT," + // 3: sort
+                "\"MEAL_ID\" INTEGER NOT NULL );"); // 4: mealId
     }
 
     /** Drops the underlying database table. */
@@ -59,77 +61,90 @@ public class CategoryTableDao extends AbstractDao<CategoryTable, String> {
     protected final void bindValues(DatabaseStatement stmt, CategoryTable entity) {
         stmt.clearBindings();
  
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
         String categoryId = entity.getCategoryId();
         if (categoryId != null) {
-            stmt.bindString(1, categoryId);
+            stmt.bindString(2, categoryId);
         }
  
         String categoryName = entity.getCategoryName();
         if (categoryName != null) {
-            stmt.bindString(2, categoryName);
+            stmt.bindString(3, categoryName);
         }
  
         String sort = entity.getSort();
         if (sort != null) {
-            stmt.bindString(3, sort);
+            stmt.bindString(4, sort);
         }
-        stmt.bindLong(4, entity.getMealId());
+        stmt.bindLong(5, entity.getMealId());
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, CategoryTable entity) {
         stmt.clearBindings();
  
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
+ 
         String categoryId = entity.getCategoryId();
         if (categoryId != null) {
-            stmt.bindString(1, categoryId);
+            stmt.bindString(2, categoryId);
         }
  
         String categoryName = entity.getCategoryName();
         if (categoryName != null) {
-            stmt.bindString(2, categoryName);
+            stmt.bindString(3, categoryName);
         }
  
         String sort = entity.getSort();
         if (sort != null) {
-            stmt.bindString(3, sort);
+            stmt.bindString(4, sort);
         }
-        stmt.bindLong(4, entity.getMealId());
+        stmt.bindLong(5, entity.getMealId());
     }
 
     @Override
-    public String readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public CategoryTable readEntity(Cursor cursor, int offset) {
         CategoryTable entity = new CategoryTable( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // categoryId
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // categoryName
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // sort
-            cursor.getInt(offset + 3) // mealId
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // categoryId
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // categoryName
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // sort
+            cursor.getInt(offset + 4) // mealId
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, CategoryTable entity, int offset) {
-        entity.setCategoryId(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setCategoryName(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setSort(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setMealId(cursor.getInt(offset + 3));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setCategoryId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setCategoryName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setSort(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setMealId(cursor.getInt(offset + 4));
      }
     
     @Override
-    protected final String updateKeyAfterInsert(CategoryTable entity, long rowId) {
-        return entity.getCategoryId();
+    protected final Long updateKeyAfterInsert(CategoryTable entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     @Override
-    public String getKey(CategoryTable entity) {
+    public Long getKey(CategoryTable entity) {
         if(entity != null) {
-            return entity.getCategoryId();
+            return entity.getId();
         } else {
             return null;
         }
@@ -137,7 +152,7 @@ public class CategoryTableDao extends AbstractDao<CategoryTable, String> {
 
     @Override
     public boolean hasKey(CategoryTable entity) {
-        return entity.getCategoryId() != null;
+        return entity.getId() != null;
     }
 
     @Override

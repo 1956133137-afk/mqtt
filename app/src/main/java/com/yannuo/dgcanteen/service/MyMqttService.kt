@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -368,8 +369,6 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
         mScope.launch() {
             while (isActive) {
                 delay(Duration.seconds(30))
-//                delay(Duration.minutes(1))
-//                delay(Duration.seconds(30))
                 LogUtil.i(TAG, "定时任务:开始同步菜品")
                 val rs = mRespository.getDayDishes()
                 if (rs.code == "200") {
@@ -377,10 +376,11 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                     val dishList = mutableListOf<DishesTable>()
                     val picList = mutableListOf<String>() //菜品图片
                     val catList = mutableListOf<CategoryTable>() //菜品类别
-
+                    LogUtil.d(TAG,"定时更新菜品：${Gson().toJson(rs)}")
                     //提取下架菜品
                     val dishMap = DishesDBHelper.getInstance().queryDishes().stream()
-                        .filter { it.status == 0 }.collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
+                        .filter { it.status == 0 }
+                        .collect(Collectors.toMap({ "${it.mealId}:${it.dishesId}:${it.dishesName}" }) { t -> t.status })
                     LogUtil.i(TAG, "未更新时已下架菜品总数: ${dishMap.size}")
                     dishMap.forEach { t, u ->
                         LogUtil.i(TAG, "下架的菜品 $t $u")
@@ -388,7 +388,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
                     for (da in rs.data!!) {
                         val meal = MealTable()
-                        meal.mealId = da.mealId.toString()
+                        meal.mealId = da.mealId
                         meal.mealName = da.mealName
                         if (da.mealName.isEmpty()) continue
 
@@ -481,9 +481,10 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
             val dishList = mutableListOf<DishesTable>() //菜品
             val picList = mutableListOf<String>() //菜品图片
             val catList = mutableListOf<CategoryTable>() //菜品类别
+            LogUtil.d(TAG,"Mqtt更新菜品：${Gson().toJson(dishes)}")
             for (da in dishes) {
                 val meal = MealTable()
-                meal.mealId = da.mealId.toString()
+                meal.mealId = da.mealId
                 meal.mealName = da.mealName
 
                 da.startTime?.also {
@@ -506,12 +507,14 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
 
                 mealList.add(meal)
                 for (bean in da.selectedDishesCategoryData) {
-                    val cat = CategoryTable()
-                    cat.categoryId = bean.categoryId
-                    cat.categoryName = bean.categoryName
-                    cat.sort = bean.sort
-                    cat.mealId = da.mealId
-                    catList.add(cat)
+                    if (!bean.categoryName.isNullOrEmpty()) {
+                        val cat = CategoryTable()
+                        cat.categoryId = bean.categoryId
+                        cat.categoryName = bean.categoryName
+                        cat.sort = bean.sort
+                        cat.mealId = da.mealId
+                        catList.add(cat)
+                    }
                     bean.selectedDishesList.forEach {
                         val dish = DishesTable()
                         dish.dishesId = it.dishesId

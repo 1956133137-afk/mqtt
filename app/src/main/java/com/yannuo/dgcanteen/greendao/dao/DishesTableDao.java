@@ -15,7 +15,7 @@ import com.yannuo.dgcanteen.greendao.entity.DishesTable;
 /** 
  * DAO for table "DISHES_TABLE".
 */
-public class DishesTableDao extends AbstractDao<DishesTable, String> {
+public class DishesTableDao extends AbstractDao<DishesTable, Long> {
 
     public static final String TABLENAME = "DISHES_TABLE";
 
@@ -24,14 +24,15 @@ public class DishesTableDao extends AbstractDao<DishesTable, String> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property DishesId = new Property(0, String.class, "dishesId", true, "DISHES_ID");
-        public final static Property DishesName = new Property(1, String.class, "dishesName", false, "DISHES_NAME");
-        public final static Property MealId = new Property(2, int.class, "mealId", false, "MEAL_ID");
-        public final static Property Price = new Property(3, Double.class, "price", false, "PRICE");
-        public final static Property Unit = new Property(4, String.class, "unit", false, "UNIT");
-        public final static Property ImgUrl = new Property(5, String.class, "imgUrl", false, "IMG_URL");
-        public final static Property Status = new Property(6, int.class, "status", false, "STATUS");
-        public final static Property CategoryName = new Property(7, String.class, "categoryName", false, "CATEGORY_NAME");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
+        public final static Property DishesId = new Property(1, String.class, "dishesId", false, "DISHES_ID");
+        public final static Property DishesName = new Property(2, String.class, "dishesName", false, "DISHES_NAME");
+        public final static Property MealId = new Property(3, int.class, "mealId", false, "MEAL_ID");
+        public final static Property Price = new Property(4, Double.class, "price", false, "PRICE");
+        public final static Property Unit = new Property(5, String.class, "unit", false, "UNIT");
+        public final static Property ImgUrl = new Property(6, String.class, "imgUrl", false, "IMG_URL");
+        public final static Property Status = new Property(7, int.class, "status", false, "STATUS");
+        public final static Property CategoryName = new Property(8, String.class, "categoryName", false, "CATEGORY_NAME");
     }
 
 
@@ -47,14 +48,15 @@ public class DishesTableDao extends AbstractDao<DishesTable, String> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"DISHES_TABLE\" (" + //
-                "\"DISHES_ID\" TEXT PRIMARY KEY NOT NULL ," + // 0: dishesId
-                "\"DISHES_NAME\" TEXT NOT NULL ," + // 1: dishesName
-                "\"MEAL_ID\" INTEGER NOT NULL ," + // 2: mealId
-                "\"PRICE\" REAL NOT NULL ," + // 3: price
-                "\"UNIT\" TEXT," + // 4: unit
-                "\"IMG_URL\" TEXT," + // 5: imgUrl
-                "\"STATUS\" INTEGER NOT NULL ," + // 6: status
-                "\"CATEGORY_NAME\" TEXT);"); // 7: categoryName
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
+                "\"DISHES_ID\" TEXT NOT NULL ," + // 1: dishesId
+                "\"DISHES_NAME\" TEXT NOT NULL ," + // 2: dishesName
+                "\"MEAL_ID\" INTEGER NOT NULL ," + // 3: mealId
+                "\"PRICE\" REAL NOT NULL ," + // 4: price
+                "\"UNIT\" TEXT," + // 5: unit
+                "\"IMG_URL\" TEXT," + // 6: imgUrl
+                "\"STATUS\" INTEGER NOT NULL ," + // 7: status
+                "\"CATEGORY_NAME\" TEXT);"); // 8: categoryName
     }
 
     /** Drops the underlying database table. */
@@ -67,28 +69,29 @@ public class DishesTableDao extends AbstractDao<DishesTable, String> {
     protected final void bindValues(DatabaseStatement stmt, DishesTable entity) {
         stmt.clearBindings();
  
-        String dishesId = entity.getDishesId();
-        if (dishesId != null) {
-            stmt.bindString(1, dishesId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindString(2, entity.getDishesName());
-        stmt.bindLong(3, entity.getMealId());
-        stmt.bindDouble(4, entity.getPrice());
+        stmt.bindString(2, entity.getDishesId());
+        stmt.bindString(3, entity.getDishesName());
+        stmt.bindLong(4, entity.getMealId());
+        stmt.bindDouble(5, entity.getPrice());
  
         String unit = entity.getUnit();
         if (unit != null) {
-            stmt.bindString(5, unit);
+            stmt.bindString(6, unit);
         }
  
         String imgUrl = entity.getImgUrl();
         if (imgUrl != null) {
-            stmt.bindString(6, imgUrl);
+            stmt.bindString(7, imgUrl);
         }
-        stmt.bindLong(7, entity.getStatus());
+        stmt.bindLong(8, entity.getStatus());
  
         String categoryName = entity.getCategoryName();
         if (categoryName != null) {
-            stmt.bindString(8, categoryName);
+            stmt.bindString(9, categoryName);
         }
     }
 
@@ -96,72 +99,76 @@ public class DishesTableDao extends AbstractDao<DishesTable, String> {
     protected final void bindValues(SQLiteStatement stmt, DishesTable entity) {
         stmt.clearBindings();
  
-        String dishesId = entity.getDishesId();
-        if (dishesId != null) {
-            stmt.bindString(1, dishesId);
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
         }
-        stmt.bindString(2, entity.getDishesName());
-        stmt.bindLong(3, entity.getMealId());
-        stmt.bindDouble(4, entity.getPrice());
+        stmt.bindString(2, entity.getDishesId());
+        stmt.bindString(3, entity.getDishesName());
+        stmt.bindLong(4, entity.getMealId());
+        stmt.bindDouble(5, entity.getPrice());
  
         String unit = entity.getUnit();
         if (unit != null) {
-            stmt.bindString(5, unit);
+            stmt.bindString(6, unit);
         }
  
         String imgUrl = entity.getImgUrl();
         if (imgUrl != null) {
-            stmt.bindString(6, imgUrl);
+            stmt.bindString(7, imgUrl);
         }
-        stmt.bindLong(7, entity.getStatus());
+        stmt.bindLong(8, entity.getStatus());
  
         String categoryName = entity.getCategoryName();
         if (categoryName != null) {
-            stmt.bindString(8, categoryName);
+            stmt.bindString(9, categoryName);
         }
     }
 
     @Override
-    public String readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0);
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public DishesTable readEntity(Cursor cursor, int offset) {
         DishesTable entity = new DishesTable( //
-            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // dishesId
-            cursor.getString(offset + 1), // dishesName
-            cursor.getInt(offset + 2), // mealId
-            cursor.getDouble(offset + 3), // price
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // unit
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // imgUrl
-            cursor.getInt(offset + 6), // status
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // categoryName
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
+            cursor.getString(offset + 1), // dishesId
+            cursor.getString(offset + 2), // dishesName
+            cursor.getInt(offset + 3), // mealId
+            cursor.getDouble(offset + 4), // price
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // unit
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // imgUrl
+            cursor.getInt(offset + 7), // status
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8) // categoryName
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, DishesTable entity, int offset) {
-        entity.setDishesId(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
-        entity.setDishesName(cursor.getString(offset + 1));
-        entity.setMealId(cursor.getInt(offset + 2));
-        entity.setPrice(cursor.getDouble(offset + 3));
-        entity.setUnit(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setImgUrl(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setStatus(cursor.getInt(offset + 6));
-        entity.setCategoryName(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
+        entity.setDishesId(cursor.getString(offset + 1));
+        entity.setDishesName(cursor.getString(offset + 2));
+        entity.setMealId(cursor.getInt(offset + 3));
+        entity.setPrice(cursor.getDouble(offset + 4));
+        entity.setUnit(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setImgUrl(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setStatus(cursor.getInt(offset + 7));
+        entity.setCategoryName(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
      }
     
     @Override
-    protected final String updateKeyAfterInsert(DishesTable entity, long rowId) {
-        return entity.getDishesId();
+    protected final Long updateKeyAfterInsert(DishesTable entity, long rowId) {
+        entity.setId(rowId);
+        return rowId;
     }
     
     @Override
-    public String getKey(DishesTable entity) {
+    public Long getKey(DishesTable entity) {
         if(entity != null) {
-            return entity.getDishesId();
+            return entity.getId();
         } else {
             return null;
         }
@@ -169,7 +176,7 @@ public class DishesTableDao extends AbstractDao<DishesTable, String> {
 
     @Override
     public boolean hasKey(DishesTable entity) {
-        return entity.getDishesId() != null;
+        return entity.getId() != null;
     }
 
     @Override
