@@ -241,6 +241,16 @@ public class DishesDBHelper {
         mDishesTableDao.insertOrReplaceInTx(dishes);
     }
 
+    public void insertDishe(DishesTable dishes) {
+        mDishesTableDao.insert(dishes);
+    }
+
+    public Long queryDishCount(String dishId,Integer mealId){
+        return mDishesTableDao.queryBuilder()
+                .where(DishesTableDao.Properties.DishesId.eq(dishId),DishesTableDao.Properties.MealId.eq(mealId))
+                .count();
+    }
+
     public List<DishesTable> queryDishById(String dishId) {
         return mDishesTableDao.queryBuilder()
                 .where(DishesTableDao.Properties.DishesId.eq(dishId))

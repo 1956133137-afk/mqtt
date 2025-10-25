@@ -438,7 +438,13 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
                     DishesDBHelper.getInstance().clearAllCategory()
-                    DishesDBHelper.getInstance().insertDishes(dishList)
+//                    DishesDBHelper.getInstance().insertDishes(dishList)
+                    dishList.forEach {
+                        val queryDishCount = DishesDBHelper.getInstance().queryDishCount(it.dishesId, it.mealId)
+                        if(queryDishCount <= 0){
+                            DishesDBHelper.getInstance().insertDishe(it)
+                        }
+                    }
                     DishesDBHelper.getInstance().insertMeals(mealList)
                     DishesDBHelper.getInstance().insertCategory(catList)
 
@@ -534,7 +540,13 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
             DishesDBHelper.getInstance().clearAllDishes()
             DishesDBHelper.getInstance().clearAllMeal()
             DishesDBHelper.getInstance().clearAllCategory()
-            DishesDBHelper.getInstance().insertDishes(dishList)
+//            DishesDBHelper.getInstance().insertDishes(dishList)
+            dishList.forEach {
+                val queryDishCount = DishesDBHelper.getInstance().queryDishCount(it.dishesId, it.mealId)
+                if(queryDishCount <= 0){
+                    DishesDBHelper.getInstance().insertDishe(it)
+                }
+            }
             DishesDBHelper.getInstance().insertMeals(mealList)
             DishesDBHelper.getInstance().insertCategory(catList)
 

@@ -101,7 +101,8 @@ class ProductsVM : ViewModel() {
                         it.status == 0
                     }.collect(Collectors.toMap(
                         { "${it.mealId}:${it.dishesId}:${it.dishesName}" }, //键生成器
-                        { it.status }   //值生成器
+                        { it.status },   //值生成器
+                        { oldValue, newValue -> newValue }
                     ))
                     LogUtil.i(TAG, "未更新时已下架菜品总数: ${dishMap.size}")
                     dishMap.forEach { t, u ->
@@ -158,12 +159,16 @@ class ProductsVM : ViewModel() {
                             }
                         }
                     }
-                    LogUtil.i(TAG, "mealList: $mealList")
-                    LogUtil.i(TAG, "catList: $catList")
                     DishesDBHelper.getInstance().clearAllDishes()
                     DishesDBHelper.getInstance().clearAllMeal()
                     DishesDBHelper.getInstance().clearAllCategory()
-                    DishesDBHelper.getInstance().insertDishes(dishList)
+//                    DishesDBHelper.getInstance().insertDishes(dishList)
+                    dishList.forEach {
+                        val queryDishCount = DishesDBHelper.getInstance().queryDishCount(it.dishesId, it.mealId)
+                        if(queryDishCount <= 0){
+                            DishesDBHelper.getInstance().insertDishe(it)
+                        }
+                    }
                     DishesDBHelper.getInstance().insertMeals(mealList)
                     DishesDBHelper.getInstance().insertCategory(catList)
 
