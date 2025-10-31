@@ -287,7 +287,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
             payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-            offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
+            offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) "0" else "1"
         }
         mDishes?.products?.forEach {
             val dish = Dish().apply {
@@ -331,7 +331,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                     val person = dbHelper.queryPersonToNumber(personNumber)
                     return person.custId
                 }
-                if (kv.decodeBool(Constant.SWITCH)) {
+                if (kv.decodeBool(Constant.SWITCH) || kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) {
                     withContext(Dispatchers.Main) {
                         ToastShowUtil.show("当前设备无网络，无法完成支付")
                     }
@@ -357,7 +357,7 @@ class PayViewModel : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 var person = dbHelper.queryPersonToCardId(content)
                 LogUtil.i(TAG, "db person: $person")
                 if (person == null) {
-                    if (kv.decodeBool(Constant.SWITCH) ) {
+                    if (kv.decodeBool(Constant.SWITCH) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) {
                         withContext(Dispatchers.Main) {
                             ToastShowUtil.show("当前设备无网络，无法完成支付")
                         }

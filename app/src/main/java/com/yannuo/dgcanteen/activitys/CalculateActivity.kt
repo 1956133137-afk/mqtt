@@ -442,7 +442,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             // 开餐
 
             if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
-                && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
+                && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS) == 0
             ) { //网络监听
                 CommonAndDpToPxUtil.speakWork("设备没有网络，餐次模式暂不支持离线模式")
                 ToastShowUtil.show("设备没有网络，餐次模式暂不支持离线模式")
@@ -697,6 +697,10 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
                     confirmDialog.setBackTime("网络异常，订单将转离线！", 10L)
                 }
             }
+            Constant.EVENT_APP_ONLINE_STATUS -> handler.post {
+                val status = (kv.decodeInt(Constant.APP_ONLINE_STATUS, 0) == 1)
+                binding.ivNetExc.visibility = if (!status) View.GONE else View.VISIBLE
+            }
         }
     }
 
@@ -771,7 +775,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
             when (statue) {
                 "0" -> {
                     binding.network.setImageResource(R.drawable.ic_wifi)
-                    if (kv.decodeBool(Constant.SWITCH, false)) {
+                    if (kv.decodeBool(Constant.SWITCH, false) && kv.decodeInt(Constant.APP_ONLINE_STATUS) == 0) {
                         kv.encode(Constant.SWITCH, false)
                         EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
                     }

@@ -24,6 +24,9 @@ object Constant {
     const val ADDRESS = "Address"
     const val PERSON_ADDRESS = "personAddress"  //人员信息下载地址
 
+    const val OPEN_API_SERVER_URL = "OpenApiServerUrl" //APP服务地址
+    const val APP_ONLINE_STATUS = "AppOnlineStatus" //APP在线状态 0-联机 1-离线
+
     //是否离线
     const val SWITCH = "Switch"
 
@@ -53,6 +56,8 @@ object Constant {
 
     //支付结果显示时间
     const val SHOW_TIME = "show_time"
+
+    const val TIMING_TASKS = "timingTasks"      //定时任务
 
     //菜品更新更新标志
     const val UPDATE_TIME = "update_time"
@@ -170,6 +175,7 @@ object Constant {
     @JvmStatic
     var NRE_TIMES: Int = 0  //网络请求异常次数
     const val EVENT_NETWORK_EXCEPTION = 50 //网络异常改变
+    const val EVENT_APP_ONLINE_STATUS = 51 //健康状态改变
 
     const val VERIFY_MODE = "verifyMode"//核销方式
     const val PRINTER_PATH_SET = "printer_path"  //打印机路径

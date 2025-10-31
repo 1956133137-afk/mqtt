@@ -2,6 +2,7 @@ package com.yannuo.dgcanteen.activitys
 
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.widget.Button
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -114,23 +115,9 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
             override fun confirmCallback(flag: Boolean) {
                 if (flag) {
                     showAwaitDialog("退款中•••")
-                    orderRecordVM.DCRefundIsOverTime(orderRecordAdapter.data[position]){
-                        when(it){
-                            "-1" -> {
-                                handler.post {
-                                    awaitingDialog?.dismiss()
-                                    ToastShowUtil.show("未获取到支付信息")
-                                }
-                                return@DCRefundIsOverTime
-                            }
+                    orderRecordVM.DCRefundIsOverTime(orderRecordAdapter.data[position]){ code,msg ->
+                        when(code){
                             "200" -> {
-                                handler.post {
-                                    awaitingDialog?.dismiss()
-                                    ToastShowUtil.show("超过了退款时间")
-                                }
-                                return@DCRefundIsOverTime
-                            }
-                            else -> {
                                 orderRecordVM.orderRefund(orderRecordAdapter.data[position]) { type,str ->
                                     handler.post {
                                         awaitingDialog?.dismiss()
@@ -138,6 +125,13 @@ class OrderRecordActivity : BaseActivity<ActivityOrderRecordBinding>() {
                                         ToastShowUtil.show(if (type) "退餐成功" else str)
                                     }
                                 }
+                            }
+                            else -> {
+                                handler.post {
+                                    awaitingDialog?.dismiss()
+                                    ToastShowUtil.show(msg.ifEmpty { "请求异常：${code}" })
+                                }
+                                return@DCRefundIsOverTime
                             }
                         }
                     }

@@ -90,7 +90,7 @@ class PayOrderFragment : BaseFragment<FragmentPayOrderBinding>() {
     private fun synFacePayOrder() {
         if (isUpdateStatus) return
         lifecycleScope.launch(Dispatchers.IO + mHandler) {
-            if (NetworkStateManager.getInstance().isOnline(requireContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
+            if (NetworkStateManager.getInstance().isOnline(requireContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) { //有网并且不为离线状态
                 mutex.withLock { isUpdateStatus = true }
                 withContext(Dispatchers.Main) { if (!awaitingDialog.isShowing) awaitingDialog.show() }
                 LogUtil.i(TAG, "手动上传刷脸开始...")

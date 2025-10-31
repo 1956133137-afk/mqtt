@@ -165,12 +165,12 @@ class OrderRecordVM : ViewModel() {
         }
     }
 
-    fun DCRefundIsOverTime(order: Order, result: (String) -> Unit){
+    fun DCRefundIsOverTime(order: Order, result: (String, String) -> Unit){
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, payCfg::class.java)
             if(payCfg == null) {
                 LogUtil.e(TAG,"未获取到支付信息，退款失败")
-                result("-1")
+                result("-1","未获取到支付信息，退款失败")
                 return@launch
             }
             //获取商家配置
@@ -187,7 +187,7 @@ class OrderRecordVM : ViewModel() {
             }
             if(customizeRefund.isEmpty()){
                 LogUtil.e(TAG,"未获取到自定义退款信息，退款失败")
-                result("-1")
+                result("-1","未获取到自定义退款信息，退款失败")
                 return@launch
             }
             LogUtil.d(TAG, "商家配置：${Gson().toJson(businessConfig)}")
@@ -204,7 +204,8 @@ class OrderRecordVM : ViewModel() {
             }
             //判断
             val refundRes = mRepository.DCRefundIsOverTime(currentCcbToken,bean)
-            result(refundRes.code)
+            LogUtil.d(TAG,"订餐超时判断结果：${Gson().toJson(refundRes)}")
+            result(refundRes.code,refundRes.msg)
         }
     }
 

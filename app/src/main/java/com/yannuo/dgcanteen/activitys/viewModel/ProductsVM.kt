@@ -252,7 +252,7 @@ class ProductsVM : ViewModel() {
             val stringBuffer = StringBuffer()
             for (da in detail.products) stringBuffer.append("${da.dishesName};")
             //0-在线 1-离线
-            val offline = if (kv.decodeBool(Constant.SWITCH)) 1 else 0
+            val offline = if (kv.decodeBool(Constant.SWITCH) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) 1 else 0
             service!!.stopFacePay()
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg.campusId
@@ -347,7 +347,7 @@ class ProductsVM : ViewModel() {
                 return@launch
             }
             service!!.stopFacePay()
-            val offline = if (kv.decodeBool(Constant.SWITCH)) 1 else 0  //在线
+            val offline = if (kv.decodeBool(Constant.SWITCH) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) 1 else 0  //在线
 
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg.campusId

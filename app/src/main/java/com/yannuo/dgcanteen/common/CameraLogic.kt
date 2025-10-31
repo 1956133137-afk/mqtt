@@ -52,7 +52,7 @@ class CameraLogic {
                 return@launch
             }
 
-            val offline = if (kv.decodeBool(Constant.SWITCH)) 1 else 0  //在线
+            val offline = if (kv.decodeBool(Constant.SWITCH) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) 1 else 0  //在线
 
             val bean = CcbFacePayBean()
             bean.CAMPUS_ID = mPayCfg.campusId

@@ -139,7 +139,7 @@ class MyMqttService : Service(), NetworkStateManager.NetWorkListener {
                 LogUtil.i(TAG, "消费记录上传任务开始...")
                 delay(Duration.minutes(30))
 //                delay(Duration.seconds(30))
-                val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
+                val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH) || MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS) == 1
                 if (offline) continue
                 //在线模式下
                 val payOrderToAll = DishesDBHelper.getInstance().queryPayOrderToAll()

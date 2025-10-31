@@ -17,6 +17,15 @@ import retrofit2.Response
 class PayRepositoryOfPay {
     private val TAG = javaClass.simpleName
 
+    /**
+     * 健康状态查询接口
+     */
+    suspend fun getServerStatus(deviceId: String): CanteenResponse<OpenApiBean> {
+        return apiCall2 {
+            RetrofitClient.getOpenApiService().getServerStatus(deviceId)
+        }
+    }
+
     suspend fun getDayDishes(): CanteenResponse<MutableList<DayDishesBean>> {
         return apiCall {
             val sn = CommonAndDpToPxUtil.getDeviceSerial()

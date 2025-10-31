@@ -19,6 +19,7 @@ import com.yannuo.dgcanteen.adapters.InitModeAdapter
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
+import com.yannuo.dgcanteen.service.MyService
 import com.yannuo.dgcanteen.util.BytesUtils
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
@@ -71,6 +72,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         //申请权限
         if (!hasPermission()) requestPermission()
         requestAlertWindowPermission()
+
+        // 初始化服务
+        startService(Intent(this, MyService::class.java))
 
         initPresentation()
         loading = LoadingDialog(this)

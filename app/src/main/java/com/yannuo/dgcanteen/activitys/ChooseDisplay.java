@@ -117,7 +117,7 @@ public class ChooseDisplay extends BaseDisplay implements CallbackListener {
         });
 
         binding.btPayQrcode.setOnClickListener(view -> {
-            if (!NetworkStateManager.getInstance().isOnline(getContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+            if (!NetworkStateManager.getInstance().isOnline(getContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && kv.decodeInt(Constant.APP_ONLINE_STATUS) == 0) {
                 CommonAndDpToPxUtil.speakWork("当前无网络，请打开设备离线模式");
                 return;
             }

@@ -134,6 +134,9 @@
         <service
             android:name=".service.CameraService"
             android:stopWithTask="true" />
+        <service
+            android:name=".service.MyService"
+            android:stopWithTask="true" />
     </application>
 
 </manifest>

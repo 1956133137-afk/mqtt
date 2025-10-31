@@ -13,6 +13,13 @@ import retrofit2.http.*
 
 interface ApiService {
 
+    /**
+     * 健康状态查询接口
+     */
+    @Headers("Content-Type: text/plain; charset=utf-8")
+    @GET("openApi/server/getServerStatus")
+    suspend fun getServerStatus(@Header("X-Device-Id") xDeviceId: String): OpenApiBean
+
     //检查APP新版本
     @Headers("content-type: application/json")
     @POST

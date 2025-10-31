@@ -1,13 +1,8 @@
 package com.yannuo.dgcanteen.nets;
 
-import android.graphics.Typeface;
-
 import com.tencent.mmkv.MMKV;
 import com.yannuo.dgcanteen.interfaces.ApiService;
 import com.yannuo.dgcanteen.util.Constant;
-import com.yannuo.dgcanteen.util.LogUtil;
-
-import java.util.Objects;
 
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -19,6 +14,8 @@ public class RetrofitClient {
     private static ApiService mService;
     private static ApiService personService;
     private static ApiService mCcbService;
+
+    private static ApiService mOpenApiService;
 
     private RetrofitClient() {
         mService = new Retrofit.Builder()
@@ -38,6 +35,25 @@ public class RetrofitClient {
             }
         }
         return mService;
+    }
+
+    public static ApiService getOpenApiService(){
+        if (mOpenApiService == null) {
+            synchronized (RetrofitClient.class) {
+                initOpenApiService();
+            }
+        }
+        return mOpenApiService;
+    }
+
+    private static void initOpenApiService() {
+        mOpenApiService = new Retrofit.Builder()
+                .client(OkHttpUtils.Companion.getInstance())
+                .baseUrl(MMKV.defaultMMKV().decodeString(Constant.OPEN_API_SERVER_URL))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
     }
 
     private static void setPersonService() {

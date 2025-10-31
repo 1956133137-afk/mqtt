@@ -5,11 +5,16 @@ import android.content.Context
 import android.content.Intent
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.BuildConfig
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.model.MessageEvent
 
 import com.yannuo.dgcanteen.nets.RetrofitClient
 import com.yannuo.dgcanteen.service.UpdateServer
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 
 

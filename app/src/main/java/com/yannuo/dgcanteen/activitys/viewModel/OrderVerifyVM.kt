@@ -395,7 +395,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
             payDate = TimeUtil.timeFormat("yyyy-MM-dd", currentTime)
             sessionId = "$deviceSerial$currentTime${Random().nextInt(10)}"
             signTime = TimeUtil.timeFormat("yyyyMMddHHmmss", currentTime)
-            offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
+            offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && mmkv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) "0" else "1"
         }
         return payForUI
     }

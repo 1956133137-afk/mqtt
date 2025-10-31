@@ -230,6 +230,10 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                         confirmDialog.setBackTime("网络异常，订单将转离线！", 10L)
                     }
                 }
+                Constant.EVENT_APP_ONLINE_STATUS -> handler.post {
+                    val status = (mmkv.decodeInt(Constant.APP_ONLINE_STATUS, 0) == 1)
+                    binding.ivNetExc.visibility = if (!status) View.GONE else View.VISIBLE
+                }
             }
         }
     }
@@ -346,7 +350,7 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
             when (statue) {
                 "0" -> {
                     binding.network.setImageResource(R.drawable.ic_wifi)
-                    if (mmkv.decodeBool(Constant.SWITCH, false)) {
+                    if (mmkv.decodeBool(Constant.SWITCH, false) && mmkv.decodeInt(Constant.APP_ONLINE_STATUS) == 0) {
                         mmkv.encode(Constant.SWITCH, false)
                         EventBus.getDefault().post(MessageEvent(Constant.EVENT_OFF_CHANGE, null))
                     }

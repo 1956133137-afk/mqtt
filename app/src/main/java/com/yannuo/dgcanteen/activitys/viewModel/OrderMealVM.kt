@@ -166,7 +166,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 corpId = payCfg.corpId
                 orderType = type
                 orderContent = content
-                offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)) "0" else "1"
+                offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) "0" else "1"
             }
             if (orderForUI.campusId.isEmpty() || orderForUI.businessId.isEmpty() || orderForUI.vposId.isEmpty()) {
                 orderForUI.errCode = "ORDER0001"

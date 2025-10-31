@@ -133,7 +133,7 @@ public class DoubleChooseDisplay extends BaseDisplay implements CallbackListener
             mDishes.setProducts(mDishList);
             mDishes.setTotalMoney(mTotalMoney);
             payViewModel.setMDishes(mDishes);
-            if (!NetworkStateManager.getInstance().isOnline(getContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+            if (!NetworkStateManager.getInstance().isOnline(getContext()) && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) {
                 CommonAndDpToPxUtil.speakWork("当前无网络，请打开设备离线模式");
                 return;
             }

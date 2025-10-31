@@ -93,7 +93,7 @@ class FaceScanVM {
         runBlocking { mutex.withLock { isFaceStatus = true } }
         mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
         modeStatus = status
-        currentOffline = if (mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
+        currentOffline = if (mmkv.decodeBool(Constant.SWITCH) || mmkv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 1) "1" else "0"
         ccbFacePayBean.apply {
             CAMPUS_ID = mPayCfg.campusId
             CORP_ID = mPayCfg.corpId        // "1046"

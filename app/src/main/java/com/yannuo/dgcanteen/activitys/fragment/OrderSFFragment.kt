@@ -109,11 +109,12 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             "2" -> "扫码支付"
             else -> "刷卡支付"
         }
-        CommonAndDpToPxUtil.speakWork("${str} ${payForUI.payment} 元")
+        CommonAndDpToPxUtil.speakWork("${str} ${payForUI.actualPayment} 元")
         mPayResultAdapter!!.data = payForUI.paymentDishes
         binding.subS.tvSum.text = "${payForUI.paymentDishes.size} 件"
-        binding.subS.payTotalMoney.text = "￥ ${payForUI.payment} 元"
+        binding.subS.payTotalMoney.text = "￥ ${payForUI.actualPayment} 元"
         binding.subS.tvPayTime.text = payForUI.payTime
+        binding.subS.tvDiscount.text = payForUI.discountMsg
         binding.subS.tvTransNumber.text = payForUI.orderId.ifEmpty { payForUI.traceId }
 
         val persons = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)

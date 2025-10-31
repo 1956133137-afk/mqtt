@@ -135,7 +135,7 @@ class CheckVerifyActivity : BaseActivity<ActivityCheckVerifyBinding>(), Callback
     private fun faceVerification() {
         LogUtil.d(TAG, "查询人脸信息~")
         var offline = 0  //在线
-        if (mmkv.decodeBool(Constant.SWITCH)) offline = 1  //离线
+        if (mmkv.decodeBool(Constant.SWITCH) || mmkv.decodeInt(Constant.APP_ONLINE_STATUS) == 1) offline = 1  //离线
         val mPayCfg = verificationVM.getPayCfg()
         val campusId = if (mPayCfg == null) "" else mPayCfg.campusId
         val businessId = if (mPayCfg == null) "" else mPayCfg.businessId

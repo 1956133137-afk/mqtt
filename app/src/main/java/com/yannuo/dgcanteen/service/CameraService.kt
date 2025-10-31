@@ -587,7 +587,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
                 LogUtil.i(TAG, "消费记录上传任务开始...")
                 delay(Duration.minutes(30))
 //                delay(Duration.seconds(30))
-                val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH)
+                val offline = MMKV.defaultMMKV().decodeBool(Constant.SWITCH) || MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS) == 1
                 if (offline) continue
                 //在线模式下
                 val payOrderToAll = DishesDBHelper.getInstance().queryPayOrderToAll()
@@ -650,7 +650,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
         mScope.launch {
             while (isActive) {
                 delay(Duration.minutes(40))
-                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) { //有网并且不为离线状态
+                if (runTask && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS) == 1) { //有网并且不为离线状态
                     val offlineOrder = DishesDBHelper.getInstance().queryOfflineOrderToAll()
                     LogUtil.i(TAG, "离线订单补扣开始请求...")
                     offlineOrder.forEach { offline ->

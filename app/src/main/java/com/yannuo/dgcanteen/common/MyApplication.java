@@ -80,6 +80,7 @@ public class MyApplication extends Application {
             if (kv.decodeString(Constant.MQTT_ADDRESS) == null) kv.encode(Constant.MQTT_ADDRESS, "tcp://test.yannuozhineng.com:1883");
             if (kv.decodeString(Constant.MQTT_ACCOUNT) == null) kv.encode(Constant.MQTT_ACCOUNT, "acms");
             if (kv.decodeString(Constant.MQTT_PASSWORD) == null) kv.encode(Constant.MQTT_PASSWORD, "ACMS2022~!@");
+            if (kv.decodeString(Constant.OPEN_API_SERVER_URL) == null) kv.encode(Constant.OPEN_API_SERVER_URL, "https://test.yannuozhineng.com/openapi/");
 
             Constant.ENVIRONMENT_TYPE = "00";
 //            Constant.CORP_ID = "1041";
@@ -95,6 +96,7 @@ public class MyApplication extends Application {
             if (kv.decodeString(Constant.MQTT_ADDRESS) == null) kv.encode(Constant.MQTT_ADDRESS, "tcp://acms.yannuozhineng.com:3883");
             if (kv.decodeString(Constant.MQTT_ACCOUNT) == null) kv.encode(Constant.MQTT_ACCOUNT, "acms");
             if (kv.decodeString(Constant.MQTT_PASSWORD) == null) kv.encode(Constant.MQTT_PASSWORD, "ACMS2022~!@");
+            if (kv.decodeString(Constant.OPEN_API_SERVER_URL) == null) kv.encode(Constant.OPEN_API_SERVER_URL, "https://canteen.yannuozhineng.com/v1/");
 
             Constant.ENVIRONMENT_TYPE = "01";
 //            Constant.CORP_ID = "1046";

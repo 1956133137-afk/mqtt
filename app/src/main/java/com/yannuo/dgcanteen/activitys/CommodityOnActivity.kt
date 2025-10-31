@@ -189,7 +189,7 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
             }
         }
         mProductsVM.upDataDishes()
-        if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH)) {
+        if (MMKV.defaultMMKV().decodeBool(Constant.SWITCH) || MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS) == 1) {
             binding.onOffLine.setImageResource(R.drawable.ic_drama_no)
         }
 
@@ -398,6 +398,11 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
                     confirmDialog.show()
                     confirmDialog.setBackTime("网络异常，订单将转离线！", 5L)
                 }
+            }
+
+            Constant.EVENT_APP_ONLINE_STATUS -> handler.post {
+                val status = (kv.decodeInt(Constant.APP_ONLINE_STATUS, 0) == 1)
+                binding.ivNetExc.visibility = if (!status) View.GONE else View.VISIBLE
             }
         }
     }

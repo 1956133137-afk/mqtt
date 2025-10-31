@@ -9,8 +9,9 @@
 
     <TextView
         android:id="@+id/tv_item_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_toStartOf="@+id/tv_this_money"
         android:paddingStart="10dp"
         android:gravity="center_vertical"
         android:textColor="#101010"
