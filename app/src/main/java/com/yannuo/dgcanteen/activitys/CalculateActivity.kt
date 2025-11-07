@@ -209,6 +209,7 @@ class CalculateActivity : BaseActivity<ActivityCalculateBinding>(), NetworkState
 //        LogUtil.i(TAG,"onResume!")
         super.onResume()
         isPayStatus = false
+        binding.ivNetExc.visibility = if (kv.decodeInt(Constant.APP_ONLINE_STATUS, 0) != 1) View.GONE else View.VISIBLE
 //        productsVM.upDataDishes(true)
         mealId = TimeUtil.CurrentTimeSection()
         mXService?.hideNavBar = true
