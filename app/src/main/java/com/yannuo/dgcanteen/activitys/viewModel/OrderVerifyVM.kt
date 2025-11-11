@@ -228,6 +228,11 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                     else -> {getCavEncryptParam(cardId,"",3)}
                 }
                 flag = if (mmkv.decodeBool(Constant.ORDER_QUERY, false)) 1 else 0
+                //获取合作方Id
+                val payCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+                if(payCfg != null){
+                    corpId = payCfg.corpId
+                }
             }
             LogUtil.d(TAG, Gson().toJson(request))
             val response = mRepository.orderVerify(request)
