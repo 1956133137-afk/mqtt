@@ -263,7 +263,7 @@ interface ApiService {
      */
     @Headers("content-type: application/json")
     @POST("android/preOrderMealVerify")
-    suspend fun orderVerify(@Body data: VerificationRequest): CanteenResponse<JsonObject>
+    suspend fun orderVerify(@Body data: BookMealRequest): CanteenResponse<JsonObject>
 
     /**
      * 查询个人的剩余餐次(申万宏源)

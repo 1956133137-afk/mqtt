@@ -21,6 +21,7 @@ import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.interfaces.OnReadDataListener
 import com.yannuo.dgcanteen.model.ACCLIST
+import com.yannuo.dgcanteen.model.BookMealRequest
 import com.yannuo.dgcanteen.model.CardPayBean
 import com.yannuo.dgcanteen.model.CcbFacePayResultBean
 import com.yannuo.dgcanteen.model.CodePayBean
@@ -214,7 +215,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                 else -> {dbHelper.queryPersonToCardId(cardId)}
             }
             /*获取请求参数*/
-            val request = VerificationRequest().apply {
+            val request = BookMealRequest().apply {
                 dcEncryptParam = when(type){
                     1 -> {
                         getCavEncryptParam(if (persons != null) persons.custId else "","",1)
@@ -231,7 +232,7 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
                 //获取合作方Id
                 val payCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
                 if(payCfg != null){
-                    corpId = payCfg.corpId
+                    campusId = payCfg.campusId
                 }
             }
             LogUtil.d(TAG, Gson().toJson(request))

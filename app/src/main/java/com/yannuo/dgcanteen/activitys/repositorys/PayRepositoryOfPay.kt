@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.repositorys
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -22,7 +23,9 @@ class PayRepositoryOfPay {
      */
     suspend fun getServerStatus(deviceId: String): CanteenResponse<OpenApiBean> {
         return apiCall2 {
-            RetrofitClient.getOpenApiService().getServerStatus(deviceId)
+            val serverStatus = RetrofitClient.getOpenApiService().getServerStatus(deviceId)
+            Log.d(TAG, "getServerStatus: 健康状态查询直接返回：${Gson().toJson(serverStatus)}")
+            serverStatus
         }
     }
 
@@ -302,7 +305,7 @@ class PayRepositoryOfPay {
         }
     }
 
-    suspend fun orderVerify(data: VerificationRequest): CanteenResponse<JsonObject> {
+    suspend fun orderVerify(data: BookMealRequest): CanteenResponse<JsonObject> {
         return apiCall {
             val ben = RetrofitClient.getApi().orderVerify(data)
             return@apiCall ben

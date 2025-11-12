@@ -1,6 +1,11 @@
 package com.yannuo.dgcanteen.model
 
 class OpenApiBean {
+    var code: Int = 200
+    var data: Data? = null
+}
+
+class Data{
     var metrics: Metrics? = null
     var dbHealth: DbHealth? = null
     var targetUrl: String = ""
