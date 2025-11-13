@@ -105,7 +105,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             }
             if(orderVerifyVM.getPayState()) return@setOnClickListener
             orderVerifyVM.faceVerification()
-            handler.postDelayed({ dismiss() }, 500)
+            hide()
         }
     }
 
@@ -165,6 +165,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                         binding.failureMsg.text = "失败原因：$errMsg"
                         binding.failureTime.text = "失败时间：${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
                     }
+                    show()
                 }
             }
         }
@@ -248,6 +249,13 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 /*是否需要确认*/
                 if (!mmkv.decodeBool(Constant.ORDER_VERIFY_CONFIRM, false)) orderVerifyVM.mOrderVerify.postValue(OrderVerify())
                 binding.orderVerifyType.visibility = if(mmkv.decodeBool(Constant.ORDER_VERIFY_IC_CARD,false)) View.GONE else View.VISIBLE
+                if(mmkv.decodeBool(Constant.ORDER_VERIFY_FACE,false)){
+                    binding.codeVerify.visibility = View.GONE
+                    binding.cardVerify.visibility = View.GONE
+                }else{
+                    binding.codeVerify.visibility = View.VISIBLE
+                    binding.cardVerify.visibility = View.VISIBLE
+                }
             }
             1 -> {
                 binding.successView.visibility = View.VISIBLE
@@ -279,8 +287,7 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
             override fun onFinish() {
                 changeView(0)
             }
-        }
-        countDown?.start()
+        }.start()
     }
 
     override fun cancel() {

@@ -316,6 +316,8 @@ class ModeSettingFragment : Fragment() {
         binding.quickSwitchMode.setOnClickListener { kv.encode(Constant.QUICK_SWITCH_MODE, binding.quickSwitchMode.isChecked) }
         //订餐核销默认刷卡
         binding.orderVerification.setOnClickListener { kv.encode(Constant.ORDER_VERIFY_IC_CARD, binding.orderVerification.isChecked) }
+        //订餐核销仅刷脸
+        binding.orderVerificationFace.setOnClickListener { kv.encode(Constant.ORDER_VERIFY_FACE, binding.orderVerificationFace.isChecked) }
         /*订餐登录方式*/
         binding.faceMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_FACE, binding.faceMode.isChecked) }
         binding.qrCodeMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_CODE, binding.qrCodeMode.isChecked) }
@@ -474,6 +476,10 @@ class ModeSettingFragment : Fragment() {
 
         binding.displayCardVerify.isChecked = kv.decodeBool(Constant.DISPLAY_CARD_VERIFY, false)
         binding.verifyPersonStatistic.isChecked = kv.decodeBool(Constant.VERIFY_PERSON_STATISTIC, true)
+
+        //订餐核销
+        binding.orderVerification.isChecked = kv.decodeBool(Constant.ORDER_VERIFY_IC_CARD, false)
+        binding.orderVerificationFace.isChecked = kv.decodeBool(Constant.ORDER_VERIFY_FACE, false)
 
         binding.orderPrinterFormat.text = printerList[kv.decodeInt(Constant.ORDER_PRINTER_FORMAT, 0)]
         binding.orderAdvanceDay.setText(kv.decodeInt(Constant.ORDER_ADVANCE_DAY, 6).toString())

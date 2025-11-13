@@ -133,6 +133,7 @@ class VerificationVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener 
             val data = CanteenEncryptionUtil.encryption("CAMPUS_ID=${campusId}&BUSINESS_ID=${businessId}&CUST_ID=${custId}&ORDER_ID=${orderId}&DEVICE_ID=${deviceId}&CARD_ID=${cardId}")
             LogUtil.d(TAG, "加密数据: $data")
             var verification = VerificationRequest().apply {
+                this.campusId = campusId.toString()
                 this.dcEncryptParam = data
                 this.flag = flag
             }
