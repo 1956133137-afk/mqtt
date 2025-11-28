@@ -22,6 +22,7 @@ import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.QuotaTimeActivity
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.adapters.SimpleDownAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentModeSettingBinding
@@ -324,35 +325,7 @@ class ModeSettingFragment : Fragment() {
         binding.icCardMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_CARD, binding.icCardMode.isChecked) }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
-//            if (!this::awaitingDialog.isInitialized)
-//                awaitingDialog = AwaitingDialog(requireActivity())
-//            awaitingDialog.show()
-//            awaitingDialog.updateText("同步中")
-//            if (mService == null) {
-//                ToastShowUtil.show("同步失败，服务异常")
-//                return@setOnClickListener
-//            }
-//            mService?.synchFace(object : CallbackListener {
-//                override fun onOtherListener(event: Int, any: Any?) {
-//                    when (event) {
-//                        0 -> {
-//                            requireActivity().runOnUiThread {
-//                                awaitingDialog.setText(any as String)
-//                            }
-//                        }
-//                        1 -> {
-//                            val count =
-//                                FaceHandler.getInstance()?.ksHandler?.getLocalGroupFaceNum(Constant.GROUP_NAME)
-//                                    ?: 0
-//                            requireActivity().runOnUiThread {
-//                                awaitingDialog.cancel()
-//                                binding.tvFaceCount.text = "同步人脸数：$count"
-//                            }
-//                        }
-//                    }
-//                }
-//            })
-//            ToastShowUtil.show("人员信息已同步~")
+            DownloadVM.instance.downUserFaceDBImg("")
         }
     }
 
@@ -580,6 +553,7 @@ class ModeSettingFragment : Fragment() {
                 try {
                     if (res.code == "200") {
                         val result = DES3CBCUtil.decryptRSA2(res.data)
+                        Log.d(TAG, "downPerson: 人员信息更新数据：$result")
                         val bean = Gson().fromJson(result, PersonList::class.java)
                         DishesDBHelper.getInstance().insertPersons(bean.list)
                         if (currentPage >= bean.totalPage) {

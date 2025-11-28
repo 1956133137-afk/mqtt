@@ -18,6 +18,7 @@ import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.download.CheckVersionWorker
+import com.yannuo.dgcanteen.download.FaceDataWorker
 import com.yannuo.dgcanteen.facepass.SDKInitResult
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.*
@@ -86,6 +87,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             KeyboardUtil.instance.openKeyboard()
 
             checkNewAppAndKeepAlive()   //新版本检查任务
+            uploadFaceData() // 定时更新人脸数据
             NetworkStateManager.getInstance().registerObserver(this@CameraService) //网络状态监听
             getPayCfg()//获取配置
         }
@@ -186,6 +188,22 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //            KeepAliveJobService.startJob(this)
 //            LogUtil.i(TAG, "开启软件保活设置")
 //        }
+    }
+
+    private fun uploadFaceData() {
+
+        val work = PeriodicWorkRequest.Builder(
+            FaceDataWorker::class.java,
+            240L + Random.nextInt(30),
+            TimeUnit.MINUTES
+        ).build()
+
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                Constant.FACE_DATA_UPLOAD,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                work
+            )
     }
 
 

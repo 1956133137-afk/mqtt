@@ -1,6 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
@@ -8,9 +9,15 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.facepass.FaceSDKHelper
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.UserFaceData
 import com.yannuo.dgcanteen.model.CategoryBean
 import com.yannuo.dgcanteen.model.DateMenu
 import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.model.EncryptedDataRequest
+import com.yannuo.dgcanteen.model.FaceRequest
+import com.yannuo.dgcanteen.model.FaceResponse
 import com.yannuo.dgcanteen.model.MealMenu
 import com.yannuo.dgcanteen.model.MealSizeBean
 import com.yannuo.dgcanteen.model.MealSizeReceive
@@ -19,6 +26,7 @@ import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.RequeCategoryIdBean
 import com.yannuo.dgcanteen.model.SelectDateBean
 import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.DES3CBCUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
@@ -29,6 +37,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Arrays
 import java.util.Calendar
 import java.util.Date
 
@@ -53,6 +62,13 @@ class DownloadVM : ViewModel() {
         throwable.printStackTrace()
     }
 
+    companion object {
+        @JvmStatic
+        val instance: DownloadVM by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+            synchronized(DownloadVM::class.java) { DownloadVM() }
+        }
+    }
+
     fun getMenuList(): MutableList<DateMenu> = menuList
 
     fun setMenuList(list: MutableList<DateMenu>) {
@@ -73,6 +89,106 @@ class DownloadVM : ViewModel() {
                 if (orderMealList != null && orderMealList.size > 0 && delFlag != "2") mealList.addAll(orderMealList)
             } else withContext(Dispatchers.Main) { ToastShowUtil.show("同步餐别失败") }
             boolean(true)
+        }
+    }
+
+    /**
+     * 全量/增量 获取人脸特征值列表
+     */
+    fun downUserFaceDBImg(time: String){
+        viewModelScope.launch(Dispatchers.IO + mHandler) {
+            val cameraManager = FaceSDKHelper.getInstance().getCameraManager()
+            val gson = Gson()
+            val list = arrayListOf<UserFaceData>()
+            var type = true
+            var count = 0
+            do {
+                try{
+                    val config = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: return@launch
+                    val bean = FaceRequest().apply {
+                        campusId = config.campusId
+                        lastUpdateTime = time
+                    }
+                    //加密
+                    val encryption = DES3CBCUtil.encryption(gson.toJson(bean))
+                    val date = mRepository.downUserFaceDBImg(EncryptedDataRequest(encryption))
+                    if(date.code == "200"){
+                        if(date.data == null){
+                            Log.d(TAG, "downUserFaceDBImg: 人脸特征值数据为空")
+                            return@launch
+                        }else{
+                            val decryptRSA = DES3CBCUtil.decryptRSA(date.data)
+                            val faceResponse = gson.fromJson(decryptRSA, FaceResponse::class.java)
+                            if(faceResponse.page < faceResponse.totalPage){
+                                list.addAll(faceResponse.list)
+                            }else{
+                                list.addAll(faceResponse.list)
+                                Log.d(TAG, "downUserFaceDBImg: 下载数据完成：${list.size}")
+                                type = false
+                                //删除数据
+                                if(time.isEmpty()){
+                                    cameraManager?.getFacePass()?.deleteFaceLocalGroup()
+                                }
+                                DishesDBHelper.getInstance().deleteAllFace()
+                                //新建底库
+                                val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup()
+                                Log.d(TAG, "downUserFaceDBImg: 新建底库：$createFaceGroup")
+                                //绑定底库
+                                list.forEach {
+                                    if(it.eigenvalue.isNullOrEmpty()){
+                                        if (!it.faceImgUrl.isNullOrEmpty()){
+                                            //下载图片
+                                            val bitmap = runBlocking {
+                                                withContext(Dispatchers.IO) {
+                                                    try { //图片加载失败返回null
+                                                        Glide.with(MyApplication.applicationContext)
+                                                            .asBitmap()
+                                                            .load(it.faceImgUrl)
+                                                            .submit()
+                                                            .get()
+                                                    } catch (e: Exception) {
+                                                        e.printStackTrace()
+                                                        null
+                                                    }
+                                                }
+                                            }
+                                            if(bitmap != null){
+                                                //提取特征值
+                                                val extractFeature = cameraManager?.getFacePass()?.extractFeature(bitmap)
+                                                //特征值
+                                                val eigenvalue = Arrays.toString(extractFeature)
+                                                val token = cameraManager?.getFacePass()?.registerFaces(eigenvalue)
+                                                if(token.isNullOrEmpty()){
+                                                    LogUtil.e(TAG,"${it.custId} 人脸注册失败")
+                                                }else{
+                                                    //绑定底库
+                                                    val bindFaceToGroup = cameraManager.getFacePass()
+                                                        ?.bindFaceToGroup(token)
+                                                    if(bindFaceToGroup == true){
+                                                        it.eigenvalue = token
+                                                        //todo 上传提取的特征值
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }else{
+                                        cameraManager?.getFacePass()?.bindFaceToGroup(it.eigenvalue)
+                                    }
+                                }
+                                //保存数据
+                                DishesDBHelper.getInstance().insertFaceData(list)
+                                Log.d(TAG, "downUserFaceDBImg: 人脸数据更新完成")
+                                Log.d(TAG, "downUserFaceDBImg: 人脸数据:${gson.toJson(list)}")
+                            }
+                        }
+                    }else{
+                        count++
+                    }
+                }catch (e: Exception){
+                    count++
+                    e.printStackTrace()
+                }
+            }while (type && count < 9)
         }
     }
 

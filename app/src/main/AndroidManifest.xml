@@ -3,22 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yannuo.dgcanteen">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" /> <!-- USB访问权限 -->
     <uses-feature android:name="android.hardware.usb.UsbDevice" />
     <uses-feature android:name="android.hardware.usb.UsbManager" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:name=".common.MyApplication"
@@ -26,10 +32,18 @@
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_noodles"
         android:label="@string/dg_canteen"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:screenOrientation="landscape"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CommodityPay">
+        android:theme="@style/Theme.CommodityPay"
+        tools:targetApi="31">
+        <activity
+            android:name=".activitys.EnrollFaceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activitys.FacialRecognitionActivity"
+            android:exported="false" />
         <activity
             android:name=".activitys.OrderVerifyActivity"
             android:exported="false" />

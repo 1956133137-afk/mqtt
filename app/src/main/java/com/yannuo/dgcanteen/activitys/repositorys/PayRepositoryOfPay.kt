@@ -358,6 +358,27 @@ class PayRepositoryOfPay {
         }
     }
 
+    /**
+     * 下载人脸特征值
+     */
+    suspend fun downUserFaceDBImg(encryptedData: EncryptedDataRequest): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().downUserFaceDBImg(encryptedData)
+        }
+    }
+
+    suspend fun uploadUserEigenvalue(encryptedData: EncryptedDataRequest): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().uploadUserEigenvalue(encryptedData)
+        }
+    }
+
+    suspend fun uploadFaceDBImg(encryptedData: EncryptedDataRequest): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().uploadFaceDBImg(encryptedData)
+        }
+    }
+
 
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {

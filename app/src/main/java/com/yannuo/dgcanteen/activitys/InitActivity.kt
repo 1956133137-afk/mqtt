@@ -7,16 +7,25 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
+import android.os.Handler
 import android.provider.Settings
+import android.util.Log
 import android.view.Display
+import android.view.View
 import android_serialport_api.SerialPort
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.adapters.InitModeAdapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
+import com.yannuo.dgcanteen.facepass.AuthFace
+import com.yannuo.dgcanteen.facepass.FacePass
+import com.yannuo.dgcanteen.facepass.FaceSDKHelper
+import com.yannuo.dgcanteen.facepass.SDKInitResult
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
 import com.yannuo.dgcanteen.service.MyService
@@ -26,17 +35,22 @@ import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.LoadingDialog
 import kotlinx.coroutines.*
+import mcv.facepass.FacePassHandler
 import java.io.File
+
 
 /**
  * Author: filowl
  * Description: ***
  * Date: 2023/7/27 15:10
  **/
-class InitActivity : BaseActivity<ActivityIntiBinding>() {
+class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
     // Android 11 请求文件写入权限
     private val ANDROID_11_REQUEST_CODE = 0
     private val PERMISSIONS_REQUEST = 1
+
+    // 请求权限的标识码
+    private val REQUEST_PERMISSIONS_CODE = 1001
 
     @RequiresApi(Build.VERSION_CODES.R)
     private val PERMISSION_R: Array<String> = arrayOf(
@@ -73,6 +87,13 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         if (!hasPermission()) requestPermission()
         requestAlertWindowPermission()
 
+        //初始化SDK
+        FacePassHandler.initSDK(MyApplication.applicationContext, "")
+
+        //人脸授权
+        val authFace = AuthFace(this)
+        authFace.authCheck(this)
+
         // 初始化服务
         startService(Intent(this, MyService::class.java))
 
@@ -82,19 +103,17 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
         FaceScanVM.instance.bindService()
         initObject()
-//        initEvent()
     }
 
     //检测权限是否获得
     private fun hasPermission(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            PERMISSION_R.forEach {
-                if (checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) return false
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PERMISSION_GROUP.forEach {
-                if (checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) return false
+        for (permission in PERMISSION_GROUP) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
             }
         }
         return true
@@ -102,17 +121,11 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
 
     // 请求程序所需权限
     private fun requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(PERMISSION_GROUP, PERMISSIONS_REQUEST)
-        }
-        // 大于Android11，需要申请高危权限MANAGE_EXTERNAL_STORAGE，用于获取全部文件管理权限，否则无法写入文件
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = Uri.parse("package:$packageName")
-                startActivityForResult(intent, ANDROID_11_REQUEST_CODE)
-            }
-        }
+        ActivityCompat.requestPermissions(
+            this,
+            PERMISSION_GROUP,
+            REQUEST_PERMISSIONS_CODE
+        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -152,12 +165,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             settingDisplay = SettingDisplay(this, secondDisplays!!)
             settingDisplay.show()
         }
-//        if (!this::displayManager.isInitialized) {
-//            displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-//            displayManager.displays.also { secondDisplays = it[1] }
-//        }
-//        settingDisplay = SettingDisplay(this, secondDisplays)
-//        settingDisplay.show()
     }
 
     private fun displayAvailable(): Display? {
@@ -176,7 +183,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
     }
 
     override fun onStop() {
-//        simpleDisplay.cancel()
         settingDisplay.safeCancel()
         super.onStop()
     }
@@ -203,34 +209,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
             }
         })
     }
-
-//    private fun initEvent() {
-//        binding.order.setOnClickListener {
-//            binding.order.isEnabled = false
-//            kv.encode(Constant.APP_MODE, Constant.ORDERING_FOOD_MODE)
-//            initMode()
-//        }
-//        binding.orderTwo.setOnClickListener {
-//            binding.orderTwo.isEnabled = false
-//            kv.encode(Constant.APP_MODE, Constant.ORDERING_TWO_MODE)
-//            initMode()
-//        }
-//        binding.collection.setOnClickListener {
-//            binding.collection.isEnabled = false
-//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_MODE)
-//            initMode()
-//        }
-//        binding.collectionTwo.setOnClickListener {
-//            binding.collectionTwo.isEnabled = false
-//            kv.encode(Constant.APP_MODE, Constant.PROCEEDS_TWO_MODE)
-//            initMode()
-//        }
-//        binding.orderMealMode.setOnClickListener {
-//            binding.orderMealMode.isEnabled = false
-//            kv.encode(Constant.APP_MODE, Constant.ORDERING_MEAL_MODE)
-//            initMode()
-//        }
-//    }
 
 
     private fun initMode() {
@@ -300,5 +278,38 @@ class InitActivity : BaseActivity<ActivityIntiBinding>() {
         loading?.cancel()
         scope.cancel()
         super.onDestroy()
+    }
+
+    override fun faceInitResult(code: Int, message: String) {
+        LogUtil.i(TAG, "人脸算法初始化结果 code= $code message = $message")
+        when(code){
+            0 -> {
+                Handler(MyApplication.applicationContext.mainLooper).post {
+                    binding.initText.text = "请选择模式初始化"
+                    binding.initModeView.visibility = View.VISIBLE
+                }
+            }
+            else -> {
+                Handler(MyApplication.applicationContext.mainLooper).post {
+                    binding.initText.text = "人脸初始化失败"
+                    binding.initModeView.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    override fun faceLicenseResult(code: Int, message: String) {
+        LogUtil.i(TAG, "人脸算法授权结果 code= $code message = $message")
+        when(code){
+            0 -> {
+                FaceSDKHelper.getInstance().initFacePass(this)
+            }
+            else -> {
+                Handler(MyApplication.applicationContext.mainLooper).post {
+                    binding.initText.text = "人脸算法授权失败"
+                    binding.initModeView.visibility = View.GONE
+                }
+            }
+        }
     }
 }

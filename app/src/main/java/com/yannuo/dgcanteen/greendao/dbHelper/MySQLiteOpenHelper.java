@@ -17,6 +17,7 @@ import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
 import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.UserFaceDataDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 
 import org.greenrobot.greendao.database.Database;
@@ -53,7 +54,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 OfflineDishTableDao.class,
                 SwPayOrderTableDao.class,
                 QuotaTimeTableDao.class,
-                CategoryTableDao.class
+                CategoryTableDao.class,
+                UserFaceDataDao.class
         );
     }
 }

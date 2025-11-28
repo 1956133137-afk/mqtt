@@ -35,6 +35,7 @@ public class DaoMaster extends AbstractDaoMaster {
         PersonsDao.createTable(db, ifNotExists);
         QuotaTimeTableDao.createTable(db, ifNotExists);
         SwPayOrderTableDao.createTable(db, ifNotExists);
+        UserFaceDataDao.createTable(db, ifNotExists);
         VerifyDishesDao.createTable(db, ifNotExists);
     }
 
@@ -54,6 +55,7 @@ public class DaoMaster extends AbstractDaoMaster {
         PersonsDao.dropTable(db, ifExists);
         QuotaTimeTableDao.dropTable(db, ifExists);
         SwPayOrderTableDao.dropTable(db, ifExists);
+        UserFaceDataDao.dropTable(db, ifExists);
         VerifyDishesDao.dropTable(db, ifExists);
     }
 
@@ -87,6 +89,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(PersonsDao.class);
         registerDaoClass(QuotaTimeTableDao.class);
         registerDaoClass(SwPayOrderTableDao.class);
+        registerDaoClass(UserFaceDataDao.class);
         registerDaoClass(VerifyDishesDao.class);
     }
 

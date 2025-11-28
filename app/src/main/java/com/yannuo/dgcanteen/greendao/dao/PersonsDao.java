@@ -32,8 +32,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         public final static Property PersonNumber = new Property(5, String.class, "personNumber", false, "PERSON_NUMBER");
         public final static Property Phone = new Property(6, String.class, "phone", false, "PHONE");
         public final static Property UserClass = new Property(7, String.class, "userClass", false, "USER_CLASS");
-        public final static Property Image = new Property(8, String.class, "image", false, "IMAGE");
-        public final static Property MessageId = new Property(9, String.class, "messageId", false, "MESSAGE_ID");
+        public final static Property UserId = new Property(8, String.class, "userId", false, "USER_ID");
+        public final static Property Image = new Property(9, String.class, "image", false, "IMAGE");
+        public final static Property MessageId = new Property(10, String.class, "messageId", false, "MESSAGE_ID");
     }
 
 
@@ -57,8 +58,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
                 "\"PERSON_NUMBER\" TEXT," + // 5: personNumber
                 "\"PHONE\" TEXT," + // 6: phone
                 "\"USER_CLASS\" TEXT," + // 7: userClass
-                "\"IMAGE\" TEXT," + // 8: image
-                "\"MESSAGE_ID\" TEXT);"); // 9: messageId
+                "\"USER_ID\" TEXT," + // 8: userId
+                "\"IMAGE\" TEXT," + // 9: image
+                "\"MESSAGE_ID\" TEXT);"); // 10: messageId
         // Add Indexes
         db.execSQL("CREATE INDEX " + constraint + "IDX_PERSONS_CARD_ID ON \"PERSONS\"" +
                 " (\"CARD_ID\" ASC);");
@@ -114,14 +116,19 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             stmt.bindString(8, userClass);
         }
  
+        String userId = entity.getUserId();
+        if (userId != null) {
+            stmt.bindString(9, userId);
+        }
+ 
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(9, image);
+            stmt.bindString(10, image);
         }
  
         String messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindString(10, messageId);
+            stmt.bindString(11, messageId);
         }
     }
 
@@ -169,14 +176,19 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             stmt.bindString(8, userClass);
         }
  
+        String userId = entity.getUserId();
+        if (userId != null) {
+            stmt.bindString(9, userId);
+        }
+ 
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(9, image);
+            stmt.bindString(10, image);
         }
  
         String messageId = entity.getMessageId();
         if (messageId != null) {
-            stmt.bindString(10, messageId);
+            stmt.bindString(11, messageId);
         }
     }
 
@@ -196,8 +208,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
             cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // personNumber
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // phone
             cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // userClass
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // image
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // messageId
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // userId
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // image
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // messageId
         );
         return entity;
     }
@@ -212,8 +225,9 @@ public class PersonsDao extends AbstractDao<Persons, Long> {
         entity.setPersonNumber(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
         entity.setPhone(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
         entity.setUserClass(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setImage(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setMessageId(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setUserId(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setImage(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setMessageId(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
      }
     
     @Override

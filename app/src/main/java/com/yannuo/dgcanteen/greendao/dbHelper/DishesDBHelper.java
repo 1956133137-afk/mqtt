@@ -20,6 +20,7 @@ import com.yannuo.dgcanteen.greendao.dao.PayOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.PersonsDao;
 import com.yannuo.dgcanteen.greendao.dao.QuotaTimeTableDao;
 import com.yannuo.dgcanteen.greendao.dao.SwPayOrderTableDao;
+import com.yannuo.dgcanteen.greendao.dao.UserFaceDataDao;
 import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
 import com.yannuo.dgcanteen.greendao.entity.CategoryTable;
@@ -35,6 +36,7 @@ import com.yannuo.dgcanteen.greendao.entity.PayOrderTable;
 import com.yannuo.dgcanteen.greendao.entity.Persons;
 import com.yannuo.dgcanteen.greendao.entity.QuotaTimeTable;
 import com.yannuo.dgcanteen.greendao.entity.SwPayOrderTable;
+import com.yannuo.dgcanteen.greendao.entity.UserFaceData;
 import com.yannuo.dgcanteen.greendao.entity.VerifyDishes;
 import com.yannuo.dgcanteen.util.LogUtil;
 
@@ -83,6 +85,7 @@ public class DishesDBHelper {
     private SwPayOrderTableDao swPayOrderTableDao;
     private QuotaTimeTableDao quotaTimeTableDao;
     private CategoryTableDao categoryTableDao;
+    private UserFaceDataDao userFaceDataDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -133,6 +136,7 @@ public class DishesDBHelper {
         swPayOrderTableDao = mDaoSession.getSwPayOrderTableDao();
         quotaTimeTableDao = mDaoSession.getQuotaTimeTableDao();
         categoryTableDao = mDaoSession.getCategoryTableDao();
+        userFaceDataDao = mDaoSession.getUserFaceDataDao();
     }
 
     /**
@@ -336,6 +340,12 @@ public class DishesDBHelper {
                 .unique();
     }
 
+    public List<Persons> queryPersonToName(String name, String phone) {
+        return mPersonsDao.queryBuilder()
+                .where(PersonsDao.Properties.PersonName.like("%"+name+"%"),PersonsDao.Properties.Phone.like("%"+phone+"%"))
+                .build()
+                .list();
+    }
 
     /**
      * 筛选未更新的人员记录
@@ -871,4 +881,22 @@ public class DishesDBHelper {
     public void clearAllCategory() {
         categoryTableDao.deleteAll();
     }
+
+    /*******************************   人脸信息   *******************************/
+    public void insertFaceData(UserFaceData user){
+        userFaceDataDao.insertOrReplaceInTx(user);
+    }
+
+    public void insertFaceData(List<UserFaceData> userList){
+        userFaceDataDao.insertOrReplaceInTx(userList);
+    }
+
+    public void deleteAllFace(){
+        userFaceDataDao.deleteAll();
+    }
+
+    public UserFaceData queryFaceByEigenvalue(String token){
+        return userFaceDataDao.queryBuilder().where(UserFaceDataDao.Properties.Eigenvalue.eq(token)).build().unique();
+    }
+
 }

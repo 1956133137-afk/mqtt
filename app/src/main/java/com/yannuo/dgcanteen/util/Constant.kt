@@ -18,6 +18,7 @@ object Constant {
 //    const val mqttPassworkValue = "ACMS2022~!@"
     //周期任务-检查软件版本
     const val PERIODIC_WORK_KEY = "app-update-task"
+    const val FACE_DATA_UPLOAD = "face_data_upload"
 
     //    const val BROADCAST_ACTION  = "com.yannuo.mqtt.state"   //mqtt连接广播
     //服务器地址
@@ -175,6 +176,7 @@ object Constant {
     const val EVENT_MEAL_TIME_MODE = 42 //餐次模式
     const val UPDATE_MEAL_TIME_BILL = 43 // 更新calculate activity的订单量信息
     const val EVENT_MEAL_TIME_SWITCH = 44   //餐次按钮状态
+    const val EVENT_LOCAL_FACE = 60   //餐次按钮状态
 
     @JvmStatic
     var NRE_TIMES: Int = 0  //网络请求异常次数

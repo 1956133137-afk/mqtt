@@ -89,6 +89,11 @@
                     style="@style/radiobutton"
                     android:text="设备信息" />
 
+                <RadioButton
+                    android:id="@+id/upload_face"
+                    style="@style/radiobutton"
+                    android:text="人脸录入" />
+
             </RadioGroup>
 
         </LinearLayout>

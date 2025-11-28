@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.fragment.*
+import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivitySettingBinding
 
@@ -23,6 +24,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var olOrderFragment: OfflineOrderFragment
     private lateinit var verifyOrderFragment: VerifyOrderFragment
     private lateinit var deviceFragment: DeviceInfoFragment
+    private lateinit var uploadFaceFragment: UploadFaceFragment
     private lateinit var fragments: Array<Fragment>
 
     private var displayManager: DisplayManager? = null
@@ -48,7 +50,8 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         olOrderFragment = OfflineOrderFragment()
         verifyOrderFragment = VerifyOrderFragment()
         deviceFragment = DeviceInfoFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, mealTimePayOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment)
+        uploadFaceFragment = UploadFaceFragment()
+        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, mealTimePayOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment, uploadFaceFragment)
         binding.radioGroup.check(R.id.basic)
     }
 
@@ -85,6 +88,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                     5 -> binding.radioGroup.check(R.id.offline_order)
                     6 -> binding.radioGroup.check(R.id.verify_order)
                     7 -> binding.radioGroup.check(R.id.device)
+                    8 -> binding.radioGroup.check(R.id.upload_face)
                 }
             }
 
@@ -102,6 +106,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.offline_order -> binding.viewPager.currentItem = 5
                 R.id.verify_order -> binding.viewPager.currentItem = 6
                 R.id.device -> binding.viewPager.currentItem = 7
+                R.id.upload_face -> binding.viewPager.currentItem = 8
             }
         }
     }

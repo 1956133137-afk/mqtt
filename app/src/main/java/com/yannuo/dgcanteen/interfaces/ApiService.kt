@@ -313,4 +313,24 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("android/printOrderTicket")
     suspend fun printOrderTicket(@Body bean: PrintTicketBean): CanteenResponse<String>
+
+    /**
+     * 获取人脸特征值
+     */
+    @Headers("content-type: application/json")
+    @POST("android/downUserFaceInfo")
+    suspend fun downUserFaceDBImg(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
+
+    /**
+     * 人脸特征值上传
+     */
+    @Headers("content-type: application/json")
+    @POST("android/uploadUserEigenvalue")
+    suspend fun uploadUserEigenvalue(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
+
+    //人脸图片上传
+    @Headers("content-type: application/json")
+    @POST("android/uploadFaceDBImg")
+    suspend fun uploadFaceDBImg(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
+
 }
