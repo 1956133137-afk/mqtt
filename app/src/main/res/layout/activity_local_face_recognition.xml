@@ -2,12 +2,17 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".activitys.FacialRecognitionActivity">
+    tools:context=".activitys.LocalFaceRecognitionActivity">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.yannuo.dgcanteen.activitys.viewModel.FacePassVM" />
+    </data>
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
         <RelativeLayout
             android:paddingHorizontal="24dp"
             android:background="@color/white"
@@ -46,7 +51,6 @@
                     android:layout_width="800dp"
                     android:layout_height="800dp"/>
             </androidx.cardview.widget.CardView>
-
         </RelativeLayout>
     </LinearLayout>
 

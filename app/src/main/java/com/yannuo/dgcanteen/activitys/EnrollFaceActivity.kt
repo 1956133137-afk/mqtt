@@ -7,16 +7,14 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.TextureView
-import com.yannuo.dgcanteen.R
+import androidx.lifecycle.ViewModelProvider
 import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.databinding.ActivityEnrollFaceBinding
 import com.yannuo.dgcanteen.facepass.CameraUtil
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 
-class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>(),FacePassVM.RecognizeResListener {
-    private val faceVM: FacePassVM = FacePassVM.instance
+class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
     private var facePath: String = ""
-    private val faceHelper = FaceSDKHelper.getInstance()
 
     override fun bindLayout() {
         binding = ActivityEnrollFaceBinding.inflate(layoutInflater)
@@ -28,8 +26,13 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>(),FacePassVM.
     }
 
     fun initObject(){
-        FacePassVM.instance.initAlgo()
-        faceVM.setUploadListener(this)
+        val faceVM = ViewModelProvider(this)[FacePassVM()::class.java]
+        FaceSDKHelper.getInstance().initFaceSDK(faceVM)
+        faceVM.initAlgo()
+        faceVM.facePath.observe(this){
+            binding.faceImg.setImageURI(Uri.parse(it))
+            facePath = it
+        }
     }
 
     fun initEvent(){
@@ -46,7 +49,7 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>(),FacePassVM.
                 height: Int
             ) {
                 val rect = Rect(290, 10, 990, 710)
-                faceHelper.openCamera(rect, binding.faceView)
+                FaceSDKHelper.getInstance().openCamera(rect, binding.faceView)
             }
 
             override fun onSurfaceTextureSizeChanged(
@@ -67,23 +70,9 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>(),FacePassVM.
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         FaceSDKHelper.getInstance().closeCamera()
-    }
-
-    override fun onLiveness(path: String) {
-        //活检人脸图片
-        this.facePath = path
-        binding.faceImg.setImageURI(Uri.parse(this.facePath))
-    }
-
-    override fun onSuccessful(token: String, imgBase64: String, searchScore: Float) {
-
-    }
-
-    override fun onFailed(msg: String) {
-
     }
 
 }

@@ -2,50 +2,50 @@ package com.yannuo.dgcanteen.activitys
 
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.os.Handler
 import android.util.Log
 import android.view.TextureView
 import androidx.lifecycle.ViewModelProvider
 import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
-import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.databinding.ActivityFacialRecognitionBinding
+import com.yannuo.dgcanteen.databinding.ActivityLocalFaceRecognitionBinding
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
-import com.yannuo.dgcanteen.model.EventFaceBean
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.util.Constant
 import org.greenrobot.eventbus.EventBus
 
-class FacialRecognitionActivity : BaseActivity<ActivityFacialRecognitionBinding>() {
-    private val handler = Handler(MyApplication.applicationContext.mainLooper)
+class LocalFaceRecognitionActivity : BaseActivity<ActivityLocalFaceRecognitionBinding>() {
+    private var facePassVM: FacePassVM? = null
 
     override fun bindLayout() {
-        binding = ActivityFacialRecognitionBinding.inflate(layoutInflater)
+        binding = ActivityLocalFaceRecognitionBinding.inflate(layoutInflater)
     }
+
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        FaceSDKHelper.getInstance().closeCamera()
+//    }
 
     override fun onInit() {
         binding.lifecycleOwner = this
+        facePassVM = ViewModelProvider(this)[FacePassVM::class.java]
+        binding.viewModel = facePassVM
+        facePassVM!!.facePath.observe(this){
+//            EventBus.getDefault().post(MessageEvent(Constant.EVENT_LOCAL_FACE_PATH,it))
+//            finish()
+        }
+        facePassVM!!.faceRecognized.observe(this){
+//            EventBus.getDefault().post(MessageEvent(Constant.EVENT_LOCAL_FACE,it))
+        }
+        facePassVM!!.facePreview.observe(this){
+
+        }
+        FaceSDKHelper.getInstance().initFaceSDK(facePassVM)
+        facePassVM!!.initAlgo()
         initObject()
         initEvent()
     }
 
-    fun initObject(){
-        val faceVM = ViewModelProvider(this)[FacePassVM()::class.java]
-        FaceSDKHelper.getInstance().initFaceSDK(faceVM)
-        faceVM.initAlgo()
-        faceVM.faceRecognized.observe(this){
-            //识别结果
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_LOCAL_FACE,it))
-        }
-    }
 
-    fun initEvent(){
-        binding.returnBtn.setOnClickListener {
-            val bean = EventFaceBean().apply {
-                code = 0
-                msg = "人脸检测取消"
-            }
-            EventBus.getDefault().post(MessageEvent(Constant.EVENT_LOCAL_FACE,bean))
-        }
+    private fun initObject(){
         binding.faceView.surfaceTextureListener = object : TextureView.SurfaceTextureListener{
             override fun onSurfaceTextureAvailable(
                 surface: SurfaceTexture,
@@ -74,9 +74,11 @@ class FacialRecognitionActivity : BaseActivity<ActivityFacialRecognitionBinding>
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        FaceSDKHelper.getInstance().closeCamera()
+    private fun initEvent(){
+        binding.returnBtn.setOnClickListener {
+            Log.d(TAG, "initEvent: 返回")
+            finish()
+        }
     }
 
 }

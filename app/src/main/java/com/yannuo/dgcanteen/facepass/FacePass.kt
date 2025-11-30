@@ -419,9 +419,8 @@ class FacePass(context: Context) : CameraListener {
                         val lmkoccsta = lmkoccsta(detectionResult.faceList[0])
                         if (lmkoccsta && liveness.get()) faceResultListener?.onTips("人脸被遮挡")
                         if (detectionResult.message.isNotEmpty()) {
-                            if (liveness.get()) {
-                                livenessChannel?.let { it.trySend(detectionResult).isSuccess }
-                                LogUtil.d(TAG, "发送活检")
+                            if (liveness.get() && livenessChannel != null) {
+                                livenessChannel?.trySend(detectionResult)?.isSuccess
                             } else {
                                 val judgeArea = judgeArea(detectionResult.faceList[0], preViewRotation, mirror)
                                 if (!judgeArea) continue
@@ -429,7 +428,7 @@ class FacePass(context: Context) : CameraListener {
                                     path = ""
                                     detectionRes = detectionResult
                                 }
-                                recognizeChannel?.let { it.trySend(recognizeData).isSuccess }
+                                recognizeChannel?.trySend(recognizeData)?.isSuccess
                                 LogUtil.d(TAG, "发送人脸识别")
                             }
                         }

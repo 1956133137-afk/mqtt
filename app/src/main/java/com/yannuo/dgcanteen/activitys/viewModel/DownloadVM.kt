@@ -37,9 +37,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 /**
  * Author: filowl
@@ -124,6 +126,8 @@ class DownloadVM : ViewModel() {
                             }else{
                                 list.addAll(faceResponse.list)
                                 Log.d(TAG, "downUserFaceDBImg: 下载数据完成：${list.size}")
+                                val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(System.currentTimeMillis())
+                                kv.encode(Constant.LOCAL_FACE_UPLOAD_DATE,format)
                                 type = false
                                 //删除数据
                                 if(time.isEmpty()){
@@ -162,17 +166,23 @@ class DownloadVM : ViewModel() {
                                                     LogUtil.e(TAG,"${it.custId} 人脸注册失败")
                                                 }else{
                                                     //绑定底库
-                                                    val bindFaceToGroup = cameraManager.getFacePass()
-                                                        ?.bindFaceToGroup(token)
+                                                    val bindFaceToGroup = cameraManager.getFacePass()?.bindFaceToGroup(token)
                                                     if(bindFaceToGroup == true){
                                                         it.eigenvalue = token
+                                                        Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
                                                         //todo 上传提取的特征值
                                                     }
                                                 }
                                             }
                                         }
                                     }else{
-                                        cameraManager?.getFacePass()?.bindFaceToGroup(it.eigenvalue)
+                                        val registerFaces = cameraManager?.getFacePass()?.registerFaces(it.eigenvalue)
+                                        if(registerFaces != null){
+                                            val bindFaceToGroup = cameraManager.getFacePass()?.bindFaceToGroup(registerFaces)
+                                            if(bindFaceToGroup == true){
+                                                Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
+                                            }
+                                        }
                                     }
                                 }
                                 //保存数据

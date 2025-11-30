@@ -14,6 +14,7 @@ class FaceSDKHelper {
 //    private val myFaceInitListener by lazy { MyFaceInitListener() }
 //    private var mContext: Context? = null
     private var mCameraManager: CameraManager? = null
+    private var mFacePass: FacePass? = null
     private var faceResultListener: FaceResultListener? = null
 
     companion object {
@@ -33,20 +34,18 @@ class FaceSDKHelper {
     }
 
     fun initFacePass(faceInitListener: SDKInitResult){
-        mCameraManager = CameraManager()
-        mCameraManager?.initAlgorithm(faceInitListener)
-    }
-
-    fun initFaceSDK(listener: FaceResultListener?) {
-//        mContext = context
-        faceResultListener = listener
-        faceResultListener?.onInitFace(-1, "算法初始化中")
-//        val authFace = AuthFace(context)
-//        authFace.authCheck(myFaceInitListener)
+        mFacePass = FacePass(MyApplication.applicationContext)
+        mFacePass!!.facePassConfig(faceInitListener)
+        mCameraManager = CameraManager().initAlgorithm(mFacePass!!)
         CameraUtil.instance.initCamera(MyApplication.applicationContext)
     }
 
-    fun getCameraManager(): CameraManager? = mCameraManager?.getCameraManager()
+    fun initFaceSDK(listener: FaceResultListener?) {
+        faceResultListener = listener
+    }
+
+    fun getCameraManager(): CameraManager? = mCameraManager
+    fun getFacePass(): FacePass? = mFacePass
 
     fun openCamera(rect: Rect): Boolean? = mCameraManager?.open(rect, faceResultListener)
 
@@ -76,19 +75,4 @@ class FaceSDKHelper {
     fun releaseFaceSDK() {
         mCameraManager?.release()
     }
-
-//    private inner class MyFaceInitListener : SDKInitResult {
-//        override fun faceInitResult(code: Int, message: String) {
-//            LogUtil.i(TAG, "faceInitResult code= $code message = $message")
-//            faceResultListener?.onInitFace(0, if (code == 0) "初始化成功" else message)
-//        }
-//
-//        override fun faceLicenseResult(code: Int, message: String) {
-//            LogUtil.i(TAG, "初始化成功 code= $code message = $message")
-//            if (code == 0) {
-//                mCameraManager = CameraManager()
-//                mCameraManager!!.initAlgorithm(mContext!!, myFaceInitListener)
-//            } else faceResultListener?.onInitFace(code, message)
-//        }
-//    }
 }

@@ -55,10 +55,8 @@ class CameraManager {
         IDEL, OPENING, OPENED
     }
 
-    fun initAlgorithm(faceInitListener: SDKInitResult): CameraManager {
-//        mContext = context
-        mFacePass = FacePass(MyApplication.applicationContext)
-        mFacePass?.facePassConfig(faceInitListener)
+    fun initAlgorithm(facePass: FacePass): CameraManager {
+        this.mFacePass = facePass
         return this
     }
 
@@ -424,13 +422,6 @@ class CameraManager {
     fun getPropotionDiff(size: Camera.Size?, standardPropotion: Float): Float {
         return Math.abs(size!!.width.toFloat() / size.height.toFloat() - standardPropotion)
     }
-
-//    fun closeCameraw() {
-//        state = CameraState.IDEL
-//        mFacePass?.closeJob()
-//        LogUtil.d(TAG, "关闭协程a")
-//        releaseCamera()
-//    }
 
     fun closeCamera() {
         state = CameraState.IDEL

@@ -156,7 +156,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
 
     override fun onResume() {
         super.onResume()
-        initMode()
+//        initMode()
     }
 
     private fun initPresentation() {
@@ -199,7 +199,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
                 Constant.ORDERING_VERIFY_MODE,
                 Constant.ORDERING_TWO_MODE,
                 Constant.PROCEEDS_TWO_MODE,
-                Constant.MEAL_PREPARATION_MODE
+                Constant.MEAL_PREPARATION_MODE,
+                Constant.LOCAL_FACE_MODE
             )
         )
         initModeAdapter.setItemListener(object : InitModeAdapter.OnItemClickListener {
@@ -224,7 +225,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE, Constant.LOCAL_FACE_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
                     when (mode) {
@@ -244,6 +245,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
                                 Constant.ORDERING_MEAL_MODE -> Intent(this@InitActivity, OrderMealActivity::class.java)
                                 Constant.MEAL_PREPARATION_MODE -> Intent(this@InitActivity, MealPreparationActivity::class.java)
+                                Constant.LOCAL_FACE_MODE -> Intent(this@InitActivity, LocalFaceActivity::class.java)
                                 else -> Intent(this@InitActivity, OrderVerifyActivity::class.java)
                             }
                         }
@@ -288,6 +290,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
                     binding.initText.text = "请选择模式初始化"
                     binding.initModeView.visibility = View.VISIBLE
                 }
+                initMode()
             }
             else -> {
                 Handler(MyApplication.applicationContext.mainLooper).post {

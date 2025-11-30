@@ -81,6 +81,9 @@ object Constant {
     const val PROCEEDS_TWO_MODE = "收款模式2"
     const val ORDERING_VERIFY_MODE = "订餐核销"
     const val MEAL_PREPARATION_MODE = "备餐模式"
+    const val LOCAL_FACE_MODE = "本地脸库模式"
+
+    const val LOCAL_FACE_UPLOAD_DATE = "local_face_upload_date" //本地脸库更新时间
 
     const val CCB_CORP_TYPE = "ccbCorpType" //园区选择类型 0-旧园区 1-创信园区
     lateinit var ENVIRONMENT_TYPE: String
@@ -176,7 +179,8 @@ object Constant {
     const val EVENT_MEAL_TIME_MODE = 42 //餐次模式
     const val UPDATE_MEAL_TIME_BILL = 43 // 更新calculate activity的订单量信息
     const val EVENT_MEAL_TIME_SWITCH = 44   //餐次按钮状态
-    const val EVENT_LOCAL_FACE = 60   //餐次按钮状态
+    const val EVENT_LOCAL_FACE = 60   //本地脸库识别结果
+    const val EVENT_LOCAL_FACE_PATH = 61   //本地脸库活检图片
 
     @JvmStatic
     var NRE_TIMES: Int = 0  //网络请求异常次数
