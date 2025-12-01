@@ -35,6 +35,14 @@
                 android:layout_alignParentEnd="true"
                 android:layout_width="150dp"
                 android:layout_height="80dp"/>
+            <Button
+                android:id="@+id/open"
+                android:text="开始预览"
+                android:textSize="24sp"
+                android:background="@drawable/shape_bg_blue_10_1"
+                android:layout_centerVertical="true"
+                android:layout_width="150dp"
+                android:layout_height="80dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:orientation="vertical"
@@ -51,6 +59,11 @@
                     android:layout_width="800dp"
                     android:layout_height="800dp"/>
             </androidx.cardview.widget.CardView>
+            <ImageView
+                android:id="@+id/recImg"
+                android:layout_alignParentEnd="true"
+                android:layout_width="400dp"
+                android:layout_height="400dp"/>
         </RelativeLayout>
     </LinearLayout>
 

@@ -23,7 +23,7 @@ class FaceDataWorker(cnt : Context, params : WorkerParameters) : Worker(cnt,para
      * 定时增量更新人脸数据
      */
     private fun downloadFace(){
-        Log.d("TAG", "downloadFace: 人脸数据更新")
+        Log.d("TAG", "downloadFace: 人脸数据增量更新")
         val decodeString = kv.decodeString(Constant.LOCAL_FACE_UPLOAD_DATE) ?: ""
         DownloadVM.instance.downUserFaceDBImg(decodeString)
 

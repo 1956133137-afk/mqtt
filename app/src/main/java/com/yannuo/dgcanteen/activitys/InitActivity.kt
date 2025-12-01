@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.provider.Settings
-import android.util.Log
 import android.view.Display
 import android.view.View
 import android_serialport_api.SerialPort
@@ -23,9 +22,8 @@ import com.yannuo.dgcanteen.adapters.InitModeAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.facepass.AuthFace
-import com.yannuo.dgcanteen.facepass.FacePass
+import com.yannuo.dgcanteen.facepass.FaceInitListener
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
-import com.yannuo.dgcanteen.facepass.SDKInitResult
 import com.yannuo.dgcanteen.service.CameraService
 import com.yannuo.dgcanteen.service.MyMqttService
 import com.yannuo.dgcanteen.service.MyService
@@ -44,7 +42,7 @@ import java.io.File
  * Description: ***
  * Date: 2023/7/27 15:10
  **/
-class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
+class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
     // Android 11 请求文件写入权限
     private val ANDROID_11_REQUEST_CODE = 0
     private val PERMISSIONS_REQUEST = 1
@@ -87,6 +85,9 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
         if (!hasPermission()) requestPermission()
         requestAlertWindowPermission()
 
+        loading = LoadingDialog(this)
+        scope = CoroutineScope(Dispatchers.IO)
+
         //初始化SDK
         FacePassHandler.initSDK(MyApplication.applicationContext, "")
 
@@ -98,8 +99,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
         startService(Intent(this, MyService::class.java))
 
         initPresentation()
-        loading = LoadingDialog(this)
-        scope = CoroutineScope(Dispatchers.IO)
 
         FaceScanVM.instance.bindService()
         initObject()
@@ -283,29 +282,19 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(),SDKInitResult {
     }
 
     override fun faceInitResult(code: Int, message: String) {
-        LogUtil.i(TAG, "人脸算法初始化结果 code= $code message = $message")
-        when(code){
-            0 -> {
-                Handler(MyApplication.applicationContext.mainLooper).post {
-                    binding.initText.text = "请选择模式初始化"
-                    binding.initModeView.visibility = View.VISIBLE
-                }
-                initMode()
-            }
-            else -> {
-                Handler(MyApplication.applicationContext.mainLooper).post {
-                    binding.initText.text = "人脸初始化失败"
-                    binding.initModeView.visibility = View.GONE
-                }
-            }
-        }
+
     }
 
     override fun faceLicenseResult(code: Int, message: String) {
         LogUtil.i(TAG, "人脸算法授权结果 code= $code message = $message")
         when(code){
             0 -> {
-                FaceSDKHelper.getInstance().initFacePass(this)
+                FaceSDKHelper.getInstance().initAlgorithm()
+                Handler(MyApplication.applicationContext.mainLooper).post {
+                    binding.initText.text = "请选择模式初始化"
+                    binding.initModeView.visibility = View.VISIBLE
+                }
+                initMode()
             }
             else -> {
                 Handler(MyApplication.applicationContext.mainLooper).post {

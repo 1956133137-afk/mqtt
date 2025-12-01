@@ -40,7 +40,7 @@ public class AuthFace {
     private String filedir = "lic";
     private String fileName = "license.cert";
     private int FACE_ALGOMALL_CERT_PATH = R.raw.face_algomall_auth_cert;
-    private SDKInitResult callback;
+    private FaceInitListener callback;
     private Context context;
 
     private boolean hasAuth = false;
@@ -50,7 +50,7 @@ public class AuthFace {
     }
 
     // 人脸算法授权是否成功
-    public void authCheck(SDKInitResult callback) {
+    public void authCheck(FaceInitListener callback) {
         //初始化SDK
         FacePassHandler.initSDK(MyApplication.applicationContext, "");
         //获取到主线程

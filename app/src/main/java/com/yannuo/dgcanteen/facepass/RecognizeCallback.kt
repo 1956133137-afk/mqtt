@@ -6,11 +6,12 @@ import android.graphics.Bitmap
 interface RecognizeCallback {
 
     /** 摄像头预览画面 */
-//    fun onPreView(data :ByteArray,  width :Int,  height :Int)
+    fun onPreView(data :ByteArray,  width :Int,  height :Int)
 
     /** 活检结果 */
     /** 活检结果 */
-    fun onRecognized(cropBitmap :Bitmap , token :String, livenessScore: Float)
+//    fun onRecognized(cropBitmap :Bitmap , token :String, livenessScore: Float)
+    fun onRecognized(token :String, path: String)
 
     /** 活检提示 */
     fun onTips(msg :String)

@@ -7,14 +7,10 @@ import android.graphics.SurfaceTexture
 import android.view.SurfaceHolder
 import android.view.TextureView
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.util.LogUtil
 
 class FaceSDKHelper {
     private val TAG = javaClass.simpleName
-//    private val myFaceInitListener by lazy { MyFaceInitListener() }
-//    private var mContext: Context? = null
     private var mCameraManager: CameraManager? = null
-    private var mFacePass: FacePass? = null
     private var faceResultListener: FaceResultListener? = null
 
     companion object {
@@ -33,23 +29,20 @@ class FaceSDKHelper {
         }
     }
 
-    fun initFacePass(faceInitListener: SDKInitResult){
-        mFacePass = FacePass(MyApplication.applicationContext)
-        mFacePass!!.facePassConfig(faceInitListener)
-        mCameraManager = CameraManager().initAlgorithm(mFacePass!!)
-        CameraUtil.instance.initCamera(MyApplication.applicationContext)
+    fun initAlgorithm() {
+        mCameraManager = CameraManager().initAlgorithm(MyApplication.applicationContext)
     }
 
-    fun initFaceSDK(listener: FaceResultListener?) {
+    fun initFaceSDK(context: Context, listener: FaceResultListener?) {
         faceResultListener = listener
+        CameraUtil.instance.initCamera(context)
     }
 
-    fun getCameraManager(): CameraManager? = mCameraManager
-    fun getFacePass(): FacePass? = mFacePass
+    fun getCameraManager(): CameraManager? = mCameraManager?.getCameraManager()
 
-    fun openCamera(rect: Rect): Boolean? = mCameraManager?.open(rect, faceResultListener)
+    fun openCamera(rect: Rect): Boolean = mCameraManager?.open(rect, faceResultListener) ?: false
 
-    fun openCamera(rect: Rect, texture: TextureView): Boolean? = mCameraManager?.open(rect, texture, faceResultListener)
+    fun openCamera(rect: Rect, texture: TextureView): Boolean = mCameraManager?.open(rect, texture, faceResultListener) ?: false
 
     /**
      * Android 低版本使用

@@ -61,7 +61,7 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
         binding.userRec.layoutManager = LinearLayoutManager(requireContext())
         userPersonsAdapter?.setListener(this)
         faceVM.setListener(this)
-        facePass = FaceSDKHelper.getInstance().getFacePass()
+        facePass = FaceSDKHelper.getInstance().getCameraManager()?.getFacePass()
     }
 
     fun initEvent(){

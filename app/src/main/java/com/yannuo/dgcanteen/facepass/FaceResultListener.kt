@@ -1,5 +1,7 @@
 package com.yannuo.dgcanteen.facepass
 
+import mcv.facepass.types.FacePassRecognitionResult
+
 interface FaceResultListener {
     /**
      * 人脸SDK初始化结果
@@ -34,12 +36,10 @@ interface FaceResultListener {
     /**
      * 人脸识别
      *
-     * @param res 识别结果
-     * @param msg 识别信息
-     * @param token 特征值
-     * @param imgBase64 识别图片
+     * @param result 识别结果
+     * @param path 识别图片
      */
-    fun onRecognized(res: Boolean, msg: String, token: String = "", imgBase64: String = "",searchScore: Float = 0f) {}
+    fun onRecognized(result: FacePassRecognitionResult?, path: String = "") {}
 
     /** 活检提示 */
     fun onTips(msg: String)

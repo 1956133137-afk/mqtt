@@ -9,7 +9,6 @@ import android.hardware.Camera
 import android.opengl.GLES11Ext
 import android.view.SurfaceHolder
 import android.view.TextureView
-import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.util.LogUtil
 import java.util.ArrayList
 import java.util.Collections
@@ -55,8 +54,10 @@ class CameraManager {
         IDEL, OPENING, OPENED
     }
 
-    fun initAlgorithm(facePass: FacePass): CameraManager {
-        this.mFacePass = facePass
+    fun initAlgorithm(context: Context): CameraManager {
+        mContext = context
+        mFacePass = FacePass(mContext!!)
+        mFacePass?.facePassConfig()
         return this
     }
 
@@ -110,22 +111,12 @@ class CameraManager {
         return this
     }
 
-    fun setDetect(enable: Boolean): CameraManager {
-        mFacePass?.setDetect(enable)
-        return this
-    }
-
-    fun getDetect() = mFacePass?.getDetect() ?: false
 
     fun setLiveness(enable: Boolean): CameraManager {
         mFacePass?.setLiveness(enable)
         return this
     }
 
-    fun setRecognize(enable: Boolean): CameraManager {
-        mFacePass?.setRecognize(enable)
-        return this
-    }
 
     fun setFaceMinThreshold(threshold: Int): CameraManager {
         mFacePass?.setFaceMinThreshold(threshold)
@@ -449,6 +440,6 @@ class CameraManager {
         closeCamera()
         mFacePass?.release()
         mFacePass = null
-//        mContext = null
+        mContext = null
     }
 }

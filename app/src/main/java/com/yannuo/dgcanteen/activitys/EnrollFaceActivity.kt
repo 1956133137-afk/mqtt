@@ -10,38 +10,31 @@ import android.view.TextureView
 import androidx.lifecycle.ViewModelProvider
 import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.databinding.ActivityEnrollFaceBinding
+import com.yannuo.dgcanteen.facepass.CameraManager
 import com.yannuo.dgcanteen.facepass.CameraUtil
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 
 class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
     private var facePath: String = ""
+    private var facePassVM: FacePassVM? = null
+    private var cameraManager: CameraManager? = null
 
     override fun bindLayout() {
         binding = ActivityEnrollFaceBinding.inflate(layoutInflater)
     }
 
     override fun onInit() {
+        facePassVM = ViewModelProvider(this)[FacePassVM::class.java]
+        FaceSDKHelper.getInstance().initFaceSDK(this,facePassVM)
+        facePassVM!!.facePath.observe(this){
+            this.facePath = it
+            binding.faceImg.setImageURI(Uri.parse(this.facePath))
+        }
         initObject()
         initEvent()
     }
 
     fun initObject(){
-        val faceVM = ViewModelProvider(this)[FacePassVM()::class.java]
-        FaceSDKHelper.getInstance().initFaceSDK(faceVM)
-        faceVM.initAlgo()
-        faceVM.facePath.observe(this){
-            binding.faceImg.setImageURI(Uri.parse(it))
-            facePath = it
-        }
-    }
-
-    fun initEvent(){
-        binding.returnBtn.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra("face_path",this.facePath)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
         binding.faceView.surfaceTextureListener = object : TextureView.SurfaceTextureListener{
             override fun onSurfaceTextureAvailable(
                 surface: SurfaceTexture,
@@ -50,6 +43,8 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
             ) {
                 val rect = Rect(290, 10, 990, 710)
                 FaceSDKHelper.getInstance().openCamera(rect, binding.faceView)
+                cameraManager = FaceSDKHelper.getInstance().getCameraManager()
+                cameraManager?.setLiveness(true)?.setRGBRotation(0, 0)?.setIRRotation(0, 0)
             }
 
             override fun onSurfaceTextureSizeChanged(
@@ -67,6 +62,18 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
             override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
 
             }
+        }
+    }
+
+    fun initEvent(){
+        binding.btnCompleted.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra("face_path",this.facePath)
+            setResult(RESULT_OK, intent)
+            finish()
+        }
+        binding.btTryCapture.setOnClickListener {
+            cameraManager?.getFacePass()?.openDetect()
         }
     }
 

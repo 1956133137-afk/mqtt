@@ -59,6 +59,8 @@ class DownloadVM : ViewModel() {
     private val menuList: MutableList<DateMenu> = mutableListOf()
     private var orderSize: Int = 0
 
+    private val faceGroupName = "facePass" //人脸底库名称
+
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
@@ -125,17 +127,17 @@ class DownloadVM : ViewModel() {
                                 list.addAll(faceResponse.list)
                             }else{
                                 list.addAll(faceResponse.list)
-                                Log.d(TAG, "downUserFaceDBImg: 下载数据完成：${list.size}")
+                                Log.d(TAG, "downUserFaceDBImg: 下载数据完成：${Gson().toJson(list)}")
                                 val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(System.currentTimeMillis())
                                 kv.encode(Constant.LOCAL_FACE_UPLOAD_DATE,format)
                                 type = false
                                 //删除数据
                                 if(time.isEmpty()){
                                     cameraManager?.getFacePass()?.deleteFaceLocalGroup()
+                                    DishesDBHelper.getInstance().deleteAllFace()
                                 }
-                                DishesDBHelper.getInstance().deleteAllFace()
                                 //新建底库
-                                val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup()
+                                val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup(faceGroupName)
                                 Log.d(TAG, "downUserFaceDBImg: 新建底库：$createFaceGroup")
                                 //绑定底库
                                 list.forEach {
@@ -171,6 +173,7 @@ class DownloadVM : ViewModel() {
                                                         it.eigenvalue = token
                                                         Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
                                                         //todo 上传提取的特征值
+                                                        it.eigenvalue = token
                                                     }
                                                 }
                                             }
@@ -181,14 +184,15 @@ class DownloadVM : ViewModel() {
                                             val bindFaceToGroup = cameraManager.getFacePass()?.bindFaceToGroup(registerFaces)
                                             if(bindFaceToGroup == true){
                                                 Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
+                                                it.eigenvalue = registerFaces
                                             }
                                         }
                                     }
                                 }
+                                Log.d(TAG, "downUserFaceDBImg: 保存人脸数据：${Gson().toJson(list)}")
                                 //保存数据
                                 DishesDBHelper.getInstance().insertFaceData(list)
                                 Log.d(TAG, "downUserFaceDBImg: 人脸数据更新完成")
-                                Log.d(TAG, "downUserFaceDBImg: 人脸数据:${gson.toJson(list)}")
                             }
                         }
                     }else{
