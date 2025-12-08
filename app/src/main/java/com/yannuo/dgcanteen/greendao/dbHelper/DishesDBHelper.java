@@ -899,4 +899,8 @@ public class DishesDBHelper {
         return userFaceDataDao.queryBuilder().where(UserFaceDataDao.Properties.Eigenvalue.eq(token)).build().unique();
     }
 
+    public List<UserFaceData> queryFaceAll(){
+        return userFaceDataDao.loadAll();
+    }
+
 }

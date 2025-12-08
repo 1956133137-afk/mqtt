@@ -1,9 +1,12 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +16,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
+import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.databinding.FragmentScanBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
@@ -30,7 +35,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  */
-class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
+class ScanFragment : Fragment(), CallbackListener, KeyboardListener, FaceVM.OnListener {
     private val TAG = javaClass.simpleName
     private val kv: MMKV = MMKV.defaultMMKV()
     private lateinit var binding: FragmentScanBinding
@@ -43,6 +48,8 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
     private var clickStartTime = 0L
     private var clickTimes = 0
     private var payMoney = ""
+
+    private val faceVM by lazy { FaceVM() }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentScanBinding.inflate(inflater, container, false)
@@ -70,7 +77,15 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                 requireActivity().finish()
             }
         }
-        binding.btnFacePay.setOnClickListener { facePay() }
+        binding.btnFacePay.setOnClickListener {
+            if (kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+                val intent = Intent(requireContext(), FacialRecognitionActivity::class.java)
+                startActivity(intent)
+                faceVM.setListener(this, payMoney)
+            }else{
+                facePay()
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -152,6 +167,27 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
                 Constant.EVENT_QUOTA_CHANGE -> {
                     payViewModel.setPayState(PayViewModel.PayStatus.INVALID)
                     requireActivity().finish()
+                }
+                Constant.EVENT_LOCAL_FACE -> {
+                    Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
+                    val eventFaceBean = event.any as EventFaceBean
+                    when(eventFaceBean.code){
+                        -1 -> {
+                            handler.postDelayed({
+                                val bean = SimpleForUI().apply {
+                                    timestamp = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis())
+                                    errorMsg = eventFaceBean.msg
+                                }
+                                val action = ScanFragmentDirections.actionScanToFail(bean)
+                                findNavController().navigate(action)
+                                CommonAndDpToPxUtil.speakWork("支付失败")
+                            }, 300)
+                        }
+                        else -> {
+                            //识别成功
+                            faceVM.localFacePay(eventFaceBean.msg,faceVM.getPayment(),eventFaceBean.img,eventFaceBean.searchScore.toString())
+                        }
+                    }
                 }
             }
         }
@@ -301,5 +337,34 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener {
 
     override fun computerMode(value: Double) {
 
+    }
+
+    override fun uploadResult(code: Int, type: Boolean, msg: String) {
+
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+        handler.postDelayed({
+            val bean = SimpleForUI().apply {
+                custName = payForUI.username
+                payment = payForUI.actualPayment.ifEmpty { payForUI.payment }
+                accNo = payForUI.accNo
+                timestamp = payForUI.payTime
+                tranId = payForUI.traceId
+                orderId = payForUI.orderId
+                errorMsg = payForUI.errMsg
+                acc_bal = payForUI.accBal
+                accList = payForUI.accList
+            }
+            if (payForUI.result == "Y") {
+                CommonAndDpToPxUtil.speakWork("支付成功")
+                val action = ScanFragmentDirections.actionScanToSuccess(bean)
+                findNavController().navigate(action)
+            } else {
+                val action = ScanFragmentDirections.actionScanToFail(bean)
+                findNavController().navigate(action)
+                CommonAndDpToPxUtil.speakWork("支付失败")
+            }
+        }, 300)
     }
 }

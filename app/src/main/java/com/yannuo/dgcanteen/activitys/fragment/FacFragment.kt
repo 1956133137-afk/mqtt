@@ -10,8 +10,10 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
+import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentFacBinding
+import com.yannuo.dgcanteen.facepass.CameraUtil
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -26,9 +28,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 
-class FacFragment : BaseFragment<FragmentFacBinding>() {
+class FacFragment : BaseFragment<FragmentFacBinding>(),FaceVM.OnListener {
     private val handler = Handler(MyApplication.applicationContext.mainLooper)
+    private val faceVM: FaceVM by lazy { FaceVM() }
     private val mmkv = MMKV.defaultMMKV()
+
     private var clickStartTime = 0L
     private var clickTimes = 0
     private var payMoney = 0.0f
@@ -45,21 +49,25 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
             binding.payTotalMoney.text = "￥${it.payment}"
             payMoney = it.payment
         }
-        //跳转刷脸
-        val intent = Intent(requireContext(), FacialRecognitionActivity::class.java)
-        requireContext().startActivity(intent)
 
-//        FaceScanVM.instance.bindService()
-//        FaceScanVM.instance.startFacePay(false, String.format("%.02f", payMoney))
-//        FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
-//            override fun onFacePay(payForUI: PayForUI) {
-//                onFacePayResult(payForUI)
-//            }
-//
-//            override fun onFaceQuery(bean: CcbFacePayResultBean) {
-//
-//            }
-//        })
+        if(mmkv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+            //跳转本地脸库刷脸
+            val intent = Intent(requireContext(), FacialRecognitionActivity::class.java)
+            requireContext().startActivity(intent)
+            faceVM.setListener(this)
+        }else{
+            FaceScanVM.instance.bindService()
+            FaceScanVM.instance.startFacePay(false, String.format("%.02f", payMoney))
+            FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
+                override fun onFacePay(payForUI: PayForUI) {
+                    onFacePayResult(payForUI)
+                }
+
+                override fun onFaceQuery(bean: CcbFacePayResultBean) {
+
+                }
+            })
+        }
     }
 
     private fun initEvent() {
@@ -87,39 +95,14 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
                     FaceScanVM.instance.stopScanFace()
                 }
                 Constant.EVENT_LOCAL_FACE -> {
-                    Log.d(TAG, "eventCalculate: 接收到人脸识别结果")
+                    Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
                     val eventFaceBean = event.any as EventFaceBean
                     when(eventFaceBean.code){
                         -1 -> {
                             payError(eventFaceBean.msg)
                         }
                         else -> {
-                            val bean = DishesDBHelper.getInstance().queryFaceByEigenvalue(eventFaceBean.msg)
-                            if(bean == null){
-                                payError("未查询到该人员信息")
-                                return@post
-                            }
-                            val payCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
-                            if(payCfg == null){
-                                payError("未获取到配置信息")
-                                return@post
-                            }
-                            val payBean = FacePayRequest().apply {
-                                deviceId = CommonAndDpToPxUtil.getDeviceSerial()
-                                campusId = payCfg.campusId
-                                businessId = payCfg.businessId
-                                businessName = payCfg.businessName
-                                vposId = payCfg.counterId
-                                payment = payMoney.toString()
-                                actualPayment = payMoney.toString()
-                                offline = if(mmkv.decodeBool(Constant.SWITCH)) "1" else "0"
-                                signTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(System.currentTimeMillis())
-                                personNumber = bean.userId
-                                custId = bean.custId
-                                faceBase64 = eventFaceBean.img
-                                faceScore = eventFaceBean.searchScore.toString()
-                            }
-                            Log.d(TAG, "eventCalculate: 识别成功生成订单：${Gson().toJson(payBean)}")
+                            faceVM.localFacePay(eventFaceBean.msg,payMoney.toString(),eventFaceBean.img,eventFaceBean.searchScore.toString())
                         }
                     }
                 }
@@ -127,6 +110,9 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
         }
     }
 
+    /**
+     * 支付失败
+     */
     private fun payError(msg: String){
         handler.postDelayed (
             {
@@ -141,6 +127,9 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
             },300)
     }
 
+    /**
+     * 支付成功
+     */
     private fun onFacePayResult(payForUI: PayForUI) {
         LogUtil.d(TAG, "人脸支付结束，准备跳转结果展示~：$payForUI")
         handler.postDelayed({
@@ -175,5 +164,13 @@ class FacFragment : BaseFragment<FragmentFacBinding>() {
         super.onDestroyView()
         EventBus.getDefault().unregister(this)
         FaceScanVM.instance.setFaceListener(null)
+    }
+
+    override fun uploadResult(code: Int, type: Boolean, msg: String) {
+
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+        onFacePayResult(payForUI)
     }
 }

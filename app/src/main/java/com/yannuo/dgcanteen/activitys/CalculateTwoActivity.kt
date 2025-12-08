@@ -203,18 +203,6 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
                     if (verifyBool) {
                         val value = event.any as Int
                         if (value == 0) {
-//                            buttonIsUsable(false)
-//                            FaceScanVM.instance.bindService()
-//                            FaceScanVM.instance.startFacePay(true)
-//                            FaceScanVM.instance.setFaceListener(object : FaceScanVM.FaceResultListener {
-//                                override fun onFacePay(payForUI: PayForUI) {
-//
-//                                }
-//
-//                                override fun onFaceQuery(bean: CcbFacePayResultBean) {
-//                                    verification(bean)
-//                                }
-//                            })
                             startActivity(Intent(this, FaceVerificationActivity::class.java))
                         } else {
                             CommonAndDpToPxUtil.speakWork("请出示核销码或者刷卡")
@@ -237,83 +225,6 @@ class CalculateTwoActivity : BaseActivity<ActivityCalculateTwoBinding>(), Networ
             }
         }
     }
-
-//    private fun buttonIsUsable(boolean: Boolean) {
-//        handler.post {
-//            binding.btnFirst.isEnabled = boolean
-//            binding.btnSecond.isEnabled = boolean
-//            binding.btnFirst.isEnabled = boolean
-//        }
-//    }
-
-//    private fun verification(bean: CcbFacePayResultBean) {
-//        lifecycleScope.launch(Dispatchers.IO + mHandler) {
-//            var flag = 10
-//            val verificationUI = VerificationUI().apply {
-//                errorMsg = bean.ERRMSG
-//                personName = bean.CUST_NAME
-//                time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-//            }
-//            if (bean.RESULT == "Y") {
-//                val mPayCfg = mmkv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java) ?: PayCfg()
-//                val verifyOrderBean = VerifyOrderBean().apply {
-//                    CAMPUS_ID = mPayCfg.campusId
-//                    BUSINESS_ID = mPayCfg.businessId
-//                    CUST_ID = bean.CUST_ID
-//                    DEVICE_ID = CommonAndDpToPxUtil.getDeviceSerial()
-//                }
-//                val verifyRequest = VerificationRequest().apply {
-//                    dcEncryptParam = getCavEncryptParam(verifyOrderBean)
-//                    this.flag = 0
-//                }
-//                val verification = mRespository.getCcbCodeVerification(verifyRequest)
-//                if (verification.code == "200") {
-//                    val verificationResponse = Gson().fromJson(Gson().toJson(verification.data), VerificationResponse::class.java)
-//                    LogUtil.d(TAG, Gson().toJson(verificationResponse))
-//                    val allMeals = DishesDBHelper.getInstance().queryAllMeals()
-//                    allMeals.forEach {
-//                        if (Date() >= it.startTime && Date() <= it.endTime) mealName = it.mealName
-//                    }
-//                    verificationUI.apply {
-//                        errorMsg = verification.msg
-//                        personName = verificationResponse.personName
-//                        dish = verificationResponse.verifyDishes
-//                        dishesList = verificationResponse.verify[mealName]?.dishesList
-//                        window = verificationResponse.unVerifyWindowName
-//                        windows = verificationResponse.verify[mealName]?.windowList
-//                        unDish = verificationResponse.unVerifyDishes
-//                        time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-//                    }
-//                    val verifyDishesBean = VerifyDishes().apply {
-//                        this.personName = verificationResponse.personName
-//                        this.dish = verificationResponse.verifyDishes.toString()
-//                        this.window = verificationResponse.unVerifyWindowName.toString()
-//                        this.unDish = verificationResponse.unVerifyDishes.toString()
-//                        this.time = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-//                    }
-//                    DishesDBHelper.getInstance().insertVerifyDishes(verifyDishesBean)
-//                    flag = 0
-//                } else verificationUI.errorMsg = verification.msg
-//            }
-//            buttonIsUsable(true)
-//            val i = Intent(applicationContext, FaceVerificationActivity::class.java)
-//            i.putExtra("id", flag)
-//            i.putExtra("verify", Gson().toJson(verificationUI))
-//            startActivity(i)
-//        }
-//    }
-
-//    private fun getCavEncryptParam(bean: VerifyOrderBean): String {
-//        val encryptStr = StringBuilder()
-//        encryptStr.append("CAMPUS_ID=${bean.CAMPUS_ID}")
-//            .append("&BUSINESS_ID=${bean.BUSINESS_ID}")
-//            .append("&CUST_ID=${bean.CUST_ID}")
-//            .append("&ORDER_ID=${bean.ORDER_ID}")
-//            .append("&DEVICE_ID=${bean.DEVICE_ID}")
-//            .append("&CARD_ID=${bean.CARD_ID}")
-//        LogUtil.d(TAG, encryptStr.toString())
-//        return CanteenEncryptionUtil.encryption(encryptStr.toString())
-//    }
 
     private fun judgeRepeatClick(): Boolean {
         if (System.currentTimeMillis() - lastTime < 1000L) return true

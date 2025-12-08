@@ -333,4 +333,11 @@ interface ApiService {
     @POST("android/uploadFaceDBImg")
     suspend fun uploadFaceDBImg(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
 
+    /**
+     * 本地脸库刷脸支付
+     */
+    @Headers("content-type: application/json")
+    @POST("android/localScanFacePayment")
+    suspend fun localScanFacePayment(@Body encryptedData: EncryptedDataRequest): CanteenResponse<String>
+
 }

@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
@@ -26,6 +27,7 @@ class FaceService : Service() {
      * 定时增量人脸特征值
      */
     private fun uploadFaceData() {
+        Log.d("TAG", "uploadFaceData: 开启人脸定时任务")
         val work = PeriodicWorkRequest.Builder(
             FaceDataWorker::class.java,
             240L + Random.nextInt(30),

@@ -3,33 +3,45 @@ package com.yannuo.dgcanteen.activitys.fragment
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.EnrollFaceActivity
 import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
+import com.yannuo.dgcanteen.activitys.SettingActivity
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.adapters.UserPersonsAdapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentUploadFaceBinding
 import com.yannuo.dgcanteen.facepass.CameraUtil
 import com.yannuo.dgcanteen.facepass.FacePass
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.Persons
+import com.yannuo.dgcanteen.greendao.entity.UserFaceData
+import com.yannuo.dgcanteen.model.FaceDataBean
+import com.yannuo.dgcanteen.model.PayCfg
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.util.Base64Util
+import com.yannuo.dgcanteen.util.Constant
+import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import java.util.Arrays
 
-class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersonsAdapter.OnClickListener,FaceVM.onListener {
+class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersonsAdapter.OnClickListener,FaceVM.OnListener {
     private var userPersonsAdapter: UserPersonsAdapter? = null
     private var facePass: FacePass? = null
     private val faceVM: FaceVM by lazy { FaceVM() }
     private var persons: Persons? = null
+    private val kv = MMKV.defaultMMKV()
 
     override fun bindLayout(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentUploadFaceBinding.inflate(inflater, container, false)
@@ -74,12 +86,20 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
         }
         //录入人脸
         binding.getFace.setOnClickListener {
+            if(!kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+                ToastShowUtil.show("尚未开启本地脸库，无法使用")
+                return@setOnClickListener
+            }
             if(this.persons == null){
                 ToastShowUtil.show("请先选择需要录入的人员")
                 return@setOnClickListener
             }
             val intent = Intent(requireContext(), EnrollFaceActivity::class.java)
             startForResult.launch(intent)
+            Handler(MyApplication.applicationContext.mainLooper).postDelayed({
+                val settingActivity = requireActivity() as SettingActivity
+                settingActivity.settingDisplay.hide()
+            },300)
         }
         //上传人脸
         binding.uploadFace.setOnClickListener {
@@ -101,15 +121,29 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
             }
             //注册人脸
             val token = facePass?.registerFaces(eigenvalue)
+            Log.d(TAG, "initEvent: 人脸特征值ID：$token")
             if(token.isNullOrEmpty()){
                 ToastShowUtil.show("人脸注册失败，请重新录入人脸")
             }else{
                 //特征值绑定人脸底库
                 val bindFaceToGroup = facePass?.bindFaceToGroup(token)
                 if(bindFaceToGroup == true){
+                    Log.d(TAG, "initEvent: 入库成功，保存本地数据")
+                    val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+                    val faceData = UserFaceData().apply {
+                        this.custId = persons?.custId
+                        this.userId = persons?.userId
+                        this.campusId = payCfg?.campusId
+                        this.eigenvalue = token
+                        this.way = "3"
+                        this.updateTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis())
+                    }
+                    //C5DWQHv2LEAoviyWK0ZCuQ==
+                    Log.d(TAG, "initEvent: 入库的人脸信息：${Gson().toJson(faceData)}")
+                    DishesDBHelper.getInstance().insertFaceData(faceData)
                     ToastShowUtil.show("人脸绑定成功，正在上传...")
                     val bitmapToBase64 = CameraUtil.instance.bitmapToBase64(bitmap)
-                    faceVM.UploadFaceImage(this.persons!!,bitmapToBase64)
+                    faceVM.uploadFaceImage(this.persons!!,bitmapToBase64)
                     faceVM.uploadFaceToken(this.persons!!,eigenvalue)
                 }else{
                     ToastShowUtil.show("人脸绑定失败，请重新录入人脸")
@@ -151,25 +185,31 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
      * 人脸上传结果
      */
     override fun uploadResult(code: Int, type: Boolean, msg: String) {
-        when(code){
-            1 -> {
-                if(type){
-                    binding.uploadImgText.text = "人脸图片上传成功"
-                    binding.uploadImgText.setTextColor(resources.getColor(R.color.pass_color))
-                }else{
-                    binding.uploadImgText.text = "人脸图片上传失败: $msg"
-                    binding.uploadImgText.setTextColor(resources.getColor(R.color.red))
+        Handler(MyApplication.applicationContext.mainLooper).post {
+            when(code){
+                1 -> {
+                    if(type){
+                        binding.uploadImgText.text = "人脸图片上传成功"
+                        binding.uploadImgText.setTextColor(resources.getColor(R.color.pass_color))
+                    }else{
+                        binding.uploadImgText.text = "人脸图片上传失败: $msg"
+                        binding.uploadImgText.setTextColor(resources.getColor(R.color.red))
+                    }
                 }
-            }
-            else -> {
-                if(type){
-                    binding.uploadText.text = "特征值上传成功"
-                    binding.uploadText.setTextColor(resources.getColor(R.color.pass_color))
-                }else{
-                    binding.uploadText.text = "特征值上传失败: $msg"
-                    binding.uploadText.setTextColor(resources.getColor(R.color.red))
+                else -> {
+                    if(type){
+                        binding.uploadText.text = "特征值上传成功"
+                        binding.uploadText.setTextColor(resources.getColor(R.color.pass_color))
+                    }else{
+                        binding.uploadText.text = "特征值上传失败: $msg"
+                        binding.uploadText.setTextColor(resources.getColor(R.color.red))
+                    }
                 }
             }
         }
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+
     }
 }

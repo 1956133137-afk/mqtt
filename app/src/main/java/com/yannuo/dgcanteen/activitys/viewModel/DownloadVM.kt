@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
+import com.yannuo.dgcanteen.facepass.CameraManager
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.UserFaceData
@@ -61,6 +62,9 @@ class DownloadVM : ViewModel() {
 
     private val faceGroupName = "facePass" //人脸底库名称
 
+    private var listener : uploadListener? = null
+    private val faceVM by lazy { FaceVM() }
+
     private val mHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         LogUtil.e(TAG, "Exception: $throwable")
         throwable.printStackTrace()
@@ -71,6 +75,10 @@ class DownloadVM : ViewModel() {
         val instance: DownloadVM by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
             synchronized(DownloadVM::class.java) { DownloadVM() }
         }
+    }
+
+    fun setListener(listener: uploadListener){
+        this.listener = listener
     }
 
     fun getMenuList(): MutableList<DateMenu> = menuList
@@ -113,6 +121,7 @@ class DownloadVM : ViewModel() {
                         campusId = config.campusId
                         lastUpdateTime = time
                     }
+                    Log.d(TAG, "downUserFaceDBImg: 下载特征值：${Gson().toJson(bean)}")
                     //加密
                     val encryption = DES3CBCUtil.encryption(gson.toJson(bean))
                     val date = mRepository.downUserFaceDBImg(EncryptedDataRequest(encryption))
@@ -133,8 +142,11 @@ class DownloadVM : ViewModel() {
                                 type = false
                                 //删除数据
                                 if(time.isEmpty()){
+                                    Log.d(TAG, "downUserFaceDBImg: 人脸数据全量更新")
                                     cameraManager?.getFacePass()?.deleteFaceLocalGroup()
                                     DishesDBHelper.getInstance().deleteAllFace()
+                                }else{
+                                    Log.d(TAG, "downUserFaceDBImg: 人脸数据增量更新")
                                 }
                                 //新建底库
                                 val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup(faceGroupName)
@@ -173,7 +185,10 @@ class DownloadVM : ViewModel() {
                                                         it.eigenvalue = token
                                                         Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
                                                         //todo 上传提取的特征值
-                                                        it.eigenvalue = token
+                                                        val person = DishesDBHelper.getInstance().queryPersonToCustId(it.custId)
+                                                        if(person != null){
+                                                            faceVM.uploadFaceToken(person,eigenvalue)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -203,6 +218,22 @@ class DownloadVM : ViewModel() {
                     e.printStackTrace()
                 }
             }while (type && count < 9)
+            listener?.uploadLocalFace(!type)
+        }
+    }
+
+    fun uploadLocalFace(list: MutableList<UserFaceData>,cameraManager: CameraManager?){
+        //新建底库
+        val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup(faceGroupName)
+        Log.d(TAG, "downUserFaceDBImg: 新建底库：$createFaceGroup")
+        for (it in list){
+            if(it.eigenvalue.isNullOrEmpty()){
+                continue
+            }
+            val bindFaceToGroup = cameraManager?.getFacePass()?.bindFaceToGroup(it.eigenvalue)
+            if(bindFaceToGroup == true){
+                Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
+            }
         }
     }
 
@@ -467,5 +498,9 @@ class DownloadVM : ViewModel() {
             dishList.add(dishBean)
         }
         return meal
+    }
+
+    interface uploadListener{
+        fun uploadLocalFace(status: Boolean)
     }
 }

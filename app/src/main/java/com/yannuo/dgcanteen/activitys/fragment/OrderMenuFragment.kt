@@ -18,12 +18,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ccb.smartcanteen.ZHSTFacePayService
+import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
 import com.yannuo.dgcanteen.activitys.presenters.OrderMenuPresenter
+import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.activitys.viewModel.PayViewModel
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.CategoryAdapter
 import com.yannuo.dgcanteen.adapters.PayForAdapter
 import com.yannuo.dgcanteen.adapters.ProductsAdapter
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.FragmentOrderMenuBinding
 import com.yannuo.dgcanteen.dialogView.ConfirmDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
@@ -34,6 +38,7 @@ import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.interfaces.ReadCardListener
 import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.model.EventFaceBean
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
@@ -53,7 +58,7 @@ import org.greenrobot.eventbus.ThreadMode
  * 点餐模式2：左侧购物车栏
  */
 open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), ProductsAdapter.WorkListener,
-    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener {
+    PayForAdapter.WorkListener, CallbackListener, IProductsVM, CategoryAdapter.WorkListener, FaceVM.OnListener {
     private lateinit var mAdapter: ProductsAdapter
     private lateinit var mCategory: CategoryAdapter
     private lateinit var model: ProductsVM
@@ -63,6 +68,9 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
     private val MONEY_FMT = "￥ %s"
     private val COUNT_FMT = "%s 件"
     private var mealIds = 0
+
+    private val kv = MMKV.defaultMMKV()
+    private val faceVM by lazy { FaceVM() }
 
     private var dishesInfoList: MutableList<DishesInfo>? = null
 
@@ -195,12 +203,6 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         binding.btPayWayFace.setOnClickListener {
             if (mAdapterPayFor.data.size < 1) return@setOnClickListener
             closeIcQr()
-            if (mFacePayService == null) {
-                ToastShowUtil.show("人脸服务连接异常")
-                CommonAndDpToPxUtil.speakWork("人脸服务连接异常")
-                LogUtil.e(TAG, "获取不到人脸句柄")
-                return@setOnClickListener
-            }
             val dat = MutableList(mAdapterPayFor.data.size) {
                 mAdapterPayFor.data[it].copy()
             }
@@ -210,8 +212,21 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
                 binding.tvTotalMoney.text.toString(),
                 binding.tvTotalCount.text.toString()
             )
-            model.getDisplay()?.dismiss()
-            model.startPayWithFace(mFacePayService, productsDetail)
+            if(kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+                model.getDisplay()?.dismiss()
+                val intent = Intent(requireContext(), FacialRecognitionActivity::class.java)
+                startActivity(intent)
+                faceVM.setListener(this, productsDetail.totalMoney)
+            }else{
+                if (mFacePayService == null) {
+                    ToastShowUtil.show("人脸服务连接异常")
+                    CommonAndDpToPxUtil.speakWork("人脸服务连接异常")
+                    LogUtil.e(TAG, "获取不到人脸句柄")
+                    return@setOnClickListener
+                }
+                model.getDisplay()?.dismiss()
+                model.startPayWithFace(mFacePayService, productsDetail)
+            }
         }
 
         binding.btPayWayIcOrCode.setOnClickListener {
@@ -415,6 +430,34 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
                 //更新类目
                 mPresenter.categoryData(mCategory, mealIds)
             }
+            Constant.EVENT_LOCAL_FACE -> {
+                Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
+                val eventFaceBean = event.any as EventFaceBean
+                when (eventFaceBean.code) {
+                    -1 -> {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            clearShoppingCart()
+                            val payForUI = PayForUI().apply {
+                                result = "N"
+                                errCode = eventFaceBean.code.toString()
+                                errMsg = eventFaceBean.msg
+                            }
+                            model.getDisplay()?.dismiss()
+                            model.tab.postValue(1)
+                            model.uiData.postValue(payForUI)
+                        }, 300)
+                    }
+                    else -> {
+                        //识别成功
+                        faceVM.localFacePay(
+                            eventFaceBean.msg,
+                            faceVM.getPayment(),
+                            eventFaceBean.img,
+                            eventFaceBean.searchScore.toString()
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -454,6 +497,20 @@ open class OrderMenuFragment : BaseFragment<FragmentOrderMenuBinding>(), Product
         dataList.sortWith(compareBy({ it.price }, { it.dishesName }))
         mAdapter.setData(dataList)
         return dataList
+    }
+
+    override fun uploadResult(code: Int, type: Boolean, msg: String) {
+
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            clearShoppingCart()
+
+            model.getDisplay()?.dismiss()
+            model.tab.postValue(1)
+            model.uiData.postValue(payForUI)
+        }, 300)
     }
 }
 

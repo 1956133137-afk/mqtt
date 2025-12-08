@@ -5,6 +5,7 @@ import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.CountDownTimer
 import android.os.Handler
+import android.util.Log
 import android.view.Display
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -22,7 +23,10 @@ import com.yannuo.dgcanteen.databinding.ActivityOrderVerifyBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.dialogView.KeyboardDialog
 import com.yannuo.dgcanteen.dialogView.PasswordDialog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CloseEvent
+import com.yannuo.dgcanteen.model.EventFaceBean
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
@@ -30,6 +34,9 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.math.BigDecimal
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
@@ -60,6 +67,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
     }
 
     override fun onInit() {
+        EventBus.getDefault().register(this)
         initObject()
         initEvent()
     }
@@ -73,6 +81,29 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
             orderVerifyVM.openIcCard()
         }
         orderVerifyDisplay?.show()
+    }
+
+    //EvenBus事件监听处理
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun eventArrive(event: MessageEvent) {
+        when (event.code) {
+            Constant.EVENT_LOCAL_FACE -> {
+                Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
+                val eventFaceBean = event.any as EventFaceBean
+                when(eventFaceBean.code){
+                    -1 -> {
+//                        changeView(2)
+//                        binding.failureMsg.text = "失败原因：${eventFaceBean.msg}"
+//                        binding.failureTime.text = "失败时间：${TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())}"
+                    }
+                    else -> {
+                        //识别成功
+                        val bean = DishesDBHelper.getInstance().queryFaceByEigenvalue(eventFaceBean.msg)
+                        orderVerifyVM.localFaceVerification(bean.custId)
+                    }
+                }
+            }
+        }
     }
 
     private fun initObject() {
@@ -236,6 +267,7 @@ class OrderVerifyActivity : BaseActivity<ActivityOrderVerifyBinding>(), NetworkS
 
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
         orderVerifyDisplay?.safeCancel()
         passwordDialog?.cancel()
         awaitingDialog?.cancel()

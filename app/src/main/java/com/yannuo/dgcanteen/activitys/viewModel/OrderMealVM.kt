@@ -151,7 +151,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         if (loginOrPayStatus) loginHandler("3", icCard) else payHandler("3", icCard)
     }
 
-    private fun loginHandler(type: String, content: String) {
+    fun  loginHandler(type: String, content: String) {
         if (orderStatus != OrderStatus.AWAIT) return
         orderStatus = OrderStatus.INVALID
         listener?.onOrderResult(-1, "验证用户信息")
@@ -166,7 +166,8 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
                 corpId = payCfg.corpId
                 orderType = type
                 orderContent = content
-                offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) "0" else "1"
+//                offline = if (NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext) && kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0) "0" else "1"
+                offline = "0"
             }
             if (orderForUI.campusId.isEmpty() || orderForUI.businessId.isEmpty() || orderForUI.vposId.isEmpty()) {
                 orderForUI.errCode = "ORDER0001"

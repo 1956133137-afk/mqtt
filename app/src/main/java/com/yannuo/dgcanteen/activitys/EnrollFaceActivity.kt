@@ -12,24 +12,59 @@ import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.databinding.ActivityEnrollFaceBinding
 import com.yannuo.dgcanteen.facepass.CameraManager
 import com.yannuo.dgcanteen.facepass.CameraUtil
+import com.yannuo.dgcanteen.facepass.FaceResultListener
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
+import com.yannuo.dgcanteen.model.EventFaceBean
+import com.yannuo.dgcanteen.model.MessageEvent
+import com.yannuo.dgcanteen.util.Constant
+import mcv.facepass.types.FacePassRecognitionResult
+import org.greenrobot.eventbus.EventBus
 
 class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
     private var facePath: String = ""
-    private var facePassVM: FacePassVM? = null
     private var cameraManager: CameraManager? = null
+    private val myFaceResultListener by lazy { MyFaceResultListener() }
+
+    private inner class MyFaceResultListener : FaceResultListener {
+        override fun onInitFace(code: Int, message: String) {
+
+        }
+
+        override fun onPreView(data: ByteArray, width: Int, height: Int) {
+
+        }
+
+//        override fun onLiveness(path: String): Boolean {
+//            facePath = path
+//            binding.faceImg.setImageURI(Uri.parse(facePath))
+//            return super.onLiveness(path)
+//        }
+
+        override fun onRecognized(result: FacePassRecognitionResult?, path: String) {
+            facePath = path
+            binding.faceImg.setImageURI(Uri.parse(facePath))
+        }
+
+        override fun onTips(msg: String) {
+
+        }
+
+        override fun onError(errCode: String, errMsg: String) {
+
+        }
+
+        override fun onCancel() {
+
+        }
+
+    }
 
     override fun bindLayout() {
         binding = ActivityEnrollFaceBinding.inflate(layoutInflater)
     }
 
     override fun onInit() {
-        facePassVM = ViewModelProvider(this)[FacePassVM::class.java]
-        FaceSDKHelper.getInstance().initFaceSDK(this,facePassVM)
-        facePassVM!!.facePath.observe(this){
-            this.facePath = it
-            binding.faceImg.setImageURI(Uri.parse(this.facePath))
-        }
+        FaceSDKHelper.getInstance().initFaceSDK(this,myFaceResultListener)
         initObject()
         initEvent()
     }

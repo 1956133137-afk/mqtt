@@ -81,7 +81,6 @@ object Constant {
     const val PROCEEDS_TWO_MODE = "收款模式2"
     const val ORDERING_VERIFY_MODE = "订餐核销"
     const val MEAL_PREPARATION_MODE = "备餐模式"
-    const val LOCAL_FACE_MODE = "本地脸库模式"
 
     const val LOCAL_FACE_UPLOAD_DATE = "local_face_upload_date" //本地脸库更新时间
 
@@ -110,6 +109,8 @@ object Constant {
     const val SUPPORT_PAY = "support_pay"  //副屏支付按钮显示
     const val DISPLAY_CARD_VERIFY = "displayCardVerify" //副屏刷卡核销按钮
     const val VERIFY_PERSON_STATISTIC = "verifyPersonStatistic" //核销人数统计
+
+    const val OPEN_LOCAL_FACE = "openLocalFace" //启用本地脸库
 
     const val ORDER_VERIFY_IC_CARD = "order_verify_ic_card" //订餐核销默认刷卡
     const val ORDER_VERIFY_FACE = "order_verify_face" //订餐核销仅刷脸
@@ -231,7 +232,7 @@ object Constant {
     const val LIVE_VALUE_SET = "live_vl" //活检阈值
     const val LIVE_VALUE_SET_V = 70f //活检阈值
     const val LIVE_ENABLE_SET = "live_en"  //活检开关
-    const val LIVE_ENABLE_SET_V = false  //活检默认关闭
+    const val LIVE_ENABLE_SET_V = true  //活检默认开启
     const val RECOGNIZE_VALUE_SET = "regn_vl" //识别阈值
     const val RECOGNIZE_VALUE_SET_V = 70f //识别阈值
     const val DISTANCE_SET = "distance" //识别距离阈值

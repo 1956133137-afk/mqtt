@@ -1,9 +1,11 @@
 package com.yannuo.dgcanteen.activitys
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Display
 import android.view.View
@@ -20,7 +22,10 @@ import com.yannuo.dgcanteen.adapters.VerifyQueryAdapter
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.OrderVerifyDisplayBinding
 import com.yannuo.dgcanteen.dialogView.ShowTextDailog
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.model.EventFaceBean
 import com.yannuo.dgcanteen.model.InfoBean
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderVerify
 import com.yannuo.dgcanteen.model.OrderVerifyBean
 import com.yannuo.dgcanteen.model.PayForUI
@@ -31,6 +36,9 @@ import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.AwaitingDialog
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -58,7 +66,6 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
     private var scanType = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-//        window!!.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
         super.onCreate(savedInstanceState)
         binding = OrderVerifyDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -104,8 +111,15 @@ class OrderVerifyDisplay(context: Context, display: Display) : BaseDisplay(conte
                 return@setOnClickListener
             }
             if(orderVerifyVM.getPayState()) return@setOnClickListener
-            orderVerifyVM.faceVerification()
-            hide()
+            if(mmkv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+                //跳转本地脸库刷脸
+                val intent = Intent(context, FacialRecognitionActivity::class.java)
+                context.startActivity(intent)
+                hide()
+            }else{
+                orderVerifyVM.faceVerification()
+                hide()
+            }
         }
     }
 

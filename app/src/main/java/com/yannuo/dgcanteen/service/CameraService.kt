@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
+import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.download.CheckVersionWorker
@@ -64,6 +65,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     private lateinit var mDataPresenter: DataPresenter
     private val mService = LocalBinder()
     private var callbackListener: CallbackListener? = null
+
+    private val kv = MMKV.defaultMMKV()
 
     override fun onCreate() {
         super.onCreate()
@@ -191,19 +194,8 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
     }
 
     private fun uploadFaceData() {
-
-        val work = PeriodicWorkRequest.Builder(
-            FaceDataWorker::class.java,
-            240L + Random.nextInt(30),
-            TimeUnit.MINUTES
-        ).build()
-
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork(
-                Constant.FACE_DATA_UPLOAD,
-                ExistingPeriodicWorkPolicy.REPLACE,
-                work
-            )
+        val decodeString = kv.decodeString(Constant.LOCAL_FACE_UPLOAD_DATE) ?: ""
+        DownloadVM.instance.downUserFaceDBImg(decodeString)
     }
 
 

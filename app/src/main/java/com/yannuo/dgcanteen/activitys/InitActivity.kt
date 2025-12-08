@@ -15,8 +15,10 @@ import android_serialport_api.SerialPort
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.activitys.viewModel.FaceScanVM
 import com.yannuo.dgcanteen.adapters.InitModeAdapter
 import com.yannuo.dgcanteen.common.MyApplication
@@ -24,7 +26,9 @@ import com.yannuo.dgcanteen.databinding.ActivityIntiBinding
 import com.yannuo.dgcanteen.facepass.AuthFace
 import com.yannuo.dgcanteen.facepass.FaceInitListener
 import com.yannuo.dgcanteen.facepass.FaceSDKHelper
+import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.service.CameraService
+import com.yannuo.dgcanteen.service.FaceService
 import com.yannuo.dgcanteen.service.MyMqttService
 import com.yannuo.dgcanteen.service.MyService
 import com.yannuo.dgcanteen.util.BytesUtils
@@ -49,6 +53,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
 
     // 请求权限的标识码
     private val REQUEST_PERMISSIONS_CODE = 1001
+
+    private val downloadVM by lazy { DownloadVM() }
 
     @RequiresApi(Build.VERSION_CODES.R)
     private val PERMISSION_R: Array<String> = arrayOf(
@@ -88,12 +94,20 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
         loading = LoadingDialog(this)
         scope = CoroutineScope(Dispatchers.IO)
 
-        //初始化SDK
-        FacePassHandler.initSDK(MyApplication.applicationContext, "")
+        if(kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+            //初始化SDK
+            FacePassHandler.initSDK(MyApplication.applicationContext, "")
+            //人脸授权
+            val authFace = AuthFace(this)
+            authFace.authCheck(this)
+        }else{
+            Handler(MyApplication.applicationContext.mainLooper).post {
+                binding.initText.text = "请选择模式初始化"
+                binding.initModeView.visibility = View.VISIBLE
+            }
+            initMode()
+        }
 
-        //人脸授权
-        val authFace = AuthFace(this)
-        authFace.authCheck(this)
 
         // 初始化服务
         startService(Intent(this, MyService::class.java))
@@ -198,8 +212,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
                 Constant.ORDERING_VERIFY_MODE,
                 Constant.ORDERING_TWO_MODE,
                 Constant.PROCEEDS_TWO_MODE,
-                Constant.MEAL_PREPARATION_MODE,
-                Constant.LOCAL_FACE_MODE
+                Constant.MEAL_PREPARATION_MODE
             )
         )
         initModeAdapter.setItemListener(object : InitModeAdapter.OnItemClickListener {
@@ -224,7 +237,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
-                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE, Constant.LOCAL_FACE_MODE -> {
+                Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
                     when (mode) {
@@ -244,7 +257,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
                                 Constant.ORDERING_MEAL_MODE -> Intent(this@InitActivity, OrderMealActivity::class.java)
                                 Constant.MEAL_PREPARATION_MODE -> Intent(this@InitActivity, MealPreparationActivity::class.java)
-                                Constant.LOCAL_FACE_MODE -> Intent(this@InitActivity, LocalFaceActivity::class.java)
                                 else -> Intent(this@InitActivity, OrderVerifyActivity::class.java)
                             }
                         }
@@ -275,6 +287,15 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
         }
     }
 
+    private fun uploadLocalFace(){
+        lifecycleScope.launch(Dispatchers.IO){
+            val queryFaceAll = DishesDBHelper.getInstance().queryFaceAll()
+            downloadVM.uploadLocalFace(queryFaceAll.toMutableList(), FaceSDKHelper.getInstance().getCameraManager())
+            val intent = Intent(this@InitActivity, FaceService::class.java)
+            startService(intent)
+        }
+    }
+
     override fun onDestroy() {
         loading?.cancel()
         scope.cancel()
@@ -295,6 +316,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
                     binding.initModeView.visibility = View.VISIBLE
                 }
                 initMode()
+                // 同步本地人脸信息
+                uploadLocalFace()
             }
             else -> {
                 Handler(MyApplication.applicationContext.mainLooper).post {

@@ -379,6 +379,15 @@ class PayRepositoryOfPay {
         }
     }
 
+    /**
+     * 本地脸库刷脸支付
+     */
+    suspend fun localScanFacePayment(encryptedData: EncryptedDataRequest): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().localScanFacePayment(encryptedData)
+        }
+    }
+
 
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {

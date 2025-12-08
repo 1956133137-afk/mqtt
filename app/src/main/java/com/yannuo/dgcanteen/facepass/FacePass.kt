@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Environment
 import android.text.TextUtils
+import android.util.Log
 import com.my.yuvconvert.YuvUtil
 import com.yannuo.dgcanteen.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
@@ -436,7 +437,6 @@ class FacePass(context: Context) : CameraListener {
                                             val facePassImage = detectionResult.images[0]
                                             /* 保存图片需要进行裁剪 */
                                             val path = savePicture(facePassImage.image, facePassImage.width, facePassImage.height, facePassImage.rect_ex, preViewRotation, mirror)
-                                            recognizeCallback?.onLiveness(path ?: "")
                                             if (path != null) {
                                                 detect.set(false)
                                                 setTrackStatus(detectionResult.faceList[0].trackId, FacePassTrackIdState.TRACK_ID_RETRY)
@@ -714,17 +714,22 @@ class FacePass(context: Context) : CameraListener {
 
     //注册人脸
     fun registerFaces(message: String): String {
-        if (mFacePassHandler == null) {
+        try{
+            if (mFacePassHandler == null) {
+                return ""
+            }
+            //转换特征值
+            val token = stringToByteArray(message)
+            val insertFeature = mFacePassHandler!!.insertFeature(token, FacePassFeatureAppendInfo())
+            val bindFaceToGroup = bindFaceToGroup(insertFeature)
+            return if(bindFaceToGroup){
+                insertFeature
+            }else{
+                ""
+            }
+        }catch (e: Exception){
+            LogUtil.e(TAG,e.message)
             return ""
-        }
-        //转换特征值
-        val token = stringToByteArray(message)
-        val insertFeature = mFacePassHandler!!.insertFeature(token, FacePassFeatureAppendInfo())
-        val bindFaceToGroup = bindFaceToGroup(insertFeature)
-        return if(bindFaceToGroup){
-            insertFeature
-        }else{
-            ""
         }
     }
 

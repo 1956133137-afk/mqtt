@@ -29,7 +29,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
 
     private var displayManager: DisplayManager? = null
     private var secondDisplays: Display? = null
-    private lateinit var settingDisplay: SettingDisplay
+    lateinit var settingDisplay: SettingDisplay
 
     override fun bindLayout() {
         binding = ActivitySettingBinding.inflate(layoutInflater)

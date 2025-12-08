@@ -60,6 +60,7 @@ class ModeSettingFragment : Fragment() {
     private lateinit var confirmDialog: ConfirmDialog
     private lateinit var awaitingDialog: AwaitingDialog
     private val mContext = MyApplication.applicationContext
+    private val handler = Handler(MyApplication.applicationContext.mainLooper)
     private var self_help = false
     private var saveCheck = false
 //    private var mService: CameraService? = null
@@ -251,8 +252,7 @@ class ModeSettingFragment : Fragment() {
         }
 
         binding.btnSynPerson.setOnClickListener { view: View? ->
-            if (!this::awaitingDialog.isInitialized)
-                awaitingDialog = AwaitingDialog(requireActivity())
+            if (!this::awaitingDialog.isInitialized) awaitingDialog = AwaitingDialog(requireActivity())
             awaitingDialog.show()
             awaitingDialog.updateText("同步中")
             downPerson()
@@ -325,8 +325,20 @@ class ModeSettingFragment : Fragment() {
         binding.icCardMode.setOnClickListener { kv.encode(Constant.ORDER_LOGIN_CARD, binding.icCardMode.isChecked) }
 
         binding.btnSynFace.setOnClickListener { view: View? ->
+            if (!this::awaitingDialog.isInitialized) awaitingDialog = AwaitingDialog(requireActivity())
+            awaitingDialog.show()
+            awaitingDialog.updateText("同步中")
+            DownloadVM.instance.setListener(object : DownloadVM.uploadListener{
+                override fun uploadLocalFace(status: Boolean) {
+                    handler.post {
+                        ToastShowUtil.show(if(status) "同步成功" else "同步失败")
+                        awaitingDialog.cancel()
+                    }
+                }
+            })
             DownloadVM.instance.downUserFaceDBImg("")
         }
+        binding.openLocalFace.setOnClickListener { kv.encode(Constant.OPEN_LOCAL_FACE, binding.openLocalFace.isChecked) }
     }
 
     private fun verifyType() {
@@ -435,6 +447,7 @@ class ModeSettingFragment : Fragment() {
         binding.supportPay.isChecked = kv.decodeBool(Constant.SUPPORT_PAY, true)
         binding.payMode.text = dataList[kv.decodeInt(Constant.PAY_MODE, Constant.PAY_CODE_IC_TYPE)]
         binding.autoPay.isChecked = kv.decodeBool(Constant.AUTO_PAY, false)
+        binding.openLocalFace.isChecked = kv.decodeBool(Constant.OPEN_LOCAL_FACE, false)
         binding.queryVerify.isChecked = saveCheck
         binding.mealTime.setText(kv.decodeInt(Constant.MEAL_TIME, 10).toString())
 //        binding.fixedSum.setText(kv.decodeString(Constant.QUOTA_AMOUNT, "0.00"))

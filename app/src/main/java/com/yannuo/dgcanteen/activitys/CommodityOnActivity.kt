@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
 import android.os.*
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android.widget.Toast
@@ -21,6 +22,7 @@ import com.ccb.smartcanteen.ZHSTFacePayService
 import com.proembed.service.MyService
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.activitys.viewModel.VerificationVM
 import com.yannuo.dgcanteen.adapters.FoodsAdapter
@@ -36,6 +38,7 @@ import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.interfaces.FoodsCallback
 import com.yannuo.dgcanteen.interfaces.IProductsVM
 import com.yannuo.dgcanteen.model.DishesInfo
+import com.yannuo.dgcanteen.model.EventFaceBean
 import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ProductsDetail
@@ -54,7 +57,7 @@ import kotlin.system.exitProcess
 /**
  * 双栏点餐模式
  */
-class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback {
+class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsVM, NetworkStateManager.NetWorkListener, FoodsCallback, FaceVM.OnListener {
     private var permissions = arrayOf(
         Manifest.permission.NFC,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -73,6 +76,8 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
     private var secondDisplays: Display? = null
     private var mFacePayService: ZHSTFacePayService? = null
     private var delayTime = 20L
+
+    private val faceVM by lazy { FaceVM() }
 
     @Volatile
     private var mProductsDisplay: DifferentOnDisplay? = null  //点餐界面
@@ -317,22 +322,47 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
                 LogUtil.d(TAG, "EventBus : ${event.code} 接收开启人脸支付事件~")
                 event.any?.also {
                     (it as? ProductsDetail)?.also { iit ->
-                        if (mFacePayService == null) {
-                            runOnUiThread {
-                                ToastShowUtil.show("人脸服务连接异常")
+                        if(kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+                            //跳转本地脸库刷脸
+                            val intent = Intent(this, FacialRecognitionActivity::class.java)
+                            startActivity(intent)
+                            faceVM.setListener(this, it.totalMoney)
+                        }else{
+                            if (mFacePayService == null) {
+                                runOnUiThread {
+                                    ToastShowUtil.show("人脸服务连接异常")
+                                }
+                                //重新连接服务
+                                CommonAndDpToPxUtil.speakWork("人脸服务连接异常")
+                                LogUtil.e(TAG, "获取不到人脸句柄")
+                                return
                             }
-                            //重新连接服务
-                            CommonAndDpToPxUtil.speakWork("人脸服务连接异常")
-                            LogUtil.e(TAG, "获取不到人脸句柄")
-                            return
+                            mPayResultDisplay?.safeCancel()
+                            mPayResultDisplay = null
+                            mChooseDisplay?.safeCancel()
+                            mChooseDisplay = null
+                            mProductsVM.startPayWithFace(mFacePayService, iit)
                         }
-//                        mPayResultDisplay?.cancel()
-                        mPayResultDisplay?.safeCancel()
-                        mPayResultDisplay = null
-//                        mChooseDisplay?.cancel()
-                        mChooseDisplay?.safeCancel()
-                        mChooseDisplay = null
-                        mProductsVM.startPayWithFace(mFacePayService, iit)
+                    }
+                }
+            }
+            Constant.EVENT_LOCAL_FACE -> {
+                Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
+                val eventFaceBean = event.any as EventFaceBean
+                when(eventFaceBean.code){
+                    -1 -> {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val payForUI = PayForUI().apply {
+                                result = "N"
+                                errCode = eventFaceBean.code.toString()
+                                errMsg = eventFaceBean.msg
+                            }
+                            updatePayResult(payForUI)
+                        }, 300)
+                    }
+                    else -> {
+                        //识别成功
+                        faceVM.localFacePay(eventFaceBean.msg,faceVM.getPayment(),eventFaceBean.img,eventFaceBean.searchScore.toString())
                     }
                 }
             }
@@ -806,6 +836,16 @@ class CommodityOnActivity : BaseActivity<ActivityCommodityBinding>(), IProductsV
     private fun clearFoods() {
         adapterDishes?.clear()
         binding.rvFoods.background = null
+    }
+
+    override fun uploadResult(code: Int, type: Boolean, msg: String) {
+
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            updatePayResult(payForUI)
+        }, 300)
     }
 
 }

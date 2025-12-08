@@ -156,6 +156,19 @@ class OrderVerifyVM : ViewModel(), OnReadDataListener, ScanDevice.DataCallBack {
         })
     }
 
+    fun localFaceVerification(custId: String?){
+        Log.d(TAG, "localFaceVerification: 刷脸核销获取id：$custId")
+        if (custId == null) return
+        val icCard = custId.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
+        if (!payMode) {
+            if (!mmkv.decodeBool(Constant.ORDER_QUERY, false) && !isVerifyStatus) {
+                viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
+                return
+            }
+            orderVerify(icCard,1)
+        } else orderPayment(icCard,"1")
+    }
+
     override fun numberOfIcCard(number: String?) {
         if (number == null) return
         val icCard = number.replace("(\n\r|\r\n|\r|\n)".toRegex(), "").trim().uppercase()
