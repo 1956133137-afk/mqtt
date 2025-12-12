@@ -352,6 +352,12 @@ class PayRepositoryOfPay {
         }
     }
 
+    suspend fun printOrderTicket(bean: PrintTicketBean): CanteenResponse<String> {
+        return apiCall {
+            RetrofitClient.getApi().printOrderTicket(bean)
+        }
+    }
+
 
     private suspend fun <T> apiCall(call: suspend CoroutineScope.() -> CanteenResponse<T>): CanteenResponse<T> {
         return withContext(Dispatchers.IO) {

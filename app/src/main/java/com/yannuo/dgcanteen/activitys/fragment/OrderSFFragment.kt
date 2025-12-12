@@ -5,19 +5,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.activitys.viewModel.ProductsVM
 import com.yannuo.dgcanteen.adapters.PayResultAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOrderSFBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.model.PayForUI
+import com.yannuo.dgcanteen.model.PrintTicketBean
+import com.yannuo.dgcanteen.model.TicketDish
 import com.yannuo.dgcanteen.printer.PrinterOperator
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.TimeUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
 
@@ -90,7 +96,7 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         binding.subF.payFailMsg.text = payForUI.errMsg
         if (payForUI.payTime.isEmpty() || payForUI.payTime == "") {
             binding.subF.payTime.text = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss", System.currentTimeMillis())
-        }else {
+        } else {
             binding.subF.payTime.text = payForUI.payTime
         }
         CommonAndDpToPxUtil.speakWork("支付失败")
@@ -121,6 +127,9 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
         if (persons != null && persons.grade != null) binding.subS.tvClass.text = "${persons.grade}(${persons.userClass})"
         binding.subS.tvName.text = payForUI.username
         binding.subS.tvBalance.text = payForUI.accBal
+
+        /* 支付成功掉用云打印机 */
+        if (kv.decodeInt(Constant.CLOUD_PRINT_TICKET, 0) == 1) printOrderTicket(payForUI)
 
         PrinterOperator.printerFoodsList(payForUI)
         if (payForUI.result == "Y") USBPrinterHelper.instance.printTicket("0", payForUI)
@@ -167,6 +176,38 @@ open class OrderSFFragment() : BaseFragment<FragmentOrderSFBinding>() {
             }
         }
         countDownTimer?.start()
+    }
+
+    private fun printOrderTicket(payForUI: PayForUI) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val ticketBean = PrintTicketBean().apply {
+                custId = payForUI.custId
+                orderId = payForUI.orderId
+                campusId = payForUI.campusId
+                businessId = payForUI.businessId
+                deviceId = payForUI.deviceId
+                orderTime = payForUI.payTime
+                payTime = payForUI.payTime
+                payment = payForUI.payment
+                actualPayment = payForUI.actualPayment
+                discountAmt = payForUI.discountAmt
+            }
+            val person = DishesDBHelper.getInstance().queryPersonToCustId(payForUI.custId)
+            if (person != null) {
+                ticketBean.personName = person.personName.ifBlank { "" }
+                ticketBean.phone = person.phone.ifBlank { "" }
+            }
+            payForUI.paymentDishes.forEach {
+                val ticketDish = TicketDish().apply {
+                    dishesId = it.dishesId
+                    dishesName = it.dishesName
+                    price = it.dishesPrice
+                    quantity = it.dishesNumber
+                }
+                ticketBean.dishesList.add(ticketDish)
+            }
+            PayRepositoryOfPay().printOrderTicket(ticketBean)
+        }
     }
 
     override fun onPause() {

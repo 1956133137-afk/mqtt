@@ -216,6 +216,10 @@ class ModeSettingFragment : Fragment() {
             kv.encode(Constant.MEAL_TIME_SWITCH, switchValue)
             EventBus.getDefault().post(MessageEvent(Constant.EVENT_MEAL_TIME_SWITCH, null))
         }
+        binding.cloudPrintTicket.setOnClickListener {
+            val status = if (binding.cloudPrintTicket.isChecked) 1 else 0
+            kv.encode(Constant.CLOUD_PRINT_TICKET, status)
+        }
 //        binding.switchMealTimeMode.setOnClickListener {
 //            // 餐次消费模式
 //            val check = binding.switchMealTimeMode.isChecked
@@ -446,6 +450,7 @@ class ModeSettingFragment : Fragment() {
         self_help = kv.decodeBool(Constant.BALANCE_SWITCH, false)
         binding.switchUseMealLimitPay.isChecked = kv.decodeInt(Constant.USE_MEAL_TIME_LIMIT_CALCULATE_SWITCH, 0) == 1
         binding.mealTimeSwitch.isChecked = kv.decodeInt(Constant.MEAL_TIME_SWITCH, 0) == 1
+        binding.cloudPrintTicket.isChecked = kv.decodeInt(Constant.CLOUD_PRINT_TICKET, 0) == 1
 //        binding.switchMealTimeMode.isChecked = kv.decodeInt(Constant.MEAL_TIME_MODE, 0) == 1
         binding.switchFixed.isChecked = kv.decodeBool(Constant.QUOTA_SWITCH, false)
         binding.cbBalance.isChecked = self_help

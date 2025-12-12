@@ -83,7 +83,8 @@ object Constant {
 
     const val CCB_CORP_TYPE = "ccbCorpType" //园区选择类型 0-旧园区 1-创信园区
     lateinit var ENVIRONMENT_TYPE: String
-//    lateinit var CORP_ID: String  //合作方ID
+
+    //    lateinit var CORP_ID: String  //合作方ID
 //    lateinit var CCB_API_PATH: String  //ccb开放平台接口地址
 //    lateinit var STR_KEY: String  //扫码解码密码
     lateinit var CIPHER: String  //离线码解码密码
@@ -140,6 +141,8 @@ object Constant {
     const val WHETHER_SHOW_PAYMENT = "whetherShowPayment"   //是否显示交易金额信息 Boolean
 
     const val DISH_SORT = "dishSort" //点餐模式菜品排序状态
+
+    const val CLOUD_PRINT_TICKET = "CloudPrintTicket"   //配置云打印打印
 
     /************** EventBus *****************/
     const val EVENT_FIRST = 1 //取餐

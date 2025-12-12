@@ -306,4 +306,11 @@ interface ApiService {
     @Headers("content-type: application/json")
     @POST("swAndroid/qryAllowanceByTradeOrderId")
     suspend fun swQueryAllowance(@Body encryptedData: EncryptedDataRequest): CanteenResponse<QueryAllowanceResponse>
+
+    /**
+     * 订单调用云打印机
+     */
+    @Headers("content-type: application/json")
+    @POST("android/printOrderTicket")
+    suspend fun printOrderTicket(@Body bean: PrintTicketBean): CanteenResponse<String>
 }
