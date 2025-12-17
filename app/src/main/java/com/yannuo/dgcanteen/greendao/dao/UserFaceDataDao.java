@@ -51,9 +51,9 @@ public class UserFaceDataDao extends AbstractDao<UserFaceData, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"USER_FACE_DATA\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
                 "\"CUST_ID\" TEXT UNIQUE ," + // 1: custId
-                "\"USER_ID\" TEXT UNIQUE ," + // 2: userId
+                "\"USER_ID\" TEXT," + // 2: userId
                 "\"CAMPUS_ID\" TEXT," + // 3: campusId
-                "\"EIGENVALUE\" TEXT UNIQUE ," + // 4: eigenvalue
+                "\"EIGENVALUE\" TEXT," + // 4: eigenvalue
                 "\"WAY\" TEXT," + // 5: way
                 "\"FACE_IMG_URL\" TEXT," + // 6: faceImgUrl
                 "\"VERSION\" TEXT," + // 7: version

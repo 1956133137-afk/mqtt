@@ -1,8 +1,11 @@
 package com.yannuo.dgcanteen.activitys.fragment.order
 
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +15,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.yannuo.dgcanteen.R
+import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.activitys.viewModel.OrderMealVM
 import com.yannuo.dgcanteen.adapters.InfoAdapter
 import com.yannuo.dgcanteen.adapters.ListDishAdapter
@@ -19,17 +23,24 @@ import com.yannuo.dgcanteen.databinding.FragmentOrderSettleBinding
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.interfaces.CloseEvent
 import com.yannuo.dgcanteen.model.DishBean
+import com.yannuo.dgcanteen.model.EventFaceBean
 import com.yannuo.dgcanteen.model.InfoBean
+import com.yannuo.dgcanteen.model.MessageEvent
 import com.yannuo.dgcanteen.model.OrderForUI
+import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.printer.USBPrinterHelper
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.LogUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
 import com.yannuo.dgcanteen.views.HintDialog
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.EventBusBuilder
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.text.DecimalFormat
 
-class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
+class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>(),FaceVM.OnListener {
     private val orderMealVM by lazy { ViewModelProvider(requireActivity())[OrderMealVM::class.java] }
     private val listDishAdapter by lazy { ListDishAdapter(requireContext()) }
     private val infoAdapter by lazy { InfoAdapter() }
@@ -37,12 +48,15 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
     private var orderForUI: OrderForUI = OrderForUI()
     private var hintDialog: HintDialog? = null
 
+    private val faceVM by lazy { FaceVM() }
+
     override fun initFragment(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentOrderSettleBinding.inflate(inflater, container, false)
     }
 
     override fun initOperation() {
         val directions: OrderSettleFragmentArgs by navArgs()
+        EventBus.getDefault().register(this)
         orderForUI = directions.orderForUI
         LogUtil.d(TAG, Gson().toJson(orderForUI))
         showPayResult(orderForUI)
@@ -65,6 +79,32 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
 
         initObject()
         initEvent()
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun EventBusBuilder(event: MessageEvent){
+        when(event.code){
+            Constant.EVENT_LOCAL_FACE -> {
+                Log.d(TAG, "eventCalculate: 接收到本地脸库人脸识别结果")
+                val eventFaceBean = event.any as EventFaceBean
+                when(eventFaceBean.code){
+                    -1 -> {
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val payForUI = PayForUI().apply {
+                                result = "N"
+                                errCode = eventFaceBean.code.toString()
+                                errMsg = eventFaceBean.msg
+                            }
+                            orderMealVM.payHandler("1",Gson().toJson(payForUI))
+                        }, 300)
+                    }
+                    else -> {
+                        //识别成功
+                        faceVM.localFacePay(eventFaceBean.msg,faceVM.getPayment(),eventFaceBean.img,eventFaceBean.searchScore.toString())
+                    }
+                }
+            }
+        }
     }
 
     private fun initObject() {
@@ -149,22 +189,8 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
                 orderForUI.discountPayment = String.format("%.02f", discountMoney.toDouble())
                 orderForUI.isDeviceDiscount = "1"
             }
-            orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked)
-//            orderMealVM.placeAnOrder(orderForUI, binding.verifyValue.isChecked) { type ->
-//                handler.post {
-//                    when (type) {
-//                        1 -> orderMealVM.getAwaitStatus().value = "订餐下单中"
-//                        2 -> orderMealVM.getAwaitStatus().value = "订餐支付中"
-//                        3 -> {
-//                            orderMealVM.getAwaitStatus().value = ""
-//                            if (orderForUI.result == "Y") {
-//                                USBPrinterHelper.instance.printTicket("1", orderForUI)
-//                                showPayResult(orderForUI, "支付成功", "#82D582")
-//                            } else showPayResult(orderForUI, "支付失败", "#FF5252")
-//                        }
-//                    }
-//                }
-//            }
+            orderMealVM.placeAnOrder(requireContext(),orderForUI, binding.verifyValue.isChecked)
+            if(kv.decodeBool(Constant.OPEN_LOCAL_FACE)) faceVM.setListener(this,orderForUI.actualPayment)
         }
         //继续订餐
         binding.btnReorder.setOnClickListener {
@@ -296,7 +322,16 @@ class OrderSettleFragment : BaseFragment<FragmentOrderSettleBinding>() {
 
     override fun onDestroy() {
         orderMealVM.setOrderForUI(OrderForUI())
+        EventBus.getDefault().unregister(this)
         super.onDestroy()
         hintDialog?.cancel()
+    }
+
+    override fun uploadResult(code: Int, type: Boolean, msg: String) {
+
+    }
+
+    override fun facePayResult(payForUI: PayForUI) {
+        orderMealVM.payHandler("1",Gson().toJson(payForUI))
     }
 }

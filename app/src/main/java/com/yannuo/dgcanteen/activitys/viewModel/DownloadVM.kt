@@ -200,13 +200,21 @@ class DownloadVM : ViewModel() {
                                             if(bindFaceToGroup == true){
                                                 Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
                                                 it.eigenvalue = registerFaces
+
+                                                //查询本地是否存在人脸
+                                                val queryFaceByCustId = DishesDBHelper.getInstance().queryFaceByCustId(it.custId)
+                                                if(queryFaceByCustId != null){
+                                                    //删除旧人脸
+                                                    val deleteFace = cameraManager.getFacePass()?.deleteFace(queryFaceByCustId.eigenvalue)
+                                                    Log.d(TAG, "initEvent: 删除旧人脸：$deleteFace")
+                                                }
                                             }
                                         }
                                     }
                                 }
                                 Log.d(TAG, "downUserFaceDBImg: 保存人脸数据：${Gson().toJson(list)}")
                                 //保存数据
-                                DishesDBHelper.getInstance().insertFaceData(list)
+                                DishesDBHelper.getInstance().insertFaceListData(list)
                                 Log.d(TAG, "downUserFaceDBImg: 人脸数据更新完成")
                             }
                         }
@@ -219,21 +227,6 @@ class DownloadVM : ViewModel() {
                 }
             }while (type && count < 9)
             listener?.uploadLocalFace(!type)
-        }
-    }
-
-    fun uploadLocalFace(list: MutableList<UserFaceData>,cameraManager: CameraManager?){
-        //新建底库
-        val createFaceGroup = cameraManager?.getFacePass()?.createFaceGroup(faceGroupName)
-        Log.d(TAG, "downUserFaceDBImg: 新建底库：$createFaceGroup")
-        for (it in list){
-            if(it.eigenvalue.isNullOrEmpty()){
-                continue
-            }
-            val bindFaceToGroup = cameraManager?.getFacePass()?.bindFaceToGroup(it.eigenvalue)
-            if(bindFaceToGroup == true){
-                Log.d(TAG, "downUserFaceDBImg: ${it.custId} 人脸绑定成功")
-            }
         }
     }
 

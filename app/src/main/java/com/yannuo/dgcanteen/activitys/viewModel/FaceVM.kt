@@ -7,24 +7,22 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
-import com.yannuo.dgcanteen.facepass.CameraUtil
+import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 import com.yannuo.dgcanteen.facepass.MyBitmapUtil
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.AccListTable
+import com.yannuo.dgcanteen.greendao.entity.FacePayTable
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable
 import com.yannuo.dgcanteen.greendao.entity.PayDishTable
 import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.greendao.entity.Persons
-import com.yannuo.dgcanteen.greendao.entity.UserFaceData
 import com.yannuo.dgcanteen.model.ACCLIST
 import com.yannuo.dgcanteen.model.EncryptedDataRequest
-import com.yannuo.dgcanteen.model.FacePayRequest
 import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PayForUI
 import com.yannuo.dgcanteen.model.ResponsePay
 import com.yannuo.dgcanteen.model.UploadFaceImageRequest
 import com.yannuo.dgcanteen.model.UploadFaceRequest
-import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.CommonAndDpToPxUtil
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.DES3CBCUtil
@@ -83,17 +81,12 @@ class FaceVM: ViewModel() {
                 this.custId = persons.custId
                 this.campusId = payCfg.campusId
                 this.eigenvalue = eigenvalue
-                this.version = "1.1"
+                this.version = FaceSDKHelper.getInstance().getCameraManager()?.getFacePass()?.getVersion() ?: ""
             }
             Log.d(TAG, "uploadFaceToken: 未加密上传数据：${Gson().toJson(bean)}")
             val encryption = DES3CBCUtil.encryption(Gson().toJson(bean))
             val data = mRepository.uploadUserEigenvalue(EncryptedDataRequest(encryption))
             if(data.code == "200"){
-                //解密
-                val decryptRSA = DES3CBCUtil.decryptRSA(data.data)
-                val fromJson = Gson().fromJson(decryptRSA, UserFaceData::class.java)
-                //更新人员信息
-                DishesDBHelper.getInstance().insertFaceData(fromJson)
                 listener?.uploadResult(2,true, "上传成功")
             }else{
                 LogUtil.e(TAG,"人脸特征值上传异常：${data.code} - ${data.msg}")
@@ -122,11 +115,6 @@ class FaceVM: ViewModel() {
             val encryption = DES3CBCUtil.encryption(Gson().toJson(bean))
             val data = mRepository.uploadFaceDBImg(EncryptedDataRequest(encryption))
             if(data.code == "200"){
-                //解密
-                val decryptRSA = DES3CBCUtil.decryptRSA(data.data)
-                val fromJson = Gson().fromJson(decryptRSA, UserFaceData::class.java)
-                //更新人员信息
-                DishesDBHelper.getInstance().insertFaceData(fromJson)
                 listener?.uploadResult(1,true, "上传成功")
             }else{
                 LogUtil.e(TAG,"人脸图片上传异常：${data.code} - ${data.msg}")
@@ -136,6 +124,10 @@ class FaceVM: ViewModel() {
     }
 
     fun localFacePay(token: String, payMoney: String, img: String, searchScore: String){
+        DishesDBHelper.getInstance().queryFaceAll().forEach {
+            Log.d(TAG, "initEvent: 遍历人脸：${Gson().toJson(it)}")
+        }
+        Log.d(TAG, "localFacePay: 识别人脸token：$token")
         val bean = DishesDBHelper.getInstance().queryFaceByEigenvalue(token)
         if(bean == null){
             val payForUI = PayForUI().apply{
@@ -156,7 +148,7 @@ class FaceVM: ViewModel() {
             listener?.facePayResult(payForUI)
             return
         }
-        val payBean = FacePayRequest().apply {
+        val payBean = FacePayTable().apply {
             deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             campusId = payCfg.campusId
             businessId = payCfg.businessId
@@ -164,21 +156,20 @@ class FaceVM: ViewModel() {
             vposId = payCfg.counterId
             payment = payMoney
             actualPayment = payMoney
-            offline = if(kv.decodeBool(Constant.SWITCH)) "1" else "0"
+            offline = if(kv.decodeInt(Constant.APP_ONLINE_STATUS,0) == 0 && !kv.decodeBool(Constant.SWITCH,false)) "0" else "1"
             signTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(System.currentTimeMillis())
             personNumber = bean.userId
             custId = bean.custId
-//            faceBase64 = CameraUtil.instance.imageUrlToBase64(img)
             faceBase64 = MyBitmapUtil(MyApplication.applicationContext).imagePathToBase64(img)
             faceScore = BigDecimal(searchScore).setScale(2,RoundingMode.DOWN ).toPlainString()
         }
-        LogUtil.d(TAG, "eventCalculate: 识别成功生成订单：${Gson().toJson(payBean)}")
+        LogUtil.d(TAG, "eventCalculate: 识别成功生成订单：${payBean.offline}  ${Gson().toJson(payBean)}")
         //支付
         isPayStatus = true
         localScanFacePayment(payBean)
     }
 
-    private fun localScanFacePayment(bean: FacePayRequest){
+    private fun localScanFacePayment(bean: FacePayTable){
         if (!isPayStatus) {
             viewModelScope.launch(Dispatchers.Main) { ToastShowUtil.show("无效操作") }
             return
@@ -194,6 +185,16 @@ class FaceVM: ViewModel() {
                 listener?.facePayResult(payForUI)
                 return@launch
             }
+            val mPayCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
+            if(mPayCfg == null){
+                val payForUI = PayForUI().apply{
+                    result = "N"
+                    errCode = "0x000001"
+                    errMsg = "未获取到支付配置"
+                }
+                listener?.facePayResult(payForUI)
+                return@launch
+            }
             val payForUI = initData(bean.custId!!, bean.payment, bean.offline)
             if(payForUI.offline == "1"){
                 //离线支付
@@ -204,10 +205,20 @@ class FaceVM: ViewModel() {
                         payForUI.errCode = "0x000001"
                         payForUI.errMsg = "找不到该人员"
                     }else{
+                        val orderId = "${mPayCfg.counterId}${System.currentTimeMillis()}"
+                        bean.orderId = orderId
+                        dbHelper.insertFacePay(bean)
+                        val queryFacePayBySignTime = dbHelper.queryFacePayByOrderId(orderId)
                         offlineOrder.custId = user.custId
                         offlineOrder.username = user.personName
+                        offlineOrder.facePayId = queryFacePayBySignTime.id
+                        offlineOrder.facePayTable = queryFacePayBySignTime
+                        offlineOrder.sessionId = orderId
                         dbHelper.insertOfflineOrder(offlineOrder)
                         payForUI.result = "Y"
+                        payForUI.username = user.personName
+                        payForUI.custId = user.custId
+                        payForUI.orderId = orderId
                     }
                 }catch (e: Exception){
                     e.printStackTrace()
@@ -216,7 +227,7 @@ class FaceVM: ViewModel() {
                 }
                 listener?.facePayResult(payForUI)
                 return@launch
-            } else{
+            } else {
                 //在线支付
                 val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
                 if(payCfg == null){
@@ -305,7 +316,7 @@ class FaceVM: ViewModel() {
             corpId = mPayCfg.corpId
             vposId = mPayCfg.counterId
             deviceId = deviceSerial
-            payType = "3"
+            payType = "1"
             payContent = content
             payment = payAmount
             actualPayment = payAmount

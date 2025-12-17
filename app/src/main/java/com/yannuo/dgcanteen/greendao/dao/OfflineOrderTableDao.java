@@ -1,13 +1,18 @@
 package com.yannuo.dgcanteen.greendao.dao;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+
+import com.yannuo.dgcanteen.greendao.entity.FacePayTable;
 
 import com.yannuo.dgcanteen.greendao.entity.OfflineOrderTable;
 
@@ -25,23 +30,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property BusinessId = new Property(1, String.class, "businessId", false, "BUSINESS_ID");
-        public final static Property BusinessName = new Property(2, String.class, "businessName", false, "BUSINESS_NAME");
-        public final static Property CampusId = new Property(3, String.class, "campusId", false, "CAMPUS_ID");
-        public final static Property CorpId = new Property(4, String.class, "corpId", false, "CORP_ID");
-        public final static Property VposId = new Property(5, String.class, "vposId", false, "VPOS_ID");
-        public final static Property DeviceId = new Property(6, String.class, "deviceId", false, "DEVICE_ID");
-        public final static Property CustId = new Property(7, String.class, "custId", false, "CUST_ID");
-        public final static Property Username = new Property(8, String.class, "username", false, "USERNAME");
-        public final static Property PayType = new Property(9, String.class, "payType", false, "PAY_TYPE");
-        public final static Property PayContent = new Property(10, String.class, "payContent", false, "PAY_CONTENT");
-        public final static Property Payment = new Property(11, String.class, "payment", false, "PAYMENT");
-        public final static Property ActualPayment = new Property(12, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
-        public final static Property SessionId = new Property(13, String.class, "sessionId", false, "SESSION_ID");
-        public final static Property PayDate = new Property(14, String.class, "payDate", false, "PAY_DATE");
-        public final static Property SignTime = new Property(15, String.class, "signTime", false, "SIGN_TIME");
-        public final static Property Offline = new Property(16, String.class, "offline", false, "OFFLINE");
-        public final static Property Flag = new Property(17, Integer.class, "flag", false, "FLAG");
+        public final static Property FacePayId = new Property(1, Long.class, "facePayId", false, "FACE_PAY_ID");
+        public final static Property BusinessId = new Property(2, String.class, "businessId", false, "BUSINESS_ID");
+        public final static Property BusinessName = new Property(3, String.class, "businessName", false, "BUSINESS_NAME");
+        public final static Property CampusId = new Property(4, String.class, "campusId", false, "CAMPUS_ID");
+        public final static Property CorpId = new Property(5, String.class, "corpId", false, "CORP_ID");
+        public final static Property VposId = new Property(6, String.class, "vposId", false, "VPOS_ID");
+        public final static Property DeviceId = new Property(7, String.class, "deviceId", false, "DEVICE_ID");
+        public final static Property CustId = new Property(8, String.class, "custId", false, "CUST_ID");
+        public final static Property Username = new Property(9, String.class, "username", false, "USERNAME");
+        public final static Property PayType = new Property(10, String.class, "payType", false, "PAY_TYPE");
+        public final static Property PayContent = new Property(11, String.class, "payContent", false, "PAY_CONTENT");
+        public final static Property Payment = new Property(12, String.class, "payment", false, "PAYMENT");
+        public final static Property ActualPayment = new Property(13, String.class, "actualPayment", false, "ACTUAL_PAYMENT");
+        public final static Property SessionId = new Property(14, String.class, "sessionId", false, "SESSION_ID");
+        public final static Property PayDate = new Property(15, String.class, "payDate", false, "PAY_DATE");
+        public final static Property SignTime = new Property(16, String.class, "signTime", false, "SIGN_TIME");
+        public final static Property Offline = new Property(17, String.class, "offline", false, "OFFLINE");
+        public final static Property Flag = new Property(18, Integer.class, "flag", false, "FLAG");
     }
 
     private DaoSession daoSession;
@@ -61,23 +67,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"OFFLINE_ORDER_TABLE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"BUSINESS_ID\" TEXT," + // 1: businessId
-                "\"BUSINESS_NAME\" TEXT," + // 2: businessName
-                "\"CAMPUS_ID\" TEXT," + // 3: campusId
-                "\"CORP_ID\" TEXT," + // 4: corpId
-                "\"VPOS_ID\" TEXT," + // 5: vposId
-                "\"DEVICE_ID\" TEXT," + // 6: deviceId
-                "\"CUST_ID\" TEXT," + // 7: custId
-                "\"USERNAME\" TEXT," + // 8: username
-                "\"PAY_TYPE\" TEXT," + // 9: payType
-                "\"PAY_CONTENT\" TEXT," + // 10: payContent
-                "\"PAYMENT\" TEXT," + // 11: payment
-                "\"ACTUAL_PAYMENT\" TEXT," + // 12: actualPayment
-                "\"SESSION_ID\" TEXT UNIQUE ," + // 13: sessionId
-                "\"PAY_DATE\" TEXT," + // 14: payDate
-                "\"SIGN_TIME\" TEXT," + // 15: signTime
-                "\"OFFLINE\" TEXT," + // 16: offline
-                "\"FLAG\" INTEGER);"); // 17: flag
+                "\"FACE_PAY_ID\" INTEGER," + // 1: facePayId
+                "\"BUSINESS_ID\" TEXT," + // 2: businessId
+                "\"BUSINESS_NAME\" TEXT," + // 3: businessName
+                "\"CAMPUS_ID\" TEXT," + // 4: campusId
+                "\"CORP_ID\" TEXT," + // 5: corpId
+                "\"VPOS_ID\" TEXT," + // 6: vposId
+                "\"DEVICE_ID\" TEXT," + // 7: deviceId
+                "\"CUST_ID\" TEXT," + // 8: custId
+                "\"USERNAME\" TEXT," + // 9: username
+                "\"PAY_TYPE\" TEXT," + // 10: payType
+                "\"PAY_CONTENT\" TEXT," + // 11: payContent
+                "\"PAYMENT\" TEXT," + // 12: payment
+                "\"ACTUAL_PAYMENT\" TEXT," + // 13: actualPayment
+                "\"SESSION_ID\" TEXT UNIQUE ," + // 14: sessionId
+                "\"PAY_DATE\" TEXT," + // 15: payDate
+                "\"SIGN_TIME\" TEXT," + // 16: signTime
+                "\"OFFLINE\" TEXT," + // 17: offline
+                "\"FLAG\" INTEGER);"); // 18: flag
     }
 
     /** Drops the underlying database table. */
@@ -95,89 +102,94 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
             stmt.bindLong(1, id);
         }
  
+        Long facePayId = entity.getFacePayId();
+        if (facePayId != null) {
+            stmt.bindLong(2, facePayId);
+        }
+ 
         String businessId = entity.getBusinessId();
         if (businessId != null) {
-            stmt.bindString(2, businessId);
+            stmt.bindString(3, businessId);
         }
  
         String businessName = entity.getBusinessName();
         if (businessName != null) {
-            stmt.bindString(3, businessName);
+            stmt.bindString(4, businessName);
         }
  
         String campusId = entity.getCampusId();
         if (campusId != null) {
-            stmt.bindString(4, campusId);
+            stmt.bindString(5, campusId);
         }
  
         String corpId = entity.getCorpId();
         if (corpId != null) {
-            stmt.bindString(5, corpId);
+            stmt.bindString(6, corpId);
         }
  
         String vposId = entity.getVposId();
         if (vposId != null) {
-            stmt.bindString(6, vposId);
+            stmt.bindString(7, vposId);
         }
  
         String deviceId = entity.getDeviceId();
         if (deviceId != null) {
-            stmt.bindString(7, deviceId);
+            stmt.bindString(8, deviceId);
         }
  
         String custId = entity.getCustId();
         if (custId != null) {
-            stmt.bindString(8, custId);
+            stmt.bindString(9, custId);
         }
  
         String username = entity.getUsername();
         if (username != null) {
-            stmt.bindString(9, username);
+            stmt.bindString(10, username);
         }
  
         String payType = entity.getPayType();
         if (payType != null) {
-            stmt.bindString(10, payType);
+            stmt.bindString(11, payType);
         }
  
         String payContent = entity.getPayContent();
         if (payContent != null) {
-            stmt.bindString(11, payContent);
+            stmt.bindString(12, payContent);
         }
  
         String payment = entity.getPayment();
         if (payment != null) {
-            stmt.bindString(12, payment);
+            stmt.bindString(13, payment);
         }
  
         String actualPayment = entity.getActualPayment();
         if (actualPayment != null) {
-            stmt.bindString(13, actualPayment);
+            stmt.bindString(14, actualPayment);
         }
  
         String sessionId = entity.getSessionId();
         if (sessionId != null) {
-            stmt.bindString(14, sessionId);
+            stmt.bindString(15, sessionId);
         }
  
         String payDate = entity.getPayDate();
         if (payDate != null) {
-            stmt.bindString(15, payDate);
+            stmt.bindString(16, payDate);
         }
  
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(16, signTime);
+            stmt.bindString(17, signTime);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(17, offline);
+            stmt.bindString(18, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(18, flag);
+            stmt.bindLong(19, flag);
         }
     }
 
@@ -190,89 +202,94 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
             stmt.bindLong(1, id);
         }
  
+        Long facePayId = entity.getFacePayId();
+        if (facePayId != null) {
+            stmt.bindLong(2, facePayId);
+        }
+ 
         String businessId = entity.getBusinessId();
         if (businessId != null) {
-            stmt.bindString(2, businessId);
+            stmt.bindString(3, businessId);
         }
  
         String businessName = entity.getBusinessName();
         if (businessName != null) {
-            stmt.bindString(3, businessName);
+            stmt.bindString(4, businessName);
         }
  
         String campusId = entity.getCampusId();
         if (campusId != null) {
-            stmt.bindString(4, campusId);
+            stmt.bindString(5, campusId);
         }
  
         String corpId = entity.getCorpId();
         if (corpId != null) {
-            stmt.bindString(5, corpId);
+            stmt.bindString(6, corpId);
         }
  
         String vposId = entity.getVposId();
         if (vposId != null) {
-            stmt.bindString(6, vposId);
+            stmt.bindString(7, vposId);
         }
  
         String deviceId = entity.getDeviceId();
         if (deviceId != null) {
-            stmt.bindString(7, deviceId);
+            stmt.bindString(8, deviceId);
         }
  
         String custId = entity.getCustId();
         if (custId != null) {
-            stmt.bindString(8, custId);
+            stmt.bindString(9, custId);
         }
  
         String username = entity.getUsername();
         if (username != null) {
-            stmt.bindString(9, username);
+            stmt.bindString(10, username);
         }
  
         String payType = entity.getPayType();
         if (payType != null) {
-            stmt.bindString(10, payType);
+            stmt.bindString(11, payType);
         }
  
         String payContent = entity.getPayContent();
         if (payContent != null) {
-            stmt.bindString(11, payContent);
+            stmt.bindString(12, payContent);
         }
  
         String payment = entity.getPayment();
         if (payment != null) {
-            stmt.bindString(12, payment);
+            stmt.bindString(13, payment);
         }
  
         String actualPayment = entity.getActualPayment();
         if (actualPayment != null) {
-            stmt.bindString(13, actualPayment);
+            stmt.bindString(14, actualPayment);
         }
  
         String sessionId = entity.getSessionId();
         if (sessionId != null) {
-            stmt.bindString(14, sessionId);
+            stmt.bindString(15, sessionId);
         }
  
         String payDate = entity.getPayDate();
         if (payDate != null) {
-            stmt.bindString(15, payDate);
+            stmt.bindString(16, payDate);
         }
  
         String signTime = entity.getSignTime();
         if (signTime != null) {
-            stmt.bindString(16, signTime);
+            stmt.bindString(17, signTime);
         }
  
         String offline = entity.getOffline();
         if (offline != null) {
-            stmt.bindString(17, offline);
+            stmt.bindString(18, offline);
         }
  
         Integer flag = entity.getFlag();
         if (flag != null) {
-            stmt.bindLong(18, flag);
+            stmt.bindLong(19, flag);
         }
     }
 
@@ -291,23 +308,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
     public OfflineOrderTable readEntity(Cursor cursor, int offset) {
         OfflineOrderTable entity = new OfflineOrderTable( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // businessId
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // businessName
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // campusId
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // corpId
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // vposId
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // deviceId
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // custId
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // username
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // payType
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // payContent
-            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // payment
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // actualPayment
-            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // sessionId
-            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // payDate
-            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // signTime
-            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // offline
-            cursor.isNull(offset + 17) ? null : cursor.getInt(offset + 17) // flag
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // facePayId
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // businessId
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // businessName
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // campusId
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // corpId
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // vposId
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // deviceId
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // custId
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // username
+            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10), // payType
+            cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11), // payContent
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // payment
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // actualPayment
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // sessionId
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // payDate
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // signTime
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // offline
+            cursor.isNull(offset + 18) ? null : cursor.getInt(offset + 18) // flag
         );
         return entity;
     }
@@ -315,23 +333,24 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
     @Override
     public void readEntity(Cursor cursor, OfflineOrderTable entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setBusinessId(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setBusinessName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setCampusId(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setCorpId(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setVposId(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
-        entity.setDeviceId(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setCustId(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
-        entity.setUsername(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setPayType(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setPayContent(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
-        entity.setPayment(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
-        entity.setActualPayment(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
-        entity.setSessionId(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
-        entity.setPayDate(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
-        entity.setSignTime(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
-        entity.setOffline(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
-        entity.setFlag(cursor.isNull(offset + 17) ? null : cursor.getInt(offset + 17));
+        entity.setFacePayId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setBusinessId(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setBusinessName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setCampusId(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setCorpId(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setVposId(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setDeviceId(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setCustId(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setUsername(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setPayType(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setPayContent(cursor.isNull(offset + 11) ? null : cursor.getString(offset + 11));
+        entity.setPayment(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setActualPayment(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setSessionId(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setPayDate(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setSignTime(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setOffline(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setFlag(cursor.isNull(offset + 18) ? null : cursor.getInt(offset + 18));
      }
     
     @Override
@@ -359,4 +378,95 @@ public class OfflineOrderTableDao extends AbstractDao<OfflineOrderTable, Long> {
         return true;
     }
     
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getFacePayTableDao().getAllColumns());
+            builder.append(" FROM OFFLINE_ORDER_TABLE T");
+            builder.append(" LEFT JOIN FACE_PAY_TABLE T0 ON T.\"FACE_PAY_ID\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected OfflineOrderTable loadCurrentDeep(Cursor cursor, boolean lock) {
+        OfflineOrderTable entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        FacePayTable facePayTable = loadCurrentOther(daoSession.getFacePayTableDao(), cursor, offset);
+        entity.setFacePayTable(facePayTable);
+
+        return entity;    
+    }
+
+    public OfflineOrderTable loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<OfflineOrderTable> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<OfflineOrderTable> list = new ArrayList<OfflineOrderTable>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<OfflineOrderTable> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<OfflineOrderTable> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }

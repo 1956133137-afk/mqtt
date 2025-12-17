@@ -3,6 +3,7 @@ package com.yannuo.dgcanteen.greendao.entity;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
+import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.annotation.Unique;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.OfflineDishTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineOrderTableDao;
 import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
+import com.yannuo.dgcanteen.greendao.dao.FacePayTableDao;
 
 /**
  * Author: filowl
@@ -24,6 +26,7 @@ import com.yannuo.dgcanteen.greendao.dao.OfflineAccListTableDao;
 public class OfflineOrderTable {
     @Id(autoincrement = true)
     private Long id;
+    private Long facePayId;
     private String businessId;      //商家编号
     private String businessName;    //商家名称
     private String campusId;        //园区Id
@@ -43,6 +46,9 @@ public class OfflineOrderTable {
     private String offline;         //离线标记 0在线 1离线
     private Integer flag = 0;       //上传标记 0未上传 1已上传
 
+    @ToOne(joinProperty = "facePayId")
+    private FacePayTable facePayTable;
+
     @ToMany(referencedJoinProperty = "offlineOrderId")
     private List<OfflineDishTable> paymentDishes;
 
@@ -54,14 +60,16 @@ public class OfflineOrderTable {
     /** Used for active entity operations. */
     @Generated(hash = 420413952)
     private transient OfflineOrderTableDao myDao;
+    @Generated(hash = 1040673938)
+    private transient Long facePayTable__resolvedKey;
 
-    @Generated(hash = 1145552457)
-    public OfflineOrderTable(Long id, String businessId, String businessName,
-            String campusId, String corpId, String vposId, String deviceId,
-            String custId, String username, String payType, String payContent,
-            String payment, String actualPayment, String sessionId, String payDate,
-            String signTime, String offline, Integer flag) {
+    @Generated(hash = 43882566)
+    public OfflineOrderTable(Long id, Long facePayId, String businessId, String businessName,
+            String campusId, String corpId, String vposId, String deviceId, String custId,
+            String username, String payType, String payContent, String payment, String actualPayment,
+            String sessionId, String payDate, String signTime, String offline, Integer flag) {
         this.id = id;
+        this.facePayId = facePayId;
         this.businessId = businessId;
         this.businessName = businessName;
         this.campusId = campusId;
@@ -329,5 +337,42 @@ public class OfflineOrderTable {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getOfflineOrderTableDao() : null;
+    }
+
+    public Long getFacePayId() {
+        return this.facePayId;
+    }
+
+    public void setFacePayId(Long facePayId) {
+        this.facePayId = facePayId;
+    }
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 1425802843)
+    public FacePayTable getFacePayTable() {
+        Long __key = this.facePayId;
+        if (facePayTable__resolvedKey == null || !facePayTable__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            FacePayTableDao targetDao = daoSession.getFacePayTableDao();
+            FacePayTable facePayTableNew = targetDao.load(__key);
+            synchronized (this) {
+                facePayTable = facePayTableNew;
+                facePayTable__resolvedKey = __key;
+            }
+        }
+        return facePayTable;
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1767107308)
+    public void setFacePayTable(FacePayTable facePayTable) {
+        synchronized (this) {
+            this.facePayTable = facePayTable;
+            facePayId = facePayTable == null ? null : facePayTable.getId();
+            facePayTable__resolvedKey = facePayId;
+        }
     }
 }

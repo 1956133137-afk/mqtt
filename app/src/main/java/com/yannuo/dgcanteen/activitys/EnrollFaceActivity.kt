@@ -108,7 +108,7 @@ class EnrollFaceActivity : BaseActivity<ActivityEnrollFaceBinding>() {
             finish()
         }
         binding.btTryCapture.setOnClickListener {
-            cameraManager?.getFacePass()?.openDetect()
+            cameraManager?.startFaceDetect()
         }
     }
 

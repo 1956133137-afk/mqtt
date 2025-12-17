@@ -15,11 +15,9 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.activitys.presenters.DataPresenter
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.activitys.viewModel.DownloadVM
 import com.yannuo.dgcanteen.common.CameraAIDL
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.download.CheckVersionWorker
-import com.yannuo.dgcanteen.download.FaceDataWorker
 import com.yannuo.dgcanteen.facepass.SDKInitResult
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.*
@@ -90,7 +88,7 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
             KeyboardUtil.instance.openKeyboard()
 
             checkNewAppAndKeepAlive()   //新版本检查任务
-            uploadFaceData() // 定时更新人脸数据
+//            uploadFaceData() // 定时更新人脸数据
             NetworkStateManager.getInstance().registerObserver(this@CameraService) //网络状态监听
             getPayCfg()//获取配置
         }
@@ -193,10 +191,10 @@ class CameraService : Service(), NetworkStateManager.NetWorkListener {
 //        }
     }
 
-    private fun uploadFaceData() {
-        val decodeString = kv.decodeString(Constant.LOCAL_FACE_UPLOAD_DATE) ?: ""
-        DownloadVM.instance.downUserFaceDBImg(decodeString)
-    }
+//    private fun uploadFaceData() {
+//        val decodeString = kv.decodeString(Constant.LOCAL_FACE_UPLOAD_DATE) ?: ""
+//        DownloadVM.instance.downUserFaceDBImg(decodeString)
+//    }
 
 
     inner class MqttConnectState : IMqttConnectState {

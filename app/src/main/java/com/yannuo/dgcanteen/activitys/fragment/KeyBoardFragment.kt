@@ -262,13 +262,16 @@ class KeyBoardFragment : Fragment(), KeyboardListener {
             payment = amount
         }
 
-        if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
-            && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS,0) == 0
-        ) { //网络监听
-            CommonAndDpToPxUtil.speakWork("设备没有网络或者开启离线模式")
-            ToastShowUtil.show("设备没有网络或者开启离线模式")
-            return
+        if(!kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
+            if (!NetworkStateManager.getInstance().isOnline(MyApplication.applicationContext)
+                && !MMKV.defaultMMKV().decodeBool(Constant.SWITCH) && MMKV.defaultMMKV().decodeInt(Constant.APP_ONLINE_STATUS,0) == 0
+            ) { //网络监听
+                CommonAndDpToPxUtil.speakWork("设备没有网络或者开启离线模式")
+                ToastShowUtil.show("设备没有网络或者开启离线模式")
+                return
+            }
         }
+
 //        if (mLock.not())return
 //        mLock = false
         val payIntent = Intent(requireContext(), HostActivity::class.java)

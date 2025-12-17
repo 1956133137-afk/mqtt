@@ -393,6 +393,8 @@ class FacePass(context: Context) : CameraListener {
                         if (isActive && detectionResult.message.isNotEmpty()) {
                             livenessChannel?.let { it.trySend(detectionResult).isSuccess }
                             LogUtil.d(TAG, "发送活检")
+                        }else{
+                            Log.d(TAG, "feedFrame: 数据为空 $isActive ${detectionResult.message}")
                         }
                     }
                 } catch (e: Exception) {
@@ -735,11 +737,15 @@ class FacePass(context: Context) : CameraListener {
 
     /** 图片提取特征值 **/
     fun extractFeature(bitmap: Bitmap): ByteArray? {
-        if (mFacePassHandler == null) return null
+        if (mFacePassHandler == null) {
+            LogUtil.d(TAG, "extractFeature: mFacePassHandler对象为null，特征值提取失败")
+            return null
+        }
         var featureData: ByteArray? = null
         try {
             val extractFeature = mFacePassHandler?.extractFeature(bitmap)
-            featureData = extractFeature?.featureData ?: ByteArray(1)
+            if(extractFeature == null) LogUtil.d(TAG, "extractFeature: 特征值提取结果为空，提取失败")
+            featureData = extractFeature?.featureData
         } catch (e: FacePassException) {
             e.printStackTrace()
             LogUtil.d(TAG, "抽取特征值异常")
@@ -879,7 +885,7 @@ class FacePass(context: Context) : CameraListener {
     }
 
     /** 删除人脸 **/
-    private fun deleteFace(faceToken: String): Boolean {
+    fun deleteFace(faceToken: String): Boolean {
         try {
             mFacePassHandler?.deleteFace(faceToken.toByteArray())
         } catch (e: FacePassException) {
@@ -887,6 +893,14 @@ class FacePass(context: Context) : CameraListener {
             return false
         }
         return true
+    }
+
+    fun initFaceLocalGroup(groupName: String): Int? {
+        return mFacePassHandler?.initLocalGroup(groupName)
+    }
+
+    fun getVersion(): String? {
+        return mFacePassHandler?.featureVersion
     }
 
     /**

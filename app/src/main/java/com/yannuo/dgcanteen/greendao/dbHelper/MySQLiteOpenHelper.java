@@ -7,6 +7,7 @@ import com.github.yuweiguocn.library.greendao.MigrationHelper;
 import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
+import com.yannuo.dgcanteen.greendao.dao.FacePayTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.greendao.dao.MealTableDao;
@@ -55,7 +56,8 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
                 SwPayOrderTableDao.class,
                 QuotaTimeTableDao.class,
                 CategoryTableDao.class,
-                UserFaceDataDao.class
+                UserFaceDataDao.class,
+                FacePayTableDao.class
         );
     }
 }

@@ -117,6 +117,11 @@ class CameraManager {
         return this
     }
 
+    fun startFaceDetect(){
+        setLiveness(true)
+        mFacePass?.openDetect()
+    }
+
 
     fun setFaceMinThreshold(threshold: Int): CameraManager {
         mFacePass?.setFaceMinThreshold(threshold)

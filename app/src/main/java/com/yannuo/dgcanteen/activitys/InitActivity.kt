@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.provider.Settings
+import android.util.Log
 import android.view.Display
 import android.view.View
 import android_serialport_api.SerialPort
@@ -47,6 +48,7 @@ import java.io.File
  * Date: 2023/7/27 15:10
  **/
 class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
+    private val groupName = "facePass"
     // Android 11 请求文件写入权限
     private val ANDROID_11_REQUEST_CODE = 0
     private val PERMISSIONS_REQUEST = 1
@@ -107,7 +109,6 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
             }
             initMode()
         }
-
 
         // 初始化服务
         startService(Intent(this, MyService::class.java))
@@ -288,11 +289,27 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
     }
 
     private fun uploadLocalFace(){
+        val intent = Intent(this@InitActivity, FaceService::class.java)
+        startService(intent)
+    }
+
+    private fun initLocalFaceGroup(){
         lifecycleScope.launch(Dispatchers.IO){
-            val queryFaceAll = DishesDBHelper.getInstance().queryFaceAll()
-            downloadVM.uploadLocalFace(queryFaceAll.toMutableList(), FaceSDKHelper.getInstance().getCameraManager())
-            val intent = Intent(this@InitActivity, FaceService::class.java)
-            startService(intent)
+            val facePass = FaceSDKHelper.getInstance().getCameraManager()!!.getFacePass()!!
+            //删除底库
+            facePass.deleteFaceLocalGroup()
+            //新建底库
+            val createFaceGroup = facePass.createFaceGroup(groupName)
+            if(createFaceGroup){
+                //初始化本地脸库
+                val queryFaceAll = DishesDBHelper.getInstance().queryFaceAll()
+                queryFaceAll.forEach {
+                    val bindFaceToGroup = facePass.bindFaceToGroup(it.eigenvalue)
+                    if(bindFaceToGroup) Log.d("TAG", "initLocalFaceGroup: ${it.custId} 初始化绑定成功")
+                }
+                val initFaceLocalGroup = facePass.initFaceLocalGroup(groupName)
+                Log.d("TAG", "initLocalFaceGroup: 初始化底库人数：$initFaceLocalGroup")
+            }
         }
     }
 

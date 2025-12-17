@@ -145,6 +145,9 @@
             android:name=".service.MyMqttService"
             android:stopWithTask="true" />
         <service
+            android:name=".service.FaceService"
+            android:stopWithTask="true" />
+        <service
             android:name="org.eclipse.paho.android.service.MqttService"
             android:stopWithTask="true" />
         <service

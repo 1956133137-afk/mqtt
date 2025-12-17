@@ -338,7 +338,14 @@ class ModeSettingFragment : Fragment() {
             })
             DownloadVM.instance.downUserFaceDBImg("")
         }
-        binding.openLocalFace.setOnClickListener { kv.encode(Constant.OPEN_LOCAL_FACE, binding.openLocalFace.isChecked) }
+        binding.openLocalFace.setOnClickListener {
+            if (!this::confirmDialog.isInitialized) confirmDialog = ConfirmDialog(requireActivity())
+            if(binding.openLocalFace.isChecked){
+                openLocalFace(binding.openLocalFace)
+            }else{
+                kv.encode(Constant.OPEN_LOCAL_FACE, binding.openLocalFace.isChecked)
+            }
+        }
     }
 
     private fun verifyType() {
@@ -544,6 +551,26 @@ class ModeSettingFragment : Fragment() {
                         restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         startActivity(restartIntent)
                         exitProcess(0)
+                    }
+                }
+            })
+        }
+    }
+
+    private fun openLocalFace(checked: CheckBox) {
+        confirmDialog.apply {
+            show()
+            binding.tvText.text = "开启本地脸库需要重启应用"
+            setListener(object : ConfirmDialog.OnConfirmCallback {
+                override fun confirmCallback(flag: Boolean) {
+                    if (flag) {
+                        kv.encode(Constant.OPEN_LOCAL_FACE, checked.isChecked)
+                        val restartIntent = mContext.packageManager.getLaunchIntentForPackage(mContext.packageName)
+                        restartIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(restartIntent)
+                        exitProcess(0)
+                    }else{
+                        checked.isChecked = false
                     }
                 }
             })

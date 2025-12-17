@@ -1,5 +1,6 @@
 package com.yannuo.dgcanteen.activitys.fragment
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +12,7 @@ import com.yannuo.dgcanteen.adapters.OfflineOrderAdapter
 import com.yannuo.dgcanteen.databinding.FragmentOfflineOrderBinding
 import com.yannuo.dgcanteen.dialogView.AwaitingDialog
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
+import com.yannuo.dgcanteen.greendao.entity.PayOrderTable
 import com.yannuo.dgcanteen.model.*
 import com.yannuo.dgcanteen.networkstate.NetworkStateManager
 import com.yannuo.dgcanteen.util.*
@@ -75,7 +77,13 @@ class OfflineOrderFragment : BaseFragment<FragmentOfflineOrderBinding>() {
                     payForUI.payTime = TimeUtil.dateFormat(offline.signTime)
                     payForUI.payDate = TimeUtil.formatDate(offline.signTime)
                     offline.paymentDishes.forEach { payForUI.paymentDishes.add(Gson().fromJson(Gson().toJson(it), Dish::class.java)) }
+                    Log.d(TAG, "updateOffLineOrder: 离线订单：${Gson().toJson(payForUI)}")
                     val response = when (payForUI.payType) {
+                        "1" -> {
+                            val facePayTable = offline.facePayTable
+                            val encryption = DES3CBCUtil.encryption(Gson().toJson(facePayTable))
+                            payRepositoryOfPay.localScanFacePayment(EncryptedDataRequest(encryption))
+                        }
                         "2" -> {
                             val request = Gson().fromJson(Gson().toJson(payForUI), CodePayBean::class.java)
                             request.qrCode = payForUI.payContent
@@ -138,16 +146,20 @@ class OfflineOrderFragment : BaseFragment<FragmentOfflineOrderBinding>() {
     }
 
     private fun saveOrderRecord(payForUI: PayForUI, session: String) {
-        val order = DishesDBHelper.getInstance().queryPayOrder(session) ?: return
-//        order.accNo = payForUI.accNo
-//        order.accBal = payForUI.accBal
-        order.accType = payForUI.accType
-//        order.accList = payForUI.accList
-        order.orderId = payForUI.orderId
-        order.traceId = payForUI.traceId
-        order.actualPayment = payForUI.actualPayment
-        order.flag = 1
-        DishesDBHelper.getInstance().updatePayOrderById(order)
+        if(payForUI.payType == "1"){
+            val payOrder = Gson().fromJson(Gson().toJson(payForUI), PayOrderTable::class.java)
+            payOrder.tranResult = "3" //1：待支付，2：支付失败，3：支付成功
+            payOrder.flag = 1
+            DishesDBHelper.getInstance().insertPayOrder(payOrder)
+        }else{
+            val order = DishesDBHelper.getInstance().queryPayOrder(session) ?: return
+            order.accType = payForUI.accType
+            order.orderId = payForUI.orderId
+            order.traceId = payForUI.traceId
+            order.actualPayment = payForUI.actualPayment
+            order.flag = 1
+            DishesDBHelper.getInstance().updatePayOrderById(order)
+        }
     }
 
     override fun onDestroy() {

@@ -11,10 +11,8 @@ public class UserFaceData {
     private Long id;
     @Unique()
     private String custId;//智慧食堂用户唯一标识（建行平台）
-    @Unique()
     private String userId;//用户iD
     private String campusId;//园区iD
-    @Unique()
     private String eigenvalue;// 人脸特征值
     private String way;// 人脸录入方式：1、后台导入，2、h5录入，3、终端设备录入
     private String faceImgUrl; //本地脸库人脸图片路径

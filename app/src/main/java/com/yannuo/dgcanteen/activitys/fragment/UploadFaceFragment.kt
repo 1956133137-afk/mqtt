@@ -13,10 +13,7 @@ import com.google.gson.Gson
 import com.tencent.mmkv.MMKV
 import com.yannuo.dgcanteen.R
 import com.yannuo.dgcanteen.activitys.EnrollFaceActivity
-import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
 import com.yannuo.dgcanteen.activitys.SettingActivity
-import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
-import com.yannuo.dgcanteen.activitys.viewModel.FacePassVM
 import com.yannuo.dgcanteen.activitys.viewModel.FaceVM
 import com.yannuo.dgcanteen.adapters.UserPersonsAdapter
 import com.yannuo.dgcanteen.common.MyApplication
@@ -27,10 +24,8 @@ import com.yannuo.dgcanteen.facepass.FaceSDKHelper
 import com.yannuo.dgcanteen.greendao.dbHelper.DishesDBHelper
 import com.yannuo.dgcanteen.greendao.entity.Persons
 import com.yannuo.dgcanteen.greendao.entity.UserFaceData
-import com.yannuo.dgcanteen.model.FaceDataBean
 import com.yannuo.dgcanteen.model.PayCfg
 import com.yannuo.dgcanteen.model.PayForUI
-import com.yannuo.dgcanteen.util.Base64Util
 import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.TimeUtil
 import com.yannuo.dgcanteen.util.ToastShowUtil
@@ -112,13 +107,13 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
             val bitmap = bitmapDrawable.bitmap
             //抽取特征值
             val extractFeature = facePass?.extractFeature(bitmap)
-            //人脸特征值token
-            val eigenvalue = Arrays.toString(extractFeature)
-            Log.d(TAG, "initEvent: 提取特征值：$eigenvalue")
-            if(eigenvalue.isEmpty()){
+            if(extractFeature == null){
                 ToastShowUtil.show("人脸特征值提取失败")
                 return@setOnClickListener
             }
+            //人脸特征值token
+            val eigenvalue = Arrays.toString(extractFeature)
+            Log.d(TAG, "initEvent: 提取特征值：$eigenvalue")
             //注册人脸
             val token = facePass?.registerFaces(eigenvalue)
             Log.d(TAG, "initEvent: 人脸特征值ID：$token")
@@ -128,6 +123,15 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
                 //特征值绑定人脸底库
                 val bindFaceToGroup = facePass?.bindFaceToGroup(token)
                 if(bindFaceToGroup == true){
+                    //删除原先的人脸
+                    val queryFaceByCustId = DishesDBHelper.getInstance().queryFaceByCustId(persons?.custId)
+                    if(queryFaceByCustId != null){
+                        if(queryFaceByCustId.eigenvalue != null){
+                            val deleteFace = facePass?.deleteFace(queryFaceByCustId.eigenvalue)
+                            DishesDBHelper.getInstance().deleteFaceByCustId(persons?.custId)
+                            Log.d(TAG, "initEvent: 删除旧人脸：$deleteFace")
+                        }
+                    }
                     Log.d(TAG, "initEvent: 入库成功，保存本地数据")
                     val payCfg = kv.decodeParcelable(Constant.PAY_CONFIG, PayCfg::class.java)
                     val faceData = UserFaceData().apply {
@@ -136,9 +140,9 @@ class UploadFaceFragment : BaseFragment<FragmentUploadFaceBinding>(),UserPersons
                         this.campusId = payCfg?.campusId
                         this.eigenvalue = token
                         this.way = "3"
+                        this.version = FaceSDKHelper.getInstance().getCameraManager()?.getFacePass()?.getVersion() ?: ""
                         this.updateTime = TimeUtil.timeFormat("yyyy-MM-dd HH:mm:ss",System.currentTimeMillis())
                     }
-                    //C5DWQHv2LEAoviyWK0ZCuQ==
                     Log.d(TAG, "initEvent: 入库的人脸信息：${Gson().toJson(faceData)}")
                     DishesDBHelper.getInstance().insertFaceData(faceData)
                     ToastShowUtil.show("人脸绑定成功，正在上传...")

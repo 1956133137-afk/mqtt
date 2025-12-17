@@ -80,7 +80,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener, FaceVM.OnLi
         binding.btnFacePay.setOnClickListener {
             if (kv.decodeBool(Constant.OPEN_LOCAL_FACE,false)){
                 val intent = Intent(requireContext(), FacialRecognitionActivity::class.java)
-                startActivity(intent)
+                requireContext().startActivity(intent)
                 faceVM.setListener(this, payMoney)
             }else{
                 facePay()
@@ -309,13 +309,17 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener, FaceVM.OnLi
         release()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         FaceScanVM.instance.setFaceListener(null)
     }
 
     private fun release() {
-        EventBus.getDefault().unregister(this)
         binding.animationView.pauseAnimation();
         binding.animationView.cancelAnimation()
         if (this::awaitPayDialog.isInitialized) awaitPayDialog.cancel()
@@ -344,6 +348,7 @@ class ScanFragment : Fragment(), CallbackListener, KeyboardListener, FaceVM.OnLi
     }
 
     override fun facePayResult(payForUI: PayForUI) {
+        Log.d(TAG, "facePayResult: 收到支付结果：${Gson().toJson(payForUI)}")
         handler.postDelayed({
             val bean = SimpleForUI().apply {
                 custName = payForUI.username

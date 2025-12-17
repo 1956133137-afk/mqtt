@@ -9,6 +9,7 @@ import com.yannuo.dgcanteen.greendao.dao.CategoryTableDao;
 import com.yannuo.dgcanteen.greendao.dao.DaoMaster;
 import com.yannuo.dgcanteen.greendao.dao.DaoSession;
 import com.yannuo.dgcanteen.greendao.dao.DishesTableDao;
+import com.yannuo.dgcanteen.greendao.dao.FacePayTableDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceRecordDao;
 import com.yannuo.dgcanteen.greendao.dao.FaceTokensDao;
 import com.yannuo.dgcanteen.greendao.dao.MealTableDao;
@@ -25,6 +26,7 @@ import com.yannuo.dgcanteen.greendao.dao.VerifyDishesDao;
 import com.yannuo.dgcanteen.greendao.entity.AccListTable;
 import com.yannuo.dgcanteen.greendao.entity.CategoryTable;
 import com.yannuo.dgcanteen.greendao.entity.DishesTable;
+import com.yannuo.dgcanteen.greendao.entity.FacePayTable;
 import com.yannuo.dgcanteen.greendao.entity.FaceRecord;
 import com.yannuo.dgcanteen.greendao.entity.FaceTokens;
 import com.yannuo.dgcanteen.greendao.entity.MealTable;
@@ -86,6 +88,7 @@ public class DishesDBHelper {
     private QuotaTimeTableDao quotaTimeTableDao;
     private CategoryTableDao categoryTableDao;
     private UserFaceDataDao userFaceDataDao;
+    private FacePayTableDao facePayTableDao;
 
     //获取实例
     public static DishesDBHelper getInstance(Context context) {
@@ -137,6 +140,7 @@ public class DishesDBHelper {
         quotaTimeTableDao = mDaoSession.getQuotaTimeTableDao();
         categoryTableDao = mDaoSession.getCategoryTableDao();
         userFaceDataDao = mDaoSession.getUserFaceDataDao();
+        facePayTableDao = mDaoSession.getFacePayTableDao();
     }
 
     /**
@@ -887,7 +891,7 @@ public class DishesDBHelper {
         userFaceDataDao.insertOrReplaceInTx(user);
     }
 
-    public void insertFaceData(List<UserFaceData> userList){
+    public void insertFaceListData(List<UserFaceData> userList){
         userFaceDataDao.insertOrReplaceInTx(userList);
     }
 
@@ -899,8 +903,28 @@ public class DishesDBHelper {
         return userFaceDataDao.queryBuilder().where(UserFaceDataDao.Properties.Eigenvalue.eq(token)).build().unique();
     }
 
+    public UserFaceData queryFaceByCustId(String custID){
+        return userFaceDataDao.queryBuilder().where(UserFaceDataDao.Properties.CustId.eq(custID)).build().unique();
+    }
+
+    public void deleteFaceByCustId(String custId){
+        userFaceDataDao.queryBuilder().where(UserFaceDataDao.Properties.CustId.eq(custId)).buildDelete().executeDeleteWithoutDetachingEntities();
+    }
+
     public List<UserFaceData> queryFaceAll(){
         return userFaceDataDao.loadAll();
+    }
+
+    /*******************************   本地脸库离线订单   *******************************/
+
+    public void insertFacePay(FacePayTable tabel){
+        facePayTableDao.insertOrReplaceInTx(tabel);
+    }
+
+    public FacePayTable queryFacePayByOrderId(String orderId){
+        return facePayTableDao.queryBuilder()
+                .where(FacePayTableDao.Properties.OrderId.eq(orderId))
+                .build().unique();
     }
 
 }

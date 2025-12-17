@@ -1,5 +1,7 @@
 package com.yannuo.dgcanteen.activitys.viewModel
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.activitys.FacialRecognitionActivity
 import com.yannuo.dgcanteen.activitys.repositorys.PayRepositoryOfPay
 import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.common.NTScanHelp
@@ -321,28 +324,31 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         return CanteenEncryptionUtil.encryption(encryptStr.toString())
     }
 
-    fun placeAnOrder(order: OrderForUI, verifyStatus: Boolean) {
+    fun placeAnOrder(context: Context, order: OrderForUI, verifyStatus: Boolean) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderForUI = order
             orderForUI.deviceId = CommonAndDpToPxUtil.getDeviceSerial()
             listener?.onOrderResult(2, "订餐下单中")
             //下单
-//            val orderBean = getOrderMealData(orderForUI)
             val orderBean = getBatchOrder(orderForUI)
             LogUtil.d(TAG, Gson().toJson(orderBean))
-//            val orderRes = mRepository.insertOrder(orderForUI.ccbToken, orderBean)
             val orderRes = mRepository.insertBatchOrder(orderForUI.ccbToken, orderBean)
             if (orderRes.code == "200") {
-//                orderForUI.orderId = orderRes.data?.orderId ?: ""
                 orderForUI.orderId = orderRes.data?.pOderId ?: ""
                 orderForUI.verifyFlag = if (verifyStatus) "1" else "2"
                 when (orderForUI.orderType) {
                     "1" -> {
                         listener?.onOrderResult(5, "")
-                        FaceScanVM.instance.bindService()
-                        FaceScanVM.instance.setOrderDishList(orderForUI.dishList)
-                        FaceScanVM.instance.startFacePay(false, orderBean.actualTotalPayment, orderForUI.orderId, orderForUI.verifyFlag)
-                        FaceScanVM.instance.setFaceListener(faceResultListener)
+                        if(kv.decodeBool(Constant.OPEN_LOCAL_FACE)){
+                            //todo 本地脸库支付
+                            val intent = Intent(context, FacialRecognitionActivity::class.java)
+                            context.startActivity(intent)
+                        }else{
+                            FaceScanVM.instance.bindService()
+                            FaceScanVM.instance.setOrderDishList(orderForUI.dishList)
+                            FaceScanVM.instance.startFacePay(false, orderBean.actualTotalPayment, orderForUI.orderId, orderForUI.verifyFlag)
+                            FaceScanVM.instance.setFaceListener(faceResultListener)
+                        }
                     }
                     "2" -> {
                         listener?.onOrderResult(3, "")
@@ -358,7 +364,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
     }
 
-    private fun payHandler(type: String, content: String) {
+    fun payHandler(type: String, content: String) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             listener?.onOrderResult(2, "订餐支付中")
             LogUtil.d(TAG, Gson().toJson(orderForUI))
@@ -441,7 +447,7 @@ class OrderMealVM : ViewModel(), ScanDevice.DataCallBack, OnReadDataListener {
         }
     }
 
-    fun placeAnOrder(orderForUI: OrderForUI, verifyStatus: Boolean, orderResult: (type: Int) -> Unit) {
+    fun placeAnOrder(context: Context, orderForUI: OrderForUI, verifyStatus: Boolean, orderResult: (type: Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO + mHandler) {
             orderResult(1)
             //下单
