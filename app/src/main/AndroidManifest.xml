@@ -39,15 +39,6 @@
         android:theme="@style/Theme.CommodityPay"
         tools:targetApi="31">
         <activity
-            android:name=".activitys.LocalFaceRecognitionActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activitys.LocalFaceActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activitys.viewModel.TestActivity"
-            android:exported="false" />
-        <activity
             android:name=".activitys.EnrollFaceActivity"
             android:exported="false" />
         <activity
