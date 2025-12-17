@@ -58,12 +58,15 @@ class OpenApiCheckTask {
                 var onlineStatus = 1
                 if (result.code == "200") {
                     val apiBean = result.data
-                    if (apiBean?.data?.metrics != null && apiBean.data?.dbHealth != null) {
-                        if (apiBean.code == 429) {
-                            Log.d(TAG, "getOpenApiStatus: 请求频繁，请稍后")
-                            return@launch
-                        }
-                        if (apiBean.code == 200 && apiBean.data?.dbHealth?.dbStatus == "UP") onlineStatus = 0
+//                    if (apiBean?.data?.metrics != null && apiBean.data?.dbHealth != null) {
+//                        if (apiBean.code == 429) {
+//                            Log.d(TAG, "getOpenApiStatus: 请求频繁，请稍后")
+//                            return@launch
+//                        }
+//                        if (apiBean.code == 200 && apiBean.data?.dbHealth?.dbStatus == "UP") onlineStatus = 0
+//                    }
+                    if (apiBean?.metrics != null && apiBean.dbHealth != null) {
+                        if (apiBean.metrics?.httpCode == "200" && apiBean.dbHealth?.dbStatus == "UP") onlineStatus = 0
                     }
                 }
                 if (onlineStatus != kv.decodeInt(Constant.APP_ONLINE_STATUS, 0)) {
