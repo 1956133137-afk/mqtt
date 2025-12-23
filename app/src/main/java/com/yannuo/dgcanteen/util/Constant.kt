@@ -59,6 +59,8 @@ object Constant {
     const val SHOW_TIME = "show_time"
 
     const val TIMING_TASKS = "timingTasks"      //定时任务
+    const val TERMINAL_PASSWORD_TYPE = "TerminalPasswordType"   //密码类型 Boolean（默认false）
+    const val TERMINAL_PASSWORD = "TerminalPassword"    //终端密码
 
     //菜品更新更新标志
     const val UPDATE_TIME = "update_time"

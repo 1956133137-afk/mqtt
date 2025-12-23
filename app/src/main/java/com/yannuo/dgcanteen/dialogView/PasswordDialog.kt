@@ -5,8 +5,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
 import android.view.WindowManager
+import com.tencent.mmkv.MMKV
+import com.yannuo.dgcanteen.common.MyApplication
 import com.yannuo.dgcanteen.databinding.DialogPasswordBinding
 import com.yannuo.dgcanteen.interfaces.CloseEvent
+import com.yannuo.dgcanteen.util.Constant
 import com.yannuo.dgcanteen.util.ToastShowUtil
 
 /**
@@ -15,6 +18,7 @@ import com.yannuo.dgcanteen.util.ToastShowUtil
  * Date: 2023/7/4 14:00
  **/
 class PasswordDialog(context: Context) : BaseDialog<DialogPasswordBinding>(context) {
+    private val mmkv = MMKV.defaultMMKV()
     private lateinit var listener: CloseEvent
 
     fun setListener(listener: CloseEvent) {
@@ -38,7 +42,11 @@ class PasswordDialog(context: Context) : BaseDialog<DialogPasswordBinding>(conte
         override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
         override fun afterTextChanged(editable: Editable) {
             if (editable.length == mMaxLength) { //在布局中也要设置长度
-                if (editable.toString() == getCurrentTime()) {
+                val terminalPassword = when {
+                    mmkv.decodeBool(Constant.TERMINAL_PASSWORD_TYPE, false) -> mmkv.decodeString(Constant.TERMINAL_PASSWORD, "0000")
+                    else -> getCurrentTime()
+                }
+                if (editable.toString() == terminalPassword) {
                     binding.inputPassword.text = null
                     if (this@PasswordDialog::listener.isInitialized)
                         listener.onEvent(1, null)

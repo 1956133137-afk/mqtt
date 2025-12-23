@@ -94,6 +94,11 @@
                     style="@style/radiobutton"
                     android:text="人脸录入" />
 
+                <RadioButton
+                    android:id="@+id/terminal_password"
+                    style="@style/radiobutton"
+                    android:text="终端密码" />
+
             </RadioGroup>
 
         </LinearLayout>

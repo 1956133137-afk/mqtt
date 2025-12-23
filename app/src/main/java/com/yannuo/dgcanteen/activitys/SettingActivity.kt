@@ -25,6 +25,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
     private lateinit var verifyOrderFragment: VerifyOrderFragment
     private lateinit var deviceFragment: DeviceInfoFragment
     private lateinit var uploadFaceFragment: UploadFaceFragment
+    private lateinit var terminalPasswordFragment: TerminalPasswordFragment
     private lateinit var fragments: Array<Fragment>
 
     private var displayManager: DisplayManager? = null
@@ -51,7 +52,19 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
         verifyOrderFragment = VerifyOrderFragment()
         deviceFragment = DeviceInfoFragment()
         uploadFaceFragment = UploadFaceFragment()
-        fragments = arrayOf(basicFragment, modeFragment, faceFragment, payOrderFragment, mealTimePayOrderFragment, olOrderFragment, verifyOrderFragment, deviceFragment, uploadFaceFragment)
+        terminalPasswordFragment = TerminalPasswordFragment()
+        fragments = arrayOf(
+            basicFragment,
+            modeFragment,
+            faceFragment,
+            payOrderFragment,
+            mealTimePayOrderFragment,
+            olOrderFragment,
+            verifyOrderFragment,
+            deviceFragment,
+            uploadFaceFragment,
+            terminalPasswordFragment
+        )
         binding.radioGroup.check(R.id.basic)
     }
 
@@ -62,6 +75,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 0 -> basicFragment.save()
                 1 -> modeFragment.save()
                 2 -> faceFragment.save()
+                9 -> terminalPasswordFragment.changeTerminalPassword()
                 else -> return@setOnClickListener
             }
         }
@@ -89,6 +103,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                     6 -> binding.radioGroup.check(R.id.verify_order)
                     7 -> binding.radioGroup.check(R.id.device)
                     8 -> binding.radioGroup.check(R.id.upload_face)
+                    9 -> binding.radioGroup.check(R.id.terminal_password)
                 }
             }
 
@@ -107,6 +122,7 @@ class SettingActivity : BaseActivity<ActivitySettingBinding>() {
                 R.id.verify_order -> binding.viewPager.currentItem = 6
                 R.id.device -> binding.viewPager.currentItem = 7
                 R.id.upload_face -> binding.viewPager.currentItem = 8
+                R.id.terminal_password -> binding.viewPager.currentItem = 9
             }
         }
     }
