@@ -1,37 +1,87 @@
-### 3 分钟了解如何进入开发
+# 彦诺智慧食堂 & 多场景收银系统 (Android)
 
-欢迎使用 Codeup，通过阅读以下内容，你可以快速熟悉 Codeup ，并立即开始今天的工作。
+本项目是一个功能强大的、专为双面屏安卓硬件设计的智慧食堂及多场景收银解决方案。系统深度集成了人脸识别、NFC/IC卡读写、网络通信以及多屏异显等技术，旨在提供高效、现代化的点餐、收银、核销与管理体验。
 
-### 提交**文件**
+## 核心功能模式
 
-首先，你需要了解在 Codeup 中如何提交代码文件，跟着文档「[__提交第一行代码__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f6786b81620014ef7574)」一起操作试试看吧。
+系统通过一个启动初始化页面 (`InitActivity`)，允许操作员根据不同的业务场景选择进入相应的核心功能模式。
 
-### 开启扫描
+1.  **智慧食堂模式 (`CommodityActivity`, `OrderMenuActivity`)**:
+    *   **商品展示**: 在主屏以网格形式展示菜品/商品，支持分类切换。
+    *   **点餐下单**: 支持触屏点餐，实时更新购物车及总金额。
+    *   **双屏互动**: 副屏实时同步显示顾客的点餐列表和总价。
+    *   **聚合支付**: 支持刷脸支付、刷IC卡支付和扫码支付（通过扫码枪）。
 
-开发过程中，为了更好的管理你的代码资产，Codeup 内置了「[__代码规约扫描__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f68b6b81620014ef7588)」和「[__敏感信息检测__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f6886b81620014ef7587)」服务，你可以在代码库设置-集成与服务中一键开启，开启后提交或合并请求的变更将自动触发扫描，并及时提供结果反馈。
+2.  **快捷收银模式 (`CalculateActivity`, `CalculateTwoActivity`)**:
+    *   **快速收款**: 主屏提供数字键盘，用于快速输入消费金额。
+    *   **多方式支付**: 同样支持刷脸、刷卡、扫码等多种支付方式，满足不同顾客的需求。
+    *   **副屏展示**: 副屏向顾客清晰展示待付金额、支付状态（成功/失败）及结果。
 
-![](https://img.alicdn.com/tfs/TB1nRDatoz1gK0jSZLeXXb9kVXa-1122-380.png "")
+3.  **餐次消费模式 (`OrderMealActivity`)**:
+    *   **按餐次计费**: 适用于固定金额的自助餐场景（如早餐8元，午餐15元）。
+    *   **自动识别餐次**: 系统根据当前时间自动判断并应用对应餐次的消费金额。
+    *   **核销验证**: 主要通过刷脸或刷卡完成快速验证与扣费。
 
-![](https://img.alicdn.com/tfs/TB1PrPatXY7gK0jSZKzXXaikpXa-1122-709.png "")
+4.  **订单核销模式 (`OrderVerifyActivity`, `CheckVerifyActivity`)**:
+    *   **线上订单线下核销**: 用于处理预定餐等场景，可通过输入订单号、手机号或刷脸/卡查询订单。
+    - **支持部分核销**: 能够对一个订单中的部分菜品进行核销，满足灵活取餐的需求。
+    *   **状态同步**: 核销成功后，实时更新订单状态。
 
-### 代码评审
+5.  **洗衣房模式 (`LaundryActivity` & `Fragments`)**:
+    *   **一体化操作**: 在同一界面集成了“洗衣下单”和“取衣核销”两大功能，无需切换模式。
+    *   **用户验证**: 通过刷卡或扫码识别用户身份并登录。
+    *   **洗衣服务选择**: 提供清晰的服务列表（如清洗、烘干）供用户选择并下单。
+    *   **订单查询与核销**: 支持通过订单号或用户信息查询待取衣物订单，并进行核销操作。
 
-功能开发完毕后，通常你需要发起「[__代码合并和评审__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f6876b81620014ef7585)」，Codeup 支持多人协作的代码评审服务，你可以通过「[__保护分支__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f68e6b81620014ef758c)」策略及「[__合并请求设置__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f68f6b81620014ef758d)」对合并过程进行流程化管控，同时提供 WebIDE 在线代码评审及冲突解决能力，让你的评审过程更加流畅。
+6.  **备餐/叫号模式 (`MealPreparationActivity`)**:
+    *   **后厨专用**: 用于后厨实时查看已下单的订单列表。
+    *   **状态管理**: 支持将订单标记为“备餐中”或“已完成”。
+    *   **叫号通知**: 订单完成后，可触发叫号，通过MQTT实时通知前台或叫号屏。
 
-![](https://img.alicdn.com/tfs/TB1XHrctkP2gK0jSZPxXXacQpXa-1432-887.png "")
+## 技术架构与亮点
 
-![](https://img.alicdn.com/tfs/TB1V3fctoY1gK0jSZFMXXaWcVXa-1432-600.png "")
+本项目采用了业界主流的 **MVVM (Model-View-ViewModel)** 架构模式，并结合了众多现代化的安卓开发技术。
 
-### 编写文档
+*   **核心框架**:
+    *   **Kotlin First**: 项目主要使用 Kotlin 语言开发，充分利用其协程、扩展函数等现代特性。
+    *   **Android Jetpack**:
+        *   **ViewModel**: 作为业务逻辑处理中心，实现数据与UI的分离，并具备生命周期感知能力。
+        *   **LiveData**: 作为数据通信桥梁，实现响应式编程，当数据变化时自动通知UI更新。
+        *   **Navigation**: 用于管理洗衣房模式中各Fragment之间的跳转和参数传递。
+        *   **ViewBinding**: 替代 `findViewById`，提供类型安全的视图访问。
 
-项目推进过程中，你的经验和感悟可以直接记录到 Codeup 代码库的「[__文档__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5e13107eedac6e001bd84889)」内，让智慧可视化。
+*   **异步处理**:
+    *   **Kotlin Coroutines (协程)**: 大量用于处理网络请求、数据库操作等耗时任务，使异步代码如同步般简洁易读。
 
-![](https://img.alicdn.com/tfs/TB1BN2ateT2gK0jSZFvXXXnFXXa-1432-700.png "")
+*   **网络通信**:
+    *   **Retrofit**: 用于处理HTTP网络请求，与服务器API进行高效交互。
+    *   **OkHttp**: 作为Retrofit的底层HTTP客户端，通过拦截器 (`Interceptor`) 实现统一的请求头注入（如 `dcccbauthorization` Token）。
+    *   **MQTT (Paho-MQTT)**: 用于实现需要高实时性的功能，如订单状态同步、消息推送和叫号。
 
-### 成员协作
+*   **数据持久化**:
+    *   **GreenDAO**: 一个性能卓越的对象关系映射（ORM）库，用于在本地SQLite数据库中存储菜品信息、订单数据等。
+    *   **MMKV (by Tencent)**: 一个基于mmap的高性能键值对存储库，用于保存应用配置、用户偏好（如当前选择的模式）等。
 
-是时候邀请成员一起编写卓越的代码工程了，请点击右上角「成员」邀请你的小伙伴开始协作吧！
+*   **硬件与服务交互**:
+    *   **多屏异显**: 通过 `Presentation` 类实现在副屏上展示定制化UI，增强顾客体验。
+    *   **人脸识别**: 对接了设备内置的人脸识别SDK/服务 (`FaceScanVM`)。
+    *   **串口通信**: 通过 `android-serialport-api` 库与IC卡读卡器等串口设备进行底层数据交互。
+    *   **后台服务 (Service)**: 使用 `CameraService`、`MyMqttService` 等在后台持续执行任务，确保核心功能在应用退至后台时依然可用。
 
-### 更多
+*   **UI与图像**:
+    *   **RecyclerView**: 用于高效展示所有列表数据，如菜品、订单、服务项目等。
+    *   **Glide**: 强大的图片加载库，用于从网络加载并缓存菜品/商品图片。
+    *   **ConstraintLayout**: 用于构建灵活、扁平、高性能的复杂布局。
 
-Git 使用教学、高级功能指引等更多说明，参见[__Codeup帮助文档__](https://thoughts.teambition.com/sharespace/5d88b152037db60015203fd3/docs/5dc4f6756b81620014ef7571)。
+## 如何运行项目
+
+1.  使用 Android Studio 打开项目。
+2.  等待 Gradle 同步并构建完成所有依赖。
+3.  确保您连接的硬件设备具备以下条件：
+    *   安卓操作系统。
+    *   **双面屏** (主副屏)。
+    *   内置或外接了项目所需的人脸识别摄像头和NFC/IC卡读卡器。
+4.  点击 "Run 'app'" 将应用安装并运行到设备上。
+5.  应用启动后将进入 `InitActivity`，您可以选择一个业务模式开始测试。
+
+> **注意**: 本项目与硬件和特定的后端服务紧密耦合。若要在普通安卓设备上运行，部分硬件相关功能（刷脸、刷卡、副屏显示）将无法正常工作。网络请求需要连接到正确的测试或生产服务器 (`https://test.yannuozhineng.com/...`)。
