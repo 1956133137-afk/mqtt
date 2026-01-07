@@ -42,11 +42,6 @@ import mcv.facepass.FacePassHandler
 import java.io.File
 
 
-/**
- * Author: filowl
- * Description: ***
- * Date: 2023/7/27 15:10
- **/
 class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
     private val groupName = "facePass"
     // Android 11 请求文件写入权限
@@ -213,7 +208,8 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
                 Constant.ORDERING_VERIFY_MODE,
                 Constant.ORDERING_TWO_MODE,
                 Constant.PROCEEDS_TWO_MODE,
-                Constant.MEAL_PREPARATION_MODE
+                Constant.MEAL_PREPARATION_MODE,
+                Constant.LAUNDRY_SERVICE_MODE
             )
         )
         initModeAdapter.setItemListener(object : InitModeAdapter.OnItemClickListener {
@@ -238,6 +234,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
             mode = kv.decodeString(Constant.APP_MODE)
 
             when (mode) {
+                Constant.LAUNDRY_SERVICE_MODE,
                 Constant.ORDERING_FOOD_MODE, Constant.ORDERING_TWO_MODE, Constant.PROCEEDS_MODE, Constant.PROCEEDS_TWO_MODE, Constant.ORDERING_MEAL_MODE, Constant.ORDERING_VERIFY_MODE, Constant.MEAL_PREPARATION_MODE, Constant.NO_PIC_MODE -> {
                     // 启动服务
                     withContext(Dispatchers.Main) { loading?.show("启动相关服务") }
@@ -258,6 +255,7 @@ class InitActivity : BaseActivity<ActivityIntiBinding>(), FaceInitListener {
                                 Constant.PROCEEDS_TWO_MODE -> Intent(this@InitActivity, CalculateTwoActivity::class.java)
                                 Constant.ORDERING_MEAL_MODE -> Intent(this@InitActivity, OrderMealActivity::class.java)
                                 Constant.MEAL_PREPARATION_MODE -> Intent(this@InitActivity, MealPreparationActivity::class.java)
+                                Constant.LAUNDRY_SERVICE_MODE -> Intent(this@InitActivity, LaundryActivity::class.java)
                                 else -> Intent(this@InitActivity, OrderVerifyActivity::class.java)
                             }
                         }

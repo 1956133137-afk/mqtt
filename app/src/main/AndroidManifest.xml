@@ -39,6 +39,12 @@
         android:theme="@style/Theme.CommodityPay"
         tools:targetApi="31">
         <activity
+            android:name=".activitys.LaundryRecordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activitys.LaundryActivity"
+            android:exported="false" />
+        <activity
             android:name=".activitys.EnrollFaceActivity"
             android:exported="false" />
         <activity
@@ -124,7 +130,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
             </intent-filter>
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />

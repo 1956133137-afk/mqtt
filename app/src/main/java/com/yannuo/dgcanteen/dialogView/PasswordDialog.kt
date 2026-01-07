@@ -43,7 +43,7 @@ class PasswordDialog(context: Context) : BaseDialog<DialogPasswordBinding>(conte
         override fun afterTextChanged(editable: Editable) {
             if (editable.length == mMaxLength) { //在布局中也要设置长度
                 val terminalPassword = when {
-                    mmkv.decodeBool(Constant.TERMINAL_PASSWORD_TYPE, false) -> mmkv.decodeString(Constant.TERMINAL_PASSWORD, "0000")
+                    mmkv.decodeBool(Constant.TERMINAL_PASSWORD_TYPE, true) -> mmkv.decodeString(Constant.TERMINAL_PASSWORD, "0000")
                     else -> getCurrentTime()
                 }
                 if (editable.toString() == terminalPassword) {

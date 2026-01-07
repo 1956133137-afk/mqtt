@@ -83,6 +83,7 @@ object Constant {
     const val PROCEEDS_TWO_MODE = "收款模式2"
     const val ORDERING_VERIFY_MODE = "订餐核销"
     const val MEAL_PREPARATION_MODE = "备餐模式"
+    const val LAUNDRY_SERVICE_MODE = "洗衣房模式"
 
     const val LOCAL_FACE_UPLOAD_DATE = "local_face_upload_date" //本地脸库更新时间
 

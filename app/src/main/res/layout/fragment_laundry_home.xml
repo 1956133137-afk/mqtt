@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA"
+    android:orientation="horizontal"
+    tools:context=".activitys.fragment.laundry.LaundryHomeFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:id="@+id/top_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_account_circle" />
+
+                    <TextView
+                        android:id="@+id/laundry_details"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:textColor="#333333"
+                        android:textSize="16sp"
+                        tools:text="张三 (12345)" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="#E0E0E0" />
+
+                <RadioGroup
+                    android:id="@+id/sidebar_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/btn_place_order"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/laundry_sidebar_button_selector"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="洗衣下单"
+                        android:textColor="@color/laundry_sidebar_text_selector"
+                        android:textSize="20sp" />
+
+                    <RadioButton
+                        android:id="@+id/btn_pickup_clothes"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:background="@drawable/laundry_sidebar_button_selector"
+                        android:button="@null"
+                        android:gravity="center"
+                        android:text="取衣物"
+                        android:textColor="@color/laundry_sidebar_text_selector"
+                        android:textSize="20sp" />
+
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_logout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:backgroundTint="#D32F2F"
+                android:text="退出登录"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/laundry_content_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

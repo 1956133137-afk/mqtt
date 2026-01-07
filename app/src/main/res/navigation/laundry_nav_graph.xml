@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/laundry_nav_graph"
+    app:startDestination="@id/verifyLaundryUserFragment">
+
+    <fragment
+        android:id="@+id/verifyLaundryUserFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.laundry.VerifyLaundryUserFragment"
+        android:label="fragment_laundry_login"
+        tools:layout="@layout/fragment_laundry_login">
+        <action
+            android:id="@+id/laundry_to_home"
+            app:destination="@id/laundryHomeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/laundryHomeFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.laundry.LaundryHomeFragment"
+        android:label="fragment_laundry_home"
+        tools:layout="@layout/fragment_laundry_home">
+        <argument
+            android:name="custName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="custId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_laundryHomeFragment_to_verifyLaundryUserFragment"
+            app:destination="@id/verifyLaundryUserFragment"
+            app:popUpTo="@id/verifyLaundryUserFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/placeLaundryOrderFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.laundry.PlaceLaundryOrderFragment"
+        android:label="fragment_place_laundry_order"
+        tools:layout="@layout/fragment_place_laundry_order" />
+
+    <fragment
+        android:id="@+id/pickupClothesFragment"
+        android:name="com.yannuo.dgcanteen.activitys.fragment.laundry.PickupClothesFragment"
+        android:label="fragment_pickup_clothes"
+        tools:layout="@layout/fragment_pickup_clothes" />
+
+</navigation>

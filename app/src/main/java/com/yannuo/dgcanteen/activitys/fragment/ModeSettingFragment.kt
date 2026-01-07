@@ -367,7 +367,8 @@ class ModeSettingFragment : Fragment() {
             Constant.PROCEEDS_TWO_MODE,
             Constant.ORDERING_MEAL_MODE,
             Constant.ORDERING_VERIFY_MODE,
-            Constant.MEAL_PREPARATION_MODE
+            Constant.MEAL_PREPARATION_MODE,
+            Constant.LAUNDRY_SERVICE_MODE
         )
         val position = byteArrayOf(0)
         val oldPosition = when (kv.decodeString(Constant.APP_MODE)) {
@@ -378,7 +379,8 @@ class ModeSettingFragment : Fragment() {
             array[4] -> 4
             array[5] -> 5
             array[6] -> 6
-            else -> 7
+            array[7] -> 7
+            else -> 8
         }
         val builder = AlertDialog.Builder(requireContext())
         builder.setCancelable(false)

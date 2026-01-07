@@ -14,6 +14,25 @@ import retrofit2.http.*
 interface ApiService {
 
     /**
+     * 洗衣下单
+     */
+    @Headers("content-type: application/json")
+    @POST("dcCcb/dcOrderRecord/insert")
+    suspend fun placeLaundryOrder(@Header("dcccbauthorization") token: String, @Body bean: LaundryOrderRequest): CanteenResponse<JsonObject>
+
+    /**
+     * 获取洗衣项目列表
+     */
+    @Headers("content-type: application/json")
+    @POST("dishes/list")
+    suspend fun getLaundryList(@Header("dcccbauthorization") token: String, @Body bean: LaundryListRequest): CanteenResponse<JsonObject>
+
+//      查询订餐列表
+//    @Headers("content-type: application/json")
+//    @POST("dcCcb/dcOrderRecord/list")
+//    suspend fun getOrderList(@Header("dcccbauthorization") token: String, @Body bean: OrderListBean): CanteenResponse<JsonObject>
+
+    /**
      * 健康状态查询接口
      */
     @Headers("Content-Type: text/plain; charset=utf-8")
